@@ -517,7 +517,7 @@ function WebhookCard({
           </p>
         )}
         <div className="space-y-1.5">
-          <Label>URL del webhook (callback URL)</Label>
+          <Label>URL do webhook (callback URL)</Label>
           <div className="flex items-center gap-2">
             <code className="min-w-0 flex-1 truncate rounded-md border bg-background px-3 py-2 text-xs">
               {webhook.url}
