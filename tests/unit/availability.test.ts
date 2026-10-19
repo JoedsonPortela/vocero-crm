@@ -198,8 +198,8 @@ describe("spreadByDay", () => {
       perDay: 1,
       now,
     });
-    expect(spread[0]!.dayLabel).toMatch(/^hoy /);
-    expect(spread[1]!.dayLabel).toMatch(/^mañana /);
+    expect(spread[0]!.dayLabel).toMatch(/^hoje /);
+    expect(spread[1]!.dayLabel).toMatch(/^amanhã /);
     expect(spread[0]!.time).toBe("09:00");
   });
 

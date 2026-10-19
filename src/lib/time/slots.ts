@@ -217,7 +217,7 @@ export function overlaps(
 export function labelInTz(startUtc: string, tz: string): string {
   const d = new Date(startUtc);
   if (Number.isNaN(d.getTime())) return "";
-  const parts = new Intl.DateTimeFormat("es-MX", {
+  const parts = new Intl.DateTimeFormat("pt-BR", {
     timeZone: tz,
     weekday: "short",
     day: "numeric",
@@ -237,7 +237,7 @@ export function labelInTz(startUtc: string, tz: string): string {
 export function timeInTz(startUtc: string, tz: string): string {
   const d = new Date(startUtc);
   if (Number.isNaN(d.getTime())) return "";
-  return new Intl.DateTimeFormat("es-MX", {
+  return new Intl.DateTimeFormat("pt-BR", {
     timeZone: tz,
     hour: "2-digit",
     minute: "2-digit",
@@ -260,10 +260,10 @@ export function dayLabelInTz(startUtc: string, tz: string, now?: Date): string {
   const todayIso = dayIsoInTz(now ?? new Date(), tz);
 
   let prefijo = "";
-  if (dayIso === todayIso) prefijo = "hoy ";
-  else if (dayIso === addDaysISO(todayIso, 1)) prefijo = "mañana ";
+  if (dayIso === todayIso) prefijo = "hoje ";
+  else if (dayIso === addDaysISO(todayIso, 1)) prefijo = "amanhã ";
 
-  const cuerpo = new Intl.DateTimeFormat("es-MX", {
+  const cuerpo = new Intl.DateTimeFormat("pt-BR", {
     timeZone: tz,
     weekday: "long",
     day: "numeric",
@@ -287,7 +287,7 @@ function partsFormats(tz: string) {
   let f = PARTS_FORMATS.get(tz);
   if (!f) {
     const mk = (opts: Intl.DateTimeFormatOptions) =>
-      new Intl.DateTimeFormat("es-MX", { timeZone: tz, ...opts });
+      new Intl.DateTimeFormat("pt-BR", { timeZone: tz, ...opts });
     f = {
       date: mk({ day: "numeric", month: "short", year: "numeric" }),
       time: mk({ hour: "2-digit", minute: "2-digit", hour12: false }),

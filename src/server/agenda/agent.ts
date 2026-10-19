@@ -65,7 +65,7 @@ export async function offerSlots(input: {
   );
 
   const shown = spread.slice(0, SHOWN);
-  const lista = shown.map((s) => `• ${s.dayLabel} a las ${s.time}`).join("\n");
+  const lista = shown.map((s) => `• ${s.dayLabel} às ${s.time}`).join("\n");
   const intro = input.intro?.trim() || "Tengo estos horarios disponibles:";
   return { ok: true, text: `${intro}\n${lista}` };
 }

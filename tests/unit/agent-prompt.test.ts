@@ -27,24 +27,24 @@ describe.each([false, true])("prompt del agente (agenda %s)", (agenda) => {
     p.split("\n").find((l) => l.startsWith(`- {"action":"${accion}"`)) ?? "";
 
   it("callar solo cuando el cliente cierra", () => {
-    expect(linea("none")).toMatch(/SOLO cuando el último mensaje del cliente cierra/);
+    expect(linea("none")).toMatch(/SOMENTE quando a última mensagem do cliente encerra/);
     expect(linea("none")).not.toBe('- {"action":"none"} — no responder nada.');
   });
 
   it("un saludo, un mensaje raro o una prueba se contestan", () => {
-    expect(p).toMatch(/Todo mensaje del cliente que no sea un cierre recibe respuesta/);
-    expect(p).toMatch(/Nunca supongas que es una prueba/);
+    expect(p).toMatch(/Toda mensagem do cliente que não seja um encerramento recebe resposta/);
+    expect(p).toMatch(/Nunca presuma que é um teste/);
   });
 
   it("la nota y el cambio de etapa no sustituyen la respuesta", () => {
-    expect(linea("update_lead")).toMatch(/si el cliente espera respuesta, incluye reply/);
-    expect(linea("move_stage")).toMatch(/si el cliente espera respuesta, incluye reply/);
+    expect(linea("update_lead")).toMatch(/se o cliente espera resposta, inclua reply/);
+    expect(linea("move_stage")).toMatch(/se o cliente espera resposta, inclua reply/);
   });
 });
 
 describe("recordatorio de formato al final del turno", () => {
   it("pide el JSON de una acción", () => {
-    expect(TURN_FORMAT_REMINDER).toMatch(/UN objeto JSON de acción/);
+    expect(TURN_FORMAT_REMINDER).toMatch(/UM objeto JSON de ação/);
   });
 
   it("el ai-mock sigue contestando con él al final", () => {

@@ -89,8 +89,8 @@ describe("serializeBotProfile", () => {
     expect(out.profile.greeting).toBeNull();
   });
 
-  it("KB vacío → render canónico '(knowledge base vacío)'", () => {
-    expect(serializeBotProfile(profileRow(), []).kb).toBe("(knowledge base vacío)");
+  it("KB vacío → render canónico '(base de conhecimento vazia)'", () => {
+    expect(serializeBotProfile(profileRow(), []).kb).toBe("(base de conhecimento vazia)");
   });
 
   it("enabled NO viaja: gobierna solo la IA in-process", () => {

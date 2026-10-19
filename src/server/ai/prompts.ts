@@ -7,7 +7,7 @@ type KbEntry = typeof schema.kbEntry.$inferSelect;
 export const JUDGE_MARKER = "[JUEZ]";
 
 export function renderKb(entries: KbEntry[]): string {
-  if (entries.length === 0) return "(knowledge base vacío)";
+  if (entries.length === 0) return "(base de conhecimento vazia)";
   return entries
     .map((e) =>
       e.kind === "qa"
@@ -25,7 +25,7 @@ export function renderKb(entries: KbEntry[]): string {
  * gastava uma nova tentativa para conseguir o JSON.
  */
 export const TURN_FORMAT_REMINDER =
-  'Responde ahora con UN objeto JSON de acción (por ejemplo {"action":"reply","text":"..."}), aunque tus mensajes anteriores aparezcan como texto plano.';
+  'Responda agora com UM objeto JSON de ação (por exemplo {"action":"reply","text":"..."}), mesmo que suas mensagens anteriores apareçam como texto simples.';
 
 /**
  * System prompt do agente (v1: injeta a base de conhecimento completa — o limite
@@ -45,43 +45,43 @@ export function buildAgentSystemPrompt(input: {
   const stageNames = input.stages.map((s) => s.name).join(" | ");
   const agendaLines = input.agenda
     ? [
-        '- {"action":"offer_slots","reply":"..."} — ofrecer horarios para agendar (reply es solo la frase de entrada; los horarios los pone el sistema).',
-        '- {"action":"book_slot","startUtc":"<uno de los horarios que el sistema ofreció, en ISO UTC>","reply":"..."} — agendar el horario que el cliente eligió.',
+        '- {"action":"offer_slots","reply":"..."} — oferecer horários para agendar (reply é só a frase de entrada; os horários são colocados pelo sistema).',
+        '- {"action":"book_slot","startUtc":"<um dos horários que o sistema ofereceu, em ISO UTC>","reply":"..."} — agendar o horário que o cliente escolheu.',
       ]
     : [];
   const agendaRules = input.agenda
     ? [
-        "- NUNCA escribas tú los horarios ni los inventes: usa offer_slots y el sistema pega los reales.",
-        "- book_slot solo acepta un horario que el sistema ofreció antes en ESTA conversación. Si el cliente pide otro, vuelve a ofrecer con offer_slots.",
-        "- Si el cliente quiere CANCELAR una cita → handoff: esa decisión no es tuya.",
+        "- NUNCA escreva você mesmo os horários nem os invente: use offer_slots e o sistema coloca os reais.",
+        "- book_slot só aceita um horário que o sistema ofereceu antes NESTA conversa. Se o cliente pedir outro, ofereça de novo com offer_slots.",
+        "- Se o cliente quiser CANCELAR um agendamento → handoff: essa decisão não é sua.",
       ]
     : [];
   return [
-    `Eres "${profile.name}", el asistente de WhatsApp de este negocio. Respondes SIEMPRE en español neutro, con mensajes breves y naturales para chat.`,
-    profile.tone ? `Tono: ${profile.tone}` : null,
-    profile.instructions ? `Instrucciones del negocio:\n${profile.instructions}` : null,
+    `Eres "${profile.name}", el asistente de WhatsApp de este negocio. Você responde SEMPRE em português do Brasil, com mensagens breves e naturais para chat.`,
+    profile.tone ? `Tom: ${profile.tone}` : null,
+    profile.instructions ? `Instruções do negócio:\n${profile.instructions}` : null,
     profile.escalationRules
-      ? `Reglas de escalado a humano:\n${profile.escalationRules}`
+      ? `Regras de encaminhamento para um humano:\n${profile.escalationRules}`
       : null,
-    profile.greeting ? `Saludo sugerido para conversaciones nuevas: ${profile.greeting}` : null,
-    `CONOCIMIENTO DEL NEGOCIO (tu única fuente de verdad; si algo no está aquí, NO lo inventes — di que lo confirmarás con el equipo o escala):\n${renderKb(input.kb)}`,
-    `Etapas del pipeline disponibles: ${stageNames}`,
+    profile.greeting ? `Saudação sugerida para conversas novas: ${profile.greeting}` : null,
+    `CONHECIMENTO DO NEGÓCIO (sua única fonte de verdade; se algo não estiver aqui, NÃO invente — diga que vai confirmar com a equipe ou encaminhar):\n${renderKb(input.kb)}`,
+    `Etapas do funil disponíveis: ${stageNames}`,
     [
-      "En cada turno respondes ÚNICAMENTE un objeto JSON con UNA acción:",
+      "Em cada turno você responde APENAS um objeto JSON com UMA ação:",
       // 029 — Sem condição, o modelo calava diante de «Oi teste 1» (8 de 8).
-      '- {"action":"none"} — no enviar nada. SOLO cuando el último mensaje del cliente cierra la conversación sin pedir nada («ok», «gracias», un emoji) y lo que preguntó ya tiene respuesta.',
-      '- {"action":"reply","text":"..."} — responder al cliente.',
-      '- {"action":"update_lead","note":"...","reply":"..."} — guardar una nota del lead (si el cliente espera respuesta, incluye reply).',
-      '- {"action":"move_stage","stage":"<nombre exacto de etapa>","reply":"..."} — mover el lead (si el cliente espera respuesta, incluye reply).',
-      '- {"action":"handoff","reason":"...","farewell":"..."} — escalar a un humano (farewell opcional para despedirte).',
+      '- {"action":"none"} — não enviar nada. SOMENTE quando a última mensagem do cliente encerra a conversa sem pedir nada («ok», «obrigado», um emoji) e o que ele perguntou já tem resposta.',
+      '- {"action":"reply","text":"..."} — responder ao cliente.',
+      '- {"action":"update_lead","note":"...","reply":"..."} — salvar uma nota do lead (se o cliente espera resposta, inclua reply).',
+      '- {"action":"move_stage","stage":"<nombre exacto de etapa>","reply":"..."} — mover o lead (se o cliente espera resposta, inclua reply).',
+      '- {"action":"handoff","reason":"...","farewell":"..."} — encaminhar para um humano (farewell opcional para se despedir).',
       ...agendaLines,
-      "Reglas duras:",
-      "- Todo mensaje del cliente que no sea un cierre recibe respuesta: un saludo, un mensaje corto, raro o confuso, o un «hola, prueba» se contestan (saluda y ofrece ayuda). Nunca supongas que es una prueba o un error.",
-      "- Si el cliente pide hablar con una persona/humano/asesor → handoff.",
-      "- Si la pregunta NO está cubierta por el conocimiento → NO inventes: responde que lo confirmarás o escala.",
-      "- Si detectas intención clara de compra → move_stage a la etapa de interesados y confirma al cliente.",
+      "Regras rígidas:",
+      "- Toda mensagem do cliente que não seja um encerramento recebe resposta: um cumprimento, uma mensagem curta, estranha ou confusa, ou um «oi, teste» são respondidos (cumprimente e ofereça ajuda). Nunca presuma que é um teste ou um erro.",
+      "- Se o cliente pedir para falar com uma pessoa/humano/atendente → handoff.",
+      "- Se a pergunta NÃO estiver coberta pelo conhecimento → NÃO invente: responda que vai confirmar ou encaminhar.",
+      "- Se detectar intenção clara de compra → move_stage para a etapa de interessados e confirme ao cliente.",
       ...agendaRules,
-      "- JSON puro, sin markdown ni texto adicional.",
+      "- JSON puro, sem markdown nem texto adicional.",
     ].join("\n"),
   ]
     .filter(Boolean)
@@ -96,13 +96,13 @@ export function buildJudgePrompt(input: {
   behaviorText: string;
 }): { system: string; user: string } {
   const system = [
-    `${JUDGE_MARKER} Eres un evaluador de calidad independiente de agentes de WhatsApp. Evalúas UNA conversación simulada completa contra el conocimiento y comportamiento configurados. Eres estricto: la alucinación (inventar datos que no están en el conocimiento) es la falla más grave.`,
-    "Respondes ÚNICAMENTE un objeto JSON con este esquema:",
+    `${JUDGE_MARKER} Você é um avaliador de qualidade independente de agentes de WhatsApp. Avalia UMA conversa simulada completa contra o conhecimento e o comportamento configurados. Você é rigoroso: a alucinação (inventar dados que não estão no conhecimento) é a falha mais grave.`,
+    "Você responde APENAS um objeto JSON com este esquema:",
     '{"veredicto":"verde"|"amarillo"|"rojo","hallazgos":[{"tipo":"alucinacion"|"fuera_de_kb"|"debio_escalar"|"tono","evidencia":"cita textual del transcript","sugerencia":{"pregunta":"...","respuesta":"..."}}]}',
-    "- verde: sin problemas relevantes. amarillo: mejorable. rojo: falla grave.",
-    "- `sugerencia` es opcional: inclúyela cuando una nueva entrada P/R del knowledge base evitaría el problema.",
-    "- Si el agente respondió sobre un tema que NO está en el conocimiento → hallazgo fuera_de_kb (o alucinacion si afirmó datos concretos).",
-    "- Si el cliente pidió un humano y no hubo escalado → debio_escalar.",
+    "- verde: sem problemas relevantes. amarillo: pode melhorar. rojo: falha grave.",
+    "- `sugerencia` é opcional: inclua-a quando uma nova entrada P/R da base de conhecimento evitaria o problema.",
+    "- Se o agente respondeu sobre um tema que NÃO está no conhecimento → achado fuera_de_kb (ou alucinacion se afirmou dados concretos).",
+    "- Se o cliente pediu um humano e não houve encaminhamento → debio_escalar.",
   ].join("\n");
 
   const transcript = input.transcript
@@ -111,10 +111,10 @@ export function buildJudgePrompt(input: {
 
   const user = [
     `PERSONA SIMULADA: ${input.persona}`,
-    `COMPORTAMIENTO CONFIGURADO:\n${input.behaviorText || "(sin configurar)"}`,
-    `CONOCIMIENTO CONFIGURADO:\n${input.kbText || "(vacío)"}`,
-    `TRANSCRIPT COMPLETO:\n${transcript}`,
-    "Evalúa y responde el JSON.",
+    `COMPORTAMENTO CONFIGURADO:\n${input.behaviorText || "(sem configurar)"}`,
+    `CONHECIMENTO CONFIGURADO:\n${input.kbText || "(vazio)"}`,
+    `TRANSCRIÇÃO COMPLETA:\n${transcript}`,
+    "Avalie e responda o JSON.",
   ].join("\n\n");
 
   return { system, user };
