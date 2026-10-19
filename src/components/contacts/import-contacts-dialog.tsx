@@ -92,7 +92,7 @@ export function ImportContactsDialog({
           <div className="space-y-1 rounded-md border border-success-soft bg-success-tint px-3 py-2.5 text-[13px] text-success-text">
             <p>
               <strong>{result.created}</strong>{" "}
-              {result.created === 1 ? "contacto nuevo" : "contactos nuevos"}
+              {result.created === 1 ? "contato novo" : "contatos novos"}
               {result.existing > 0 && (
                 <>
                   {" "}
@@ -191,7 +191,7 @@ export function ImportContactsDialog({
 
         <div className="mt-4 flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>
-            {result ? "Cerrar" : "Cancelar"}
+            {result ? "Fechar" : "Cancelar"}
           </Button>
           {!result && (
             <Button

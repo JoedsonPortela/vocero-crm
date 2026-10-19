@@ -182,7 +182,7 @@ export function ConversationList({
                     aria-pressed={on}
                     title={
                       on
-                        ? "Ver todas las bandejas"
+                        ? "Ver todas as caixas"
                         : `Ver solo ${CHANNEL_LABEL[ch]}`
                     }
                     className={cn(
@@ -292,7 +292,7 @@ export function ConversationList({
             stage === "all" &&
             !conversations.some((c) => c.channel === inbox)
               ? `Nadie ha escrito por ${CHANNEL_LABEL[inbox]} todavía.`
-              : "Sin resultados para este filtro."}
+              : "Sem resultados para este filtro."}
           </p>
         ) : (
           <ul>

@@ -36,7 +36,7 @@ type Connection = {
 
 const PASOS = [
   t("settings.tiktokStep1"),
-  "A API key é criada no Zernio → Settings → API Keys e é mostrada uma única vez (começa com sk_).",
+  "A chave de API é criada no Zernio → Settings → API Keys e é mostrada uma única vez (começa com sk_).",
 ];
 
 const REGLAS = [

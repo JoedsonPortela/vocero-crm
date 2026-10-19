@@ -53,7 +53,7 @@ export function AdsSection({
             <RateCard
               label="Llegaron por un anuncio"
               rate={data.adShare}
-              unit="conversaciones"
+              unit="conversas"
             />
           </div>
 
@@ -116,7 +116,7 @@ function Filas({ primera, filas }: { primera: string; filas: Fila[] }) {
           <li key={f.key} className="py-2.5" data-anuncio={f.sourceId ?? undefined}>
             {f.titulo}
             <dl className="mt-2 grid grid-cols-4 gap-2 text-center">
-              <Dato etiqueta="conversaciones" valor={f.conteos.conversations} />
+              <Dato etiqueta="conversas" valor={f.conteos.conversations} />
               <Dato etiqueta="prospectos" valor={f.conteos.leads} />
               <Dato etiqueta="ventas" valor={f.conteos.won} />
               <div className="min-w-0">

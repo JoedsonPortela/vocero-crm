@@ -77,7 +77,7 @@ export function DeleteConversationDialog({
             <span className="mt-0.5 block text-xs text-text-3">
               {alsoContact
                 ? t("inbox.deleteAlsoDetail")
-                : "Sin marcar, el contacto conserva sus notas, su etapa y sus citas."}
+                : "Sem marcar, o contato mantém suas notas, sua etapa e suas consultas."}
             </span>
           </span>
         </label>

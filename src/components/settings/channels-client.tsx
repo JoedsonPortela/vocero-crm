@@ -59,7 +59,7 @@ const DOT: Record<Level, string> = {
 /** «hace 5 min», «hace 3 h», «hace 2 días». */
 function hace(iso: string, now: number): string {
   const min = Math.max(0, Math.round((now - Date.parse(iso)) / 60_000));
-  if (min < 1) return "hace un momento";
+  if (min < 1) return "há instantes";
   if (min < 60) return `hace ${min} min`;
   const h = Math.round(min / 60);
   if (h < 48) return `hace ${h} h`;

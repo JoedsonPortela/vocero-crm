@@ -51,7 +51,7 @@ const HELP: Record<Source, { title: string; items: string[] }> = {
     title: t("settings.msTitle"),
     items: [
       t("settings.msStep1"),
-      "A API key é criada no Zernio → Settings → API Keys e é mostrada uma única vez (começa com sk_).",
+      "A chave de API é criada no Zernio → Settings → API Keys e é mostrada uma única vez (começa com sk_).",
     ],
   },
   meta: {

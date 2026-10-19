@@ -187,7 +187,7 @@ export function AiClient() {
       setModelos(null);
       setMensaje({
         kind: "info",
-        text: data.mensaje ?? "Este proveedor no publica su lista de modelos.",
+        text: data.mensaje ?? "Este provedor não publica a sua lista de modelos.",
       });
       return;
     }

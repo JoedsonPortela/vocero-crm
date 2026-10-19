@@ -112,7 +112,7 @@ export function SalesSection({
                     <thead className="sr-only">
                       <tr>
                         <th scope="col">Etapa</th>
-                        <th scope="col">Días en promedio</th>
+                        <th scope="col">Dias em média</th>
                         <th scope="col">Movimientos medidos</th>
                       </tr>
                     </thead>
@@ -121,7 +121,7 @@ export function SalesSection({
                         <tr key={t.stageId ?? t.name} className="border-b last:border-0">
                           <td className="py-1.5 pr-2">{t.name}</td>
                           <td className="py-1.5 text-right tabular-nums">
-                            {t.avgDays ?? "—"} días
+                            {t.avgDays ?? "—"} dias
                           </td>
                           <td className="w-24 py-1.5 text-right text-xs text-text-3 tabular-nums">
                             {t.sample} mov.
@@ -176,7 +176,7 @@ export function SalesSection({
             <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:max-w-xl">
               <StatCard label="Dinero en tratos abiertos" value={money(data.pipeline.openCents)} />
               <StatCard
-                label="Tratos sin monto"
+                label="Negócios sem valor"
                 value={String(data.pipeline.withoutAmount)}
                 hint={data.pipeline.withoutAmount > 0 ? "no suman al dinero abierto" : undefined}
               />

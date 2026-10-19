@@ -15,14 +15,14 @@ import { cn } from "@/lib/utils";
  */
 
 const VIEW_LABEL: Record<CalendarView, string> = {
-  dia: "Día",
+  dia: "Dia",
   semana: "Semana",
   mes: "Mes",
   lista: "Lista",
 };
 
 const PERIOD: Record<CalendarView, string> = {
-  dia: "día",
+  dia: "dia",
   semana: "semana",
   mes: "mes",
   lista: "rango",

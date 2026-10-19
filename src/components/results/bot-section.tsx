@@ -63,7 +63,7 @@ export function BotSection({
             <RateCard
               label="Pasaron a un humano"
               rate={data.handoffRate}
-              unit="conversaciones"
+              unit="conversas"
             />
           </div>
 
@@ -85,7 +85,7 @@ export function BotSection({
                   <RateCard
                     label="Asistencia"
                     rate={data.sessions.showRate}
-                    unit="con desenlace"
+                    unit="com desfecho"
                   />
                 </div>
               )}
@@ -115,7 +115,7 @@ export function BotSection({
               ) : (
                 <>
                   <p className="text-sm">
-                    <Rate rate={data.fichaCoverage} unit="contactos nuevos" />
+                    <Rate rate={data.fichaCoverage} unit="contatos novos" />
                   </p>
                   <p className="mt-1 text-xs text-text-3">
                     De los contactos que llegaron en este periodo, a cuántos les sacó datos.
@@ -134,7 +134,7 @@ export function BotSection({
 function pendientes(s: NonNullable<BotBlockDto["sessions"]>): string | undefined {
   const n = s.booked - s.done - s.noShow - s.cancelled;
   if (n <= 0) return undefined;
-  return n === 1 ? "1 sin desenlace todavía" : `${n} sin desenlace todavía`;
+  return n === 1 ? "1 sem desfecho ainda" : `${n} sem desfecho ainda`;
 }
 
 /** Segundos em algo que se lê de relance. */

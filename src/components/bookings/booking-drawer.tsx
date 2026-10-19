@@ -284,7 +284,7 @@ export function BookingDrawer({
               className="text-danger-text"
               onClick={() => void run({ action: "cancel" })}
             >
-              {isSession ? "Cancelar cita" : "Quitar bloqueo"}
+              {isSession ? "Cancelar consulta" : "Remover bloqueio"}
             </Button>
           </footer>
         )}
@@ -360,7 +360,7 @@ function Reschedule({
         <p className="text-sm text-text-3">
           {failed
             ? "No se pudo comprobar la disponibilidad. Intenta de nuevo."
-            : "No hay huecos libres para mover esta cita."}
+            : "Não há horários livres para mover esta consulta."}
         </p>
       )}
 

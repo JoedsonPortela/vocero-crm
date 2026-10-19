@@ -56,7 +56,7 @@ export function BrainStatusCard({
       <CardContent className="space-y-3">
         {status.warning === "doble_respuesta" && (
           <Callout tone="danger" icon={AlertTriangle} title={t("agent.doubleReplyTitle")}>
-            El agente incluido y {name ? `tu cerebro externo (${name})` : "tu cerebro externo"}{" "}
+            O agente incluído e {name ? `seu cérebro externo (${name})` : "seu cérebro externo"}{" "}
             contestan los mismos mensajes: apaga el agente incluido con el interruptor
             de arriba o quita la llave de IA en Ajustes → IA.
           </Callout>
@@ -88,7 +88,7 @@ export function BrainStatusCard({
             <BrainRow
               id="dispatch"
               icon={Send}
-              label="Despacho al cerebro"
+              label="Despacho ao cérebro"
               hint={t("agent.dispatchHint")}
               view={dispatchView(status.dispatch, now)}
             />
@@ -109,7 +109,7 @@ export function BrainStatusCard({
 function embeddedView(s: BrainStatusDto): RowView {
   const { configured, enabled, answering } = s.embedded;
   const headline = `${enabled ? "Encendido" : "Apagado"} · ${
-    configured ? "IA configurada" : "sin proveedor de IA"
+    configured ? "IA configurada" : "sem provedor de IA"
   }`;
   // Com o despacho ativo ele não responde, esteja como estiver: vem antes de tudo o
   // resto, para não pedir um provedor de IA que não é necessário.
@@ -118,7 +118,7 @@ function embeddedView(s: BrainStatusDto): RowView {
       tone: "off",
       headline,
       detail: enabled
-        ? "En silencio: los turnos se le pasan a tu cerebro externo. Puedes dejarlo apagado."
+        ? "Em silêncio: os turnos são repassados ao seu cérebro externo. Você pode mantê-lo desligado."
         : t("agent.keepOffExternal"),
     };
   }
@@ -132,7 +132,7 @@ function embeddedView(s: BrainStatusDto): RowView {
       detail:
         s.warning === "doble_respuesta"
           ? null
-          : "Contesta en las conversaciones con la IA activada.",
+          : "Responde nas conversas com a IA ativada.",
     };
   }
   if (s.external.active) {
@@ -143,7 +143,7 @@ function embeddedView(s: BrainStatusDto): RowView {
     headline,
     detail: configured
       ? t("agent.turnOnHint")
-      : "Para usarlo, configura tu proveedor de IA en Ajustes → IA.",
+      : "Para usá-lo, configure seu provedor de IA em Ajustes → IA.",
   };
 }
 
@@ -173,7 +173,7 @@ function externalView(s: BrainStatusDto, now: number): RowView {
   if (health?.problem === "config") {
     return {
       tone: "warn",
-      headline: "No se puede consultar su estado",
+      headline: "Não é possível consultar o estado",
       detail: `BRAIN_HEALTH_URL no es una URL http:// o https:// válida (p. ej. http://nea:8000/health): corrígela y vuelve a desplegar el CRM.${
         keyConfigured ? ` ${capitalize(llamada)}.` : ""
       }`,
@@ -183,7 +183,7 @@ function externalView(s: BrainStatusDto, now: number): RowView {
     const name = externalBrainName(s);
     return {
       tone: "warn",
-      headline: capitalize(`${name ? `${name} · ` : ""}no está en línea`),
+      headline: capitalize(`${name ? `${name} · ` : ""}não está on-line`),
       detail: `${health.host} ${problemLabel(health)}.${
         keyConfigured ? ` ${capitalize(llamada)}.` : ""
       }`,
@@ -192,7 +192,7 @@ function externalView(s: BrainStatusDto, now: number): RowView {
   if (keyConfigured) {
     return { tone: active ? "ok" : "off", headline: `Llave configurada · ${llamada}`, detail: null };
   }
-  return { tone: "off", headline: "Sin cerebro externo", detail: null };
+  return { tone: "off", headline: "Sem cérebro externo", detail: null };
 }
 
 function dispatchView(d: BrainDispatchDto, now: number): RowView {

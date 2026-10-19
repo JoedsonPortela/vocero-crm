@@ -62,7 +62,7 @@ export function Section({
           <p className="py-6 text-center text-sm text-text-3">Calculando…</p>
         ) : empty ? (
           <p className="py-6 text-center text-sm text-text-3">
-            {emptyText ?? "No hay datos en este periodo."}
+            {emptyText ?? "Não há dados neste período."}
           </p>
         ) : (
           children

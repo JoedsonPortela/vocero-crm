@@ -110,7 +110,7 @@ export function LabClient() {
       const data = (await res.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo lanzar la corrida");
+      setError(data?.error?.message ?? "Não foi possível iniciar a execução");
       return;
     }
     const data = (await res.json()) as { runId: string };
@@ -188,7 +188,7 @@ export function LabClient() {
             description={
               runs.length === 0
                 ? t("lab.firstRunHint")
-                : "Abre una corrida del historial para ver su reporte."
+                : "Abra uma execução do histórico para ver o seu relatório."
             }
           />
         )}
@@ -481,7 +481,7 @@ function HallazgoCard({
               onClick={() => void apply()}
               disabled={saving || !pregunta.trim() || !respuesta.trim()}
             >
-              {saving ? "Guardando…" : "Guardar en el KB"}
+              {saving ? "Salvando…" : "Salvar na base"}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>
               Cancelar

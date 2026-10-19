@@ -154,11 +154,11 @@ export function AgentClient() {
         <div className="mx-4 mt-4 rounded-lg border border-brand-soft bg-brand-tint p-5 text-center sm:mx-6 sm:mt-6 sm:p-6">
           <Sparkles className="mx-auto mb-2 h-8 w-8 text-primary" />
           <p className="font-medium">
-            {aiMensaje ? "Tu agente no puede contestar" : "Configura tu proveedor de IA para activar el agente"}
+            {aiMensaje ? "Seu agente não consegue responder" : "Configure seu provedor de IA para ativar o agente"}
           </p>
           <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
             {aiMensaje ??
-              "Elige el proveedor, el modelo y pega tu llave: sin reiniciar nada."}{" "}
+              "Escolha o provedor, o modelo e cole sua chave: sem reiniciar nada."}{" "}
             Mientras tanto puedes dejar listo el comportamiento y el conocimiento aquí
             abajo.
           </p>
@@ -244,7 +244,7 @@ function ProfileSection({
             onChange={(e) => setForm({ ...form, greeting: e.target.value })}
           />
         </div>
-        <Button onClick={() => void onSave(form)}>Guardar comportamiento</Button>
+        <Button onClick={() => void onSave(form)}>Salvar comportamento</Button>
       </CardContent>
     </Card>
   );

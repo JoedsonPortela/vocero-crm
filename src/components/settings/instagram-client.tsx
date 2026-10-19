@@ -50,7 +50,7 @@ const HELP: Record<Source, { title: string; items: string[] }> = {
     title: t("settings.igTitle"),
     items: [
       t("settings.igStep1"),
-      "A API key é criada no Zernio → Settings → API Keys e é mostrada uma única vez (começa com sk_).",
+      "A chave de API é criada no Zernio → Settings → API Keys e é mostrada uma única vez (começa com sk_).",
     ],
   },
   meta: {

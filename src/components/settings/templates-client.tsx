@@ -45,7 +45,7 @@ const STATUS_BADGE: Record<
 > = {
   draft: { label: t("settings.tplDraft"), variant: "secondary", hint: t("settings.tplDraftHint") },
   pending: { label: t("settings.tplPending"), variant: "warning", hint: t("settings.tplPendingHint") },
-  approved: { label: "Aprovada", variant: "success", hint: "Pronta para usar pela Caixa de entrada ou por Contatos." },
+  approved: { label: "Aprovado", variant: "success", hint: "Pronto para usar pela Caixa de entrada ou por Contatos." },
   rejected: { label: t("settings.tplRejected"), variant: "destructive", hint: t("settings.tplRejectedHint") },
 };
 
@@ -270,7 +270,7 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
     {
       icon: Clock3,
       title: "A Meta analisa",
-      text: "Leva de alguns minutos a 24 horas. O status muda sozinho para «Aprovada» ou «Rejeitada», com o motivo.",
+      text: "Leva de alguns minutos a 24 horas. O status muda sozinho para «Aprovado» ou «Recusado», com o motivo.",
     },
     {
       icon: Send,
