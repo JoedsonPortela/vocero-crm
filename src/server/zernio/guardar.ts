@@ -38,7 +38,7 @@ export async function resolveZernioAccount(
     }
     return {
       ok: false,
-      response: apiError(422, "invalid_token", "La API key de Zernio no es válida"),
+      response: apiError(422, "invalid_token", "A chave de API do Zernio não é válida"),
     };
   }
 

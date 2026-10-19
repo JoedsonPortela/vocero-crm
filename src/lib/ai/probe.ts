@@ -53,7 +53,7 @@ export async function probeProvider(input: {
       ok: false,
       code: "bad_url",
       httpStatus: null,
-      message: "La base URL no es una dirección http(s) válida",
+      message: "A base URL não é um endereço http(s) válido",
     };
   }
 
@@ -101,7 +101,7 @@ export async function probeProvider(input: {
           ok: false,
           code: "timeout",
           httpStatus: null,
-          message: "El proveedor no contestó a tiempo",
+          message: "O provedor não respondeu a tempo",
         }
       : {
           ok: false,
@@ -213,7 +213,7 @@ export async function listModels(input: {
       ok: false,
       code: "bad_url",
       httpStatus: null,
-      message: "La base URL no es una dirección http(s) válida",
+      message: "A base URL não é um endereço http(s) válido",
     };
   }
 
@@ -274,7 +274,7 @@ export async function listModels(input: {
           ok: false,
           code: "timeout",
           httpStatus: null,
-          message: "El proveedor no contestó a tiempo",
+          message: "O provedor não respondeu a tempo",
         }
       : {
           ok: false,

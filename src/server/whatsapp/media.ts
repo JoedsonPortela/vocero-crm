@@ -284,7 +284,7 @@ export async function uploadGraphMedia(
       body: form,
     });
   } catch (cause) {
-    throw new MetaApiError("No se pudo contactar la API de Meta", {
+    throw new MetaApiError("Não foi possível contatar a API da Meta", {
       status: 0,
       details: cause,
     });
@@ -306,7 +306,7 @@ export async function uploadGraphMedia(
   }
   const id = (json as { id?: string })?.id;
   if (!id) {
-    throw new MetaApiError("Meta no devolvió ID del media subido", {
+    throw new MetaApiError("A Meta não devolveu o ID da mídia enviada", {
       status: res.status,
     });
   }

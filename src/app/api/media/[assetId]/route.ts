@@ -41,7 +41,7 @@ export const GET = withAuth(async (session, _req: Request, ctx: Params) => {
 
   if (asset.kind === "location" || asset.kind === "contacts") {
     // Sem binário: o payload vem no DTO da mensagem.
-    return apiError(404, "no_binary", "Este adjunto no tiene archivo");
+    return apiError(404, "no_binary", "Este anexo não tem arquivo");
   }
 
   if (asset.fetchStatus !== "available") {

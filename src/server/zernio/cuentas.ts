@@ -155,14 +155,14 @@ export function accountHealth(
   if (!account) {
     return {
       level: "error",
-      message: "La cuenta ya no aparece en Zernio con esa llave. Vuelve a conectarla.",
+      message: "A conta não aparece mais no Zernio com essa chave. Conecte-a de novo.",
     };
   }
   if (account.needsReconnection) {
     return { level: "error", message: "Zernio pide reconectar la cuenta." };
   }
   if (account.isActive === false || account.enabled === false) {
-    return { level: "error", message: "La cuenta está desactivada en Zernio." };
+    return { level: "error", message: "A conta está desativada no Zernio." };
   }
   if (account.messagingRestriction) {
     return {

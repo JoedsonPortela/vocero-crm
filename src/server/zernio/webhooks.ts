@@ -151,7 +151,7 @@ export function webhookHealth(
   if (activos.length === 0) {
     return {
       level: "error",
-      message: "El webhook hacia esta instancia está desactivado en Zernio.",
+      message: "O webhook para esta instância está desativado no Zernio.",
       ...nada,
     };
   }
@@ -227,6 +227,6 @@ export async function ensureZernioWebhook(input: {
   forgetZernioWebhooks(input.token);
 
   const id = json?.webhook?._id ?? previo?._id;
-  if (!id) throw new Error("Zernio respondió sin el webhook");
+  if (!id) throw new Error("O Zernio respondeu sem o webhook");
   return { created: !previo, id };
 }

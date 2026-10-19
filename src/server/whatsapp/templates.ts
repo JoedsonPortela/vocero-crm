@@ -82,10 +82,10 @@ export async function createTemplate(
 
   const creds = await getCredentialsByOrg(organizationId);
   if (!creds) {
-    throw new TemplateError("not_connected", "Conecta tu número de WhatsApp primero");
+    throw new TemplateError("not_connected", "Conecte seu número do WhatsApp primeiro");
   }
   if (creds.status === "reconnect_required") {
-    throw new TemplateError("reconnect_required", "Reconecta tu número antes de crear plantillas");
+    throw new TemplateError("reconnect_required", "Reconecte seu número antes de criar modelos");
   }
 
   const name = input.name
@@ -133,7 +133,7 @@ export async function createTemplate(
         throw new TemplateError("reconnect_required", "El token expiró: reconecta el número");
       }
       if (err.status === 0 || err.status >= 500) {
-        throw new TemplateError("meta_unavailable", "Meta no está disponible ahora");
+        throw new TemplateError("meta_unavailable", "A Meta não está disponível agora");
       }
       throw new TemplateError("meta_error", err.message);
     }
@@ -192,7 +192,7 @@ function mapMetaStatus(
 export async function syncTemplates(organizationId: string): Promise<number> {
   const creds = await getCredentialsByOrg(organizationId);
   if (!creds) {
-    throw new TemplateError("not_connected", "Conecta tu número de WhatsApp primero");
+    throw new TemplateError("not_connected", "Conecte seu número do WhatsApp primeiro");
   }
 
   let data: {
@@ -208,7 +208,7 @@ export async function syncTemplates(organizationId: string): Promise<number> {
         await markReconnectRequired(organizationId);
         throw new TemplateError("reconnect_required", "El token expiró: reconecta el número");
       }
-      throw new TemplateError("meta_unavailable", "No se pudo consultar Meta");
+      throw new TemplateError("meta_unavailable", "Não foi possível consultar a Meta");
     }
     throw err;
   }
@@ -347,7 +347,7 @@ export async function sendTemplate(input: {
   }
 
   const creds = await getCredentialsByOrg(input.organizationId);
-  if (!creds) throw new TemplateError("not_connected", "Sin número conectado");
+  if (!creds) throw new TemplateError("not_connected", "Sem número conectado");
   if (creds.status === "reconnect_required") {
     throw new TemplateError("reconnect_required", "Reconecta el número");
   }

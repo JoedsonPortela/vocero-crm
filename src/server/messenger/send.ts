@@ -97,7 +97,7 @@ async function sendViaMeta(input: {
   });
   const id = res.message_id ?? res.messages?.[0]?.id;
   if (!id) {
-    throw new MetaApiError("Meta no devolvió ID de mensaje", { status: 502 });
+    throw new MetaApiError("A Meta não devolveu o ID da mensagem", { status: 502 });
   }
   return { platformMessageId: String(id) };
 }

@@ -253,7 +253,7 @@ async function prepareSend(
     }
     const ttCreds = await getTiktokCredentialsByOrg(organizationId);
     if (!ttCreds) {
-      throw new SendError("not_connected", "No hay cuenta de TikTok conectada");
+      throw new SendError("not_connected", "Não há conta do TikTok conectada");
     }
     if (ttCreds.status === "reconnect_required") {
       throw new SendError(
@@ -307,7 +307,7 @@ async function prepareSend(
 
   const credentials = await getCredentialsByOrg(organizationId);
   if (!credentials) {
-    throw new SendError("not_connected", "No hay número de WhatsApp conectado");
+    throw new SendError("not_connected", "Não há número de WhatsApp conectado");
   }
   if (credentials.status === "reconnect_required") {
     throw new SendError(
@@ -662,7 +662,7 @@ export async function callGraphSend(
       { method: "POST", token: credentials.token, body: payload }
     );
     const id = res.messages?.[0]?.id;
-    if (!id) throw new SendError("meta_error", "Meta no devolvió ID de mensaje");
+    if (!id) throw new SendError("meta_error", "A Meta não devolveu o ID da mensagem");
     return id;
   } catch (err) {
     if (err instanceof MetaApiError) {
@@ -674,7 +674,7 @@ export async function callGraphSend(
         );
       }
       if (err.status === 0 || err.status >= 500) {
-        throw new SendError("meta_unavailable", "Meta no está disponible ahora");
+        throw new SendError("meta_unavailable", "A Meta não está disponível agora");
       }
       throw new SendError("meta_error", err.message);
     }

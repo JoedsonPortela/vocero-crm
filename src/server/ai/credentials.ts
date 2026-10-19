@@ -154,7 +154,7 @@ export async function saveAiCredential(input: {
     })
     .returning();
   const row = rows[0];
-  if (!row) throw new Error("no se pudo leer la credencial recién guardada");
+  if (!row) throw new Error("não foi possível ler a credencial recém-salva");
   return toPublic(row);
 }
 

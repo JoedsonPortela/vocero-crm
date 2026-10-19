@@ -237,7 +237,7 @@ export async function getOrCreateContactByIdentity(
       )
       .limit(1);
     const contactIg = racedIg[0];
-    if (!contactIg) throw new Error("contacto no encontrado tras upsert");
+    if (!contactIg) throw new Error("contato não encontrado após o upsert");
     return { contact: contactIg, isNew: false };
   }
 
@@ -309,7 +309,7 @@ export async function getOrCreateContactByIdentity(
     )
     .limit(1);
   const contact = raced[0];
-  if (!contact) throw new Error("contacto no encontrado tras upsert");
+  if (!contact) throw new Error("contato não encontrado após o upsert");
   return { contact, isNew: false };
 }
 

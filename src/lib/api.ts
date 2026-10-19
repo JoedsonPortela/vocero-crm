@@ -47,7 +47,7 @@ export async function parseBody<T>(
   } catch {
     return {
       ok: false,
-      response: apiError(422, "invalid_body", "El body debe ser JSON válido"),
+      response: apiError(422, "invalid_body", "O corpo deve ser um JSON válido"),
     };
   }
   const parsed = schema.safeParse(raw);

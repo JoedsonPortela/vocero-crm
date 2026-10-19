@@ -130,7 +130,7 @@ export async function createSessionBooking(input: {
   }
 
   if (!contactId) {
-    throw new BookingError("invalid", "La cita necesita un contacto");
+    throw new BookingError("invalid", "A consulta precisa de um contato");
   }
   contactName = await getContactName(input.organizationId, contactId);
 
@@ -160,7 +160,7 @@ export async function createSessionBooking(input: {
   if (!slot) {
     throw new BookingError(
       "slot_taken",
-      "Ese horario ya no está disponible",
+      "Esse horário não está mais disponível",
       await refreshOffer(input.organizationId, input.conversationId, {
         now: input.now,
       })
@@ -208,7 +208,7 @@ export async function createSessionBooking(input: {
     if (isUniqueViolation(err)) {
       throw new BookingError(
         "slot_taken",
-        "Ese horario acaba de ocuparse",
+        "Esse horário acabou de ser ocupado",
         await refreshOffer(input.organizationId, input.conversationId, {
           now: input.now,
         })
@@ -280,7 +280,7 @@ export async function createBlock(input: {
     return block;
   } catch (err) {
     if (isUniqueViolation(err)) {
-      throw new BookingError("slot_taken", "Ese horario ya está ocupado");
+      throw new BookingError("slot_taken", "Esse horário já está ocupado");
     }
     throw err;
   }
@@ -295,7 +295,7 @@ export async function rescheduleBooking(input: {
   const db = getDb();
   const booking = await getOwnBooking(input.organizationId, input.bookingId);
   if (booking.status === "cancelada") {
-    throw new BookingError("invalid", "La cita está cancelada");
+    throw new BookingError("invalid", "A consulta está cancelada");
   }
 
   const settings = await getSettings(input.organizationId);
@@ -306,7 +306,7 @@ export async function rescheduleBooking(input: {
     settings,
   });
   if (!slot) {
-    throw new BookingError("slot_taken", "Ese horario ya no está disponible");
+    throw new BookingError("slot_taken", "Esse horário não está mais disponível");
   }
 
   let next: BookingRow;
@@ -319,7 +319,7 @@ export async function rescheduleBooking(input: {
     next = updated[0]!;
   } catch (err) {
     if (isUniqueViolation(err)) {
-      throw new BookingError("slot_taken", "Ese horario acaba de ocuparse");
+      throw new BookingError("slot_taken", "Esse horário acabou de ser ocupado");
     }
     throw err;
   }
@@ -405,7 +405,7 @@ export async function rescheduleForConversation(input: {
 
   const target = rows[0];
   if (!target) {
-    throw new BookingError("not_found", "No hay una cita activa que mover");
+    throw new BookingError("not_found", "Não há uma consulta ativa para mover");
   }
 
   const result = await rescheduleBooking({
@@ -458,7 +458,7 @@ export async function markBookingStatus(input: {
   } catch (err) {
     // Reativar para `realizada` um instante que outro agendamento já ocupa.
     if (isUniqueViolation(err)) {
-      throw new BookingError("slot_taken", "Ese horario ya está ocupado");
+      throw new BookingError("slot_taken", "Esse horário já está ocupado");
     }
     throw err;
   }
@@ -481,7 +481,7 @@ export async function retryMeetingLink(input: {
 }): Promise<BookingResult> {
   const booking = await getOwnBooking(input.organizationId, input.bookingId);
   if (!booking.linkPending) {
-    throw new BookingError("invalid", "Esta cita no tiene un enlace pendiente");
+    throw new BookingError("invalid", "Esta consulta não tem um link pendente");
   }
   const settings = await getSettings(input.organizationId);
   const contactName = booking.contactId

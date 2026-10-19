@@ -233,7 +233,7 @@ export async function zernioFetch(
       ...(opts.timeoutMs ? { signal: AbortSignal.timeout(opts.timeoutMs) } : {}),
     });
   } catch (cause) {
-    throw new MetaApiError("No se pudo contactar la API de Zernio", {
+    throw new MetaApiError("Não foi possível contatar a API do Zernio", {
       status: 0,
       details: cause,
     });

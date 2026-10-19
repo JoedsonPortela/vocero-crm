@@ -157,7 +157,7 @@ export function readImportFile(
   | { ok: false; error: string } {
   const table = parseCsv(text);
   if (table.length < 2) {
-    return { ok: false, error: "El archivo está vacío o solo trae el encabezado." };
+    return { ok: false, error: "O arquivo está vazio ou traz apenas o cabeçalho." };
   }
   const cols = detectColumns(table[0]!);
   if (!cols) {

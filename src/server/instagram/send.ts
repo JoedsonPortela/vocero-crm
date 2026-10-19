@@ -132,7 +132,7 @@ async function fetchJson(
   try {
     res = await fetch(url, init);
   } catch (cause) {
-    throw new MetaApiError("No se pudo contactar la API de Instagram", {
+    throw new MetaApiError("Não foi possível contatar a API do Instagram", {
       status: 0,
       details: cause,
     });

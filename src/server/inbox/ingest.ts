@@ -237,7 +237,7 @@ export async function getOrCreateConversation(
     )
     .limit(1);
   const existing = rows[0];
-  if (!existing) throw new Error("conversación no encontrada tras upsert");
+  if (!existing) throw new Error("conversa não encontrada após o upsert");
   // 014: o fio da plataforma pode aparecer depois (ou mudar); guarda-se
   // assim que se conhece, para poder responder.
   if (opts?.threadRef && existing.channelThreadRef !== opts.threadRef) {

@@ -273,7 +273,7 @@ export type HygieneBlockDto = {
 export const HANDOFF_LABEL: Record<string, string> = {
   cliente: "El cliente pidió un humano",
   modelo: "El agente decidió escalar",
-  error: "Error del proveedor de IA",
+  error: "Erro do provedor de IA",
   ventana: "Ventana de 24 h cerrada",
   hostilidad: "El cliente se puso agresivo",
   manual_reply: "Respondiste desde el teléfono",

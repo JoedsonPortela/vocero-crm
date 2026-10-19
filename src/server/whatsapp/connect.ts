@@ -51,7 +51,7 @@ export async function testConnection(
         return {
           ok: false,
           code: "meta_unavailable",
-          message: "Meta no está disponible en este momento; intenta de nuevo",
+          message: "A Meta não está disponível neste momento; tente de novo",
         };
       }
       return { ok: false, code: "meta_error", message: err.message };
