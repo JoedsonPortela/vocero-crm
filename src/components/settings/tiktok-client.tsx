@@ -36,7 +36,7 @@ type Connection = {
 
 const PASOS = [
   t("settings.tiktokStep1"),
-  "La API key se crea en Zernio → Settings → API Keys y se muestra una sola vez (empieza con sk_).",
+  "A API key é criada no Zernio → Settings → API Keys e é mostrada uma única vez (começa com sk_).",
 ];
 
 const REGLAS = [
@@ -116,7 +116,7 @@ export function TiktokClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{connection ? "Reconectar TikTok" : "Conectar TikTok"}</CardTitle>
+          <CardTitle>{connection ? "Reconectar o TikTok" : "Conectar o TikTok"}</CardTitle>
           <CardDescription>
             As mensagens diretas da sua conta entram na mesma caixa de entrada que
             WhatsApp, com o distintivo do canal. Chegam pelo Zernio, com a sua

@@ -100,7 +100,7 @@ export function BrandingClient({
       const data = (await res?.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo guardar");
+      setError(data?.error?.message ?? "Não foi possível salvar");
       return;
     }
     setSaved(true);
@@ -153,7 +153,7 @@ export function BrandingClient({
             </select>
             <p className="text-xs text-text-3">
               É a única que o Funil soma. Os valores registrados em outra
-              moneda se muestran, pero quedan fuera del total de su columna.
+              moeda são exibidos, mas ficam fora do total da coluna.
             </p>
           </div>
 

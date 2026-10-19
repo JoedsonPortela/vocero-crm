@@ -152,7 +152,7 @@ export function AgendaClient() {
       const data = (await res?.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo guardar");
+      setError(data?.error?.message ?? "Não foi possível salvar");
       return;
     }
     const data = (await res.json()) as { settings: Settings };

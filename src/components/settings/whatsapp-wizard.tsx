@@ -296,7 +296,7 @@ function ConnectForm({
         <CardDescription>
           Cole as credenciais do WhatsApp Cloud API. O token é validado
           na Meta ANTES de ser salvo e é armazenado cifrado. Ao salvar, o
-          webhook se registra en Meta por ti.
+          webhook é registrado na Meta por você.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -564,7 +564,7 @@ function WebhookCard({
           </p>
         ) : (
           <p className="flex items-start gap-2 text-xs text-muted-foreground">
-            <Info className="mt-0.5 h-4 w-4 shrink-0" /> Sin App Secret
+            <Info className="mt-0.5 h-4 w-4 shrink-0" /> Sem App Secret
             configurado: o webhook fica protegido pela URL secreta (normal
             no modo agência). Para a camada extra de assinatura, adicione
             META_APP_SECRET à instância.

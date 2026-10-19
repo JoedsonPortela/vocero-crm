@@ -133,7 +133,7 @@ export function FaviconCard({ branding }: { branding: Branding }) {
           </Button>
           {actual && (
             <Button variant="ghost" disabled={subiendo} onClick={() => void quitar()}>
-              <Trash2 className="h-4 w-4" /> Quitar
+              <Trash2 className="h-4 w-4" /> Remover
             </Button>
           )}
         </div>

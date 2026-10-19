@@ -203,7 +203,7 @@ export function ConnectorCredentials({
 
         <div className="flex flex-wrap items-center gap-3">
           <Button variant="outline" onClick={() => submit("test")} disabled={busy}>
-            Probar
+            Testar
           </Button>
           <Button onClick={() => submit("save")} disabled={busy}>
             {connection ? "Actualizar" : "Conectar"}

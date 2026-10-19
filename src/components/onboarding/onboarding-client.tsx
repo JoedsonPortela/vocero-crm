@@ -161,7 +161,7 @@ export function OnboardingClient({
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 O agente está ligado e atende seus clientes pelo WhatsApp.
-                Puedes desligá-lo quando quiser em Agente.
+                Você pode desligá-lo quando quiser em Agente.
               </p>
               <Link href="/inbox" className={cn(buttonVariants({ size: "sm" }), "mt-3")}>
                 Ir para a Caixa de entrada <ArrowRight className="h-4 w-4" />
@@ -191,7 +191,7 @@ export function OnboardingClient({
                 Al final: encender a {agente}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Tu agente empieza apagado: mientras no lo enciendas no le
+                Seu agente começa desligado: enquanto você não o ligar, não
                 responde a ninguém, e as mensagens que chegarem você atende diretamente da Caixa de entrada. Quando concluir os {total} passos, aqui aparece o botão para ligá-lo.
               </p>
             </>

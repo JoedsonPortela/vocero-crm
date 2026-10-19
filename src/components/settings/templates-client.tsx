@@ -148,7 +148,7 @@ export function TemplatesClient() {
         const data = (await res?.json().catch(() => null)) as {
           error?: { message?: string };
         } | null;
-        setSyncMsg(data?.error?.message ?? "No se pudo sincronizar");
+        setSyncMsg(data?.error?.message ?? "Não foi possível sincronizar");
       }
     },
     [refetch]
@@ -167,7 +167,7 @@ export function TemplatesClient() {
       <section className="space-y-3" aria-labelledby="tpl-list-title">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 id="tpl-list-title" className="text-base font-semibold">
-            Tus plantillas
+            Seus modelos
           </h3>
           <div className="flex items-center gap-2">
             <Button
@@ -212,7 +212,7 @@ export function TemplatesClient() {
               action={
                 <Button size="sm" onClick={() => setCreating(true)}>
                   <Plus className="h-4 w-4" />
-                  Crear mi primera plantilla
+                  Criar meu primeiro modelo
                 </Button>
               }
             />
@@ -329,7 +329,7 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
               <Inbox className="h-3.5 w-3.5" /> Ir para a Caixa de entrada
             </Link>
             <Link className="inline-flex items-center gap-1 underline" href="/contacts">
-              <Send className="h-3.5 w-3.5" /> Ir a Contactos
+              <Send className="h-3.5 w-3.5" /> Ir para Contatos
             </Link>
           </p>
         </div>

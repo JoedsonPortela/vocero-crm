@@ -28,7 +28,7 @@ import {
  * La llave se manda una vez y no vuelve: la pantalla solo muestra sus últimos
  * 4 y el estado. Si está pausada, dice POR QUÉ y qué hacer — no es lo mismo
  * «tu llave dejó de servir» que «tu cuenta se quedó sin saldo», y son dos
- * acciones distintas del dueño. «Probar conexión» y «Traer modelos» hablan
+ * acciones distintas del dueño. «Testar conexión» y «Traer modelos» hablan
  * con el proveedor usando lo escrito, sin guardar nada.
  */
 
@@ -130,7 +130,7 @@ export function AiClient() {
 
   const faltaBase = provider === "openai_compatible" && !baseUrl.trim();
   const faltaLlave = !token.trim() && !cred;
-  const puedeProbar = !faltaBase && !faltaLlave && model.trim().length > 0;
+  const puedeTestar = !faltaBase && !faltaLlave && model.trim().length > 0;
 
   async function probar() {
     setOcupado("probar");
@@ -397,13 +397,13 @@ export function AiClient() {
                 type="button"
                 variant="outline"
                 onClick={probar}
-                disabled={ocupado !== null || !puedeProbar}
+                disabled={ocupado !== null || !puedeTestar}
               >
                 {ocupado === "probar" ? t("settings.testing") : t("settings.testConnection")}
               </Button>
               <Button
                 type="submit"
-                disabled={ocupado !== null || !puedeProbar}
+                disabled={ocupado !== null || !puedeTestar}
               >
                 {ocupado === "guardar" ? t("settings.saving") : t("common.save")}
               </Button>
@@ -414,7 +414,7 @@ export function AiClient() {
                   disabled={ocupado !== null}
                   className="text-sm text-text-3 hover:text-foreground"
                 >
-                  Quitar
+                  Remover
                 </button>
               )}
             </div>

@@ -72,7 +72,7 @@ export function ZernioConnect({
         error?: { message?: string; details?: { accounts?: Candidate[] } };
       } | null;
       setCandidates(data?.error?.details?.accounts ?? []);
-      setError(data?.error?.message ?? "No se pudo conectar. Intenta de nuevo.");
+      setError(data?.error?.message ?? "Não foi possível conectar. Tente novamente.");
       return;
     }
     const data = (await res.json().catch(() => ({}))) as Saved;

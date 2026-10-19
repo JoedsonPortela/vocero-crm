@@ -50,7 +50,7 @@ const HELP: Record<Source, { title: string; items: string[] }> = {
     title: t("settings.igTitle"),
     items: [
       t("settings.igStep1"),
-      "La API key se crea en Zernio → Settings → API Keys y se muestra una sola vez (empieza con sk_).",
+      "A API key é criada no Zernio → Settings → API Keys e é mostrada uma única vez (começa com sk_).",
     ],
   },
   meta: {
@@ -178,7 +178,7 @@ export function InstagramClient() {
       <Card>
         <CardHeader>
           <CardTitle>
-            {connection ? "Reconectar Instagram" : "Conectar Instagram"}
+            {connection ? "Reconectar o Instagram" : "Conectar o Instagram"}
           </CardTitle>
           <CardDescription>
             As mensagens diretas da sua conta entram na mesma caixa de entrada que

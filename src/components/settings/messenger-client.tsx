@@ -51,7 +51,7 @@ const HELP: Record<Source, { title: string; items: string[] }> = {
     title: t("settings.msTitle"),
     items: [
       t("settings.msStep1"),
-      "La API key se crea en Zernio → Settings → API Keys y se muestra una sola vez (empieza con sk_).",
+      "A API key é criada no Zernio → Settings → API Keys e é mostrada uma única vez (começa com sk_).",
     ],
   },
   meta: {
@@ -177,7 +177,7 @@ export function MessengerClient() {
       <Card>
         <CardHeader>
           <CardTitle>
-            {connection ? "Reconectar Messenger" : "Conectar Messenger"}
+            {connection ? "Reconectar o Messenger" : "Conectar o Messenger"}
           </CardTitle>
           <CardDescription>
             As mensagens que as pessoas enviam para a sua página entram na mesma caixa de entrada do WhatsApp, com o distintivo do canal. {help.title}.

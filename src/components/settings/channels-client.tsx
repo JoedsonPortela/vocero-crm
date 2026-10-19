@@ -197,7 +197,7 @@ export function ChannelsClient() {
                 <dl className="grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-[9.5rem_1fr]">
                   <dt className="text-text-2">Cuenta</dt>
                   <dd>
-                    {r.account ?? "Sin nombre"}
+                    {r.account ?? "Sem nome"}
                     {r.channel !== "whatsapp" && (
                       <span className="text-text-2">
                         {" "}
@@ -318,7 +318,7 @@ export function ChannelsClient() {
  * de una cuenta que Zernio pide reconectar sería la pantalla mintiendo.
  */
 function Estado({ row }: { row: Row }) {
-  if (!row.connected) return <Badge variant="secondary">Sin conectar</Badge>;
+  if (!row.connected) return <Badge variant="secondary">Não conectado</Badge>;
   if (row.status === "reconnect_required") {
     return <Badge variant="destructive">É preciso reconectar</Badge>;
   }
