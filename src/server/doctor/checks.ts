@@ -170,7 +170,7 @@ export function evaluateEnv(source: Record<string, string | undefined>): EnvEval
   }
   for (const [key, value] of Object.entries(source)) {
     if (seen.has(key) || !hasPlaceholder(value)) continue;
-    if ((COMPOSE_ONLY_KEYS as readonly string[]).includes(key)) continue; // las lista evaluateComposeEnv
+    if ((COMPOSE_ONLY_KEYS as readonly string[]).includes(key)) continue; // listadas por evaluateComposeEnv
     seen.add(key);
     results.push(checkVar(key, value, undefined, false));
   }

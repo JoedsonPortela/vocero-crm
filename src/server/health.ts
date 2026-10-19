@@ -8,40 +8,40 @@ import { parseChannels } from "@/server/channels/enabled";
 import { mediaDirStatus } from "@/server/media-dir";
 
 /**
- * `GET /api/health` — lo que una plataforma, un script o un `curl` pueden
- * saber de la instancia sin abrir la app ni iniciar sesión.
+ * `GET /api/health` — o que uma plataforma, um script ou um `curl` podem
+ * saber da instância sem abrir o app nem iniciar sessão.
  *
- * `ok` y el código HTTP dicen UNA cosa: si la base de datos responde. Es lo
- * que mira el healthcheck de Docker para reiniciar el contenedor, y nada de
- * lo demás debe moverlo.
+ * `ok` e o código HTTP dizem UMA coisa: se o banco de dados responde. É o
+ * que o healthcheck do Docker verifica para reiniciar o contêiner, e nada de
+ * o demais deve movê-lo.
  *
- * La versión viaja aquí a propósito: confirmar un despliegue tiene que poder
- * hacerse desde un pipeline, y es la única forma de comprobar que el build
- * que subió es el que corre. `commitVerified` dice de dónde salió `commit`:
- * `true` si se congeló en el build, `false` si es el `SOURCE_COMMIT` que la
- * plataforma puso en el entorno — que puede estar desfasado (#50). Un
- * pipeline que compare commits tiene que exigir `true`; `commit` sigue ahí
- * igual para no romper a quien ya lo lee.
+ * A versão viaja aqui de propósito: confirmar uma implantação precisa poder
+ * ser feita a partir de um pipeline, e é a única forma de verificar que o build
+ * que subiu é o que roda. `commitVerified` diz de onde saiu `commit`:
+ * `true` se foi congelado no build, `false` se é o `SOURCE_COMMIT` que a
+ * plataforma colocou no ambiente — que pode estar defasado (#50). Um
+ * pipeline que compare commits precisa exigir `true`; `commit` continua ali
+ * igual, para não quebrar quem já o lê.
  *
- * `features` (#82) dice qué banderas de despliegue están encendidas: la
- * forma de confirmar que `AGENDA=on` llegó al contenedor sin abrir Ajustes.
- * Se leen de `process.env` directo, igual que `agendaEnabled()`, y no por
- * `getEnv()`: a esta altura la BD ya respondió (y con ella validó el
- * entorno), pero la pregunta de si una feature existe nunca depende de eso.
+ * `features` (#82) diz quais bandeiras de implantação estão ligadas: a
+ * forma de confirmar que `AGENDA=on` chegou ao contêiner sem abrir Configurações.
+ * São lidas de `process.env` direto, igual a `agendaEnabled()`, e não por
+ * `getEnv()`: a esta altura o BD já respondeu (e com ele validou o
+ * ambiente), mas a pergunta de se uma funcionalidade existe nunca depende disso.
  *
- * `mediaWritable` (#82) dice si `MEDIA_DIR` se puede escribir. NO baja `ok`
- * ni el código: el CRM funciona sin adjuntos, y un healthcheck en rojo
- * reiniciaría en bucle un contenedor que atiende clientes. Lo que cambia es
- * que un volumen mal montado se ve desde fuera, y no en un 500 al subir el
+ * `mediaWritable` (#82) diz se `MEDIA_DIR` pode ser escrito. NÃO rebaixa `ok`
+ * nem o código: o CRM funciona sem anexos, e um healthcheck vermelho
+ * reiniciaria em loop um contêiner que atende clientes. O que muda é
+ * que um volume mal montado aparece de fora, e não num 500 ao subir o
  * logo.
  */
 
 export type HealthFeatures = {
-  /** Motor de agenda (015): bandera `AGENDA`. */
+  /** Motor de agenda (015): bandeira `AGENDA`. */
   agenda: boolean;
-  /** Canales encendidos (014/017): bandera `CHANNELS`; `whatsapp` siempre. */
+  /** Canais ligados (014/017): bandeira `CHANNELS`; `whatsapp` sempre. */
   channels: Channel[];
-  /** Atribución de anuncios y CAPI (016): bandera `ATRIBUCION`. */
+  /** Atribuição de anúncios e CAPI (016): bandeira `ATRIBUCION`. */
   atribucion: boolean;
 };
 
@@ -64,8 +64,8 @@ export type HealthResult =
   | { status: 503; body: HealthDown };
 
 /**
- * Las tres variables de despliegue que deciden qué existe en la instancia.
- * El índice es para que `process.env` encaje sin cast (y el resto se ignora).
+ * As três variáveis de implantação que decidem o que existe na instância.
+ * O índice serve para que `process.env` encaixe sem cast (e o resto é ignorado).
  */
 export type FlagEnv = {
   AGENDA?: string;
@@ -75,10 +75,10 @@ export type FlagEnv = {
 };
 
 /**
- * Las banderas, con los mismos parsers que usan las rutas para decidir si una
- * superficie existe: lo que diga aquí es lo que hace la app. Los canales van
- * en el orden del catálogo, no en el de la variable, para que dos instancias
- * iguales respondan igual.
+ * As bandeiras, com os mesmos parsers que usam as rotas para decidir se uma
+ * superfície existe: o que diz aqui é o que o app faz. Os canais seguem
+ * a ordem do catálogo, não a da variável, para que duas instâncias
+ * iguais respondam igual.
  */
 export function healthFeatures(env: FlagEnv = process.env): HealthFeatures {
   const channels = parseChannels(env.CHANNELS);

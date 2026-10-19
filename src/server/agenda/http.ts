@@ -30,7 +30,7 @@ export function bookingPayload(result: BookingResult): BookingPayload {
     meetingLink: result.meetingLink,
     /**
      * true ⇒ o agendamento EXISTE, mas o provedor ainda não entregou o link.
-     * Confirme o agendamento e diga que o link chega depois; não prometa um que não
+     * Confirme o agendamento e diga que o link chega depois; não prometa um que
      * você não tem.
      */
     linkPending: result.linkPending,

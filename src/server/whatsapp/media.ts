@@ -117,7 +117,7 @@ export async function saveMediaFile(
   const file = mediaFilePath(organizationId, assetId);
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, data);
-  return path.join(organizationId, assetId); // ruta relativa persistida en BD
+  return path.join(organizationId, assetId); // caminho relativo persistido no BD
 }
 
 export async function readMediaFile(
@@ -218,7 +218,7 @@ export async function ensureAssetAvailable(
   const asset = rows[0];
   if (!asset || asset.organizationId !== organizationId) return null;
   if (asset.fetchStatus === "available") return asset;
-  if (!asset.waMediaId) return null; // location/contacts no tienen binario
+  if (!asset.waMediaId) return null; // location/contacts não têm binário
 
   const creds = await getCredentialsByOrg(organizationId);
   if (!creds) return null;

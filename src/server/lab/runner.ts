@@ -213,7 +213,7 @@ async function runConversation(
       .from(schema.conversation)
       .where(eq(schema.conversation.id, convId))
       .limit(1);
-    if (convRows[0]?.handoffAt) break; // primer handoff → fin del guion
+    if (convRows[0]?.handoffAt) break; // primeiro handoff → fim do roteiro
   }
 
   const messages = await db

@@ -277,7 +277,7 @@ export async function processMessagesValue(value: WebhookValue): Promise<void> {
 
   for (const msg of value.messages ?? []) {
     if (!SUPPORTED_TYPES.has(msg.type) && !BUTTON_REPLY_TYPES.has(msg.type)) {
-      continue; // reacciones, etc.: ignorar
+      continue; // reações etc.: ignorar
     }
     const contenido = contenidoEntrante(msg);
     if (!contenido) {

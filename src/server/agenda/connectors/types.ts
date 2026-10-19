@@ -1,40 +1,40 @@
 import type { ConnectorId } from "@/lib/agenda-connectors";
 
 /**
- * 015 — El contrato público de un conector de agenda.
+ * 015 — O contrato público de um conector de agenda.
  *
- * Deliberadamente pequeño: CUATRO operaciones, medidas del uso real en
- * producción de la integración de Zoom del fork de agencia — ni una más en
- * meses de operación. Ver specs/015-motor-agenda-universal/contracts/conector.md.
+ * Deliberadamente pequeno: QUATRO operações, medidas do uso real em
+ * produção da integração do Zoom do fork de agência — nem uma a mais em
+ * meses de operação. Ver specs/015-motor-agenda-universal/contracts/conector.md.
  *
- * Lo que NO está aquí y es a propósito: leer disponibilidad ajena (free/busy).
- * La disponibilidad se calcula 100% local, con una query y aritmética; meter al
- * proveedor en ese camino acoplaría su latencia y sus caídas a la pantalla que
- * más se usa. Los compromisos de fuera se reflejan con bloqueos manuales.
+ * O que NÃO está aqui e é de propósito: ler a disponibilidade alheia (free/busy).
+ * A disponibilidade é calculada 100% localmente, com uma consulta e aritmética; meter o
+ * provedor nesse caminho acoplaria sua latência e suas quedas à tela que
+ * mais se usa. Os compromissos de fora são refletidos com bloqueios manuais.
  *
- * Reglas que hace cumplir el MOTOR, no cada conector:
- *  1. Los efectos corren DESPUÉS de escribir la verdad en el CRM y son
- *     best-effort: una excepción de aquí jamás revierte ni bloquea la cita.
- *  2. Una cita de prueba del Laboratorio NUNCA llega hasta aquí — la aserción
- *     vive antes de la bifurcación por conector. Un conector no comprueba
- *     `is_test`: no le toca.
+ * Regras que o MOTOR impõe, não cada conector:
+ *  1. Os efeitos rodam DEPOIS de gravar a verdade no CRM e são
+ *     best-effort: uma exceção daqui jamais reverte nem bloqueia o agendamento.
+ *  2. Um agendamento de teste do Laboratório NUNCA chega até aqui — a asserção
+ *     vive antes da bifurcação por conector. Um conector não verifica
+ *     `is_test`: não lhe diz respeito.
  */
 
 export type MeetingRequest = {
-  /** "Cita — <nombre del contacto>". */
+  /** "Agendamento — <nome do contato>". */
   topic: string;
-  /** Instante UTC ISO-8601 con Z. */
+  /** Instante UTC ISO-8601 com Z. */
   startUtc: string;
   durationMinutes: number;
-  /** Zona IANA del negocio: el proveedor la usa para mostrarla a los suyos. */
+  /** Fuso IANA do negócio: o provedor o usa para mostrá-lo aos seus. */
   timezone: string;
   notes?: string;
 };
 
 export type MeetingResult = {
-  /** Id de la reunión/evento en el proveedor; null si no genera uno. */
+  /** Id da reunião/evento no provedor; null se não gera um. */
   externalId: string | null;
-  /** Lo que se le comparte al cliente; null si este conector no da link. */
+  /** O que se compartilha com o cliente; null se este conector não dá link. */
   joinUrl: string | null;
 };
 
@@ -44,7 +44,7 @@ export type TestConnectionResult =
 
 export type AgendaConnector<Creds> = {
   id: ConnectorId;
-  /** ¿Necesita credenciales guardadas para operar? */
+  /** Precisa de credenciais guardadas para operar? */
   requiresCredentials: boolean;
 
   createMeeting(creds: Creds, req: MeetingRequest): Promise<MeetingResult>;
@@ -55,30 +55,30 @@ export type AgendaConnector<Creds> = {
     req: Pick<MeetingRequest, "startUtc" | "durationMinutes" | "timezone">
   ): Promise<void>;
 
-  /** Idempotente: un 404 del proveedor es éxito (ya no estaba). */
+  /** Idempotente: um 404 do provedor é sucesso (já não estava). */
   deleteMeeting(creds: Creds, externalId: string): Promise<void>;
 
   testConnection(creds: Creds): Promise<TestConnectionResult>;
 
   /**
-   * OPCIONAL: vuelve a leer una reunión ya creada.
+   * OPCIONAL: relê uma reunião já criada.
    *
-   * Existe por los proveedores que generan el enlace de forma asíncrona
-   * (Google crea la conferencia en segundo plano y su respuesta inmediata
-   * puede venir `pending`). Sin esto, "Reintentar enlace" sobre una cita que ya
-   * tiene evento crearía un DUPLICADO en el calendario del dueño.
+   * Existe pelos provedores que geram o link de forma assíncrona
+   * (o Google cria a conferência em segundo plano e sua resposta imediata
+   * pode vir `pending`). Sem isto, "Tentar novamente o link" sobre um agendamento que já
+   * tem evento criaria um DUPLICADO na agenda do dono.
    *
-   * Un conector cuyo enlace llega de inmediato —Zoom— no la necesita.
+   * Um conector cujo link chega de imediato —Zoom— não precisa dela.
    */
   refreshMeeting?(creds: Creds, externalId: string): Promise<MeetingResult>;
 };
 
 /**
- * Error de un conector. `isAuthError` no es decorativo: cuando es true, el
- * motor marca la credencial como rota y la UI muestra la tarjeta de
- * reconexión. En el fork existe un helper igual que nadie consume y un estado
- * `error` que nunca se escribe — el aviso no llega y el dueño se entera por
- * el cliente que no recibió su link.
+ * Erro de um conector. `isAuthError` não é decorativo: quando é true, o
+ * motor marca a credencial como quebrada e a UI mostra o cartão de
+ * reconexão. No fork existe um helper igual que ninguém consome e um estado
+ * `error` que nunca é escrito — o aviso não chega e o dono descobre pelo
+ * cliente que não recebeu seu link.
  */
 export class ConnectorError extends Error {
   readonly connectorId: ConnectorId;
@@ -94,9 +94,9 @@ export class ConnectorError extends Error {
     this.name = "ConnectorError";
     this.connectorId = connectorId;
     this.status = opts?.status ?? null;
-    // Criterio estricto: SOLO 401. El helper del fork trata cualquier 400 como
-    // problema de credenciales, y un 400 de validación marcaría la conexión
-    // como rota sin estarlo.
+    // Critério estrito: SOMENTE 401. O helper do fork trata qualquer 400 como
+    // problema de credenciais, e um 400 de validação marcaria a conexão
+    // como quebrada sem estar.
     this.isAuthError = opts?.isAuthError ?? opts?.status === 401;
   }
 }

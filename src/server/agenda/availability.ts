@@ -41,7 +41,7 @@ export function buildCandidateSlots(
     const weekday = weekdayKeyOf(date, tz);
     if (!weekday) continue;
     const intervals = settings.weeklyHours[weekday] ?? [];
-    if (intervals.length === 0) continue; // día cerrado
+    if (intervals.length === 0) continue; // dia fechado
     candidates.push(
       ...expandWorkingDayToUtc(
         date,

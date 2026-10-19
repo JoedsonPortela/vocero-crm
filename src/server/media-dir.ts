@@ -3,25 +3,25 @@ import path from "node:path";
 import { getEnv } from "@/lib/env";
 
 /**
- * 008 / #82 — ¿Se puede escribir en MEDIA_DIR?
+ * 008 / #82 — Pode-se escrever em MEDIA_DIR?
  *
- * Es la pregunta que decide si los adjuntos entrantes, el logo y el icono se
- * van a guardar. Se contesta escribiendo DE VERDAD (lo mismo que hará
- * `saveMediaFile`) y borrando el rastro, no mirando permisos.
+ * É a pergunta que decide se os anexos recebidos, o logo e o ícone vão
+ * ser guardados. Responde-se escrevendo DE VERDADE (o mesmo que fará
+ * `saveMediaFile`) e apagando o rastro, não olhando permissões.
  *
- * La hacen dos sitios: el arranque (`instrumentation-node.ts`, que avisa en
- * el log) y `/api/health` (que la expone como `mediaWritable`). El
- * healthcheck de Docker pega cada 15 s, y escribir en disco cada vez sería
- * ruido: el resultado se recuerda `MEDIA_DIR_PROBE_TTL_MS`, así que hay como
- * mucho una escritura por minuto, y la del arranque ya deja el primer
- * resultado listo.
+ * Fazem-na dois lugares: a inicialização (`instrumentation-node.ts`, que avisa no
+ * log) e `/api/health` (que a expõe como `mediaWritable`). O
+ * healthcheck do Docker bate a cada 15 s, e escrever no disco toda vez seria
+ * ruído: o resultado é lembrado por `MEDIA_DIR_PROBE_TTL_MS`, então há no
+ * máximo uma escrita por minuto, e a da inicialização já deixa o primeiro
+ * resultado pronto.
  */
 
 export type MediaDirProbe =
   | { dir: string; writable: true }
   | { dir: string; writable: false; code: string };
 
-/** Sondeo real, sin caché: crea el directorio si falta, escribe y borra. */
+/** Sondagem real, sem cache: cria o diretório se faltar, escreve e apaga. */
 export async function probeMediaDir(dir: string): Promise<MediaDirProbe> {
   const probe = path.join(dir, `.prueba-escritura-${process.pid}`);
   try {
@@ -35,7 +35,7 @@ export async function probeMediaDir(dir: string): Promise<MediaDirProbe> {
   }
 }
 
-/** Cuánto vale un sondeo antes de volver a escribir. */
+/** Quanto vale uma sondagem antes de voltar a escrever. */
 export const MEDIA_DIR_PROBE_TTL_MS = 60_000;
 
 type ProbeCacheEntry = {
@@ -44,20 +44,20 @@ type ProbeCacheEntry = {
   pending: Promise<MediaDirProbe>;
 };
 
-// En globalThis, como el cliente de BD y el estado del cerebro externo: los
-// módulos pueden evaluarse más de una vez (una por ruta en dev), y el sondeo
-// del arranque tiene que servirle a /api/health.
+// Em globalThis, como o cliente de BD e o estado do cérebro externo: os
+// módulos podem ser avaliados mais de uma vez (uma por rota em dev), e a sondagem
+// da inicialização tem que servir ao /api/health.
 const globalForMedia = globalThis as unknown as {
   __voceroMediaDirProbe?: ProbeCacheEntry;
 };
 
 /**
- * El sondeo con caché. Devuelve `null` si el entorno no valida: eso lo
- * reporta, con detalle, el primer `getEnv()` de la app, y aquí no hay
- * directorio que sondear.
+ * A sondagem com cache. Devolve `null` se o ambiente não valida: isso é
+ * informado, com detalhe, pelo primeiro `getEnv()` do app, e aqui não há
+ * diretório a sondar.
  *
- * La caché va por directorio: si `MEDIA_DIR` cambia, se sondea el nuevo
- * aunque el anterior esté fresco.
+ * O cache é por diretório: se `MEDIA_DIR` mudar, sondagem o novo
+ * mesmo que o anterior esteja fresco.
  */
 export async function mediaDirStatus(
   now: number = Date.now()
@@ -81,7 +81,7 @@ export async function mediaDirStatus(
   return pending;
 }
 
-/** Solo para tests. */
+/** Só para testes. */
 export function resetMediaDirCache(): void {
   delete globalForMedia.__voceroMediaDirProbe;
 }

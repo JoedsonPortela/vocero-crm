@@ -1,7 +1,7 @@
 /**
- * 017 — Estado en memoria del mock de Zernio (solo dev/test). Vive en
- * globalThis porque Next recarga módulos en dev; una instancia = un proceso,
- * así que el outbox en memoria alcanza para las aserciones del self-test.
+ * 017 — Estado em memória do mock da Zernio (somente dev/teste). Vive no
+ * globalThis porque o Next recarrega módulos em dev; uma instância = um processo,
+ * então o outbox em memória basta para as asserções do self-test.
  */
 
 export type ZernioSentMessage = {
@@ -9,15 +9,15 @@ export type ZernioSentMessage = {
   conversationId: string;
   accountId: string | null;
   message: string;
-  /** Presente solo fuera de la ventana de 24 h. */
+  /** Presente somente fora da janela de 24 h. */
   messagingType?: string;
   messageTag?: string;
-  /** Llave de idempotencia con la que llegó, si la hubo. */
+  /** Chave de idempotência com a qual chegou, se houve. */
   idempotencyKey: string | null;
   at: string;
 };
 
-/** 023: una cuenta de `GET /accounts`, con la forma real de esa API. */
+/** 023: uma conta de `GET /accounts`, com a forma real dessa API. */
 export type ZernioMockAccount = {
   _id: string;
   platform: string;
@@ -32,7 +32,7 @@ export type ZernioMockAccount = {
   metadata?: { selectedPageId?: string; selectedPageName?: string } | null;
 };
 
-/** 023: un webhook de `/webhooks/settings`. */
+/** 023: um webhook de `/webhooks/settings`. */
 export type ZernioMockWebhook = {
   _id: string;
   name: string;
@@ -51,9 +51,9 @@ type ZernioMockState = {
   /** 023 */
   accounts: ZernioMockAccount[];
   webhooks: ZernioMockWebhook[];
-  /** Rutas que responden 503 hasta el siguiente `_reset` (p. ej. "webhooks/settings"). */
+  /** Rotas que respondem 503 até o próximo `_reset` (p. ex. "webhooks/settings"). */
   down: string[];
-  /** Cuántas veces se leyó cada ruta, para afirmar sobre la caché. */
+  /** Quantas vezes se leu cada rota, para afirmar sobre o cache. */
   hits: Record<string, number>;
 };
 
@@ -63,7 +63,7 @@ export function zernioMockState(): ZernioMockState {
   if (!g.__voceroZernioMock) {
     g.__voceroZernioMock = { seq: 0, sent: [], accounts: [], webhooks: [], down: [], hits: {} };
   }
-  // Un proceso que venía de antes de la 023 (recarga en caliente).
+  // Um processo que vinha de antes da 023 (recarga a quente).
   const s = g.__voceroZernioMock;
   s.accounts ??= [];
   s.webhooks ??= [];
@@ -72,10 +72,10 @@ export function zernioMockState(): ZernioMockState {
   return s;
 }
 
-/** Vacía lo enviado. El contador NO se reinicia: ver `nextZernioMessageId`. */
+/** Esvazia o enviado. O contador NÃO se reinicia: ver `nextZernioMessageId`. */
 export function resetZernioMock(): void {
-  // Las cuentas y los webhooks NO se vacían: son el escenario, y el arnés lo
-  // cambia con `_accounts` y `_webhooks` cuando quiere otro.
+  // As contas e os webhooks NÃO são esvaziados: são o cenário, e o arnês o
+  // muda com `_accounts` e `_webhooks` quando quer outro.
   const s = zernioMockState();
   s.sent = [];
   s.down = [];
@@ -83,12 +83,12 @@ export function resetZernioMock(): void {
 }
 
 /**
- * Id del mensaje que el mock le devuelve al CRM.
+ * Id da mensagem que o mock devolve ao CRM.
  *
- * Lleva la marca de tiempo del proceso, no solo un contador: el CRM guarda ese
- * id con un índice ÚNICO, así que dos corridas del arnés contra la misma base
- * chocarían con `zmock_1` y el envío fallaría por una colisión del harness,
- * que se ve igual que un bug del producto.
+ * Leva a marca de tempo do processo, não só um contador: o CRM guarda esse
+ * id com um índice ÚNICO, então duas execuções do arnês contra o mesmo BD
+ * colidiriam com `zmock_1` e o envio falharia por uma colisão do harness,
+ * que se vê igual a um bug do produto.
  */
 export function nextZernioMessageId(): string {
   const state = zernioMockState();
@@ -96,8 +96,8 @@ export function nextZernioMessageId(): string {
 }
 
 /**
- * Una llave que termina en `-invalid` se rechaza, igual que hace el mock de
- * Graph: es como el arnés comprueba que unas credenciales malas NO se guardan.
+ * Uma chave que termina em `-invalid` é recusada, igual faz o mock do
+ * Graph: é assim que o arnês comprova que credenciais ruins NÃO são guardadas.
  */
 export function zernioTokenIsBad(authorization: string | null): boolean {
   const token = (authorization ?? "").replace(/^Bearer\s+/i, "");

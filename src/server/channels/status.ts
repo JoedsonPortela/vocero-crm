@@ -26,25 +26,25 @@ import {
 } from "@/server/zernio/webhooks";
 
 /**
- * 023 — El estado de los canales de una organización, para Ajustes → Canales.
+ * 023 — O estado dos canais de uma organização, para Configurações → Canais.
  *
- * Tres preguntas por canal: ¿está conectado?, ¿cuándo entró el último
- * mensaje? y, si llega por Zernio, ¿siguen bien la cuenta y el webhook? Las
- * dos primeras salen de la base; la tercera se le pregunta a Zernio en ese
- * momento, con la llave ya guardada, y si Zernio no contesta se dice eso en
- * vez de inventar un «todo bien».
+ * Três perguntas por canal: está conectado?, quando entrou a última
+ * mensagem? e, se chega pela Zernio, a conta e o webhook continuam bem? As
+ * duas primeiras saem do banco; a terceira é perguntada à Zernio naquele
+ * momento, com a chave já guardada, e se a Zernio não responder isso é dito
+ * em vez de inventar um «tudo bem».
  */
 
 export type ChannelStatus = {
   channel: Channel;
   connected: boolean;
   source: "meta" | "zernio" | null;
-  /** La cuenta, el número o la página, como lo reconoce una persona. */
+  /** A conta, o número ou a página, como uma pessoa a reconhece. */
   account: string | null;
   status: "connected" | "reconnect_required" | null;
-  /** ISO-8601 del último mensaje de un cliente por ese canal; null si ninguno. */
+  /** ISO-8601 da última mensagem de um cliente por esse canal; null se nenhuma. */
   lastInboundAt: string | null;
-  /** Solo con fuente Zernio. */
+  /** Só com fonte Zernio. */
   health: { account: Health; webhook: WebhookHealth } | null;
 };
 
@@ -53,7 +53,7 @@ const SIN_ZERNIO: Health = {
   message: "No se pudo consultar a Zernio ahora mismo. Vuelve a intentarlo en un momento.",
 };
 
-/** Cuándo entró el último mensaje de un cliente por cada canal (sin el Laboratorio). */
+/** Quando entrou a última mensagem de um cliente por cada canal (sem o Laboratório). */
 async function lastInboundByChannel(
   organizationId: string
 ): Promise<Partial<Record<Channel, string>>> {
@@ -78,7 +78,7 @@ async function lastInboundByChannel(
 
 type Lectura = { accounts: ZernioAccount[]; webhooks: ZernioWebhook[] } | null;
 
-/** Lo que Zernio sabe de una llave; null si no contestó. */
+/** O que a Zernio sabe de uma chave; null se não respondeu. */
 async function leerZernio(token: string): Promise<Lectura> {
   try {
     const [accounts, webhooks] = await Promise.all([
@@ -117,7 +117,7 @@ export async function channelsStatus(organizationId: string): Promise<ChannelSta
     zernioConnectionsOfOrg(organizationId),
   ]);
 
-  // Una lectura por llave, no por canal: lo normal es que los tres compartan una.
+  // Uma leitura por chave, não por canal: o normal é que os três compartilhem uma.
   const llaves = [...new Set(zernio.map((c) => c.token))];
   const lecturas = new Map<string, Lectura>(
     await Promise.all(llaves.map(async (t) => [t, await leerZernio(t)] as const))
@@ -143,8 +143,8 @@ export async function channelsStatus(organizationId: string): Promise<ChannelSta
     const conn = zernio.find((c) => c.channel === channel);
     if (conn) {
       const lectura = lecturas.get(conn.token) ?? null;
-      // Una conexión guardada antes de la 1.6 puede no tener nombre (Messenger
-      // por Zernio no lo pedía): se enseña el que tiene Zernio ahora.
+      // Uma conexão guardada antes da 1.6 pode não ter nome (o Messenger
+      // pela Zernio não o pedia): mostra-se o que a Zernio tem agora.
       const enZernio = lectura?.accounts.find((a) => a._id === conn.accountRef);
       filas.push({
         ...base,
@@ -157,8 +157,8 @@ export async function channelsStatus(organizationId: string): Promise<ChannelSta
       continue;
     }
 
-    // Fuente Meta (app propia): el estado guardado, que cambia cuando un envío
-    // falla por credenciales.
+    // Fonte Meta (app próprio): o estado guardado, que muda quando um envio
+    // falha por credenciais.
     const meta =
       channel === "instagram" && ig?.source === "meta"
         ? { account: ig.username ? `@${ig.username}` : ig.igUserId, status: ig.status }

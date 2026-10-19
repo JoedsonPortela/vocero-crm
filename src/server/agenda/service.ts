@@ -727,7 +727,7 @@ async function advanceLeadStage(
   const currentIdx = stages.findIndex((s) => s.id === lead.stageId);
   if (currentIdx < 0) return;
   const nextOpen = stages.find((s, i) => i > currentIdx && s.kind === "open");
-  if (!nextOpen) return; // ya está en la última etapa abierta (o en un ancla)
+  if (!nextOpen) return; // já está na última etapa aberta (ou em uma âncora)
 
   await moveLeadToStage({
     organizationId,
@@ -772,7 +772,7 @@ function isUniqueViolation(err: unknown): boolean {
   if (typeof err !== "object" || err === null) return false;
   const code = (err as { code?: unknown }).code;
   if (code === "23505") return true;
-  // Drizzle envuelve el error del driver: el código real viaja en `cause`.
+  // O Drizzle envolve o erro do driver: o código real vai em `cause`.
   const cause = (err as { cause?: unknown }).cause;
   return (
     typeof cause === "object" &&

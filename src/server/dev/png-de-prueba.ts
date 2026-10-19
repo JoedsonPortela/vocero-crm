@@ -1,12 +1,12 @@
 import { deflateSync } from "node:zlib";
 
 /**
- * 018 — PNG real y pequeño para el wa-mock.
+ * 018 — PNG real e pequeno para o wa-mock.
  *
- * La copia del creativo solo acepta imágenes de verdad por su `content-type`,
- * y la tarjeta de la bandeja se revisa en un navegador: con bytes de mentira se
- * vería un ícono roto y no se podría distinguir un anuncio de otro. El color
- * sale de la semilla, así que dos anuncios de prueba se ven distintos.
+ * A cópia do criativo só aceita imagens de verdade pelo seu `content-type`,
+ * e o cartão da caixa de entrada é revisado num navegador: com bytes falsos se
+ * veria um ícone quebrado e não se poderia distinguir um anúncio do outro. A cor
+ * sai da semente, então dois anúncios de teste se veem diferentes.
  */
 
 const TABLA_CRC = (() => {
@@ -43,11 +43,11 @@ export function pngDePrueba(semilla: string, lado = 96): Buffer {
   const pixeles = Buffer.alloc(ancho * lado);
   for (let y = 0; y < lado; y++) {
     const fila = y * ancho;
-    pixeles[fila] = 0; // sin filtro
+    pixeles[fila] = 0; // sem filtro
     for (let x = 0; x < lado; x++) {
       const i = fila + 1 + x * 3;
-      // Degradado hacia el azul de la marca y un rectángulo claro al centro:
-      // parece un creativo, no un bloque plano.
+      // Degradê em direção ao azul da marca e um retângulo claro ao centro:
+      // parece um criativo, não um bloco liso.
       const t = (x + y) / (2 * lado);
       const centro = x > lado * 0.2 && x < lado * 0.8 && y > lado * 0.38 && y < lado * 0.62;
       const marca = [13, 91, 255];

@@ -4,7 +4,7 @@ import { newId } from "@/lib/db/ids";
 import { scoped } from "@/lib/db/tenant";
 import type { ImportRow } from "@/lib/contact-import";
 
-/** Postgres admite ~65k parámetros por consulta; con margen de sobra. */
+/** O Postgres aceita ~65 mil parâmetros por consulta; com folga de sobra. */
 const CHUNK = 500;
 
 function chunks<T>(items: T[]): T[][] {
@@ -14,27 +14,27 @@ function chunks<T>(items: T[]): T[][] {
 }
 
 export type ImportResult = {
-  /** Contactos nuevos. */
+  /** Contatos novos. */
   created: number;
-  /** Ya existían: no se duplican ni se les cambia el nombre. */
+  /** Já existiam: não se duplicam nem se muda o nome deles. */
   existing: number;
-  /** A cuántos se les apagó el agente (nuevos + existentes). */
+  /** Para quantos se desligou o agente (novos + existentes). */
   paused: number;
 };
 
 /**
- * 027 — Importa contactos de WhatsApp en lote. Re-ejecutable: importar dos veces el
- * mismo archivo no duplica a nadie.
+ * 027 — Importa contatos do WhatsApp em lote. Re-executável: importar duas vezes o
+ * mesmo arquivo não duplica ninguém.
  *
- * - NO crea conversación: un hilo vacío ensuciaría la Bandeja. La pausa del
- *   agente se guarda en el contacto y la conversación la hereda al nacer.
- * - NO crea lead: una lista importada (clientes, miembros) no es un embudo, y
- *   meterla al Pipeline lo llenaría de gente que no es prospecto.
- * - A quien ya existía se le respeta el nombre: pudo editarlo el dueño.
- * - El nombre del archivo lo escribió una persona: queda como `manual`, y el
- *   nombre de perfil de WhatsApp no lo pisa cuando el importado escriba. Un
- *   renglón sin nombre entra con el teléfono como nombre y `perfil`, para que
- *   el de WhatsApp lo reemplace en cuanto exista.
+ * - NÃO cria conversa: um fio vazio sujaria a Caixa de entrada. A pausa do
+ *   agente fica guardada no contato e a conversa a herda ao nascer.
+ * - NÃO cria lead: uma lista importada (clientes, membros) não é um funil, e
+ *   levá-la ao Pipeline o encheria de gente que não é prospecto.
+ * - Quem já existia tem o nome respeitado: o dono pode tê-lo editado.
+ * - O nome do arquivo foi escrito por uma pessoa: fica como `manual`, e o
+ *   nome de perfil do WhatsApp não o sobrescreve quando o importado escrever. Uma
+ *   linha sem nome entra com o telefone como nome e `perfil`, para que
+ *   o do WhatsApp o substitua assim que existir.
  */
 export async function importContacts(
   organizationId: string,
@@ -49,8 +49,8 @@ export async function importContacts(
   for (const batch of chunks(rows)) {
     const phones = batch.map((r) => r.phone);
 
-    // Mismo criterio que la ingesta: alguien puede existir por identidad o por
-    // teléfono (un contacto que llegó por BSUID y luego adquirió su número).
+    // Mesmo critério da ingestão: alguém pode existir por identidade ou por
+    // telefone (um contato que chegou por BSUID e depois adquiriu seu número).
     const found = await db
       .select({
         id: schema.contact.id,
@@ -103,7 +103,7 @@ export async function importContacts(
         .returning({ id: schema.contact.id });
       insertedIds = inserted.map((c) => c.id);
       created += insertedIds.length;
-      // Carrera con la ingesta: alguien escribió entre el SELECT y el INSERT.
+      // Corrida com a ingestão: alguém escreveu entre o SELECT e o INSERT.
       existing += fresh.length - insertedIds.length;
     }
 
@@ -130,12 +130,12 @@ export async function importContacts(
 }
 
 /**
- * Lleva la pausa del contacto a su conversación real, si ya existe.
+ * Leva a pausa do contato para a sua conversa real, se ela já existir.
  *
- * Sin esto, apagar el agente a alguien con quien ya se está hablando no
- * tendría efecto hasta que su conversación se borrara y naciera otra.
- * Reanudar NO toca `handoff_at`: una escalada que el agente decidió se levanta
- * desde la Bandeja, donde se ve por qué ocurrió.
+ * Sem isto, desligar o agente de alguém com quem já se está conversando não
+ * teria efeito até que sua conversa fosse apagada e nascesse outra.
+ * Retomar NÃO mexe em `handoff_at`: uma escalada que o agente decidiu se levanta
+ * pela Caixa de entrada, onde se vê por que aconteceu.
  */
 export async function pauseConversations(
   organizationId: string,

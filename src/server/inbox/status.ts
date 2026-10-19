@@ -27,7 +27,7 @@ export async function applyStatusUpdate(
   status: WebhookStatus
 ): Promise<void> {
   const next = status.status;
-  if (!(next in STATUS_RANK) && next !== "failed") return; // estado desconocido
+  if (!(next in STATUS_RANK) && next !== "failed") return; // estado desconhecido
 
   const db = getDb();
   const rows = await db

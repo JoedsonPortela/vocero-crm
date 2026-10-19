@@ -6,7 +6,7 @@ import {
   type Branding,
 } from "@/lib/branding";
 
-/** Marca guardada en organization.metadata (JSON de Better Auth). */
+/** Marca guardada em organization.metadata (JSON do Better Auth). */
 
 function parseMetadata(metadata: string | null): Record<string, unknown> {
   if (!metadata) return {};
@@ -21,11 +21,11 @@ function parseMetadata(metadata: string | null): Record<string, unknown> {
 }
 
 /**
- * Marca + a qué organización pertenece.
+ * Marca + a que organização pertence.
  *
- * El icono se guarda como archivo en `MEDIA_DIR/{organizationId}/favicon`, así
- * que servirlo necesita el id — y la ruta que lo sirve es pública (el login
- * también tiene pestaña), donde no hay sesión de la que sacarlo.
+ * O ícone é guardado como arquivo em `MEDIA_DIR/{organizationId}/favicon`, então
+ * servi-lo precisa do id — e a rota que o serve é pública (o login
+ * também tem aba), onde não há sessão da qual tirá-lo.
  */
 export async function getBrandingContext(
   organizationId?: string | null

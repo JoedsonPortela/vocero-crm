@@ -110,7 +110,7 @@ export function normalizeMetaPagePayload(payload: unknown): MessengerInbound[] {
       const text =
         typeof msg.text === "string" && msg.text.length > 0 ? msg.text : null;
       const type = resolveType(text, msg.attachments?.[0]);
-      if (!type) continue; // ni texto ni adjunto: no hay nada que ingerir
+      if (!type) continue; // nem texto nem anexo: não há nada a ingerir
 
       out.push({
         routeKey: pageId,

@@ -14,48 +14,48 @@ import {
 } from "@/server/agenda/connectors/google-credentials";
 
 /**
- * 015 — Conector Google Calendar + Meet, por REST directo (sin SDK: la
- * constitución no admite dependencias nuevas para esto).
+ * 015 — Conector Google Calendar + Meet, por REST direto (sem SDK: a
+ * constituição não admite dependências novas para isto).
  *
- * Cada cita se convierte en un evento del calendario del dueño con su enlace
- * de Meet. Es el conector con un diferencial claro: la cita aparece donde el
- * dueño ya mira su día.
+ * Cada agendamento vira um evento da agenda do dono com o seu link
+ * do Meet. É o conector com um diferencial claro: o agendamento aparece onde o
+ * dono já olha o seu dia.
  *
- * DOS cosas de Google que dan problemas y aquí están resueltas a propósito:
+ * DUAS coisas do Google que dão problemas e aqui estão resolvidas de propósito:
  *
- *  1. **La conferencia se crea de forma ASÍNCRONA.** La respuesta inmediata de
- *     `events.insert` puede traer `conferenceData.createRequest.status =
- *     "pending"` y ningún enlace. Por eso se re-lee el evento unas pocas veces
- *     antes de rendirse; y si aun así no llegó, la cita se entrega con el
- *     evento creado y el enlace pendiente (reintentable), nunca duplicando.
- *  2. **El refresh token caduca a los 7 días si la app OAuth está en modo
- *     prueba.** Eso no se puede arreglar desde aquí: se advierte en la guía de
- *     conexión, y cuando pasa, el 401 marca la credencial como rota para que
- *     el dueño se entere por la UI y no por un cliente sin enlace.
+ *  1. **A conferência é criada de forma ASSÍNCRONA.** A resposta imediata de
+ *     `events.insert` pode trazer `conferenceData.createRequest.status =
+ *     "pending"` e nenhum link. Por isso o evento é relido algumas vezes
+ *     antes de desistir; e se mesmo assim não chegou, o agendamento é entregue com o
+ *     evento criado e o link pendente (reintentável), nunca duplicando.
+ *  2. **O refresh token expira em 7 dias se o app OAuth estiver em modo de
+ *     teste.** Isso não se resolve daqui: avisa-se no guia de
+ *     conexão, e quando acontece, o 401 marca a credencial como quebrada para
+ *     que o dono fique sabendo pela UI e não por um cliente sem link.
  */
 
 export const GOOGLE_SCOPE = "https://www.googleapis.com/auth/calendar.events";
 
-/** Cuántas veces se re-lee el evento esperando el enlace de Meet. */
+/** Quantas vezes o evento é relido aguardando o link do Meet. */
 const CONFERENCE_POLLS = 3;
 const POLL_DELAY_MS = 400;
 
 /**
- * La clave del caché incluye TODO lo que determina el token.
+ * A chave do cache inclui TUDO o que determina o token.
  *
- * Era `clientId:calendarId`. Como el refresh token y el secreto no entraban,
- * cambiar credenciales no tenía efecto observable hasta que el token expiraba
- * —una hora— y el operador concluía que las nuevas también estaban mal. Pasó
- * de verdad: tras corregir el scope y regenerar el refresh token, la prueba
- * seguía devolviendo el MISMO 403, palabra por palabra (#50, punto 3).
+ * Era `clientId:calendarId`. Como o refresh token e o segredo não entravam,
+ * trocar credenciais não tinha efeito observável até que o token expirasse
+ * —uma hora— e o operador concluía que as novas também estavam erradas. Aconteceu
+ * de verdade: após corrigir o escopo e regenerar o refresh token, o teste
+ * continuava devolvendo o MESMO 403, palavra por palavra (#50, ponto 3).
  *
- * Va como hash y no en claro porque esta clave vive en memoria del proceso y
- * no hay motivo para tener un refresh token dando vueltas en ella.
+ * Vai como hash e não em texto claro porque essa chave vive na memória do processo e
+ * não há motivo para ter um refresh token circulando nela.
  */
 function claveDeToken(creds: GoogleCreds): string {
-  // `JSON.stringify` del array y no un separador a mano: los valores son
-  // opacos y una concatenación cruda podría colisionar entre credenciales
-  // distintas. Aquí la ambigüedad la resuelve el propio formato.
+  // `JSON.stringify` do array e não um separador manual: os valores são
+  // opacos e uma concatenação crua poderia colidir entre credenciais
+  // diferentes. Aqui a ambiguidade quem resolve é o próprio formato.
   return createHash("sha256")
     .update(
       JSON.stringify([
@@ -94,7 +94,7 @@ async function getAccessToken(creds: GoogleCreds): Promise<string> {
     throw new ConnectorError(
       "google",
       `Google rechazó el refresh token: ${detail}. Si tu app OAuth sigue en modo prueba, Google lo revoca a los 7 días: publícala en producción y vuelve a conectar.`,
-      // `invalid_grant` llega como 400 y significa exactamente eso: hay que
+      // `invalid_grant` chega como 400 e significa exatamente isso: é preciso
       // reconectar.
       { status: res.status, isAuthError: res.status === 401 || res.status === 400 }
     );
@@ -153,7 +153,7 @@ type GoogleEvent = {
   };
 };
 
-/** El enlace de la videollamada, mire donde mire Google. */
+/** O link da videochamada, onde quer que o Google o coloque. */
 function meetLinkOf(event: GoogleEvent | null): string | null {
   if (!event) return null;
   const video = event.conferenceData?.entryPoints?.find(
@@ -187,8 +187,8 @@ export const googleConnector: AgendaConnector<GoogleCreds> = {
           end: { dateTime: endUtc, timeZone: "UTC" },
           conferenceData: {
             createRequest: {
-              // Google exige un id de petición propio; el instante lo hace
-              // único por cita sin necesitar aleatoriedad.
+              // O Google exige um id de requisição próprio; o instante o torna
+              // único por agendamento sem precisar de aleatoriedade.
               requestId: `vocero-${Date.parse(req.startUtc)}`,
               conferenceSolutionKey: { type: "hangoutsMeet" },
             },
@@ -203,8 +203,8 @@ export const googleConnector: AgendaConnector<GoogleCreds> = {
     }
 
     let link = meetLinkOf(created);
-    // La conferencia se genera en segundo plano: la respuesta del insert suele
-    // venir `pending`. Se re-lee un par de veces antes de rendirse.
+    // A conferência é gerada em segundo plano: a resposta do insert costuma
+    // vir `pending`. Relê-se algumas vezes antes de desistir.
     for (let i = 0; i < CONFERENCE_POLLS && !link; i++) {
       await sleep(POLL_DELAY_MS);
       const refreshed = (await googleFetch(
@@ -214,8 +214,8 @@ export const googleConnector: AgendaConnector<GoogleCreds> = {
       link = meetLinkOf(refreshed);
     }
 
-    // Con el evento creado y sin enlace, el motor deja la cita "sin enlace" y
-    // el operador reintenta: eso re-lee este mismo evento, no crea otro.
+    // Com o evento criado e sem link, o motor deixa o agendamento "sem link" e
+    // o operador tenta de novo: isso relê este mesmo evento, não cria outro.
     return { externalId: eventId, joinUrl: link };
   },
 
@@ -250,23 +250,23 @@ export const googleConnector: AgendaConnector<GoogleCreds> = {
   async testConnection(creds): Promise<TestConnectionResult> {
     try {
       /**
-       * Se listan eventos, no se lee el calendario.
+       * Listam-se eventos, não se lê a agenda.
        *
-       * `GET /calendars/{id}` es `Calendars.Get`, y Google solo lo concede con
-       * `calendar.readonly` o superior. Con el scope que este conector pide de
-       * verdad —`calendar.events`, suficiente para insert/get/patch/delete— la
-       * llamada devuelve 403 ACCESS_TOKEN_SCOPE_INSUFFICIENT: la conexión
-       * funcionaba y su PROPIA prueba fallaba (#50, punto 2).
+       * `GET /calendars/{id}` é `Calendars.Get`, e o Google só o concede com
+       * `calendar.readonly` ou superior. Com o escopo que este conector pede de
+       * verdade —`calendar.events`, suficiente para insert/get/patch/delete— a
+       * chamada devolve 403 ACCESS_TOKEN_SCOPE_INSUFFICIENT: a conexão
+       * funcionava e seu PRÓPRIO teste falhava (#50, ponto 2).
        *
-       * Listar un evento sí entra en `calendar.events`, así que el scope
-       * documentado sigue siendo el mínimo — que es la razón de pedirlo.
+       * Listar um evento entra em `calendar.events`, então o escopo
+       * documentado continua sendo o mínimo — que é a razão de pedi-lo.
        */
       const lista = (await googleFetch(
         creds,
         eventsPath(creds, "?maxResults=1")
       )) as { summary?: string } | null;
-      // `summary` del listado es el nombre del calendario: el mismo dato que
-      // se enseñaba antes, por una vía que el scope permite.
+      // O `summary` da listagem é o nome da agenda: o mesmo dado que
+      // se mostrava antes, por uma via que o escopo permite.
       return { ok: true, detail: lista?.summary };
     } catch (err) {
       return {

@@ -145,7 +145,7 @@ export async function processMetaInstagramPayload(
       const igsid = m.sender?.id;
       const mid = m.message?.mid;
       if (!igsid || !mid) continue;
-      if (typeof m.message?.text !== "string") continue; // solo texto (014)
+      if (typeof m.message?.text !== "string") continue; // só texto (014)
 
       await ingestInboundMessage({
         organizationId: creds.organizationId,

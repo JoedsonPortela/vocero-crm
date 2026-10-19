@@ -305,7 +305,7 @@ function shortText(v: unknown, max: number): string | undefined {
   if (t.length === 0 || t.length > max) return undefined;
   for (let i = 0; i < t.length; i++) {
     const c = t.charCodeAt(i);
-    if (c < 32 || c === 127) return undefined; // caracteres de control
+    if (c < 32 || c === 127) return undefined; // caracteres de controle
   }
   return t;
 }

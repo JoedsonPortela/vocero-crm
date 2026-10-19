@@ -8,7 +8,7 @@ export function serializeContact(
   c: typeof schema.contact.$inferSelect,
   stageName: string | null = null,
   priority: PriorityValue | null = null,
-  /** 018: si llegó por un anuncio, la fuente no capturada se deduce "anuncio". */
+  /** 018: se chegou por um anúncio, a fonte não capturada é deduzida como "anúncio". */
   llegoPorAnuncio = false
 ) {
   return {
@@ -21,8 +21,8 @@ export function serializeContact(
     archivedAt: c.archivedAt?.toISOString() ?? null,
     source: effectiveSource(c.source, llegoPorAnuncio),
     priority,
-    // Viaja siempre, aunque esté vacía: la pantalla necesita distinguir "aún
-    // no la han llenado" de "este contacto no la trae".
+    // Viaja sempre, mesmo que esteja vazia: a tela precisa distinguir "ainda não
+    // a preencheram" de "este contato não a tem".
     ficha: (c.ficha as FichaDto | null) ?? {},
   };
 }
@@ -46,7 +46,7 @@ export async function getContactById(
   return rows[0] ?? null;
 }
 
-/** Etapa actual del lead del contacto (si existe). */
+/** Etapa atual do lead do contato (se existir). */
 export async function getContactStage(
   organizationId: string,
   contactId: string

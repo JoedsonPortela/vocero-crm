@@ -16,17 +16,17 @@ import {
 /**
  * 015 — Conector Zoom (Server-to-Server OAuth).
  *
- * Es el conector de referencia: su forma exacta lleva meses en producción en un
- * CRM real, y el contrato de conectores se midió de este uso.
+ * É o conector de referência: sua forma exata está há meses em produção num
+ * CRM real, e o contrato dos conectores foi medido a partir deste uso.
  *
- * Frontera única de salida hacia Zoom: fuera de este archivo, nadie sabe que
- * Zoom existe.
+ * Fronteira única de saída para o Zoom: fora deste arquivo, ninguém sabe que
+ * o Zoom existe.
  */
 
 /**
- * Los CUATRO scopes granulares que hacen falta. `user:read:user` es el que se
- * olvida —lo usa la prueba de conexión— y sin él conectar falla aunque las
- * credenciales sirvan para crear reuniones.
+ * Os QUATRO escopos granulares necessários. `user:read:user` é o que se
+ * esquece —é usado pelo teste de conexão— e sem ele conectar falha mesmo que as
+ * credenciais sirvam para criar reuniões.
  */
 export const ZOOM_SCOPES = [
   "meeting:write:meeting",
@@ -36,15 +36,15 @@ export const ZOOM_SCOPES = [
 ] as const;
 
 /**
- * La clave del caché incluye TODO lo que determina el token.
+ * A chave do cache inclui TUDO o que determina o token.
  *
- * Misma trampa que la de Google (#50, punto 3), que aquí nadie ha reportado
- * todavía porque el conector se usa menos: era `accountId:clientId`, así que
- * cambiar el SECRETO no tenía efecto observable hasta que el token expiraba y
- * el operador concluía que las credenciales nuevas también estaban mal.
+ * A mesma armadilha do Google (#50, ponto 3), que aqui ninguém reportou
+ * ainda porque o conector é usado menos: era `accountId:clientId`, então
+ * trocar o SEGREDO não tinha efeito observável até que o token expirasse e
+ * o operador concluísse que as credenciais novas também estavam erradas.
  *
- * Se arregla junto con la otra a propósito: dejar una de las dos copias de un
- * mismo error es cómo vuelve.
+ * Corrige-se junto com a outra de propósito: deixar uma das duas cópias do
+ * mesmo erro é como ele volta.
  */
 function claveDeToken(creds: ZoomCreds): string {
   return createHash("sha256")
@@ -79,9 +79,9 @@ async function getAccessToken(creds: ZoomCreds): Promise<string> {
     const detail = await res.text().catch(() => "");
     throw new ConnectorError("zoom", `Zoom rechazó las credenciales: ${detail}`, {
       status: res.status,
-      // El endpoint de token responde 400 cuando las credenciales no sirven:
-      // aquí un 400 SÍ es un problema de autenticación, a diferencia del resto
-      // de la API, donde suele ser una validación del cuerpo.
+      // O endpoint de token responde 400 quando as credenciais não servem:
+      // aqui um 400 É um problema de autenticação, diferente do resto
+      // da API, onde costuma ser uma validação do corpo.
       isAuthError: res.status === 401 || res.status === 400,
     });
   }
@@ -119,7 +119,7 @@ async function zoomFetch(
     throw new ConnectorError("zoom", `No se pudo contactar a Zoom: ${err}`);
   }
 
-  // Idempotencia: borrar algo que ya no está es objetivo cumplido.
+  // Idempotência: apagar algo que já não está é objetivo cumprido.
   if (res.status === 404 && init.allow404) return null;
   if (res.status === 204) return null;
 
@@ -141,8 +141,8 @@ export const zoomConnector: AgendaConnector<ZoomCreds> = {
       method: "POST",
       body: JSON.stringify({
         topic: req.topic,
-        type: 2, // reunión programada
-        // Zoom rechaza los milisegundos en start_time.
+        type: 2, // reunião agendada
+        // O Zoom rejeita os milissegundos em start_time.
         start_time: req.startUtc.replace(/\.\d{3}Z$/, "Z"),
         duration: req.durationMinutes,
         timezone: req.timezone,
@@ -158,8 +158,8 @@ export const zoomConnector: AgendaConnector<ZoomCreds> = {
   },
 
   async updateMeeting(creds, externalId, req): Promise<void> {
-    // Solo la hora: el mismo id conserva el mismo join_url, que es lo que el
-    // cliente ya tiene guardado.
+    // Só a hora: o mesmo id conserva o mesmo join_url, que é o que o
+    // cliente já tem guardado.
     await zoomFetch(creds, `/meetings/${encodeURIComponent(externalId)}`, {
       method: "PATCH",
       body: JSON.stringify({

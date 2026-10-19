@@ -130,7 +130,7 @@ async function leerConTope(
       partes.push(value);
     }
   } catch {
-    return "cortado"; // tiempo agotado o conexión caída a media lectura
+    return "cortado"; // tempo esgotado ou conexão caída no meio da leitura
   }
   return Buffer.concat(partes);
 }
@@ -154,7 +154,7 @@ export async function descargarCreativo(url: string): Promise<Descarga> {
         headers: { accept: "image/*" },
       });
     } catch {
-      return TRANSITORIA; // tiempo agotado o red caída
+      return TRANSITORIA; // tempo esgotado ou rede caída
     }
     if (res.status >= 300 && res.status < 400) {
       const destino = res.headers.get("location");
@@ -189,7 +189,7 @@ export async function descargarCreativo(url: string): Promise<Descarga> {
     if (data === "grande" || data.byteLength === 0) return PERMANENTE;
     return { ok: true, data, mimeType };
   }
-  return PERMANENTE; // demasiadas redirecciones
+  return PERMANENTE; // redirecionamentos demais
 }
 
 /** Download com uma nova tentativa se a falha foi transitória. */

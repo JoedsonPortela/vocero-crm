@@ -1,12 +1,12 @@
 import type { SourceDto, SourceValue } from "@/lib/types";
 
 /**
- * Fuente del prospecto.
+ * Fonte do prospecto.
  *
- * Lo que el dueño captura MANDA; lo que no, se marca como deducido. Por eso
- * `contact.source` nace NULL: nadie tiene que capturar a mano la fuente de los
- * cientos de contactos que ya existían, ni marcarlos en falso con un backfill.
- * La UI distingue las dos cosas para no presentar una suposición como un dato.
+ * O que o dono captura VALE; o que não, é marcado como deduzido. Por isso
+ * `contact.source` nasce NULL: ninguém precisa capturar à mão a fonte dos
+ * centenas de contatos que já existiam, nem marcá-los falsamente com um backfill.
+ * A UI distingue as duas coisas para não apresentar uma suposição como um dado.
  */
 
 export const SOURCE_VALUES: readonly SourceValue[] = [
@@ -31,11 +31,11 @@ export function isSourceValue(v: unknown): v is SourceValue {
 }
 
 /**
- * Un contacto que llegó solo por WhatsApp no dice de dónde salió, y el CRM no
- * lo inventa: queda "sin identificar" hasta que alguien lo capture.
+ * Um contato que chegou só pelo WhatsApp não diz de onde saiu, e o CRM não
+ * o inventa: fica "sem identificar" até que alguém o capture.
  *
- * 018 — Salvo que Meta lo haya dicho: si la conversación la abrió un anuncio,
- * la fuente se DEDUCE "anuncio". Lo capturado a mano sigue mandando.
+ * 018 — Salvo se a Meta tiver dito: se a conversa foi aberta por um anúncio,
+ * a fonte é DEDUZIDA como "anúncio". O capturado à mão continua valendo.
  */
 export function effectiveSource(
   stored: SourceValue | null,

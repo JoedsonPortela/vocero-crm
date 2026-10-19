@@ -81,7 +81,7 @@ export function normalizeZernioTiktokEvent(payload: unknown): TiktokInbound[] {
     : adjunto
       ? (ATTACHMENT_TYPE[adjunto.type ?? ""] ?? "unsupported")
       : null;
-  if (!type) return []; // ni texto ni adjunto: no hay nada que ingerir
+  if (!type) return []; // nem texto nem anexo: não há nada a ingerir
 
   const sender = evt.message?.sender;
   return [

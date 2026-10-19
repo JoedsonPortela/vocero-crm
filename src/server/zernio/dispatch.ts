@@ -93,7 +93,7 @@ export async function isAuthenticZernioDelivery(
  */
 export async function processZernioPayload(payload: unknown): Promise<void> {
   const channel = zernioTargetChannel(payload);
-  if (!channel) return; // otra plataforma conectada a la misma llave: no es nuestra
+  if (!channel) return; // outra plataforma conectada à mesma chave: não é nossa
 
   if (!isChannelEnabled(channel)) {
     console.warn(

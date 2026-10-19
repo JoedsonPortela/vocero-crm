@@ -4,10 +4,10 @@ import { decryptSecret, encryptSecret } from "@/lib/crypto";
 import { scoped } from "@/lib/db/tenant";
 
 /**
- * 015 — Credenciales de la app de Google Cloud del propio negocio.
+ * 015 — Credenciais do app do Google Cloud do próprio negócio.
  *
- * DOS secretos cifrados: el client secret y el refresh token que el dueño pega
- * una sola vez. Mismo mecanismo AES-256-GCM que el resto.
+ * DOIS segredos criptografados: o client secret e o refresh token que o dono cola
+ * uma única vez. Mesmo mecanismo AES-256-GCM dos demais.
  */
 
 export type GoogleCreds = {
@@ -91,7 +91,7 @@ export async function deleteGoogleCredentials(
   clearGoogleTokenCache();
 }
 
-/** El estado `error` se escribe de verdad (ver zoom-credentials). */
+/** O estado `error` é escrito de verdade (ver zoom-credentials). */
 export async function markGoogleError(organizationId: string): Promise<void> {
   const db = getDb();
   await db
@@ -104,7 +104,7 @@ export function secretLast4(secret: string): string {
   return secret.slice(-4);
 }
 
-/* Caché del access token, por proceso. Google los emite de una hora. */
+/* Cache do access token, por processo. O Google os emite por uma hora. */
 
 type CachedToken = { token: string; expiresAtMs: number };
 

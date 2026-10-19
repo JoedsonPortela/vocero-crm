@@ -4,11 +4,11 @@ import { decryptSecret, encryptSecret } from "@/lib/crypto";
 import { scoped } from "@/lib/db/tenant";
 
 /**
- * 015 — Credenciales de la app Server-to-Server de Zoom del propio negocio.
+ * 015 — Credenciais do app Server-to-Server do Zoom do próprio negócio.
  *
- * Mismo mecanismo de cifrado que el token de WhatsApp: un segundo mecanismo
- * sería un segundo mecanismo que auditar. Hacia fuera solo salen los últimos 4
- * del secreto.
+ * Mesmo mecanismo de criptografia do token do WhatsApp: um segundo mecanismo
+ * seria um segundo mecanismo para auditar. Para fora só saem os últimos 4
+ * do segredo.
  */
 
 export type ZoomCreds = {
@@ -68,7 +68,7 @@ export async function saveZoomCredentials(input: {
       target: [schema.zoomCredentials.organizationId],
       set: { ...values, updatedAt: new Date() },
     });
-  // El token cacheado se emitió con las credenciales viejas.
+  // O token em cache foi emitido com as credenciais antigas.
   clearZoomTokenCache();
 }
 
@@ -83,9 +83,9 @@ export async function deleteZoomCredentials(
 }
 
 /**
- * Marca la conexión como rota. Se ESCRIBE de verdad, en el momento en que el
- * proveedor rechaza la autenticación: si nadie lo escribiera, el dueño se
- * enteraría por el cliente que no recibió su enlace.
+ * Marca a conexão como quebrada. É ESCRITO de verdade, no momento em que o
+ * provedor rejeita a autenticação: se ninguém o escrevesse, o dono
+ * ficaria sabendo pelo cliente que não recebeu seu link.
  */
 export async function markZoomError(organizationId: string): Promise<void> {
   const db = getDb();
@@ -95,18 +95,18 @@ export async function markZoomError(organizationId: string): Promise<void> {
     .where(scoped(schema.zoomCredentials.organizationId, organizationId));
 }
 
-/** Últimos 4 del secreto, para la UI. Jamás el secreto. */
+/** Últimos 4 do segredo, para a UI. Jamais o segredo. */
 export function secretLast4(secret: string): string {
   return secret.slice(-4);
 }
 
 /* --------------------------------------------------------------------------
- * Caché del token de acceso, por proceso.
+ * Cache do token de acesso, por processo.
  *
- * Zoom emite un token de vida corta por cada llamada al endpoint de OAuth;
- * pedir uno nuevo en cada cita es una llamada de red de más y un límite de tasa
- * que se acerca. Se renueva 60 s antes de expirar, y se invalida al cambiar o
- * borrar las credenciales.
+ * O Zoom emite um token de vida curta a cada chamada ao endpoint de OAuth;
+ * pedir um novo em cada agendamento é uma chamada de rede a mais e um limite de taxa
+ * que se aproxima. Renova-se 60 s antes de expirar, e se invalida ao trocar ou
+ * apagar as credenciais.
  * ------------------------------------------------------------------------ */
 
 type CachedToken = { token: string; expiresAtMs: number };
