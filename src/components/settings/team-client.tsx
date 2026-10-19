@@ -84,7 +84,7 @@ export function TeamClient() {
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="team-name">Nombre</Label>
+              <Label htmlFor="team-name">Nome</Label>
               <Input
                 id="team-name"
                 value={name}
@@ -92,7 +92,7 @@ export function TeamClient() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="team-email">Correo</Label>
+              <Label htmlFor="team-email">E-mail</Label>
               <Input
                 id="team-email"
                 type="email"
@@ -111,7 +111,7 @@ export function TeamClient() {
                 placeholder={t("settings.passwordMin")}
               />
               <Button variant="outline" onClick={generatePassword}>
-                Generar
+                Gerar
               </Button>
             </div>
           </div>
@@ -141,7 +141,7 @@ export function TeamClient() {
 
       <div className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Miembros
+          Membros
         </p>
         {members.map((m) => (
           <div
@@ -154,7 +154,7 @@ export function TeamClient() {
               <p className="text-xs text-muted-foreground">{m.email}</p>
             </div>
             <Badge variant={m.role === "owner" ? "default" : "secondary"}>
-              {m.role === "owner" ? "Propietario" : "Miembro"}
+              {m.role === "owner" ? "Proprietário" : "Membro"}
             </Badge>
           </div>
         ))}

@@ -43,7 +43,7 @@ const conProveedor = {
   // Sin `.default()`: con él, `parseBody` infiere el tipo de ENTRADA (con
   // `undefined`) y el handler pierde el tipado. La UI siempre lo manda.
   provider: z.enum(AI_PROVIDERS),
-  /** Obligatoria con «Otro compatible con OpenAI»; con OpenRouter se ignora. */
+  /** Obligatoria con «Outro compatível com OpenAI»; con OpenRouter se ignora. */
   baseUrl: baseUrlSchema.optional(),
 };
 
@@ -55,7 +55,7 @@ function exigeBaseUrl(
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["baseUrl"],
-      message: "Con «Otro compatible con OpenAI» hay que indicar la base URL",
+      message: "Con «Outro compatível com OpenAI» hay que indicar la base URL",
     });
   }
 }

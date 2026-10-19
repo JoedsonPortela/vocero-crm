@@ -178,12 +178,12 @@ export function TemplatesClient() {
               title={t("settings.tplCheckStatus")}
             >
               <RefreshCw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-              Actualizar estado
+              Atualizar status
             </Button>
             {!creating && (
               <Button size="sm" onClick={() => setCreating(true)}>
                 <Plus className="h-4 w-4" />
-                Nueva plantilla
+                Novo modelo
               </Button>
             )}
           </div>
@@ -270,7 +270,7 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
     {
       icon: Clock3,
       title: "A Meta analisa",
-      text: "Leva de alguns minutos a 24 horas. El estado cambia solo a «Aprovada» o «Rechazada», con el motivo.",
+      text: "Leva de alguns minutos a 24 horas. O status muda sozinho para «Aprovada» ou «Rejeitada», com o motivo.",
     },
     {
       icon: Send,
@@ -412,7 +412,7 @@ function CreateForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Nueva plantilla</CardTitle>
+        <CardTitle>Novo modelo</CardTitle>
         <CardDescription>
           É enviado para análise da Meta ao ser criado. Enquanto ele é analisado, você pode continuar usando o CRM.
         </CardDescription>

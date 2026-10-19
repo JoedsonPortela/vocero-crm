@@ -28,7 +28,7 @@ import {
  * La llave se manda una vez y no vuelve: la pantalla solo muestra sus últimos
  * 4 y el estado. Si está pausada, dice POR QUÉ y qué hacer — no es lo mismo
  * «tu llave dejó de servir» que «tu cuenta se quedó sin saldo», y son dos
- * acciones distintas del dueño. «Testar conexión» y «Traer modelos» hablan
+ * acciones distintas del dueño. «Testar conexión» y «Buscar modelos» hablan
  * con el proveedor usando lo escrito, sin guardar nada.
  */
 
@@ -340,7 +340,7 @@ export function AiClient() {
                   onClick={traerModelos}
                   disabled={ocupado !== null || faltaBase || faltaLlave}
                 >
-                  {ocupado === "modelos" ? "Trayendo…" : "Traer modelos"}
+                  {ocupado === "modelos" ? "Buscando…" : "Buscar modelos"}
                 </Button>
               </div>
               {modelos && (

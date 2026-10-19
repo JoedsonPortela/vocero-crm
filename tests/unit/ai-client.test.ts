@@ -18,9 +18,9 @@ describe("Ajustes → IA", () => {
     expect(html).toContain('href="https://openrouter.ai/settings/keys"');
     expect(html).toContain('type="password"');
     expect(html).toContain("Testar conexão");
-    expect(html).toContain("Traer modelos");
+    expect(html).toContain("Buscar modelos");
     expect(html).toContain("OpenRouter");
-    expect(html).toContain("Otro compatible con OpenAI");
+    expect(html).toContain("Outro compatível com OpenAI");
     // El respaldo del entorno se explica sin mandar a editar el .env.
     expect(html).toContain("OPENROUTER_API_TOKEN");
     expect(html).not.toContain("reinic");

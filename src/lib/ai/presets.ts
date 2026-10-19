@@ -39,7 +39,7 @@ export const AI_PROVIDER_PRESETS: Record<AiProviderId, AiProviderPreset> = {
   },
   openai_compatible: {
     id: "openai_compatible",
-    label: "Otro compatible con OpenAI",
+    label: "Outro compatível com OpenAI",
     baseUrl: null,
     modelPlaceholder: "gpt-4.1-mini",
     tokenPlaceholder: "sk-…",

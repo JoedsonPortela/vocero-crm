@@ -114,7 +114,7 @@ export function BrandingClient({
     <div className="max-w-2xl space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Marca del CRM</CardTitle>
+          <CardTitle>Marca do CRM</CardTitle>
           <CardDescription>
             Este CRM é seu: coloque o nome do seu negócio e a sua cor. Se
             refletem em toda a interface e na tela de entrada.
@@ -122,7 +122,7 @@ export function BrandingClient({
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="space-y-1.5">
-            <Label htmlFor="brand-name">Nombre</Label>
+            <Label htmlFor="brand-name">Nome</Label>
             <Input
               id="brand-name"
               maxLength={30}
@@ -134,7 +134,7 @@ export function BrandingClient({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="brand-currency">Moneda del negocio</Label>
+            <Label htmlFor="brand-currency">Moeda do negócio</Label>
             <select
               id="brand-currency"
               value={currency}

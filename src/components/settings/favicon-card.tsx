@@ -78,7 +78,7 @@ export function FaviconCard({ branding }: { branding: Branding }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Logo del negocio</CardTitle>
+        <CardTitle>Logo do negócio</CardTitle>
         <p className="text-sm text-text-3">
           Aparece na aba do navegador e na barra lateral do CRM.
         </p>
@@ -129,7 +129,7 @@ export function FaviconCard({ branding }: { branding: Branding }) {
             onClick={() => input.current?.click()}
           >
             <ImageUp className="h-4 w-4" />
-            {subiendo ? "Subiendo…" : actual ? "Cambiar logo" : "Subir logo"}
+            {subiendo ? "Enviando…" : actual ? "Trocar logo" : "Enviar logo"}
           </Button>
           {actual && (
             <Button variant="ghost" disabled={subiendo} onClick={() => void quitar()}>
@@ -139,8 +139,8 @@ export function FaviconCard({ branding }: { branding: Branding }) {
         </div>
 
         <p className="text-xs text-text-3">
-          PNG, SVG, ICO, JPEG o WebP, hasta{" "}
-          {Math.round(MAX_FAVICON_BYTES / 1024)} KB. Cuadrado y con fondo
+          PNG, SVG, ICO, JPEG ou WebP, até{" "}
+          {Math.round(MAX_FAVICON_BYTES / 1024)} KB. Quadrado e com fundo
           transparente fica melhor: é desenhado sobre a sua cor de destaque.
         </p>
 

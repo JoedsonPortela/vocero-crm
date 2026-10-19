@@ -304,19 +304,19 @@ function ConnectForm({
           <p className="font-medium">{t("settings.whereToken")}</p>
           <div className="grid gap-3 md:grid-cols-2">
             <div className="rounded-md border p-3">
-              <p className="mb-1 font-medium text-primary">Modo directo</p>
+              <p className="mb-1 font-medium text-primary">Modo direto</p>
               <p className="text-muted-foreground">
-                El negocio tiene su propia app en{" "}
+                O negócio tem o próprio app no{" "}
                 <span className="text-foreground">developers.facebook.com</span>:
-                usa un token de <span className="text-foreground">usuario del sistema</span>{" "}
+                usa um token de <span className="text-foreground">usuário do sistema</span>{" "}
                 (não expira) com permissões do WhatsApp. Neste modo, convém configurar também o App Secret para a assinatura do webhook.
               </p>
             </div>
             <div className="rounded-md border p-3">
               <p className="mb-1 font-medium text-primary">Modo agência (Tech Provider)</p>
               <p className="text-muted-foreground">
-                Sua agência faz o Embedded Signup NA PLATAFORMA DELA e a sua
-                backend obtém o token do cliente e o entrega para colá-lo aqui. Ao salvar, o webhook é registrado no número
+                Sua agência faz o Embedded Signup NA PLATAFORMA DELA, e o
+                backend dela obtém o token do cliente e o entrega para colá-lo aqui. Ao salvar, o webhook é registrado no número
                 (<span className="text-foreground">override do número</span>),
                 igual ao modo direto; se a sua agência já direciona a conta para o próprio backend, isso é respeitado.
               </p>
@@ -564,8 +564,7 @@ function WebhookCard({
           </p>
         ) : (
           <p className="flex items-start gap-2 text-xs text-muted-foreground">
-            <Info className="mt-0.5 h-4 w-4 shrink-0" /> Sem App Secret
-            configurado: o webhook fica protegido pela URL secreta (normal
+            <Info className="mt-0.5 h-4 w-4 shrink-0" /> Sem App Secret configurado: o webhook fica protegido pela URL secreta (normal
             no modo agência). Para a camada extra de assinatura, adicione
             META_APP_SECRET à instância.
           </p>
