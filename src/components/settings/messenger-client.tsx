@@ -200,7 +200,7 @@ export function MessengerClient() {
                       : "border-border-strong hover:bg-accent"
                   )}
                 >
-                  {s === "zernio" ? "Zernio (API unificada)" : "App propia de Meta"}
+                  {s === "zernio" ? "Zernio (API unificada)" : "App próprio da Meta"}
                 </button>
               ))}
             </div>
