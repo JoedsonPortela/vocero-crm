@@ -24,9 +24,9 @@ export default async function AppLayout({
   const theme = normalizeThemePreference(
     (await cookies()).get(THEME_COOKIE)?.value
   );
-  // El agente encendido y sin con qué pensar se ve desde fuera igual que un
-  // bot roto. Se resuelve en el servidor y en el layout para que se vea desde
-  // CUALQUIER pantalla, no solo desde el panel de un contacto (#85).
+  // O agente ligado e sem com que pensar aparece de fora igual a um
+  // bot quebrado. Resolve-se no servidor e no layout para que apareça em
+  // QUALQUER tela, não só no painel de um contato (#85).
   const aviso = await avisoIaDe(session.organizationId);
 
   return (
@@ -35,13 +35,13 @@ export default async function AppLayout({
       userName={authSession?.user.name ?? "Usuario"}
       role={session.role}
       theme={theme}
-      // Se resuelve aquí, en el servidor: el cliente no ve `SOURCE_COMMIT`.
-      // Baja con su procedencia, para que la insignia no presente como
-      // verificado un commit que no salió del build (#50).
+      // Resolve-se aqui, no servidor: o cliente não vê `SOURCE_COMMIT`.
+      // Desce com a sua procedência, para que o selo não apresente como
+      // verificado um commit que não saiu do build (#50).
       commit={resolveCommit()}
-      // Qué módulos opcionales existen se decide en el servidor y baja por
-      // prop, igual que los canales de la Bandeja. El nav es un componente de
-      // cliente: no puede —ni debe— leer variables de entorno.
+      // Quais módulos opcionais existem é decidido no servidor e desce por
+      // prop, igual aos canais da Bandeja. O nav é um componente de
+      // cliente: não pode — nem deve — ler variáveis de ambiente.
       agenda={agendaEnabled()}
       kicker={navKicker([...enabledChannels()])}
       aviso={<AvisoIaBanner aviso={aviso} />}

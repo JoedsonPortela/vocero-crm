@@ -1,13 +1,13 @@
 /**
- * Self-test E2E de comportamiento — búsqueda de la Bandeja y filtro por etapa
- * del embudo (Bandeja + Contactos). Guion tests/e2e/us-busqueda-filtros.md.
+ * Self-test E2E de comportamento — busca da Bandeja e filtro por etapa
+ * do funil (Bandeja + Contatos). Roteiro tests/e2e/us-busqueda-filtros.md.
  *
- * Reproduce el fallo reportado el 2026-08-05: teclear en el buscador mientras
- * la página aún hidrata descartaba el texto en silencio, y el teléfono solo
- * se encontraba con los dígitos crudos (no como se pinta en pantalla).
+ * Reproduz a falha relatada em 2026-08-05: digitar no buscador enquanto a
+ * página ainda hidrata descartava o texto em silêncio, e o telefone só
+ * era encontrado com os dígitos crus (não como aparece na tela).
  *
  * Uso: node scripts/e2e-search-filters.mjs
- * Requiere: app corriendo (pnpm dev) con WA_MOCK_ENABLED=true y Playwright.
+ * Requer: app rodando (pnpm dev) com WA_MOCK_ENABLED=true e Playwright.
  */
 import { chromium } from "playwright";
 
@@ -43,7 +43,7 @@ await req.put(`${BASE}/api/settings/whatsapp`, {
 });
 
 const SUF = String(Math.floor(Math.random() * 9e6) + 1e6); // 7 dígitos únicos
-const PHONE = `521462${SUF}`; // Meta manda 521…; el CRM canoniza a 52…
+const PHONE = `521462${SUF}`; // Meta envia 521…; o CRM canoniza para 52…
 const PHONE2 = `521559${SUF}`;
 const FMT = `+52 462 ${SUF.slice(0, 3)} ${SUF.slice(3)}`;
 const people = [
@@ -69,7 +69,7 @@ console.log("\n== Bandeja: teclear mientras la página aún carga (el bug) ==");
 await page.goto(`${BASE}/inbox`, { waitUntil: "commit" });
 const box = page.getByLabel("Buscar conversación");
 await box.waitFor({ timeout: 15000 });
-await box.fill(`Zoraida${S}`); // sucede ANTES de que hidrate React
+await box.fill(`Zoraida${S}`); // acontece ANTES de o React hidratar
 await page.getByText(`Zoraida${S}`).first().waitFor({ timeout: 20000 });
 await page.waitForTimeout(2500);
 
@@ -172,7 +172,7 @@ cl = await cRows();
 ok(`Contactos filtrado por '${stage}'`,
    cl.length > 0 && cl.every((t) => t.includes(stage)), JSON.stringify(cl.length));
 
-// Camino infeliz: una etapa sin nadie no debe romper la pantalla.
+// Caminho infeliz: uma etapa sem ninguém não deve quebrar a tela.
 const empty = cOptions[cOptions.length - 1];
 await cSel.selectOption(empty);
 await cp.waitForTimeout(900);

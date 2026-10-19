@@ -3,13 +3,13 @@ import { MetaApiError } from "@/lib/meta/client";
 import { registerWebhookForNumber } from "@/server/whatsapp/connect";
 
 /**
- * Guardar la conexión de WhatsApp registra el webhook en el número, pero SIN
- * pisar un override de callback de la WABA: en Meta, `POST
- * {WABA}/subscribed_apps` sin cuerpo es exactamente cómo se elimina el
- * callback alterno, y el override del número tiene prioridad sobre el de la
- * WABA. Con cualquiera de las dos cosas, un cerebro externo (Nea) o el backend
- * de una agencia dejaba de recibir mensajes cada vez que alguien pulsaba
- * "Guardar" o rotaba el token.
+ * Salvar a conexão do WhatsApp registra o webhook no número, mas SEM
+ * sobrescrever um override de callback da WABA: na Meta, `POST
+ * {WABA}/subscribed_apps` sem corpo é exatamente como se remove o
+ * callback alternativo, e o override do número tem prioridade sobre o da
+ * WABA. Com qualquer uma dessas coisas, um cérebro externo (Nea) ou o backend
+ * de uma agência deixava de receber mensagens sempre que alguém clicava em
+ * "Guardar" ou girava o token.
  */
 
 const { graphRequest } = vi.hoisted(() => ({ graphRequest: vi.fn() }));
@@ -23,9 +23,9 @@ const WABA = "WABA-1";
 const PHONE = "PN-1";
 const TOKEN = "EAAG-token-secreto-1234";
 const APP = { id: "123", name: "Mi app", link: "https://www.facebook.com/games/?app_id=123" };
-/** El webhook de esta instancia: el verify token es el segmento secreto. */
+/** O webhook desta instância: o verify token é o segmento secreto. */
 const URL_PROPIA = "https://crm.ejemplo.com/api/webhooks/wa/verify-secreto-xyz";
-/** El override de Nea lleva también su propio segmento secreto. */
+/** O override da Nea também leva seu próprio segmento secreto. */
 const OVERRIDE = "https://nea.ejemplo.com/api/webhooks/wa/segmento-secreto-abc";
 
 const opts = {
@@ -43,8 +43,8 @@ const subscriptions = () =>
   posts().filter(([path]) => path === `${WABA}/subscribed_apps`);
 
 /**
- * Una «Meta» mínima: responde según la ruta, y recuerda el override del
- * número para que la confirmación lo devuelva tal cual lo pusieron.
+ * Uma «Meta» mínima: responde conforme a rota, e lembra o override do
+ * número para que a confirmação o devolva tal como o puseram.
  */
 function metaFalsa(subscribedApps: unknown, phoneOverride: string | null = null) {
   let override = phoneOverride;
@@ -89,7 +89,7 @@ afterEach(() => {
   warn.mockRestore();
 });
 
-/** Todo lo que se escribió en consola, para buscar secretos filtrados. */
+/** Tudo o que foi escrito no console, para buscar segredos vazados. */
 function consoleText(): string {
   return [...log.mock.calls, ...warn.mock.calls].flat().map(String).join("\n");
 }
@@ -172,7 +172,7 @@ describe("registerWebhookForNumber — la WABA ya enruta a ESTA instancia (overr
       data: [
         {
           whatsapp_business_api_data: APP,
-          // Otro dominio, misma ruta: la instancia cambió de dominio.
+          // Outro domínio, mesma rota: a instância mudou de domínio.
           override_callback_uri: "https://viejo.ejemplo.com/api/webhooks/wa/verify-secreto-xyz",
         },
       ],

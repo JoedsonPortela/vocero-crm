@@ -7,11 +7,11 @@ import { checkDispatch } from "@/server/doctor/checks";
 import { BACKOFF_MS, MAX_INTENTOS, esperaDeReintento } from "@/server/dispatch/outbox";
 
 /**
- * 021 — Cuándo hay despacho, y qué se dice cuando no.
+ * 021 — Quando há despacho, e o que se diz quando não há.
  *
- * Lo que se protege: que una URL mal escrita o una llave ausente dejen el
- * despacho INACTIVO (y el agente incluido contestando como en 1.5) en vez de
- * una instancia muda, y que el motivo salga sin filtrar la ruta de la URL.
+ * O que se protege: que uma URL mal escrita ou uma chave ausente deixem o
+ * despacho INATIVO (e o agente incluído respondendo como na 1.5) em vez de uma
+ * instância muda, e que o motivo saia sem vazar o caminho da URL.
  */
 
 const LLAVE = "k".repeat(32);
@@ -164,8 +164,8 @@ describe("hayMensajesSinDespachar — lo que entró con el evento en vuelo", () 
 });
 
 /**
- * 025 — Cuáles, no solo si hay: son los ids que el despacho siguiente lleva
- * anotados en `dispatch.message_ids`.
+ * 025 — Quais, não só se há: são os ids que o próximo despacho leva
+ * anotados em `dispatch.message_ids`.
  */
 describe("sinDespachar — lo que el cerebro todavía no recibió", () => {
   it("devuelve los que faltan, en el orden de la ráfaga", () => {
@@ -177,7 +177,7 @@ describe("sinDespachar — lo que el cerebro todavía no recibió", () => {
   });
 
   it("un debido que quedó detrás de la respuesta sigue debiéndose", () => {
-    // `rafagaDe` lo trae por estar anotado, aunque la ráfaga ya esté cerrada.
+    // `rafagaDe` o traz por estar anotado, mesmo que a rajada já esteja fechada.
     expect(sinDespachar(["a"], [{ id: "b" }])).toEqual(["b"]);
   });
 });

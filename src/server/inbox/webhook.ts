@@ -1,18 +1,18 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 /**
- * Autenticación en dos capas del webhook (contrato webhook.md / DV-VC-02).
- * Este módulo es puro (sin BD) para poder testearse unitariamente.
+ * Autenticação em duas camadas do webhook (contrato webhook.md / DV-VC-02).
+ * Este módulo é puro (sem BD) para poder ser testado unitariamente.
  */
 
-/** Comparación timing-safe de strings de longitud arbitraria. */
+/** Comparação timing-safe de strings de comprimento arbitrário. */
 export function safeEqual(a: string, b: string): boolean {
   const ha = createHmac("sha256", "cmp").update(a).digest();
   const hb = createHmac("sha256", "cmp").update(b).digest();
   return timingSafeEqual(ha, hb);
 }
 
-/** Capa 1: el segmento de la ruta debe coincidir con el verify token. */
+/** Camada 1: o segmento da rota deve coincidir com o verify token. */
 export function isValidWebhookToken(
   segment: string,
   verifyToken: string
@@ -21,8 +21,8 @@ export function isValidWebhookToken(
 }
 
 /**
- * Capa 2 (opcional): firma HMAC-SHA256 de Meta sobre el body CRUDO.
- * Devuelve true si no hay secreto configurado (capa desactivada).
+ * Camada 2 (opcional): assinatura HMAC-SHA256 da Meta sobre o corpo CRU.
+ * Devolve true se não houver segredo configurado (camada desativada).
  */
 export function isValidSignature(
   rawBody: string,
@@ -37,17 +37,17 @@ export function isValidSignature(
   return safeEqual(signatureHeader.slice("sha256=".length), expected);
 }
 
-/* ---------- Tipos del payload de Meta (subconjunto soportado) ---------- */
+/* ---------- Tipos do payload da Meta (subconjunto suportado) ---------- */
 
-/** Payload de un adjunto en un mensaje del webhook (008). */
+/** Payload de um anexo em uma mensagem do webhook (008). */
 export type WebhookMediaPayload = {
   id?: string;
   mime_type?: string;
   sha256?: string;
   caption?: string;
-  /** Solo documentos. */
+  /** Só documentos. */
   filename?: string;
-  /** Solo audio: true si es nota de voz. */
+  /** Só áudio: true se for nota de voz. */
   voice?: boolean;
 };
 
@@ -59,10 +59,10 @@ export type WebhookLocation = {
 };
 
 /**
- * 016 — Objeto `referral`: SOLO llega cuando el mensaje viene de un anuncio
- * Click-to-WhatsApp, y normalmente solo en el PRIMER mensaje de la
- * conversación. Su `ctwa_clid` es lo que permite devolverle a Meta el
- * desenlace de ese lead; el resto son datos del creativo.
+ * 016 — Objeto `referral`: SÓ chega quando a mensagem vem de um anúncio
+ * Click-to-WhatsApp, e normalmente só na PRIMEIRA mensagem da
+ * conversa. Seu `ctwa_clid` é o que permite devolver à Meta o
+ * desfecho desse lead; o resto são dados do criativo.
  */
 export type WebhookReferral = {
   source_url?: string;
@@ -78,9 +78,9 @@ export type WebhookReferral = {
 };
 
 /**
- * #78 — Respuesta a un botón de respuesta rápida de una PLANTILLA
- * (`type: "button"`): `text` es el rótulo que vio el cliente y `payload` el
- * que se definió al crear la plantilla (en la práctica, el mismo rótulo).
+ * #78 — Resposta a um botão de resposta rápida de um TEMPLATE
+ * (`type: "button"`): `text` é o rótulo que o cliente viu e `payload` o
+ * que foi definido ao criar o template (na prática, o mesmo rótulo).
  */
 export type WebhookButtonReply = {
   text?: string;
@@ -88,9 +88,9 @@ export type WebhookButtonReply = {
 };
 
 /**
- * #78 — Respuesta a un mensaje INTERACTIVO (`type: "interactive"`): un botón
- * (`button_reply`) o una fila de lista (`list_reply`). Meta pone en `type`
- * cuál de los dos viene.
+ * #78 — Resposta a uma mensagem INTERATIVA (`type: "interactive"`): um botão
+ * (`button_reply`) ou uma linha de lista (`list_reply`). A Meta põe em `type`
+ * qual dos dois vem.
  */
 export type WebhookInteractiveReply = {
   type?: string;
@@ -99,11 +99,11 @@ export type WebhookInteractiveReply = {
 };
 
 export type WebhookMessage = {
-  /** Teléfono del remitente. OPCIONAL desde la migración de Meta a BSUID (003). */
+  /** Telefone do remetente. OPCIONAL desde a migração da Meta para BSUID (003). */
   from?: string;
-  /** Business-Scoped User ID del remitente cuando no hay teléfono (003). */
+  /** Business-Scoped User ID do remetente quando não há telefone (003). */
   from_user_id?: string;
-  /** Destinatario — presente en echoes de coexistence (008): el wa_id del lead. */
+  /** Destinatário — presente em echoes de coexistence (008): o wa_id do lead. */
   to?: string;
   id: string;
   timestamp: string;
@@ -116,13 +116,13 @@ export type WebhookMessage = {
   sticker?: WebhookMediaPayload;
   location?: WebhookLocation;
   contacts?: unknown[];
-  /** #78: respuesta a un botón de plantilla. */
+  /** #78: resposta a um botão de template. */
   button?: WebhookButtonReply;
-  /** #78: respuesta a un botón o a una lista de un mensaje interactivo. */
+  /** #78: resposta a um botão ou a uma lista de uma mensagem interativa. */
   interactive?: WebhookInteractiveReply;
-  /** El mensaje al que responde (botones, citas): `id` es su wa_message_id. */
+  /** A mensagem à qual responde (botões, citações): `id` é o seu wa_message_id. */
   context?: { from?: string; id?: string };
-  /** 016: origen del anuncio, cuando la conversación nació de uno. */
+  /** 016: origem do anúncio, quando a conversa nasceu de um. */
   referral?: WebhookReferral;
 };
 
@@ -139,7 +139,7 @@ export type WebhookValue = {
   metadata?: { display_phone_number?: string; phone_number_id?: string };
   contacts?: { profile?: { name?: string }; wa_id?: string; user_id?: string }[];
   messages?: WebhookMessage[];
-  /** Echoes de coexistence (008): mensajes enviados desde la app del teléfono. */
+  /** Echoes de coexistence (008): mensagens enviadas pelo app do telefone. */
   message_echoes?: WebhookMessage[];
   statuses?: WebhookStatus[];
   // message_template_status_update

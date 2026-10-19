@@ -8,12 +8,12 @@ import {
 } from "@/server/zernio/cuentas";
 
 /**
- * 023 — El paso que comparten las tres pantallas al guardar una conexión por
- * Zernio: comprobar la llave y decidir de qué cuenta se trata (D1 de la spec).
+ * 023 — O passo que as três telas compartilham ao salvar uma conexão pela
+ * Zernio: verificar a chave e decidir de qual conta se trata (D1 da spec).
  *
- * Una sola lectura de `GET /accounts` hace las dos cosas: una llave que no
- * sirve responde 401, y la lista dice qué cuenta es la del canal. Devuelve la
- * respuesta de error ya armada para que las tres rutas contesten igual.
+ * Uma só leitura de `GET /accounts` faz as duas coisas: uma chave que não
+ * serve responde 401, e a lista diz qual conta é a do canal. Devolve a
+ * resposta de erro já montada para que as três rotas respondam igual.
  */
 export async function resolveZernioAccount(
   token: string,
@@ -25,7 +25,7 @@ export async function resolveZernioAccount(
     accounts = await fetchZernioAccounts(token);
   } catch (err) {
     if (!(err instanceof MetaApiError)) throw err;
-    // Sin respuesta, 5xx o límite de peticiones: no dice nada de la llave.
+    // Sem resposta, 5xx ou limite de requisições: não diz nada sobre a chave.
     if (err.status === 0 || err.status >= 500 || err.status === 429) {
       return {
         ok: false,
@@ -51,7 +51,7 @@ export async function resolveZernioAccount(
         error: {
           code: pick.code,
           message: pick.message,
-          // Solo id y nombre: es lo que la pantalla necesita para ofrecerlas.
+          // Só id e nome: é o que a tela precisa para oferecê-las.
           details: { accounts: pick.candidates },
         },
       },

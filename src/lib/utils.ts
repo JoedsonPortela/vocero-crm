@@ -5,11 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Iniciales (máx 2) para el avatar de un contacto. */
+/** Iniciais (máx. 2) para o avatar de um contato. */
 export function initials(name: string): string {
-  // 028 — La primera letra o cifra de cada palabra. Los nombres de Instagram y
-  // Facebook traen emojis («Kevin Belier 🐏», «Vivir con virtud ⚖️»): tomar el
-  // primer carácter partía el emoji a la mitad («K�») o lo usaba de inicial.
+  // 028 — A primeira letra ou número de cada palavra. Os nomes do Instagram e
+  // do Facebook trazem emojis («Kevin Belier 🐏», «Vivir con virtud ⚖️»): pegar o
+  // primeiro caractere partia o emoji ao meio («K�») ou o usava como inicial.
   const parts = name
     .trim()
     .split(/\s+/)
@@ -21,20 +21,20 @@ export function initials(name: string): string {
   return (first + second).toUpperCase();
 }
 
-/* Paleta de los avatares del mockup de la landing (hsl(h 62% 52%)): tonos
-   medios saturados, legibles con inicial blanca en los dos temas. */
+/* Paleta dos avatares do mockup da landing (hsl(h 62% 52%)): tons
+   médios saturados, legíveis com inicial branca nos dois temas. */
 const AVATAR_COLORS = [
   "bg-[#3985d1]", // azul
   "bg-[#d17139]", // terracota
   "bg-[#9e39d1]", // violeta
   "bg-[#30a657]", // verde
-  "bg-[#ce3b6c]", // frambuesa
-  "bg-[#b67c20]", // ámbar
+  "bg-[#ce3b6c]", // framboesa
+  "bg-[#b67c20]", // âmbar
   "bg-[#30a6a6]", // turquesa
   "bg-[#6954d4]", // índigo
 ] as const;
 
-/** Color estable por contacto: hash simple del id/teléfono → misma clase siempre. */
+/** Cor estável por contato: hash simples do id/telefone → mesma classe sempre. */
 export function avatarColor(seed: string): string {
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
@@ -44,6 +44,6 @@ export function avatarColor(seed: string): string {
 }
 
 export function formatPhone(phone: string | null | undefined): string {
-  // 003: contactos BSUID pueden no tener teléfono.
+  // 003: contatos BSUID podem não ter telefone.
   return phone ? `+${phone}` : "Sin teléfono";
 }

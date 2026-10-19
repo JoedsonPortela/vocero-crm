@@ -5,9 +5,9 @@ import { recordLeadCreated } from "@/server/leads/stage-history";
 import type { StageChangeSource } from "@/lib/types";
 
 /**
- * Actividad de lead al recibir un mensaje (US2): si el contacto no tiene lead,
- * se crea en la primera etapa del pipeline; si lo tiene, se actualiza su
- * última actividad.
+ * Atividade do lead ao receber uma mensagem (US2): se o contato não tiver lead,
+ * cria-se na primeira etapa do pipeline; se tiver, atualiza-se sua
+ * última atividade.
  */
 export async function onLeadActivity(
   organizationId: string,
@@ -34,22 +34,22 @@ export async function onLeadActivity(
 }
 
 /**
- * Crea el lead de un contacto. Lo comparten el webhook (sin `stageId`: primera
- * etapa abierta) y la captura manual (con la etapa que elija el dueño). Vive en
- * un solo sitio a propósito: el cálculo de la posición, el `onConflictDoNothing`
- * sobre `lead_contact_uq` y el registro en la bitácora son lo bastante sutiles
- * como para que dos copias diverjan en el primer cambio.
+ * Cria o lead de um contato. Compartilham-no o webhook (sem `stageId`: primeira
+ * etapa aberta) e a captura manual (com a etapa que o dono escolher). Vive em
+ * um só lugar de propósito: o cálculo da posição, o `onConflictDoNothing`
+ * sobre `lead_contact_uq` e o registro no histórico são sutis o bastante
+ * para que duas cópias divirjam na primeira mudança.
  *
- * Devuelve `null` si el pipeline no tiene etapas abiertas — quien llama decide
- * si eso es un error que mostrar (captura manual) o un silencio aceptable
- * (webhook: jamás debe tumbar la ingesta de un mensaje).
+ * Devolve `null` se o pipeline não tiver etapas abertas — quem chama decide
+ * se isso é um erro a mostrar (captura manual) ou um silêncio aceitável
+ * (webhook: jamais deve derrubar a ingestão de uma mensagem).
  */
 export async function createLeadForContact(input: {
   organizationId: string;
   contactId: string;
   stageId?: string;
   at?: Date;
-  /** Quién dio de alta: el webhook es `sistema`, la captura manual `dueno`. */
+  /** Quem deu de alta: o webhook é `sistema`, a captura manual `dono`. */
   source?: StageChangeSource;
   actorUserId?: string | null;
 }): Promise<{ id: string; stageId: string } | null> {
@@ -98,12 +98,12 @@ export async function createLeadForContact(input: {
   const creado = inserted[0];
   if (!creado) return null;
 
-  // El nacimiento del lead es el primer evento del embudo: sin él, "prospectos
-  // que entraron en el periodo" no se podría contar desde la bitácora. Va aquí
-  // DENTRO y no en quien llama, porque hay dos caminos que crean leads y el
-  // segundo que alguien agregue lo olvidaría. Y va tras comprobar `creado`
-  // porque `onConflictDoNothing` no devuelve fila cuando otro webhook
-  // simultáneo ganó la carrera — ese ya anotó el suyo.
+  // O nascimento do lead é o primeiro evento do funil: sem ele, "prospectos
+  // que entraram no período" não se poderia contar pelo histórico. Fica aqui
+  // DENTRO e não em quem chama, porque há dois caminhos que criam leads e o
+  // segundo que alguém adicione o esqueceria. E fica depois de verificar `creado`
+  // porque `onConflictDoNothing` não devolve linha quando outro webhook
+  // simultâneo ganhou a corrida — esse já anotou o seu.
   await recordLeadCreated({
     organizationId: input.organizationId,
     leadId: creado.id,

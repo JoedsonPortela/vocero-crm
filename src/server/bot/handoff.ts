@@ -1,11 +1,11 @@
 /**
- * Motivos por los que un cerebro externo devuelve la conversación a un humano.
+ * Motivos pelos quais um cérebro externo devolve a conversa a um humano.
  *
- * El catálogo es cerrado, pero se aplica con FALLBACK, nunca rechazando: un
- * motivo fuera de lista no puede costar el handoff. Un 422 aquí dejaría al bot
- * hablándole a alguien que acaba de pedir una persona — el peor final posible
- * de esa ruta. Del otro lado hay un LLM: tarde o temprano manda "porque se
- * enojó" en vez de "hostilidad".
+ * O catálogo é fechado, mas aplica-se com FALLBACK, nunca rejeitando: um
+ * motivo fora da lista não pode custar o handoff. Um 422 aqui deixaria o bot
+ * falando com alguém que acabou de pedir uma pessoa — o pior final possível
+ * dessa rota. Do outro lado há um LLM: mais cedo ou mais tarde ele manda "porque se
+ * irritou" em vez de "hostilidade".
  */
 
 export const HANDOFF_REASONS = [

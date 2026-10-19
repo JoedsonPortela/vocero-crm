@@ -3,14 +3,14 @@ import { getDb, schema } from "@/lib/db";
 import { decryptSecret, encryptSecret } from "@/lib/crypto";
 
 /**
- * 030 — El secreto de firma de Zernio, cifrado en reposo.
+ * 030 — O segredo de assinatura da Zernio, criptografado em repouso.
  *
- * Instagram, Messenger y TikTok guardan el secreto HMAC de las entregas de
- * Zernio en tres columnas cifradas (`webhook_secret_{cipher,iv,tag}`), con el
- * mismo AES-256-GCM que el token de la fila. Hasta la 1.6 iba en claro en
- * `webhook_secret`: esa columna ya no se escribe, solo se lee de respaldo
- * mientras el arranque no la haya cifrado (spec 030, D5), y se quita en una
- * versión mayor (D6).
+ * Instagram, Messenger e TikTok guardam o segredo HMAC das entregas da
+ * Zernio em três colunas criptografadas (`webhook_secret_{cipher,iv,tag}`), com o
+ * mesmo AES-256-GCM do token da linha. Até a 1.6 ia em texto claro em
+ * `webhook_secret`: essa coluna já não é gravada, só é lida como reserva
+ * enquanto a inicialização não a tiver criptografado (spec 030, D5), e é removida numa
+ * versão maior (D6).
  */
 
 type ColumnasDelSecreto = {
@@ -21,8 +21,8 @@ type ColumnasDelSecreto = {
 };
 
 /**
- * Lo que se escribe en la fila para guardar `secret`: cifrado, y la columna
- * vieja en nulo. Es la única puerta que escribe estas columnas.
+ * O que se grava na linha para guardar `secret`: criptografado, e a coluna
+ * antiga em nulo. É a única porta que grava essas colunas.
  */
 export function columnasDelSecreto(secret: string | null): ColumnasDelSecreto {
   if (!secret) {
@@ -42,7 +42,7 @@ export function columnasDelSecreto(secret: string | null): ColumnasDelSecreto {
   };
 }
 
-/** El secreto de una fila: el cifrado si lo hay; si no, el que quedó en claro. */
+/** O segredo de uma linha: o criptografado se houver; senão, o que ficou em texto claro. */
 export function secretoDeLaFila(row: ColumnasDelSecreto): string | null {
   if (row.webhookSecretCipher && row.webhookSecretIv && row.webhookSecretTag) {
     return decryptSecret({
@@ -61,11 +61,11 @@ const TABLAS = [
 ] as const;
 
 /**
- * Cifra los secretos que una versión anterior dejó en claro. Re-ejecutable:
- * solo mira filas con `webhook_secret`, y cada una se escribe con la condición
- * de que siga teniendo el valor leído, así que un secreto guardado entre la
- * lectura y la escritura (que ya llega cifrado) no se pisa. Devuelve cuántas
- * filas cifró; nunca dice cuáles ni con qué.
+ * Criptografa os segredos que uma versão anterior deixou em texto claro. Re-executável:
+ * só olha linhas com `webhook_secret`, e cada uma é escrita com a condição
+ * de que ainda tenha o valor lido, então um segredo gravado entre a
+ * leitura e a escrita (que já chega criptografado) não é sobrescrito. Devolve quantas
+ * linhas criptografou; nunca diz quais nem com o quê.
  */
 export async function cifrarSecretosEnClaro(): Promise<number> {
   const db = getDb();
@@ -82,7 +82,7 @@ export async function cifrarSecretosEnClaro(): Promise<number> {
         .set(columnasDelSecreto(fila.secreto))
         .where(and(eq(tabla.id, fila.id), eq(tabla.webhookSecret, fila.secreto)))
         .returning({ id: tabla.id });
-      // Un "" se limpia igual, pero no era un secreto.
+      // Um "" é limpo igual, mas não era um segredo.
       if (fila.secreto) cifrados += hechas.length;
     }
   }

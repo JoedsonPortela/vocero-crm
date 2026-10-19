@@ -7,12 +7,12 @@ import {
 } from "@/server/ai/orden-turno";
 
 /**
- * 025 — El orden en que el agente incluido lee la conversación.
+ * 025 — A ordem em que o agente incluído lê a conversa.
  *
- * El caso que importa: el cliente escribe otra vez mientras el modelo piensa.
- * Por hora de llegada ese mensaje queda ANTES de la respuesta al anterior, y
- * el modelo, que ve un hilo terminado en su propia respuesta, lo da por
- * contestado. El turno siguiente tiene que leerlo como lo último que se dijo.
+ * O caso que importa: o cliente escreve outra vez enquanto o modelo pensa.
+ * Pela hora de chegada essa mensagem fica ANTES da resposta à anterior, e
+ * o modelo, que vê um fio terminado na sua própria resposta, o dá por
+ * respondido. O turno seguinte tem que lê-la como a última coisa que foi dita.
  */
 
 let reloj = 0;
@@ -22,7 +22,7 @@ const msg = (id: string, direction: "in" | "out", aiGenerated = direction === "o
   aiGenerated,
   createdAt: new Date(Date.UTC(2026, 9, 13, 12, 0, reloj++)),
 });
-/** Un saliente escrito por una persona desde la bandeja. */
+/** Uma saída escrita por uma pessoa a partir da bandeja. */
 const aMano = (id: string) => msg(id, "out", false);
 const ids = (ms: { id: string }[]) => ms.map((m) => m.id);
 
@@ -34,8 +34,8 @@ describe("ordenarParaElTurno", () => {
 
   it("lo que entró mientras el modelo pensaba va después de su respuesta", () => {
     const m1 = msg("m1", "in");
-    const m2 = msg("m2", "in"); // entra con el turno de m1 en curso
-    const r1 = msg("r1", "out"); // la respuesta a m1 sale después
+    const m2 = msg("m2", "in"); // entra com o turno de m1 em andamento
+    const r1 = msg("r1", "out"); // a resposta a m1 sai depois
     expect(ids(ordenarParaElTurno([m1, m2, r1], [m2]))).toEqual(["m1", "r1", "m2"]);
   });
 
@@ -48,7 +48,7 @@ describe("ordenarParaElTurno", () => {
     const m1 = msg("m1", "in");
     const m2 = msg("m2", "in");
     const r1 = msg("r1", "out");
-    const m3 = msg("m3", "in"); // llegó después de la respuesta: nadie lo movió
+    const m3 = msg("m3", "in"); // chegou depois da resposta: ninguém o moveu
     expect(ids(ordenarParaElTurno([m1, m2, r1, m3], [m2]))).toEqual([
       "m1",
       "r1",
@@ -79,7 +79,7 @@ describe("debidosVigentes — lo que una persona ya contestó no se debe", () =>
   it("sin respuestas a mano, todo lo debido sigue debiéndose", () => {
     const m1 = msg("m1", "in");
     const m2 = msg("m2", "in");
-    const r1 = msg("r1", "out"); // del agente: no salda m2
+    const r1 = msg("r1", "out"); // do agente: não dá baixa em m2
     expect(ids(debidosVigentes([m1, m2, r1], [m2]))).toEqual(["m2"]);
   });
 
@@ -134,8 +134,8 @@ describe("quedanDebidos — ¿hace falta otro turno?", () => {
   });
 
   it("lo que entró a tiempo de que el turno lo leyera ya está atendido", () => {
-    // Entre que arranca el turno y abre el historial caben unos milisegundos.
-    // Repetir el turno sería contestarle dos veces.
+    // Entre o início do turno e a abertura do histórico cabem alguns milissegundos.
+    // Repetir o turno seria responder-lhe duas vezes.
     expect(quedanDebidos(new Set(["m2"]), ["m1", "m2"])).toEqual([]);
   });
 

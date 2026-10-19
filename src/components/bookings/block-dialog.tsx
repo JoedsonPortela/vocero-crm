@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 /**
- * 215 — Bloquear un horario: para compromisos que viven fuera del CRM. Ese
- * tiempo deja de ofrecerse. Se abre desde la barra o tocando un hueco vacío de
- * la rejilla, ya con ese día y esa hora.
+ * 215 — Bloquear um horário: para compromissos que ficam fora do CRM. Esse
+ * tempo deixa de ser oferecido. Abre pela barra ou tocando num espaço vazio da
+ * grade, já com aquele dia e aquela hora.
  */
 
 const DURATIONS = [15, 30, 45, 60, 90, 120, 180, 240, 300, 360, 480, 600];
@@ -52,8 +52,8 @@ export function BlockDialog({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    // El día y la hora son del NEGOCIO, no del navegador (antes, `new Date()`
-    // sobre un datetime-local bloqueaba la hora del reloj de quien miraba).
+    // O dia e a hora são do NEGÓCIO, não do navegador (antes, `new Date()`
+    // num datetime-local travava a hora do relógio de quem olhava).
     const startUtc = blockStartUtc(day, time, timezone);
     if (!startUtc) {
       setError("Esa hora no existe en la zona del negocio");

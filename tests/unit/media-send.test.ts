@@ -6,9 +6,9 @@ import {
 } from "@/server/whatsapp/media";
 
 /**
- * 008 — Validación previa de adjuntos salientes (FR-007): tipo y tamaño se
- * rechazan ANTES de tocar disco o la API; y el sandbox del Laboratorio
- * sigue siendo infranqueable también para adjuntos (FR-014).
+ * 008 — Validação prévia de anexos de saída (FR-007): tipo e tamanho são
+ * rejeitados ANTES de tocar o disco ou a API; e o sandbox do Laboratório
+ * segue sendo intransponível também para anexos (FR-014).
  */
 
 const MB = 1024 * 1024;
@@ -65,7 +65,7 @@ describe("validateOutgoing (límites de la Cloud API)", () => {
   });
 });
 
-/* ---------- Sandbox del Laboratorio en el envío de adjuntos ---------- */
+/* ---------- Sandbox do Laboratório no envio de anexos ---------- */
 
 const { graphRequest, uploadGraphMedia, saveMediaFile } = vi.hoisted(() => ({
   graphRequest: vi.fn(),

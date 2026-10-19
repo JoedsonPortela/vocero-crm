@@ -20,20 +20,20 @@ import {
 } from "@/server/zernio/webhooks";
 
 /**
- * 017 — Reparto de un evento de Zernio al canal que le toca.
+ * 017 — Repasse de um evento da Zernio ao canal que lhe cabe.
  *
- * Zernio entrega TODAS las plataformas conectadas a esa llave por UN solo
- * webhook: el que se dé de alta recibe los DMs de Instagram y los mensajes de
- * la página de Facebook por igual. Si cada canal solo atendiera su propia URL,
- * quien tenga el webhook apuntado a `/api/webhooks/ig/...` vería sus mensajes
- * de Messenger descartados en silencio — el peor modo de fallo posible, porque
- * el webhook responde 200 y no hay nada que investigar.
+ * A Zernio entrega TODAS as plataformas conectadas a essa chave por UM só
+ * webhook: o que se cadastre recebe as DMs do Instagram e as mensagens da
+ * página do Facebook igualmente. Se cada canal só atendesse a sua própria URL,
+ * quem tiver o webhook apontado para `/api/webhooks/ig/...` veria suas mensagens
+ * do Messenger descartadas em silêncio — o pior modo de falha possível, porque
+ * o webhook responde 200 e não há nada para investigar.
  *
- * Así que todas las rutas de Zernio reparten por `account.platform`, y da
- * igual cuál de las URLs esté configurada. 022: TikTok entra al mismo reparto.
+ * Então todas as rotas da Zernio repartem por `account.platform`, e tanto faz
+ * qual das URLs esteja configurada. 022: o TikTok entra no mesmo repasse.
  */
 
-/** A qué canal pertenece un evento, o null si no es de ninguno nuestro. */
+/** A qual canal pertence um evento, ou null se não for de nenhum nosso. */
 export function zernioTargetChannel(payload: unknown): ZernioChannel | null {
   const evt = payload as ZernioEvent | null;
   if (!evt || typeof evt !== "object") return null;
@@ -45,22 +45,22 @@ export function zernioTargetChannel(payload: unknown): ZernioChannel | null {
 }
 
 /**
- * 023 — ¿Esta entrega la firmó Zernio para esta instancia?
+ * 023 — Esta entrega foi assinada pela Zernio para esta instância?
  *
- * El secreto es del WEBHOOK, no del canal: un webhook de Zernio sirve a todas
- * las cuentas de su llave y firma con uno solo. Por eso vale cualquiera de los
- * secretos guardados en los canales por Zernio de la organización, y si
- * ninguno coincide (o no hay), los de los webhooks de Zernio que apuntan aquí,
- * leídos con la llave ya guardada. Así un secreto mal capturado deja de tumbar
- * un canal, y uno que nunca se capturó se exige igual. Esa lectura se guarda
- * unos minutos; si la firma no coincide con lo guardado se relee, como mucho
- * una vez por minuto, por si el secreto cambió en Zernio.
+ * O segredo é do WEBHOOK, não do canal: um webhook da Zernio atende a todas
+ * as contas da sua chave e assina com um só. Por isso vale qualquer um dos
+ * segredos guardados nos canais pela Zernio da organização, e se
+ * nenhum coincidir (ou não houver), os dos webhooks da Zernio que apontam para cá,
+ * lidos com a chave já guardada. Assim um segredo mal capturado deixa de derrubar
+ * um canal, e um que nunca foi capturado é exigido igual. Essa leitura é guardada
+ * por alguns minutos; se a assinatura não coincidir com o guardado, relê-se, no máximo
+ * uma vez por minuto, caso o segredo tenha mudado na Zernio.
  *
- * Se resuelve ANTES de procesar y sin escribir nada. Un evento sin cuenta, o
- * de una cuenta que nadie conectó aquí, no tiene contra qué compararse y pasa:
- * `processZernioPayload` lo descarta sin ingerir nada. Sin ningún secreto en
- * ningún lado la capa queda apagada, como siempre, y protege el segmento
- * secreto de la URL.
+ * Resolve-se ANTES de processar e sem escrever nada. Um evento sem conta, ou
+ * de uma conta que ninguém conectou aqui, não tem contra o que se comparar e passa:
+ * `processZernioPayload` o descarta sem ingerir nada. Sem nenhum segredo em
+ * lugar nenhum a camada fica desligada, como sempre, e protege o segmento
+ * secreto da URL.
  */
 export async function isAuthenticZernioDelivery(
   rawBody: string,
@@ -88,8 +88,8 @@ export async function isAuthenticZernioDelivery(
 }
 
 /**
- * Procesa el evento por el canal al que pertenece. Un canal apagado descarta
- * con aviso: la instancia no lo tiene, y su superficie no existe (ADR-001).
+ * Processa o evento pelo canal ao qual pertence. Um canal desligado descarta
+ * com aviso: a instância não o tem, e sua superfície não existe (ADR-001).
  */
 export async function processZernioPayload(payload: unknown): Promise<void> {
   const channel = zernioTargetChannel(payload);
@@ -102,8 +102,8 @@ export async function processZernioPayload(payload: unknown): Promise<void> {
     return;
   }
 
-  // 023: una conexión guardada con el id del perfil se corrige aquí, ya con
-  // la firma verificada, y el canal la encuentra por el id de la cuenta.
+  // 023: uma conexão guardada com o id do perfil é corrigida aqui, já com
+  // a assinatura verificada, e o canal a encontra pelo id da conta.
   await healZernioAccountRef(channel, (payload as ZernioEvent).account);
 
   if (channel === "messenger") await processZernioMessengerEvent(payload);

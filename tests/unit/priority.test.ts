@@ -9,9 +9,9 @@ import {
 
 describe("prioridad del lead", () => {
   it("nada la escribe sola: no hay función que la sugiera", async () => {
-    // Este test es el contrato del módulo. Si alguien agrega una heurística
-    // que rellene la prioridad, el dueño dejará de poder confiar en que lo que
-    // ve es lo que él puso — y este test es el lugar donde discutirlo.
+    // Este teste é o contrato do módulo. Se alguém acrescentar uma heurística
+    // que preencha a prioridade, o dono deixará de poder confiar em que o que
+    // vê é o que ele colocou — e este teste é o lugar onde discutir isso.
     const mod = await import("@/server/leads/priority");
     expect(Object.keys(mod)).not.toContain("suggestPriority");
   });

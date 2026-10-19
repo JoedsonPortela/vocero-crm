@@ -1,18 +1,18 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * 030 — El secreto de firma de Zernio se guarda cifrado, como el token: la
- * fila nunca lo trae en claro, se lee igual que antes, y el arranque cifra lo
- * que una versión anterior dejó en claro sin pisar lo que se guardó después.
+ * 030 — O segredo de assinatura do Zernio é salvo cifrado, como o token: a
+ * linha nunca o traz em texto puro, lê-se igual a antes, e o arranque cifra o
+ * que uma versão anterior deixou em texto puro sem sobrescrever o que foi salvo depois.
  */
 
 type Fila = Record<string, unknown>;
 
 const insertadas: Fila[] = [];
 const actualizaciones: { tabla: unknown; set: Fila }[] = [];
-/** Lo que devuelve cada `select … from(tabla)` del arranque. */
+/** O que devolve cada `select … from(tabela)` do arranque. */
 let enClaro = new Map<unknown, Fila[]>();
-/** Si el `update` condicionado encuentra la fila (false = alguien la cambió). */
+/** Se o `update` condicionado encontra a linha (false = alguém a mudou). */
 let encuentraLaFila = true;
 
 vi.mock("@/lib/db", async () => {
@@ -21,7 +21,7 @@ vi.mock("@/lib/db", async () => {
     select: () => ({
       from: (tabla: unknown) => {
         const filas = enClaro.get(tabla) ?? [];
-        // credenciales: select().from().where().limit(1) → sin fila previa
+        // credenciais: select().from().where().limit(1) → sem linha prévia
         const where = () => Object.assign(Promise.resolve(filas), { limit: () => Promise.resolve([]) });
         return { where };
       },

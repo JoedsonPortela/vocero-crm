@@ -3,10 +3,10 @@ import { getEnv } from "@/lib/env";
 import { nextN } from "@/server/dev/wa-mock-state";
 
 /**
- * Construye un payload real de Meta y lo entrega al webhook público por
- * loopback (127.0.0.1: mismo proceso, sin salir a la red). Se firma con el
- * META_APP_SECRET real si está configurado — así el self-test ejercita la
- * capa 2 de verdad.
+ * Constrói um payload real da Meta e o entrega ao webhook público por
+ * loopback (127.0.0.1: mesmo processo, sem sair para a rede). Assina-se com o
+ * META_APP_SECRET real se estiver configurado — assim o self-test exercita a
+ * camada 2 de verdade.
  */
 export async function deliverToWebhook(payload: unknown): Promise<Response> {
   const env = getEnv();
@@ -26,9 +26,9 @@ export async function deliverToWebhook(payload: unknown): Promise<Response> {
   return fetch(url, { method: "POST", headers, body: raw });
 }
 
-/** 008 — Campos de adjunto que aceptan los payloads simulados. */
+/** 008 — Campos de anexo que aceitam os payloads simulados. */
 type MockMediaInput = {
-  /** media id de Graph simulado (servible por wa-mock/media-file). */
+  /** id de mídia do Graph simulado (servível por wa-mock/media-file). */
   mediaId?: string;
   mimeType?: string;
   caption?: string;
@@ -37,9 +37,9 @@ type MockMediaInput = {
 };
 
 /**
- * #78 — Respuestas de botón con la forma de Meta. `button` es la respuesta a
- * un botón de plantilla; `interactive` se pasa entero (como el `referral`)
- * para poder probar `button_reply`, `list_reply` y las formas rotas.
+ * #78 — Respostas de botão com a forma da Meta. `button` é a resposta a
+ * um botão de template; `interactive` se passa inteiro (como o `referral`)
+ * para poder testar `button_reply`, `list_reply` e as formas quebradas.
  */
 type MockButtonInput = {
   button?: { text: string; payload?: string };
@@ -56,7 +56,7 @@ function applyMockContent(
   if (type === "text") {
     message.text = { body: input.text ?? "hola" };
   } else if (type === "button") {
-    // Como lo manda Meta: `context` apunta a la plantilla que traía el botón.
+    // Como o envia a Meta: `context` aponta para o template que trazia o botão.
     const text = input.button?.text ?? input.text ?? "Sí";
     message.context = { from: "5215500000000", id: `wamid.mock.tpl.${nextN()}` };
     message.button = { payload: input.button?.payload ?? text, text };
@@ -84,17 +84,17 @@ function applyMockContent(
   }
 }
 
-/** 016 — Campos para simular que el mensaje vino de un anuncio CTWA. */
+/** 016 — Campos para simular que a mensagem veio de um anúncio CTWA. */
 type MockReferralInput = {
-  /** Identificador del clic. Sin él no hay nada que reportarle a Meta. */
+  /** Identificador do clique. Sem ele não há nada a reportar à Meta. */
   ctwaClid?: string;
   adHeadline?: string;
   adSourceId?: string;
   /**
-   * 018 — El `referral` tal cual lo mandaría Meta. Gana sobre los campos de
-   * arriba y se pasa entero, no campo por campo, para poder probar también las
-   * formas raras (sin `source_id`, cadenas gigantes, tipos equivocados) y la
-   * URL del creativo.
+   * 018 — O `referral` tal como o enviaria a Meta. Prevalece sobre os campos de
+   * cima e se passa inteiro, não campo por campo, para poder testar também as
+   * formas estranhas (sem `source_id`, cadeias gigantes, tipos errados) e a
+   * URL do criativo.
    */
   referral?: Record<string, unknown>;
 };
@@ -102,9 +102,9 @@ type MockReferralInput = {
 export function buildInboundPayload(input: {
   wabaId: string;
   phoneNumberId: string;
-  /** Teléfono del remitente. Omite y usa `fromUserId` para simular BSUID (003). */
+  /** Telefone do remetente. Omita e use `fromUserId` para simular BSUID (003). */
   from?: string;
-  /** BSUID del remitente — puede venir solo o junto a `from`. */
+  /** BSUID do remetente — pode vir sozinho ou junto com `from`. */
   fromUserId?: string;
   name?: string;
   type?: string;
@@ -124,9 +124,9 @@ export function buildInboundPayload(input: {
   if (input.fromUserId) message.from_user_id = input.fromUserId;
   applyMockContent(message, type, input);
 
-  // 016 — El referral solo viaja cuando la conversación nació de un anuncio, y
-  // normalmente solo en el primer mensaje. Se arma igual que el real para que
-  // la ingesta no sepa que habla con un mock.
+  // 016 — O referral só viaja quando a conversa nasceu de um anúncio, e
+  // normalmente só na primeira mensagem. Monta-se igual ao real para que
+  // a ingestão não saiba que fala com um mock.
   if (input.referral) {
     message.referral = input.referral;
   } else if (input.ctwaClid || input.adHeadline || input.adSourceId) {
@@ -143,13 +143,13 @@ export function buildInboundPayload(input: {
 
   const contactEntry: Record<string, unknown> = {
     /**
-     * Sin nombre pedido, el payload va SIN `profile` — como el de Meta.
+     * Sem nome pedido, o payload vai SEM `profile` — como o da Meta.
      *
-     * Antes se inventaba «Cliente», y eso dejó de ser inofensivo en cuanto el
-     * nombre del contacto pasó a mantenerse al día con el perfil (#51): un
-     * segundo mensaje de la misma persona lo renombraba a «Cliente», que es
-     * algo que Meta no manda nunca. Un mock que inventa datos acaba probando
-     * su propia ficción.
+     * Antes inventava-se «Cliente», e isso deixou de ser inofensivo quando o
+     * nome do contato passou a ser mantido em dia com o perfil (#51): uma
+     * segunda mensagem da mesma pessoa o renomeava para «Cliente», algo que a
+     * Meta nunca manda. Um mock que inventa dados acaba testando a
+     * própria ficção.
      */
     ...(input.name ? { profile: { name: input.name } } : {}),
   };
@@ -181,21 +181,21 @@ export function buildInboundPayload(input: {
 }
 
 /**
- * 008 — Payload de echo de coexistence (`smb_message_echoes`): un mensaje que
- * el dueño mandó A MANO desde la app de WhatsApp Business del teléfono.
+ * 008 — Payload de echo de coexistence (`smb_message_echoes`): uma mensagem que
+ * o dono enviou À MÃO pelo app do WhatsApp Business do telefone.
  */
 export function buildEchoPayload(input: {
   wabaId: string;
   phoneNumberId: string;
-  /** wa_id del LEAD destinatario. */
+  /** wa_id do LEAD destinatário. */
   to: string;
-  /** Número del negocio (remitente del echo). */
+  /** Número do negócio (remetente do echo). */
   from?: string;
   type?: string;
   text?: string;
   waMessageId?: string;
   timestamp?: number;
-  /** Variante defensiva: entregar bajo la clave `messages` en vez de `message_echoes`. */
+  /** Variante defensiva: entrega sob a chave `messages` em vez de `message_echoes`. */
   useMessagesKey?: boolean;
 } & MockMediaInput) {
   const type = input.type ?? "text";
@@ -239,7 +239,7 @@ export function buildStatusPayload(input: {
   waMessageId: string;
   status: string;
   recipientId?: string;
-  /** Meta adjunta `errors[]` en los `failed` (ej. 130472 del 2026-08-05). */
+  /** A Meta anexa `errors[]` nos `failed` (ex.: 130472 de 2026-08-05). */
   errorCode?: number;
   errorMessage?: string;
 }) {

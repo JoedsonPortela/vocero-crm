@@ -8,16 +8,16 @@ import {
 } from "@/server/ai/credentials";
 
 /**
- * Con qué proveedor de IA habla esta organización (issue #85).
+ * Com qual provedor de IA esta organização fala (issue #85).
  *
- * Precedencia: lo guardado en Ajustes → IA manda; las variables
- * `OPENROUTER_*` del entorno quedan como respaldo para instalaciones
- * automatizadas (o para quien ya las tenía). Una fila PAUSADA no cae al
- * entorno: el dueño configuró su llave, y que el agente siguiera hablando con
- * otra sin decírselo sería esconderle el problema que tiene que arreglar.
+ * Precedência: o que foi salvo em Ajustes → IA prevalece; as variáveis
+ * `OPENROUTER_*` do ambiente ficam como reserva para instalações
+ * automatizadas (ou para quem já as tinha). Uma linha PAUSADA não cai no
+ * ambiente: o dono configurou a sua chave, e que o agente seguisse falando com
+ * outra sem avisar seria esconder-lhe o problema que precisa resolver.
  *
- * Las funciones puras (`interpretarCredencial`, `resolver`) existen para
- * probar la tabla de decisión sin base de datos.
+ * As funções puras (`interpretarCredencial`, `resolver`) existem para
+ * testar a tabela de decisão sem banco de dados.
  */
 
 export type AiProvider = {
@@ -43,15 +43,15 @@ export type AiResolution =
   | { ok: false; estado: Exclude<EstadoIa, { activa: true }> };
 
 /**
- * El respaldo del entorno, o `null` sin `OPENROUTER_API_TOKEN`. El modelo
- * puede venir vacío: eso lo reporta `chatJson` como `not_configured` con su
- * detalle, igual que antes.
+ * A reserva do ambiente, ou `null` sem `OPENROUTER_API_TOKEN`. O modelo
+ * pode vir vazio: isso é reportado pelo `chatJson` como `not_configured` com o seu
+ * detalhe, igual a antes.
  *
- * Se lee de `process.env` directo, no por `getEnv()`, igual que
- * `isMockEnabled()` y las banderas: preguntar si hay IA no puede depender de
- * que TODO el entorno valide. Con `getEnv()`, un turno del agente reventaba
- * —en vez de degradar— solo por consultar esto (ver `server/agenda/flag.ts`).
- * Los strings vacíos cuentan como ausentes, como en `getEnv()`.
+ * É lido de `process.env` direto, não por `getEnv()`, igual a
+ * `isMockEnabled()` e as flags: perguntar se há IA não pode depender de
+ * que TODO o ambiente valide. Com `getEnv()`, um turno do agente estourava
+ * —em vez de degradar— só por consultar isto (ver `server/agenda/flag.ts`).
+ * Strings vazias contam como ausentes, como em `getEnv()`.
  */
 export function envAiProvider(): AiProvider | null {
   if (!isAiConfiguredByEnv()) return null;
@@ -75,7 +75,7 @@ type CredEstado = Pick<
   "status" | "tokenLast4" | "statusChangedAt"
 >;
 
-/** Pura: la fila manda; sin fila, el entorno; sin nada, sin configurar. */
+/** Pura: a linha manda; sem linha, o ambiente; sem nada, não configurado. */
 export function interpretarCredencial(
   cred: CredEstado | null,
   env: { last4: string } | null
@@ -96,7 +96,7 @@ export function interpretarCredencial(
   return { activa: false, motivo: "sin_configurar" };
 }
 
-/** Pura: la resolución completa, con el token, para el adaptador. */
+/** Pura: a resolução completa, com o token, para o adaptador. */
 export function resolver(
   cred: AiCredentialSecret | null,
   env: AiProvider | null
@@ -113,7 +113,7 @@ export function resolver(
         source: "org",
         baseUrl: cred.baseUrl,
         model: cred.model,
-        // Un solo modelo en la UI: el juez del Laboratorio usa el mismo.
+        // Um só modelo na UI: o juiz do Laboratório usa o mesmo.
         judgeModel: cred.model,
         token: cred.token,
       },
@@ -124,8 +124,8 @@ export function resolver(
 }
 
 /**
- * Sin organización (una llamada suelta) solo cuenta el entorno: no hay fila
- * que consultar.
+ * Sem organização (uma chamada avulsa) só conta o ambiente: não há linha
+ * para consultar.
  */
 export async function resolveAiProvider(
   organizationId?: string
@@ -142,21 +142,21 @@ export async function estadoIaDe(organizationId: string): Promise<EstadoIa> {
   return interpretarCredencial(cred, env ? { last4: last4(env.token) } : null);
 }
 
-/** Atajo para los sitios que solo necesitan el sí/no. */
+/** Atalho para os lugares que só precisam do sim/não. */
 export async function isAiConfiguredFor(
   organizationId: string
 ): Promise<boolean> {
   return (await estadoIaDe(organizationId)).activa;
 }
 
-/** El mensaje que ve el dueño cuando su agente no puede contestar. */
+/** A mensagem que o dono vê quando seu agente não consegue responder. */
 export function mensajeDeEstado(estado: EstadoIa): string | null {
   if (estado.activa) return null;
   switch (estado.motivo) {
     case "sin_configurar":
-      // «Apagado» no: el interruptor de la pantalla Agente puede decir
-      // «Encendido». El problema no es que esté apagado, es que no tiene con
-      // qué pensar.
+      // «Desligado» não: o interruptor da tela Agente pode dizer
+      // «Ligado». O problema não é estar desligado, é não ter com
+      // o que pensar.
       return "Tu agente no puede contestar todavía: configura tu proveedor de IA en Ajustes → IA.";
     case "token_invalido":
       return "Tu agente está pausado: el proveedor rechazó tu llave. Revísala en Ajustes → IA.";

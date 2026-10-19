@@ -14,8 +14,8 @@ import {
 } from "@/lib/time/slots";
 
 /**
- * 015 — Los bordes que rompen un motor de agenda: DST, franjas partidas y
- * días cerrados. Sin luxon: si `Intl` fallara, estos tests lo gritan.
+ * 015 — As bordas que quebram um motor de agenda: DST, faixas partidas e
+ * dias fechados. Sem luxon: se o `Intl` falhasse, estes testes gritam.
  */
 
 const MX = "America/Mexico_City";
@@ -33,7 +33,7 @@ describe("zonedWallClockToUtc — hora de pared → instante", () => {
   });
 
   it("Nueva York: la misma hora local cambia de instante al entrar el DST", () => {
-    // El DST arranca el 2026-03-08.
+    // O DST começa em 2026-03-08.
     expect(zonedWallClockToUtc("2026-03-07", "09:00", NY)?.toISOString()).toBe(
       "2026-03-07T14:00:00.000Z"
     );
@@ -52,7 +52,7 @@ describe("zonedWallClockToUtc — hora de pared → instante", () => {
   });
 
   it("una hora inexistente (salto de primavera) devuelve un instante real, no lanza", () => {
-    // 02:30 del 2026-03-08 en NY no existe: el reloj salta de 02:00 a 03:00.
+    // 02:30 de 2026-03-08 em NY não existe: o relógio pula de 02:00 para 03:00.
     const d = zonedWallClockToUtc("2026-03-08", "02:30", NY);
     expect(d).not.toBeNull();
     expect(Number.isNaN(d!.getTime())).toBe(false);
@@ -72,7 +72,7 @@ describe("weekdayKeyOf / todayInTz", () => {
   });
 
   it("el día 'de hoy' depende de la zona, no del servidor", () => {
-    // 03:00Z del 6 de agosto sigue siendo 5 de agosto en México (UTC-6).
+    // 03:00Z de 6 de agosto continua sendo 5 de agosto no México (UTC-6).
     const instant = new Date("2026-08-06T03:00:00.000Z");
     expect(todayInTz(instant, MX)).toBe("2026-08-05");
     expect(todayInTz(instant, MADRID)).toBe("2026-08-06");
@@ -194,7 +194,7 @@ describe("etiquetas para el cliente", () => {
     const label = labelInTz("2026-08-05T15:00:00.000Z", MX);
     expect(label).toContain("09:00");
     expect(label).toContain("5");
-    // Mismo instante, otra zona ⇒ otra hora.
+    // Mesmo instante, outro fuso ⇒ outra hora.
     expect(labelInTz("2026-08-05T15:00:00.000Z", MADRID)).toContain("17:00");
   });
 
@@ -218,11 +218,11 @@ describe("etiquetas para el cliente", () => {
 });
 
 /**
- * El día en palabras es lo que evita el fallo caro: un lead contestó
- * "10:30, de mañana" a una oferta de HOY y se agendó el día equivocado.
+ * O dia por extenso é o que evita a falha cara: um lead respondeu
+ * "10:30, de mañana" a uma oferta de HOJE e agendou o dia errado.
  */
 describe("dayLabelInTz — el día EN PALABRAS", () => {
-  const now = new Date("2026-08-05T15:00:00.000Z"); // miércoles 5, 09:00 en MX
+  const now = new Date("2026-08-05T15:00:00.000Z"); // quarta 5, 09:00 no MX
 
   it("marca 'hoy' cuando el slot cae en el día en curso del negocio", () => {
     const label = dayLabelInTz("2026-08-05T20:00:00.000Z", MX, now);
@@ -246,7 +246,7 @@ describe("dayLabelInTz — el día EN PALABRAS", () => {
   });
 
   it("'hoy' se decide en la zona del negocio, no en la del servidor", () => {
-    // 03:00Z del 6 sigue siendo 5 de agosto en México.
+    // 03:00Z do dia 6 continua sendo 5 de agosto no México.
     const instant = "2026-08-06T03:00:00.000Z";
     expect(dayLabelInTz(instant, MX, now)).toMatch(/^hoy /);
     expect(dayLabelInTz(instant, MADRID, now)).toMatch(/^mañana /);

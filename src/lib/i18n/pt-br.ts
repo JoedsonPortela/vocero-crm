@@ -1,8 +1,8 @@
 /**
- * Textos da interfaz en portugués de Brasil. Cada clave es una ruta con
- * puntos (`nav.inbox`) y el valor es el texto final, con `{variable}` donde
- * haga falta interpolar. Agregar un texto nuevo: una clave aquí y `t("clave")`
- * en el componente. Nunca escribir texto visible directo en el JSX.
+ * Textos da interface em português do Brasil. Cada chave é um caminho com
+ * pontos (`nav.inbox`) e o valor é o texto final, com `{variable}` onde
+ * for preciso interpolar. Para adicionar um texto novo: uma chave aqui e `t("chave")`
+ * no componente. Nunca escrever texto visível direto no JSX.
  */
 export const ptBR = {
   nav: {

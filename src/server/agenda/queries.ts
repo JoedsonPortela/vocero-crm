@@ -5,7 +5,7 @@ import type { DateRange } from "@/lib/time/calendar";
 import { addDaysISO, partsInTz, zonedWallClockToUtc } from "@/lib/time/slots";
 import { getSettings, type CalendarSettings } from "@/server/agenda/settings";
 
-/** 015 — Listado de citas para la UI, con la hora en la zona del negocio. */
+/** 015 — Listagem de agendamentos para a UI, com a hora no fuso do negócio. */
 
 export type BookingListItem = {
   id: string;
@@ -19,30 +19,30 @@ export type BookingListItem = {
   weekday: string;
   contact: { id: string; name: string } | null;
   conversationId: string | null;
-  /** Con qué conector nació la entrega de esta cita. */
+  /** Com qual conector nasceu a entrega deste agendamento. */
   connector: string | null;
   meetingLink: string | null;
-  /** El proveedor falló al crear la reunión: se puede reintentar. */
+  /** O provedor falhou ao criar a reunião: pode-se tentar de novo. */
   linkPending: boolean;
   isTest: boolean;
   notes: string | null;
 };
 
-/** Tope del listado sin rango: el de siempre, que leen los guiones E2E. */
+/** Teto da listagem sem intervalo: o de sempre, que os roteiros E2E leem. */
 export const LIST_LIMIT = 200;
 
 /**
- * 215 — Tope de una consulta por rango. No es un límite del producto (92 días
- * de un negocio con 30 citas diarias son 2 760): es el seguro contra una
- * respuesta de megas. Si se alcanza, la respuesta lo dice (`truncated`) en vez
- * de esconder citas como hacía el tope de 200.
+ * 215 — Teto de uma consulta por intervalo. Não é um limite do produto (92 dias
+ * de um negócio com 30 agendamentos diários são 2 760): é o seguro contra uma
+ * resposta de megas. Se for atingido, a resposta diz isso (`truncated`) em vez
+ * de esconder agendamentos, como fazia o teto de 200.
  */
 export const RANGE_LIMIT = 3000;
 
 /**
- * Cuánto mira hacia atrás la consulta por rango. La API acepta bloqueos de
- * hasta 600 minutos: uno que empezó a las 20:00 del día anterior al rango
- * sigue ocupando su madrugada y la rejilla lo tiene que pintar.
+ * Quanto a consulta por intervalo olha para trás. A API aceita bloqueios de
+ * até 600 minutos: um que começou às 20:00 do dia anterior ao intervalo
+ * continua ocupando a sua madrugada, e a grade precisa pintá-lo.
  */
 const LOOKBACK_MS = 24 * 3_600_000;
 
@@ -63,7 +63,7 @@ function baseQuery() {
     .leftJoin(schema.contact, eq(schema.booking.contactId, schema.contact.id));
 }
 
-/** Las últimas 200 citas: el listado de siempre, para quien no pide rango. */
+/** Os últimos 200 agendamentos: a listagem de sempre, para quem não pede intervalo. */
 export async function listBookings(
   organizationId: string,
   settings?: CalendarSettings
@@ -77,11 +77,11 @@ export async function listBookings(
 }
 
 /**
- * 215 — Las citas que TOCAN un rango de días en la zona del negocio, en orden.
+ * 215 — Os agendamentos que TOCAM um intervalo de dias no fuso do negócio, em ordem.
  *
- * `from`/`to` son fechas de calendario inclusivas; el corte se hace a la
- * medianoche del negocio, no a la de UTC (con cortes en UTC, lo que pasa
- * después de las 18:00 en México caería en la columna del día siguiente).
+ * `from`/`to` são datas de calendário inclusivas; o corte é feito à
+ * meia-noite do negócio, não à de UTC (com cortes em UTC, o que acontece
+ * depois das 18:00 no México cairia na coluna do dia seguinte).
  */
 export async function listBookingsInRange(
   organizationId: string,
@@ -90,7 +90,7 @@ export async function listBookingsInRange(
 ): Promise<{ bookings: BookingListItem[]; truncated: boolean }> {
   const resolved = settings ?? (await getSettings(organizationId));
   const tz = resolved.timezone;
-  // Fechas ya validadas (`parseRangeQuery`): la conversión no puede fallar.
+  // Datas já validadas (`parseRangeQuery`): a conversão não pode falhar.
   const start = zonedWallClockToUtc(range.from, "00:00", tz)!;
   const end = zonedWallClockToUtc(addDaysISO(range.to, 1), "00:00", tz)!;
 
@@ -106,7 +106,7 @@ export async function listBookingsInRange(
     .orderBy(asc(schema.booking.scheduledAt))
     .limit(RANGE_LIMIT);
 
-  // De lo que empezó el día anterior, solo lo que sigue ocupando el rango.
+  // Do que começou no dia anterior, só o que continua ocupando o intervalo.
   const inRange = rows.filter(
     (r) =>
       r.booking.scheduledAt.getTime() + r.booking.durationMinutes * 60_000 >

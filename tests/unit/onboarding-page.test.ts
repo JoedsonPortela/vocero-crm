@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * #86 — Quién entra a la guía y a dónde manda la raíz. Las dos páginas se
- * prueban con sus dependencias falsas: solo interesa la decisión.
+ * #86 — Quem entra no guia e para onde manda a raiz. As duas páginas se
+ * testam com suas dependências falsas: só interessa a decisão.
  */
 
 const getSessionOrNull = vi.hoisted(() => vi.fn());

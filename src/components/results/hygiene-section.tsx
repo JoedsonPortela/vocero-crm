@@ -8,10 +8,10 @@ import { formatMoneyCents } from "@/lib/money";
 import { Section, Subhead } from "./section";
 
 /**
- * 019 — Lo que se está cayendo AHORA.
+ * 019 — O que está caindo AGORA.
  *
- * Cada persona lleva a su conversación: una lista de problemas sin camino a
- * la acción es solo ansiedad. La Bandeja abre por contacto (`?contact=`).
+ * Cada pessoa leva à sua conversa: uma lista de problemas sem caminho até
+ * a ação é só ansiedade. A Bandeja abre por contato (`?contact=`).
  */
 export function HygieneSection({
   data,

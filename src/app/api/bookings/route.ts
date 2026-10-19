@@ -10,14 +10,14 @@ import { bookingErrorResponse, bookingPayload } from "@/server/agenda/http";
 export const dynamic = "force-dynamic";
 
 /**
- * 215 — Con `?from=AAAA-MM-DD&to=AAAA-MM-DD` (días del negocio, inclusivos,
- * máximo 92), TODAS las citas de ese rango para el calendario, en orden, más
- * lo que la pantalla necesita para pintarlas: `timezone`, `weeklyHours`,
- * `range` y `truncated` (tope de seguridad de 3 000).
+ * 215 — Com `?from=AAAA-MM-DD&to=AAAA-MM-DD` (dias do negócio, inclusivos,
+ * máximo 92), TODAS as citas desse intervalo para o calendário, em ordem, mais
+ * o que a tela precisa para desenhá-las: `timezone`, `weeklyHours`,
+ * `range` e `truncated` (limite de segurança de 3 000).
  *
- * Sin parámetros responde EXACTAMENTE lo de siempre (`{ bookings }`, las
- * últimas 200): es lo que leen los guiones E2E de 015. Un rango que no cuadra
- * (uno solo de los dos, fecha inexistente, al revés o demasiado largo) es 422
+ * Sem parâmetros, responde EXATAMENTE o de sempre (`{ bookings }`, as
+ * últimas 200): é o que leem os scripts E2E de 015. Um intervalo inválido
+ * (só um dos dois, data inexistente, invertido ou longo demais) é 422
  * `invalid_range`.
  */
 export const GET = withAuth(async (session, req: Request) => {
@@ -62,14 +62,14 @@ const postSchema = z.discriminatedUnion("kind", [
 ]);
 
 /**
- * 015 — El operador agenda o bloquea.
+ * 015 — O operador agenda ou bloqueia.
  *
- * Responde **201**, igual que la superficie del bot: el código de creación es
- * contrato, no un detalle.
+ * Responde **201**, igual à superfície do bot: o código de criação é
+ * contrato, não um detalhe.
  *
- * A diferencia del agente, el operador NO pasa por `offered_slot`: elige de la
- * disponibilidad que está viendo en pantalla. La re-validación y el candado
- * anti doble-booking sí aplican igual.
+ * Diferentemente do agente, o operador NÃO passa por `offered_slot`: escolhe da
+ * disponibilidade que está vendo na tela. A revalidação e a trava
+ * anti dupla reserva valem do mesmo jeito.
  */
 export const POST = withAuth(async (session, req: Request) => {
   if (!agendaEnabled()) return agendaDisabledResponse();

@@ -10,9 +10,9 @@ import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 
 /**
- * La primera pantalla (issue #86): los pasos con su avance y, al final, el
- * botón que enciende el agente. Todo lo que afirma viene del servidor
- * (`guide`); aquí solo se pinta y se enciende.
+ * A primeira tela (issue #86): os passos com seu avanço e, no final, o
+ * botão que liga o agente. Tudo o que ela afirma vem do servidor
+ * (`guide`); aqui só é desenhada e ligada.
  */
 export function OnboardingClient({
   guide,
@@ -27,7 +27,7 @@ export function OnboardingClient({
   const total = guide.steps.length;
   const done = guide.steps.filter((s) => s.done).length;
   const current = guide.steps.find((s) => !s.done)?.key ?? null;
-  // Antes del paso 1 el nombre es el de fábrica («Asistente») y se lee como
+  // Antes do passo 1 o nome é o de fábrica («Asistente») e é lido como
   // una palabra suelta, no como el nombre de alguien: se dice «seu agente».
   const agentReady = guide.steps.find((s) => s.key === "agent")?.done ?? false;
   const agente = (agentReady && agentName) || "seu agente";
@@ -99,8 +99,8 @@ export function OnboardingClient({
                   aria-hidden
                   className={cn(
                     "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
-                    // Verde de estado con su propio texto: legible en los dos
-                    // temas sin un blanco cableado.
+                    // Verde de estado com seu próprio texto: legível nos dois
+                    // temas sem um branco fixo.
                     step.done
                       ? "bg-success-tint text-success-text"
                       : isCurrent

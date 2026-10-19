@@ -5,11 +5,11 @@ import { decryptSecret, encryptSecret } from "@/lib/crypto";
 import { columnasDelSecreto, secretoDeLaFila } from "@/server/zernio/secreto-guardado";
 
 /**
- * 014 — Credenciales del canal de Instagram.
+ * 014 — Credenciais do canal do Instagram.
  *
- * Mismo contrato que las de WhatsApp (`server/whatsapp/credentials.ts`): el
- * token viaja descifrado solo en memoria y nunca sale en una respuesta de la
- * API — hacia fuera se expone únicamente su cola.
+ * Mesmo contrato das do WhatsApp (`server/whatsapp/credentials.ts`): o
+ * token viaja descriptografado só na memória e nunca sai numa resposta da
+ * API — para fora expõe-se somente a sua cauda.
  */
 
 export type InstagramCredentials = {
@@ -55,7 +55,7 @@ export async function getInstagramCredentialsByOrg(
   return rows[0] ? toCredentials(rows[0]) : null;
 }
 
-/** Enrutado del webhook de Meta: `entry[].id` es el IG_ID del perfil. */
+/** Roteamento do webhook da Meta: `entry[].id` é o IG_ID do perfil. */
 export async function getInstagramCredentialsByIgUserId(
   igUserId: string
 ): Promise<InstagramCredentials | null> {
@@ -67,7 +67,7 @@ export async function getInstagramCredentialsByIgUserId(
   return rows[0] ? toCredentials(rows[0]) : null;
 }
 
-/** Enrutado del webhook de Zernio: el evento trae `account.id`, no el perfil. */
+/** Roteamento do webhook da Zernio: o evento traz `account.id`, não o perfil. */
 export async function getInstagramCredentialsByAccountRef(
   accountRef: string
 ): Promise<InstagramCredentials | null> {
@@ -118,7 +118,7 @@ export async function saveInstagramCredentials(input: {
     .values({ id: newId("credentials"), ...values });
 }
 
-/** El token murió: se pausan los envíos y la UI pide reconectar. */
+/** O token morreu: os envios são pausados e a UI pede para reconectar. */
 export async function markInstagramReconnectRequired(
   organizationId: string
 ): Promise<void> {

@@ -6,16 +6,16 @@ import type { HygieneBlockDto } from "@/lib/analytics";
 import { notLabContact } from "@/server/analytics/shared";
 
 /**
- * 019 — Bloque de higiene.
+ * 019 — Bloco de higiene.
  *
- * NO es análisis histórico: describe el AHORA, y por eso no toma rango de
- * fechas. Es lo que hace que la pantalla se abra a diario en vez de una vez al
- * mes.
+ * NÃO é análise histórica: descreve o AGORA, e por isso não recebe intervalo de
+ * datas. É o que faz a tela ser aberta todo dia, em vez de uma vez por
+ * mês.
  */
 
-/** Días sin que hable el cliente a partir de los cuales el lead está frío. */
+/** Dias sem que o cliente fale, a partir dos quais o lead está frio. */
 export const SILENCIO_DIAS = 7;
-/** Cuántos leads en silencio se listan; el total viaja aparte. */
+/** Quantos leads em silêncio são listados; o total vai à parte. */
 export const MAX_SILENCIOSOS = 50;
 
 export async function hygieneBlock(
@@ -43,21 +43,21 @@ export async function hygieneBlock(
 }
 
 /**
- * Leads abiertos sin respuesta del cliente en más de una semana, con el dinero
- * que se está enfriando.
+ * Leads abertos sem resposta do cliente há mais de uma semana, com o dinheiro
+ * que está esfriando.
  *
- * El silencio se mide por la última vez que habló EL CLIENTE, no por la última
- * vez que pasó algo: mandarle tres seguimientos a un lead muerto lo haría ver
- * "activo" justo cuando más atención necesita.
+ * O silêncio é medido pela última vez que FALOU O CLIENTE, não pela última
+ * vez que algo aconteceu: mandar três follow-ups a um lead morto faria ele parecer
+ * "ativo" justo quando mais precisa de atenção.
  *
- * El total y el dinero salen de funciones de ventana, que se calculan ANTES
- * del límite: la lista se corta en 50, los números no.
+ * O total e o dinheiro saem de funções de janela, calculadas ANTES
+ * do limite: a lista é cortada em 50, os números não.
  */
 async function leadsEnSilencio(organizationId: string, businessCurrency: string, now: Date) {
   const corte = new Date(now.getTime() - SILENCIO_DIAS * 86_400_000);
-  // `mapWith`: un timestamp en SQL crudo llega como texto SIN zona, y
-  // `new Date()` lo leería en la hora local del servidor. El mapeador de la
-  // columna lo lee como UTC, que es lo que guarda.
+  // `mapWith`: um timestamp em SQL cru chega como texto SEM fuso, e
+  // `new Date()` o leria na hora local do servidor. O mapeador da
+  // coluna o lê como UTC, que é o que ela guarda.
   const ultimo = sql<Date>`coalesce(${schema.conversation.lastInboundAt}, ${schema.lead.lastActivityAt}, ${schema.lead.createdAt})`.mapWith(
     schema.lead.createdAt
   );
@@ -90,13 +90,13 @@ async function leadsEnSilencio(organizationId: string, businessCurrency: string,
         eq(schema.pipelineStage.kind, "open"),
         isNull(schema.contact.archivedAt),
         notLabContact(schema.lead.contactId),
-        // El instante va como texto con cast explícito: dentro de un
-        // `coalesce` el tipo del parámetro es desconocido y el driver no sabe
-        // serializar un Date contra "unknown".
+        // O instante vai como texto com cast explícito: dentro de um
+        // `coalesce` o tipo do parâmetro é desconhecido e o driver não sabe
+        // serializar um Date contra "unknown".
         sql`${ultimo} < ${corte.toISOString()}::timestamp`
       )
     )
-    // Lo más frío primero: si hay más de 50, se ven los que más urge rescatar.
+    // O mais frio primeiro: se houver mais de 50, veem-se os que mais urge resgatar.
     .orderBy(asc(ultimo))
     .limit(MAX_SILENCIOSOS);
 
@@ -106,7 +106,7 @@ async function leadsEnSilencio(organizationId: string, businessCurrency: string,
       contactId: r.contactId,
       name: r.name,
       days: Math.floor((now.getTime() - r.ultimo.getTime()) / 86_400_000),
-      // Solo el dinero en la moneda del negocio entra en el total en riesgo.
+      // Só o dinheiro na moeda do negócio entra no total em risco.
       amountCents: sumable({ amountCents: r.amountCents, currency: r.currency }, businessCurrency)
         ? r.amountCents
         : null,
@@ -120,7 +120,7 @@ async function leadsEnSilencio(organizationId: string, businessCurrency: string,
   };
 }
 
-/** Salientes que no llegaron en los últimos 30 días, por motivo. */
+/** Saídas que não chegaram nos últimos 30 dias, por motivo. */
 async function mensajesFallidos(organizationId: string, now: Date) {
   const desde = new Date(now.getTime() - 30 * 86_400_000);
 
@@ -131,8 +131,8 @@ async function mensajesFallidos(organizationId: string, now: Date) {
       lastAt: sql<Date>`max(${schema.message.createdAt})`.mapWith(schema.message.createdAt),
     })
     .from(schema.message)
-    // El Laboratorio no manda nada a Meta, pero si algo suyo quedara fallido
-    // no es un mensaje que el negocio haya perdido.
+    // O Laboratório não envia nada à Meta, mas se algo seu tiver ficado com falha
+    // não é uma mensagem que o negócio tenha perdido.
     .innerJoin(
       schema.conversation,
       and(
@@ -160,11 +160,11 @@ async function mensajesFallidos(organizationId: string, now: Date) {
 }
 
 /**
- * Conversaciones donde la ventana de 24 h está por cerrarse y el negocio aún
- * no ha contestado.
+ * Conversas em que a janela de 24 h está prestes a fechar e o negócio ainda
+ * não respondeu.
  *
- * Pasada esa ventana solo se puede escribir con plantilla: es la diferencia
- * entre responder gratis y gastar una.
+ * Passada essa janela só se pode escrever com template: é a diferença
+ * entre responder de graça e gastar uma.
  */
 async function ventanasPorVencer(organizationId: string, now: Date) {
   const limite = new Date(now.getTime() - 20 * 3_600_000);
@@ -187,11 +187,11 @@ async function ventanasPorVencer(organizationId: string, now: Date) {
         isNotNull(schema.conversation.lastInboundAt),
         lt(schema.conversation.lastInboundAt, limite),
         gt(schema.conversation.lastInboundAt, vencida),
-        // Sin respuesta nuestra posterior a lo último que dijo el cliente.
+        // Sem resposta nossa posterior à última coisa que o cliente disse.
         sql`(${schema.conversation.lastMessageAt} is null or ${schema.conversation.lastMessageAt} <= ${schema.conversation.lastInboundAt})`
       )
     )
-    // La que se cierra primero, arriba.
+    // A que fecha primeiro, no topo.
     .orderBy(asc(schema.conversation.lastInboundAt))
     .limit(20);
 

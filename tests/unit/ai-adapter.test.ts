@@ -4,9 +4,9 @@ import { chatJson, extractJson } from "@/lib/ai";
 import type { AiCredentialSecret } from "@/server/ai/credentials";
 
 /**
- * #85 — La fila de Ajustes → IA de la organización, simulada. Sin fila
- * (`null`) el adaptador cae a las variables del entorno de abajo. Las marcas
- * de estado se capturan en vez de escribirse.
+ * #85 — A linha de Ajustes → IA da organização, simulada. Sem linha
+ * (`null`) o adaptador cai nas variáveis do ambiente abaixo. As marcas
+ * de estado são capturadas em vez de escritas.
  */
 const fila: { current: AiCredentialSecret | null } = { current: null };
 const marcas: { status: number; nuevo: string }[] = [];
@@ -96,7 +96,7 @@ describe("chatJson (reintentos y errores tipados)", () => {
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data.text).toBe("ok");
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    // el reintento agrega la instrucción STRICT
+    // a nova tentativa acrescenta a instrução STRICT
     const secondBody = JSON.parse(fetchMock.mock.calls[1]![1]!.body as string);
     expect(JSON.stringify(secondBody.messages)).toContain("STRICT");
   });
@@ -112,7 +112,7 @@ describe("chatJson (reintentos y errores tipados)", () => {
     const result = await chatJson(schema, [{ role: "user", content: "hola" }]);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toBe("provider_error");
-    expect(fetchMock).toHaveBeenCalledTimes(3); // agotó los 3 intentos
+    expect(fetchMock).toHaveBeenCalledTimes(3); // esgotou as 3 tentativas
   });
 
   it("salida que nunca cumple el esquema → invalid_output", async () => {
@@ -139,7 +139,7 @@ describe("chatJson (reintentos y errores tipados)", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  // ---- #85: la fila de Ajustes → IA ----------------------------------------
+  // ---- #85: a linha de Ajustes → IA ----------------------------------------
 
   it("la fila de la organización manda sobre el entorno: su base URL, su modelo y su llave", async () => {
     fila.current = FILA_ORG;

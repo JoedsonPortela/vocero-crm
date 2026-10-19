@@ -15,7 +15,7 @@ import { resolveZernioAccount } from "@/server/zernio/guardar";
 
 export const dynamic = "force-dynamic";
 
-/** 022 — Estado de la conexión de TikTok (la llave nunca sale entera). */
+/** 022 — Estado da conexão do TikTok (a chave nunca sai inteira). */
 export const GET = withAuth(async (session) => {
   if (!isChannelEnabled("tiktok")) return channelDisabledResponse();
   const creds = await getTiktokCredentialsByOrg(session.organizationId);
@@ -34,20 +34,20 @@ export const GET = withAuth(async (session) => {
 
 const putSchema = z.object({
   /**
-   * `accountId` de la cuenta de TikTok en Zernio. Opcional si la llave tiene
-   * una sola cuenta de TikTok (023).
+   * `accountId` da conta do TikTok na Zernio. Opcional se a chave tiver
+   * uma única conta do TikTok (023).
    */
   accountRef: z.string().trim().min(1).nullish(),
-  /** Usuario de TikTok, solo para enseñarlo: no enruta nada. */
+  /** Usuário do TikTok, só para exibi-lo: não roteia nada. */
   username: z.string().trim().min(1).max(100).nullish(),
   token: z.string().trim().min(1),
   webhookSecret: z.string().trim().min(1).nullish(),
 });
 
 /**
- * Guarda la conexión validando ANTES la llave contra Zernio, igual que los
- * demás canales: una llave que no sirve no llega a la base. Solo el
- * propietario de la organización puede hacerlo.
+ * Salva a conexão validando ANTES a chave na Zernio, igual aos
+ * demais canais: uma chave que não funciona não chega ao banco. Só o
+ * proprietário da organização pode fazê-lo.
  */
 export const PUT = withAuth(async (session, req: Request) => {
   if (!isChannelEnabled("tiktok")) return channelDisabledResponse();
@@ -57,7 +57,7 @@ export const PUT = withAuth(async (session, req: Request) => {
   const body = await parseBody(req, putSchema);
   if (!body.ok) return body.response;
 
-  // 023: la cuenta se resuelve contra Zernio, no se guarda a ciegas.
+  // 023: a conta é resolvida na Zernio, não é salva às cegas.
   const cuenta = await resolveZernioAccount(body.data.token, body.data.accountRef, "tiktok");
   if (!cuenta.ok) return cuenta.response;
 
@@ -69,8 +69,8 @@ export const PUT = withAuth(async (session, req: Request) => {
     accountRef: cuenta.account._id,
     username,
     token: body.data.token,
-    // Sin secreto nuevo se conserva el que había: reconectar no debe apagar
-    // la verificación de firma.
+    // Sem segredo novo, mantém-se o que havia: reconectar não deve desligar
+    // a verificação de assinatura.
     webhookSecret: body.data.webhookSecret ?? previa?.webhookSecret ?? null,
   });
   const webhook = await ensureWebhookForOrg(session.organizationId, {
@@ -82,8 +82,8 @@ export const PUT = withAuth(async (session, req: Request) => {
     username,
     accountRef: cuenta.account._id,
     accountName: zernioAccountName(cuenta.account),
-    // Una cuenta personal se guarda igual, pero se dice: TikTok no le entrega
-    // mensajes hasta que sea Business.
+    // Uma conta pessoal é salva do mesmo jeito, mas isso é informado: o TikTok não entrega
+    // mensagens até que seja Business.
     health: accountHealth(cuenta.account, "tiktok"),
     webhook,
   });

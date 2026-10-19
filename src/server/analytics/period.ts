@@ -10,17 +10,17 @@ import type { PeriodDto } from "@/lib/analytics";
 import { DEFAULT_TIMEZONE } from "@/server/agenda/settings";
 
 /**
- * 019 — El periodo consultado, resuelto en la zona del NEGOCIO.
+ * 019 — O período consultado, resolvido no fuso do NEGÓCIO.
  *
- * Con cortes en UTC, todo lo que pasa después de las 18:00 en México cae en el
- * día siguiente: el dueño compararía su lunes contra un lunes que no existe.
- * La zona sale de la agenda (`calendar_settings`), la misma que ya decide qué
- * es "hoy" para los huecos disponibles; sin agenda, la de por defecto.
+ * Com cortes em UTC, tudo o que acontece depois das 18:00 no México cai no
+ * dia seguinte: o dono compararia a sua segunda-feira com uma segunda-feira que não existe.
+ * O fuso sai da agenda (`calendar_settings`), o mesmo que já decide o que
+ * é "hoje" para os horários disponíveis; sem agenda, o padrão.
  *
- * Se apoya en `lib/time/slots`, que la 015 ya usa para lo mismo y está
- * probado: una segunda forma de entender las zonas horarias dentro del mismo
- * repositorio sería la receta para que dos pantallas no coincidan en qué día
- * es hoy.
+ * Apoia-se em `lib/time/slots`, que a 015 já usa para o mesmo e está
+ * testado: uma segunda forma de entender os fusos horários dentro do mesmo
+ * repositório seria a receita para que duas telas não coincidissem em qual dia
+ * é hoje.
  */
 
 export const DEFAULT_DAYS = 30;
@@ -29,12 +29,12 @@ export const MAX_DAYS = 366;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const FORMATO = "Fechas inválidas: usa el formato AAAA-MM-DD";
 
-/** Rango en instantes UTC + su equivalente del periodo anterior. */
+/** Intervalo em instantes UTC + seu equivalente do período anterior. */
 export type ResolvedPeriod = {
   dto: PeriodDto;
-  /** Inicio del primer día local, en UTC. */
+  /** Início do primeiro dia local, em UTC. */
   start: Date;
-  /** Fin EXCLUSIVO: el instante en que empieza el día siguiente al `to`. */
+  /** Fim EXCLUSIVO: o instante em que começa o dia seguinte ao `to`. */
   end: Date;
   previousStart: Date;
   previousEnd: Date;
@@ -55,12 +55,12 @@ export async function businessTimezone(organizationId: string): Promise<string> 
     .where(eq(schema.calendarSettings.organizationId, organizationId))
     .limit(1);
   const tz = rows[0]?.timezone;
-  // Una zona inválida guardada en la base no puede tumbar la pantalla entera:
-  // se cae a la de por defecto, que es lo mismo que hace la agenda.
+  // Um fuso inválido guardado no banco não pode derrubar a tela inteira:
+  // cai-se no padrão, que é o mesmo que faz a agenda.
   return tz && isValidTimeZone(tz) ? tz : DEFAULT_TIMEZONE;
 }
 
-/** Días de diferencia entre dos fechas de calendario. */
+/** Dias de diferença entre duas datas de calendário. */
 export function daysApart(fromISO: string, toISO: string): number {
   return Math.round(
     (Date.parse(`${toISO}T00:00:00Z`) - Date.parse(`${fromISO}T00:00:00Z`)) /
@@ -75,8 +75,8 @@ function medianoche(isoDate: string, timezone: string): Date {
 }
 
 /**
- * `from`/`to` son fechas de calendario (`YYYY-MM-DD`) INCLUSIVAS. Ausentes, los
- * últimos 30 días terminando hoy.
+ * `from`/`to` são datas de calendário (`AAAA-MM-DD`) INCLUSIVAS. Ausentes, os
+ * últimos 30 dias terminando hoje.
  */
 export function resolvePeriod(input: {
   from?: string | null;
@@ -96,7 +96,7 @@ export function resolvePeriod(input: {
   const to = input.to || hoy;
   const from = input.from || addDaysISO(to, -(DEFAULT_DAYS - 1));
 
-  // "2026-02-31" pasa el patrón y no es una fecha.
+  // "2026-02-31" passa no padrão e não é uma data.
   const valida = (d: string) =>
     new Date(`${d}T00:00:00Z`).toISOString().slice(0, 10) === d;
   if (
@@ -116,13 +116,13 @@ export function resolvePeriod(input: {
     throw new PeriodError(`El rango máximo es de ${MAX_DAYS} días`);
   }
 
-  // El periodo anterior tiene la MISMA duración y termina justo antes: así la
-  // comparación no mezcla un mes de 30 días con uno de 31.
+  // O período anterior tem a MESMA duração e termina logo antes: assim a
+  // comparação não mistura um mês de 30 dias com um de 31.
   const previousTo = addDaysISO(from, -1);
   const previousFrom = addDaysISO(previousTo, -(days - 1));
 
-  // Rangos con fin EXCLUSIVO: `< end` evita el clásico bug del último
-  // milisegundo del día, que se cuenta dos veces o se pierde.
+  // Intervalos com fim EXCLUSIVO: `< end` evita o clássico bug do último
+  // milissegundo do dia, que é contado duas vezes ou se perde.
   const start = medianoche(from, tz);
   const end = medianoche(addDaysISO(to, 1), tz);
 
@@ -133,7 +133,7 @@ export function resolvePeriod(input: {
       previousFrom,
       previousTo,
       timezone: tz,
-      // Más de 92 días en barras diarias es ilegible: se agrupa por mes.
+      // Mais de 92 dias em barras diárias é ilegível: agrupa-se por mês.
       granularity: days > 92 ? "month" : "day",
       days,
     },
@@ -145,7 +145,7 @@ export function resolvePeriod(input: {
   };
 }
 
-/** Resuelve el periodo de la URL leyendo la zona del negocio. */
+/** Resolve o período da URL lendo o fuso do negócio. */
 export async function periodFromRequest(
   organizationId: string,
   url: URL,
@@ -160,7 +160,7 @@ export async function periodFromRequest(
   });
 }
 
-/** Mediana de una lista de números; `null` si está vacía. */
+/** Mediana de uma lista de números; `null` se estiver vazia. */
 export function median(values: number[]): number | null {
   if (values.length === 0) return null;
   const sorted = [...values].sort((x, y) => x - y);

@@ -8,9 +8,9 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * Sincroniza estados de plantillas por Graph API (pull). Vía universal para
- * el modo agencia: los webhooks de plantillas no siguen el override de
- * callback (limitación de Meta documentada en el README).
+ * Sincroniza os estados dos templates via Graph API (pull). Caminho universal para
+ * o modo agência: os webhooks de templates não seguem o override de
+ * callback (limitação da Meta documentada no README).
  */
 export const POST = withAuth(async (session) => {
   try {

@@ -25,7 +25,7 @@ describe("judgeCase (FR-032)", () => {
       behaviorText: "b",
     });
     expect(outcome.status).toBe("done");
-    // usa el modelo del juez (opts.judge)
+    // usa o modelo do juiz (opts.judge)
     expect(chatJson.mock.calls[0]![2]).toMatchObject({ judge: true });
   });
 
@@ -62,7 +62,7 @@ describe("computeScore (FR-033: judge_failed excluido del denominador)", () => {
       { status: "done", veredicto: "verde" },
       { status: "judge_failed", veredicto: null },
     ]);
-    expect(score).toBe(100); // 2/2, no 2/3
+    expect(score).toBe(100); // 2/2, não 2/3
   });
 
   it("todo judge_failed → sin score (null)", () => {

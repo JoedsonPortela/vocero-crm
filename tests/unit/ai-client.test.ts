@@ -5,9 +5,9 @@ import { AiClient } from "@/components/settings/ai-client";
 import { AvisoIaBanner } from "@/components/avisos/aviso-ia";
 
 /**
- * #85 — Ajustes → IA y el banner, dibujados en el servidor (sin efectos):
- * la ayuda va plegada, la llave es un campo de contraseña y los dos botones
- * del proveedor existen antes de cargar nada.
+ * #85 — Ajustes → IA e o banner, desenhados no servidor (sem efeitos):
+ * a ajuda vem recolhida, a chave é um campo de senha e os dois botões
+ * do provedor existem antes de carregar qualquer coisa.
  */
 describe("Ajustes → IA", () => {
   it("ofrece la guía plegada, enlaza saldo y llaves, y pide la llave como contraseña", () => {
@@ -21,7 +21,7 @@ describe("Ajustes → IA", () => {
     expect(html).toContain("Buscar modelos");
     expect(html).toContain("OpenRouter");
     expect(html).toContain("Outro compatível com OpenAI");
-    // El respaldo del entorno se explica sin mandar a editar el .env.
+    // O respaldo do ambiente é explicado sem mandar editar o .env.
     expect(html).toContain("OPENROUTER_API_TOKEN");
     expect(html).not.toContain("reinic");
   });

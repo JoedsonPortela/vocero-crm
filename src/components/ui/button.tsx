@@ -2,16 +2,15 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * Botones en píldora, como los `.btn` de vocerocrm.com: semibold, apretados y
- * con un leve levantamiento al pasar el cursor. El principal lleva el acento
- * white-label; el `outline` es el fantasma de la landing (borde fino que se
- * oscurece al pasar).
+ * Botões em pílula, como os `.btn` do vocerocrm.com: semibold, justos e
+ * com um leve levantamento ao passar o cursor. O principal leva o acento
+ * white-label; o `outline` é o fantasma da landing (borda fina que escurece ao passar).
  *
- * Sin modificadores de opacidad (`bg-primary/90`): Tailwind 3 no sabe
- * aplicarlos a un color `var(--x)` y descarta la regla en silencio.
+ * Sem modificadores de opacidade (`bg-primary/90`): o Tailwind 3 não sabe
+ * aplicá-los a uma cor `var(--x)` e descarta a regra em silêncio.
  */
-// Exportado para pintar un <Link> como botón (la guía de inicio): un botón
-// que navega es un enlace, y un enlace no puede ser un <button>.
+// Exportado para desenhar um <Link> como botão (o guia inicial): um botão
+// que navega é um link, e um link não pode ser um <button>.
 export const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold tracking-[-0.01em] transition-[color,background-color,border-color,transform,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50",
   {

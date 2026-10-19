@@ -12,8 +12,8 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * 015 — Conexión de Zoom. El secreto entra, pero nunca vuelve a salir: hacia
- * el navegador solo van sus últimos 4 y el estado.
+ * 015 — Conexão do Zoom. O segredo entra, mas nunca volta a sair: para
+ * o navegador vão só os seus últimos 4 caracteres e o estado.
  */
 
 export const GET = withAuth(async (session) => {
@@ -35,7 +35,7 @@ const credsSchema = z.object({
   clientSecret: z.string().trim().min(1),
 });
 
-/** Guarda validando ANTES contra Zoom: unas credenciales que no sirven no llegan a la base. */
+/** Salva validando ANTES no Zoom: credenciais que não funcionam não chegam ao banco. */
 export const PUT = withAuth(async (session, req: Request) => {
   if (!agendaEnabled()) return agendaDisabledResponse();
   const body = await parseBody(req, credsSchema);

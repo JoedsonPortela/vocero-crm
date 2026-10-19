@@ -1,14 +1,14 @@
 /**
- * Self-test E2E de comportamiento — plantillas con VARIAS variables
- * (guion tests/e2e/us6-templates.md, sección "multivariable").
+ * Self-test E2E de comportamento — modelos com VÁRIAS variáveis
+ * (roteiro tests/e2e/us6-templates.md, seção "multivariável").
  *
- * Reproduce el bloqueo reportado el 2026-08-09: el CRM rechazaba en la propia
- * pantalla un cuerpo con {{1}} {{2}} {{3}} ("v1 admite una sola variable"),
- * aunque Meta las acepta. Cubre alta, aprobación, envío con N parámetros y los
- * caminos infelices (numeración con saltos, valor faltante).
+ * Reproduz o bloqueio relatado em 2026-08-09: o CRM recusava, na própria
+ * tela, um corpo com {{1}} {{2}} {{3}} ("v1 admite uma única variável"),
+ * embora a Meta as aceite. Cobre cadastro, aprovação, envio com N parâmetros e os
+ * caminhos infelizes (numeração com saltos, valor faltante).
  *
  * Uso: node --env-file=.env scripts/e2e-templates-multivar.mjs
- * Requiere: app corriendo (pnpm dev) con WA_MOCK_ENABLED=true y BD migrada.
+ * Requer: app rodando (pnpm dev) com WA_MOCK_ENABLED=true e BD migrada.
  */
 
 const BASE = process.env.APP_BASE_URL ?? "http://localhost:3000";

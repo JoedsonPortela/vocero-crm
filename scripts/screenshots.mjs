@@ -1,21 +1,21 @@
 /**
- * Regenera las capturas del README (docs/screenshots/*.png) con la interfaz
- * actual, para que la portada no envejezca respecto al producto.
+ * Regenera as capturas do README (docs/screenshots/*.png) com a interface
+ * atual, para que a capa não envelheça em relação ao produto.
  *
- * Corre contra una app LOCAL con los mocks encendidos (WA_MOCK_ENABLED=true y
- * META_GRAPH_BASE_URL apuntando al wa-mock, ver el quickstart) y una base
- * recién migrada o con la demo ya cargada:
+ * Roda contra um app LOCAL com os mocks ligados (WA_MOCK_ENABLED=true e
+ * META_GRAPH_BASE_URL apontando para o wa-mock, ver o quickstart) e um banco
+ * recém-migrado ou com a demo já carregada:
  *
  *   node --env-file=.env scripts/screenshots.mjs
  *
- * Requiere Playwright (devDependency) con su Chromium instalado:
+ * Requer o Playwright (devDependency) com seu Chromium instalado:
  *
  *   pnpm exec playwright install chromium
  *
- * Lo que hace: entra (o crea al propietario si la base está vacía), carga el
- * negocio demo, conecta un número de prueba por el mock y deja la marca por
- * defecto; después captura las cinco pantallas de la portada a 1440×900 en
- * tema claro. No toca ninguna API real: todo sale del mock.
+ * O que faz: entra (ou cria o proprietário se o banco estiver vazio), carrega o
+ * negócio demo, conecta um número de teste pelo mock e deixa a marca padrão;
+ * depois captura as cinco telas da capa em 1440×900 no tema claro. Não toca
+ * em nenhuma API real: tudo sai do mock.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -38,22 +38,22 @@ const context = await browser.newContext({
   reducedMotion: "reduce",
 });
 
-// La Bandeja abre el panel de detalles según esta preferencia de escritorio.
+// A Bandeja abre o painel de detalhes conforme esta preferência de desktop.
 await context.addInitScript(() => {
   try {
     localStorage.setItem("vocero.panelOpen", "true");
   } catch {
-    // sin almacenamiento no hay preferencia que recordar
+    // sem armazenamento não há preferência a lembrar
   }
 });
 
-// --- Sesión. La API y el navegador comparten las cookies del contexto, así
-// que entrar por la API deja al navegador ya autenticado.
+// --- Sessão. A API e o navegador compartilham os cookies do contexto, então
+// entrar pela API deixa o navegador já autenticado.
 const api = context.request;
 const call = (path, init = {}) =>
   api.fetch(`${BASE}${path}`, {
     ...init,
-    // Better Auth valida Origin (CSRF) en los endpoints de auth.
+    // O Better Auth valida Origin (CSRF) nos endpoints de auth.
     headers: { origin: BASE, ...(init.headers ?? {}) },
   });
 
@@ -72,8 +72,8 @@ if (!session.ok()) {
   process.exit(1);
 }
 
-// Demo (409 si ya hay datos: no pasa nada), número de prueba por el mock y la
-// marca tal cual sale de la caja.
+// Demo (409 se já houver dados: não acontece nada), número de teste pelo mock e a
+// marca exatamente como sai da caixa.
 await call("/api/seed/demo", { method: "POST" });
 await call("/api/settings/whatsapp", {
   method: "PUT",
@@ -87,13 +87,13 @@ await call("/api/settings/branding", {
 const page = await context.newPage();
 
 /**
- * Navega, espera lo que identifica la pantalla y captura. `load` y no
- * `networkidle`: la Bandeja mantiene abierta la conexión SSE de /api/events y
- * la red jamás queda ociosa.
+ * Navega, espera o que identifica a tela e captura. `load` e não
+ * `networkidle`: a Bandeja mantém aberta a conexão SSE de /api/events e
+ * a rede nunca fica ociosa.
  */
 async function shoot(path, file, ready) {
   await page.goto(`${BASE}${path}`, { waitUntil: "load" });
-  // El indicador de desarrollo de Next no es parte del producto.
+  // O indicador de desenvolvimento do Next não faz parte do produto.
   await page.addStyleTag({ content: "nextjs-portal{display:none!important}" });
   await ready();
   await page.evaluate(() => document.fonts.ready);
@@ -115,8 +115,8 @@ await shoot("/pipeline", "pipeline.png", async () => {
 
 await shoot("/lab", "laboratorio.png", async () => {
   await page.getByText(/Score 83/).first().waitFor();
-  // El reporte de la corrida llega en un segundo fetch: se espera a que el
-  // hueco "elige una corrida" desaparezca, no un tiempo fijo.
+  // O relatório da execução chega numa segunda requisição: espera-se que o
+  // vazio "escolha uma execução" desapareça, não um tempo fixo.
   await page
     .getByText("Elige una corrida del historial")
     .waitFor({ state: "hidden", timeout: 20_000 });

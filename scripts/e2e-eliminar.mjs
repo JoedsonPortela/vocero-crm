@@ -1,24 +1,24 @@
 /**
- * Self-test E2E de comportamiento — 026: eliminar una conversación.
+ * Self-test E2E de comportamento — 026: excluir uma conversa.
  *
- * Conduce la app real con los simuladores de canal y hace de CEREBRO: levanta
- * un servidor HTTP en `BRAIN_DISPATCH_URL`, en este proceso, para recibir el
- * aviso `conversation.deleted` y verificar su firma sobre el cuerpo crudo,
- * como debe hacerlo un cerebro de verdad.
+ * Conduz o app real com os simuladores de canal e faz o papel de CÉREBRO: sobe
+ * um servidor HTTP em `BRAIN_DISPATCH_URL`, neste processo, para receber o
+ * aviso `conversation.deleted` e verificar sua assinatura sobre o corpo cru,
+ * como deve fazer um cérebro de verdade.
  *
  * Uso:
- *   1) app corriendo (`next dev`) sobre una base migrada, con
- *      WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL → wa-mock, BOT_API_KEY y
- *      BRAIN_DISPATCH_URL=http://127.0.0.1:<puerto libre>/vocero/dispatch.
- *      Con AGENDA=on corre además la cita por venir (AC6).
+ *   1) app rodando (`next dev`) sobre um banco migrado, com
+ *      WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL → wa-mock, BOT_API_KEY e
+ *      BRAIN_DISPATCH_URL=http://127.0.0.1:<porta livre>/vocero/dispatch.
+ *      Com AGENDA=on roda também o agendamento futuro (AC6).
  *   2) node --env-file=.env scripts/e2e-eliminar.mjs
  *
- * Dos modos, según cómo arrancó la app:
- *   - con BRAIN_DISPATCH_URL: todo, incluido el aviso al cerebro;
- *   - sin ella: el borrado y `agente: "no_aplica"` (no hay a quién avisar).
- * El gate completo son las dos corridas.
+ * Dois modos, conforme como a app foi iniciada:
+ *   - com BRAIN_DISPATCH_URL: tudo, incluindo o aviso ao cérebro;
+ *   - sem ela: a exclusão e `agente: "no_aplica"` (não há a quem avisar).
+ * O gate completo são as duas execuções.
  *
- * Sale con código 1 si algún check falla. Guion: tests/e2e/us-eliminar.md.
+ * Sai com código 1 se alguma verificação falhar. Roteiro: tests/e2e/us-eliminar.md.
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { existsSync, readdirSync } from "node:fs";
@@ -50,7 +50,7 @@ function ok(name, cond, extra = "") {
   }
 }
 
-/** `jar` aparte para actuar como otra persona sin perder la sesión del dueño. */
+/** `jar` à parte para agir como outra pessoa sem perder a sessão do dono. */
 async function api(ruta, opts = {}, jar = null) {
   const actual = jar ? jar.cookie : cookie;
   const res = await fetch(`${BASE}${ruta}`, {
@@ -88,7 +88,7 @@ async function hasta(cond, ms = 15000, paso = 250) {
 }
 
 // ---------------------------------------------------------------------------
-// El cerebro de prueba
+// O cérebro de teste
 // ---------------------------------------------------------------------------
 
 function firmaOk(crudo, cabecera) {
@@ -136,12 +136,12 @@ async function levantarCerebro(url) {
   await escuchar();
   return {
     estado,
-    /** Los avisos de olvido de esa conversación. */
+    /** Os avisos de esquecimento dessa conversa. */
     olvidos: (convId) =>
       estado.recibidos.filter(
         (r) => r.evento?.type === "conversation.deleted" && r.evento?.conversation?.id === convId
       ),
-    /** Los turnos (despachos) de esa conversación. */
+    /** Os turnos (despachos) dessa conversa. */
     turnos: (convId) =>
       estado.recibidos.filter((r) => !r.evento?.type && r.evento?.conversation?.id === convId),
     apagar: () =>
@@ -154,7 +154,7 @@ async function levantarCerebro(url) {
 }
 
 // ---------------------------------------------------------------------------
-// Atajos
+// Atalhos
 // ---------------------------------------------------------------------------
 
 let nMensaje = 0;
@@ -179,7 +179,7 @@ const contacto = (id) => api(`/api/contacts/${id}`);
 const eliminar = (id, { contacto: tambien = false } = {}, jar = null) =>
   api(`/api/conversations/${id}${tambien ? "?contacto=1" : ""}`, { method: "DELETE" }, jar);
 
-/** Una persona nueva escribe; devuelve su conversación ya ingerida. */
+/** Uma pessoa nova escreve; devolve sua conversa já ingerida. */
 async function persona(n, etiqueta) {
   const tel = telefono(n);
   const nombre = `Borrar ${etiqueta} ${MARCA}`;
@@ -187,7 +187,7 @@ async function persona(n, etiqueta) {
   return { tel, nombre, conv: await convDe(nombre) };
 }
 
-/** ¿Hay en el volumen un archivo con ese id de adjunto, en cualquier organización? */
+/** Há no volume um arquivo com esse id de anexo, em qualquer organização? */
 function archivoEnDisco(assetId) {
   if (!MEDIA_DIR || !existsSync(MEDIA_DIR)) return null;
   return readdirSync(MEDIA_DIR, { withFileTypes: true })
@@ -195,7 +195,7 @@ function archivoEnDisco(assetId) {
     .some((d) => existsSync(path.join(MEDIA_DIR, d.name, assetId)));
 }
 
-/** Escucha el SSE de la bandeja con la sesión actual hasta que `cuando` diga basta. */
+/** Escuta o SSE da bandeja com a sessão atual até que `quando` diga basta. */
 function escucharEventos() {
   const controller = new AbortController();
   const vistos = [];
@@ -254,7 +254,7 @@ async function main() {
     body: JSON.stringify({ wabaId: "WABA-E2E", phoneNumberId: PN, token: "tok-e2e" }),
   });
   ok("conexión de WhatsApp guardada (wa-mock)", conn.res.ok, JSON.stringify(conn.json));
-  // El agente incluido, apagado: aquí no se prueba quién contesta.
+  // O agente incluído, desligado: aqui não se testa quem responde.
   await api("/api/agent/profile", { method: "PUT", body: JSON.stringify({ enabled: false }) });
 
   try {
@@ -272,7 +272,7 @@ async function main() {
 }
 
 // ---------------------------------------------------------------------------
-// AC5 — Quién puede
+// AC5 — Quem pode
 // ---------------------------------------------------------------------------
 
 async function permisos() {
@@ -305,12 +305,12 @@ async function permisos() {
 
 // ---------------------------------------------------------------------------
 // AC1, AC2, AC3, AC7, AC9, AC10 — El hilo
-// ---------------------------------------------------------------------------
+// AC1, AC2, AC3, AC7, AC9, AC10 — O fio
 
 async function elHilo(cerebro) {
   console.log("\n== AC1–AC3: eliminar el hilo ==");
   const p = await persona(2, "hilo");
-  // Un adjunto, para comprobar que se va de verdad.
+  // Um anexo, para conferir que ele sai de verdade.
   await entranteWa(p.tel, p.nombre, undefined, { type: "image", mediaId: "media123", mimeType: "image/jpeg", caption: `foto ${MARCA}` });
   const conFoto = await hasta(async () => {
     const ms = (await mensajes(p.conv.id)).json?.messages ?? [];
@@ -415,7 +415,7 @@ async function elHilo(cerebro) {
 }
 
 // ---------------------------------------------------------------------------
-// AC4 — El contacto
+// AC4 — O contato
 // ---------------------------------------------------------------------------
 
 async function elContacto(cerebro) {
@@ -445,7 +445,7 @@ async function elContacto(cerebro) {
 }
 
 // ---------------------------------------------------------------------------
-// AC8 — El cerebro no confirma
+// AC8 — O cérebro não confirma
 // ---------------------------------------------------------------------------
 
 async function cerebroCaido(cerebro) {
@@ -474,7 +474,7 @@ async function cerebroCaido(cerebro) {
 
 // ---------------------------------------------------------------------------
 // AC6 — Una cita por venir
-// ---------------------------------------------------------------------------
+// AC6 — Um agendamento futuro
 
 async function citaPorVenir() {
   console.log("\n== AC6: una cita por venir detiene el borrado ==");

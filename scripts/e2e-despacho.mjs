@@ -1,32 +1,32 @@
 /**
- * Self-test E2E de comportamiento — 021: despacho estándar (#89) y 025: el
- * despacho recuerda qué debe.
+ * Self-test E2E de comportamento — 021: despacho padrão (#89) e 025: o
+ * despacho lembra o que deve.
  *
- * Conduce la app real con los mocks de canal y hace de CEREBRO: levanta un
- * servidor HTTP en `BRAIN_DISPATCH_URL`, en este proceso (otro distinto del
- * CRM), recibe los despachos, verifica la firma sobre el cuerpo crudo como
- * debe hacerlo un cerebro de verdad y contesta por `/api/bot/messages`. Así el
- * turno cruza HTTP de verdad en las dos direcciones.
+ * Conduz a app real com os mocks de canal e faz o papel de CÉREBRO: sobe um
+ * servidor HTTP em `BRAIN_DISPATCH_URL`, neste processo (outro, distinto do
+ * CRM), recebe os despachos, verifica a assinatura sobre o corpo cru como
+ * deve fazer um cérebro de verdade e responde por `/api/bot/messages`. Assim o
+ * turno cruza HTTP de verdade nas duas direções.
  *
  * Uso:
- *   1) app corriendo (`next dev`) sobre una base migrada, con
+ *   1) app rodando (`next dev`) sobre um banco migrado, com
  *      WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL → wa-mock,
  *      OPENROUTER_BASE_URL → ai-mock + OPENROUTER_API_TOKEN + OPENROUTER_MODEL,
- *      BOT_API_KEY, AGENT_COALESCE_MS corta (1500) y
- *      BRAIN_DISPATCH_URL=http://127.0.0.1:<puerto libre>/vocero/dispatch.
- *      Con CHANNELS=whatsapp,instagram,messenger,tiktok corre también esos
- *      canales (Instagram y TikTok entran por Zernio: ZERNIO_BASE_URL →
+ *      BOT_API_KEY, AGENT_COALESCE_MS curto (1500) e
+ *      BRAIN_DISPATCH_URL=http://127.0.0.1:<porta livre>/vocero/dispatch.
+ *      Com CHANNELS=whatsapp,instagram,messenger,tiktok também rodam esses
+ *      canais (Instagram e TikTok entram pelo Zernio: ZERNIO_BASE_URL →
  *      zernio-mock).
  *   2) node --env-file=.env scripts/e2e-despacho.mjs
  *
- * Dos modos, según cómo arrancó la app (025):
- *   - con BRAIN_DISPATCH_URL: todo lo de arriba, el guion del cerebro;
- *   - sin ella: contesta el agente incluido, y se comprueba lo que le toca a
- *     él (un mensaje que entra mientras el modelo piensa; una persona que
- *     contesta dentro de la ventana). No hace falta BOT_API_KEY.
- * El gate completo son las dos corridas.
+ * Dois modos, conforme como a app iniciou (025):
+ *   - com BRAIN_DISPATCH_URL: tudo o que está acima, o roteiro do cérebro;
+ *   - sem ela: responde o agente incluído, e se confere o que lhe cabe a ele
+ *     (uma mensagem que entra enquanto o modelo pensa; uma pessoa que
+ *     responde dentro da janela). Não é preciso BOT_API_KEY.
+ * O gate completo são as duas execuções.
  *
- * Sale con código 1 si algún check falla. Guion: tests/e2e/us-despacho.md.
+ * Sai com código 1 se alguma verificação falhar. Roteiro: tests/e2e/us-despacho.md.
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
@@ -38,9 +38,9 @@ const COALESCE = Number(process.env.AGENT_COALESCE_MS ?? 6000);
 const CHANNELS = (process.env.CHANNELS ?? "").split(",").map((c) => c.trim());
 const PN = "PN-E2E-1";
 const RUN = Date.now().toString(36);
-/** Marca de esta corrida: el arnés se puede repetir sobre la misma base. */
+/** Marca desta execução: o harness pode ser repetido sobre o mesmo banco. */
 const MARCA = `#${RUN}`;
-/** Seis dígitos de la corrida, para teléfonos que no choquen entre corridas. */
+/** Seis dígitos da execução, para telefones que não colidam entre execuções. */
 const DIGITOS = String(Date.now() % 1_000_000).padStart(6, "0");
 const telefono = (n) => `52155${DIGITOS}${String(n).padStart(2, "0")}`;
 
@@ -91,7 +91,7 @@ const bot = (path, opts = {}) =>
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/** Espera a que algo OCURRA, en vez de dormir un rato y confiar. */
+/** Espera até que algo ACONTEÇA, em vez de dormir um pouco e confiar. */
 async function hasta(cond, ms = 15000, paso = 250) {
   const fin = Date.now() + ms;
   for (;;) {
@@ -103,7 +103,7 @@ async function hasta(cond, ms = 15000, paso = 250) {
 }
 
 // ---------------------------------------------------------------------------
-// El cerebro de prueba
+// O cérebro de teste
 // ---------------------------------------------------------------------------
 
 function firmaOk(crudo, cabecera) {
@@ -130,7 +130,7 @@ async function levantarCerebro(url) {
     const trozos = [];
     req.on("data", (c) => trozos.push(c));
     req.on("end", () => {
-      // El cuerpo CRUDO, antes de parsear: es sobre esto que se firma.
+      // O corpo CRU, antes de parsear: é sobre isto que se assina.
       const crudo = Buffer.concat(trozos);
       let evento = null;
       try {
@@ -178,7 +178,7 @@ async function levantarCerebro(url) {
 }
 
 // ---------------------------------------------------------------------------
-// Atajos del guion
+// Atalhos do roteiro
 // ---------------------------------------------------------------------------
 
 let nMensaje = 0;
@@ -210,14 +210,14 @@ async function mensajesDe(convId) {
 
 const estadoCerebro = async () => (await api("/api/agent/brain-status")).json;
 
-/** Lo que escribe el operador desde la bandeja. */
+/** O que o operador escreve pela bandeja. */
 const aMano = (convId, text) =>
   api(`/api/conversations/${convId}/messages`, {
     method: "POST",
     body: JSON.stringify({ text }),
   });
 
-/** Espera a que ese texto del cliente esté guardado; devuelve el mensaje. */
+/** Espera até que esse texto do cliente esteja salvo; devolve a mensagem. */
 const entranteGuardado = (convId, text) =>
   hasta(
     async () => (await mensajesDe(convId)).find((m) => m.direction === "in" && m.text === text),
@@ -225,22 +225,22 @@ const entranteGuardado = (convId, text) =>
     60
   );
 
-/** El mock de IA: `?reset=1`, `?demoraMs=3000`; devuelve lo que se le preguntó. */
+/** O mock de IA: `?reset=1`, `?demoraMs=3000`; devolve o que lhe foi perguntado. */
 const iaMock = async (qs = "") =>
   (await api(`/api/dev/ai-mock/v1/chat/completions${qs}`)).json ?? {};
 
-/** Las peticiones al modelo de UNA conversación: las que traen ese texto. */
+/** As requisições ao modelo de UMA conversa: as que trazem esse texto. */
 const peticionesCon = async (texto) =>
   ((await iaMock()).peticiones ?? []).filter((p) =>
     p.mensajes.some((m) => m.content === texto)
   );
 
 /**
- * Hay casos que dependen de ganarle a la ventana de agrupado: algo tiene que
- * pasar ANTES de que venza. En una máquina cargada se puede perder esa
- * carrera, y entonces el caso no prueba nada. `preparar` devuelve `null`
- * cuando la perdió; se reintenta con otro contacto en vez de acusar al
- * producto de algo que hizo el guion.
+ * Há casos que dependem de ganhar da janela de agrupamento: algo precisa
+ * acontecer ANTES de ela vencer. Numa máquina carregada pode-se perder essa
+ * corrida, e aí o caso não prova nada. `preparar` devolve `null`
+ * quando a perdeu; tenta-se de novo com outro contato em vez de acusar o
+ * produto de algo que fez o roteiro.
  */
 async function conLaVentanaAbierta(preparar, intentos = 3) {
   for (let i = 1; i <= intentos; i++) {
@@ -252,7 +252,7 @@ async function conLaVentanaAbierta(preparar, intentos = 3) {
   return null;
 }
 
-/** Lo que tarda en vencer la ventana más un margen para el worker y `next dev`. */
+/** O tempo que leva para vencer a janela, mais uma margem para o worker e o `next dev`. */
 const TRAS_LA_VENTANA = COALESCE + 4000;
 
 // ---------------------------------------------------------------------------
@@ -297,7 +297,7 @@ async function main() {
   process.exit(failures > 0 ? 1 : 0);
 }
 
-/** Operador, WhatsApp por el wa-mock y el interruptor del agente encendido. */
+/** Operador, WhatsApp pelo wa-mock e o interruptor do agente ligados. */
 async function preparar() {
   const email = "e2e@vocero.test";
   const password = "password-e2e-123";
@@ -320,8 +320,8 @@ async function preparar() {
   ok("conexión de WhatsApp guardada (wa-mock)", conn.res.ok, JSON.stringify(conn.json));
   await api("/api/dev/wa-mock/outbox", { method: "DELETE" });
 
-  // A propósito: con IA configurada y el interruptor encendido, el agente
-  // incluido contestaría. El despacho tiene que callarlo.
+  // De propósito: com IA configurada e o interruptor ligado, o agente
+  // incluído responderia. O despacho precisa silenciá-lo.
   const perfil = await api("/api/agent/profile", {
     method: "PUT",
     body: JSON.stringify({ enabled: true }),
@@ -369,7 +369,7 @@ async function guion(cerebro, url) {
 }
 
 // ---------------------------------------------------------------------------
-// Historia 1 — un mensaje llega al cerebro
+// História 1 — uma mensagem chega ao cérebro
 // ---------------------------------------------------------------------------
 
 async function unMensaje(cerebro) {
@@ -466,12 +466,12 @@ async function rafaga(cerebro) {
   const nombre = `Beto Ráfaga ${MARCA}`;
   const textos = [1, 2, 3, 4, 5].map((i) => `mensaje ${i} de la ráfaga ${MARCA}`);
   /**
-   * Cada mensaje se espera en la bandeja antes de mandar el siguiente. El
-   * webhook contesta 200 y DESPUÉS ingiere (`after`): mandar los cinco sin
-   * esperar es poner cinco ingestas a correr a la vez, y el orden en que se
-   * guardan deja de ser el orden en que se mandaron. El «en orden» de abajo se
-   * ponía rojo de vez en cuando por eso, no por el despacho. Siguen cayendo
-   * todos dentro de la ventana, que cada uno empuja.
+   * Cada mensagem é aguardada na bandeja antes de enviar a próxima. O
+   * webhook responde 200 e DEPOIS ingere (`after`): enviar as cinco sem
+   * esperar é colocar cinco ingestões para rodar ao mesmo tempo, e a ordem em que
+   * são salvas deixa de ser a ordem em que foram enviadas. O «em ordem» abaixo
+   * ficava vermelho de vez em quando por isso, não por causa do despacho. Continuam
+   * caindo todas dentro da janela, que cada uma empurra.
    */
   let conv = null;
   for (const t of textos) {
@@ -508,7 +508,7 @@ async function enVuelo(cerebro) {
     if (!conv) return ok("la conversación existe", false);
     const primero = await hasta(() => cerebro.de(conv.id)[0], COALESCE + 12000, 50);
     ok("el primer despacho está en vuelo (el cerebro tarda 3 s en acusar)", Boolean(primero));
-    // Justo ahora: el CRM sigue esperando el 2xx del primero.
+    // Justo agora: o CRM ainda espera o 2xx do primeiro.
     await entranteWa(telefono(3), nombre, `segundo ${MARCA}`);
     cerebro.estado.modo = "ok";
 
@@ -530,17 +530,17 @@ async function enVuelo(cerebro) {
 }
 
 // ---------------------------------------------------------------------------
-// 025 — El despacho recuerda qué debe
+// 025 — O despacho lembra o que deve
 // ---------------------------------------------------------------------------
 
 async function mientrasPiensa(cerebro) {
   console.log("\n== 025·AC1: un mensaje que entra mientras el cerebro PIENSA viaja aunque ya haya respuesta ==");
   /**
-   * No es el hueco de AC5: aquí el despacho YA se entregó. El cerebro acusó
-   * recibo y está pensando (10 a 40 s en la vida real), el cliente escribe otra
-   * vez, y la respuesta al primer mensaje sale antes de que venza la ventana
-   * del segundo. La ráfaga se corta en el último saliente, así que ese segundo
-   * mensaje quedaba DETRÁS de la respuesta y nadie lo despachaba.
+   * Não é o buraco do AC5: aqui o despacho JÁ foi entregue. O cérebro acusou
+   * recebimento e está pensando (10 a 40 s na vida real), o cliente escreve outra
+   * vez, e a resposta à primeira mensagem sai antes de a janela do segundo vencer.
+   * O lote é cortado na última saída, então essa segunda mensagem ficava ATRÁS
+   * da resposta e ninguém a despachava.
    */
   const caso = await conLaVentanaAbierta(async (i) => {
     const nombre = `Lalo Pensando ${i} ${MARCA}`;
@@ -558,8 +558,8 @@ async function mientrasPiensa(cerebro) {
       method: "POST",
       body: JSON.stringify({ conversationId: conv.id, text: `Sí tenemos taladros ${i} ${MARCA}` }),
     });
-    // Si la respuesta llegara DESPUÉS de la ventana, el segundo despacho ya
-    // habría salido por el camino de siempre y el caso pasaría sin probar nada.
+    // Se a resposta chegasse DEPOIS da janela, o segundo despacho já teria saído
+    // pelo caminho de sempre e o caso passaria sem provar nada.
     if (!segundo || !respuesta.res.ok || cerebro.de(conv.id).length !== 1) return null;
     return { conv, primero, segundo, uno, dos };
   });
@@ -603,10 +603,10 @@ async function mientrasPiensa(cerebro) {
 async function personaEnLaVentana(cerebro) {
   console.log("\n== 025·AC4: si una persona contesta dentro de la ventana, el cerebro no recibe nada ==");
   /**
-   * La otra cara. Que un mensaje viaje aunque tenga una respuesta después vale
-   * para la respuesta del AGENTE, que no lo había leído. Si contestó una
-   * persona, ese mensaje ya está atendido: mandárselo al cerebro sería
-   * contestarle dos veces al cliente. Y un despacho sin mensajes no se entrega.
+   * O outro lado. Que uma mensagem viaje mesmo que tenha uma resposta depois vale
+   * para a resposta do AGENTE, que não a tinha lido. Se respondeu uma pessoa,
+   * essa mensagem já está atendida: mandá-la ao cérebro seria responder duas vezes
+   * ao cliente. E um despacho sem mensagens não é entregue.
    */
   const fallosAntes = (await estadoCerebro())?.dispatch?.lastFailure?.at ?? null;
   const caso = await conLaVentanaAbierta(async (i) => {
@@ -688,8 +688,8 @@ async function adjunto(cerebro) {
 }
 
 /**
- * 023: guardar una conexión por Zernio resuelve la cuenta contra las de la
- * llave, así que el simulador tiene que servirlas.
+ * 023: salvar uma conexão pelo Zernio resolve a conta contra as da chave,
+ * então o simulador tem de servi-las.
  */
 async function sembrarCuentasDeZernio() {
   await api("/api/dev/zernio-mock/_accounts", {
@@ -781,9 +781,9 @@ async function otrosCanales(cerebro) {
     console.log("  SKIP Instagram: CHANNELS no lo incluye");
     return;
   }
-  // Instagram entra por Zernio y Messenger por Meta: el cerebro recibe el
-  // mismo evento venga de donde venga. Solo contra el mock: sin él, guardar la
-  // conexión le preguntaría a la API real de Zernio.
+  // O Instagram entra pelo Zernio e o Messenger pela Meta: o cérebro recebe o
+  // mesmo evento venha de onde vier. Só contra o mock: sem ele, salvar a
+  // conexão perguntaria à API real do Zernio.
   if (!(process.env.ZERNIO_BASE_URL ?? "").includes("/api/dev/zernio-mock")) {
     console.log("  SKIP Instagram: ZERNIO_BASE_URL no apunta al zernio-mock");
     return;
@@ -846,7 +846,7 @@ async function otrosCanales(cerebro) {
   await tiktok(cerebro);
 }
 
-/** 022 — TikTok entra por Zernio y se despacha como los demás, con su ventana. */
+/** 022 — O TikTok entra pelo Zernio e é despachado como os demais, com sua janela. */
 async function tiktok(cerebro) {
   if (!CHANNELS.includes("tiktok")) {
     console.log("  SKIP TikTok: CHANNELS no lo incluye");
@@ -917,7 +917,7 @@ async function tiktok(cerebro) {
 }
 
 // ---------------------------------------------------------------------------
-// Historia 3 — quién contesta
+// História 3 — quem responde
 // ---------------------------------------------------------------------------
 
 async function pausas(cerebro) {
@@ -949,9 +949,9 @@ async function pausas(cerebro) {
   if (!conv2) return ok("la conversación existe", false);
   await hasta(() => cerebro.de(conv2.id)[0], COALESCE + 12000);
   await entranteWa(telefono(6), nombre2, `me arrepentí ${MARCA}`);
-  // La ingesta corre después de responder el webhook: se espera a que el
-  // turno esté ENCOLADO para pausar con él dentro de su ventana. Pausar antes
-  // probaría otra cosa (que no se encola), no que se descarta.
+  // A ingestão roda depois de responder o webhook: aguarda-se que o
+  // turno esteja ENFILEIRADO para pausar com ele dentro da sua janela. Pausar antes
+  // testaria outra coisa (que não entra na fila), não que é descartado.
   const encolado = await hasta(
     async () => (await estadoCerebro())?.dispatch?.pending === 1,
     COALESCE,
@@ -963,9 +963,9 @@ async function pausas(cerebro) {
     body: JSON.stringify({ aiEnabled: false }),
   });
   /**
-   * Aparte, y antes: si la IA no llegó a apagarse DENTRO de la ventana, el
-   * despacho sale —como debe— y la comprobación de abajo se pondría roja por
-   * algo que hizo el guion, no el producto (cloud #116).
+   * À parte, e antes: se a IA não chegou a desligar DENTRO da janela, o
+   * despacho sai —como deve— e a verificação abaixo ficaria vermelha por
+   * algo que fez o roteiro, não o produto (cloud #116).
    */
   ok(
     "el operador apaga la IA con la ventana todavía abierta",
@@ -976,7 +976,7 @@ async function pausas(cerebro) {
   ok(
     "el turno encolado no se entregó",
     cerebro.de(conv2.id).length === 1,
-    // De quién era: un despacho de más no se puede atribuir sin esto.
+    // De quem era: um despacho a mais não se pode atribuir sem isto.
     JSON.stringify(cerebro.de(conv2.id).map((r) => ({ id: r.evento?.dispatchId, textos: r.evento?.messages?.map((m) => m.text) })))
   );
   const despues = (await conversaciones()).find((c) => c.id === conv2.id);
@@ -1017,7 +1017,7 @@ async function laboratorio(cerebro) {
 }
 
 // ---------------------------------------------------------------------------
-// Historia 2 — el cerebro falla
+// História 2 — o cérebro falha
 // ---------------------------------------------------------------------------
 
 async function cerebroCaido(cerebro) {
@@ -1128,7 +1128,7 @@ async function cerebroCaido(cerebro) {
 }
 
 // ---------------------------------------------------------------------------
-// Historia 4 — se ve en «Quién responde»
+// História 4 — aparece em «Quem responde»
 // ---------------------------------------------------------------------------
 
 async function tarjeta(cerebro, url) {
@@ -1164,7 +1164,7 @@ async function tarjeta(cerebro, url) {
 }
 
 // ---------------------------------------------------------------------------
-// 025 — Sin cerebro externo: el agente incluido
+// 025 — Sem cérebro externo: o agente incluído
 // ---------------------------------------------------------------------------
 
 async function guionIncluido() {
@@ -1198,14 +1198,14 @@ async function guionIncluido() {
 async function incluidoEnVuelo() {
   console.log("\n== 025·AC6: el agente incluido atiende el mensaje que entra mientras piensa ==");
   /**
-   * El turno se repite desde siempre cuando entra algo a mitad (`pending`).
-   * Lo que fallaba era el ORDEN: por hora de llegada el segundo mensaje va
-   * ANTES de la respuesta al primero; leído así, el modelo ve un hilo que
-   * termina en su propia respuesta y lo da por contestado.
+   * O turno se repete desde sempre quando entra algo no meio (`pending`).
+   * O que falhava era a ORDEM: pela hora de chegada, a segunda mensagem vai
+   * ANTES da resposta à primeira; lido assim, o modelo vê um fio que
+   * termina na sua própria resposta e o dá por respondido.
    *
-   * El modelo de prueba tarda 5 s en contestar: es el hueco en el que entra
-   * el segundo mensaje. Si aun así no entra a tiempo (la primera vez `next
-   * dev` compila rutas), el caso se repite con otro contacto.
+   * O modelo de teste demora 5 s para responder: é o buraco em que entra a
+   * segunda mensagem. Se mesmo assim não entrar a tempo (na primeira vez o `next
+   * dev` compila rotas), o caso se repete com outro contato.
    */
   const DEMORA_MS = 5000;
   const caso = await conLaVentanaAbierta(async (i) => {
@@ -1222,8 +1222,8 @@ async function incluidoEnVuelo() {
     await entranteWa(telefono(40 + i), nombre, dos);
     const segundo = await entranteGuardado(conv.id, dos);
     const contestaEn = Date.parse(primera.at) + DEMORA_MS;
-    // Si el modelo ya contestó, el segundo mensaje no entró «a mitad»: sería
-    // un turno normal y el caso pasaría sin probar nada.
+    // Se o modelo já respondeu, a segunda mensagem não entrou «no meio»: seria
+    // um turno normal e o caso passaria sem provar nada.
     if (!segundo || Date.now() > contestaEn - 300) {
       await iaMock("?demoraMs=0");
       return null;
@@ -1234,7 +1234,7 @@ async function incluidoEnVuelo() {
   if (!caso) return;
   const { conv, uno, dos } = caso;
 
-  // El segundo turno ya no necesita ir lento.
+  // O segundo turno já não precisa ir devagar.
   await iaMock("?demoraMs=0");
   const salientes = await hasta(
     async () => {
@@ -1244,7 +1244,7 @@ async function incluidoEnVuelo() {
     DEMORA_MS + COALESCE + 12000
   );
 
-  // Que no entre en bucle: se espera otra ventana antes de contar.
+  // Que não entre em loop: aguarda-se outra janela antes de contar.
   await sleep(TRAS_LA_VENTANA);
   const peticiones = await peticionesCon(uno);
   ok(

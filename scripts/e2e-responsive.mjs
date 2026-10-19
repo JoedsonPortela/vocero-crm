@@ -1,21 +1,21 @@
 /**
- * Self-test E2E de comportamiento — responsividad (teléfono / tableta / escritorio).
- * Guion: tests/e2e/responsividad.md
+ * Self-test E2E de comportamento — responsividade (celular / tablet / desktop).
+ * Roteiro: tests/e2e/responsividad.md
  *
- * Verifica que el CRM se pueda USAR desde el teléfono, no solo que "quepa":
- *  - el lateral se vuelve cajón con hamburguesa y se cierra al navegar;
- *  - la Bandeja se comporta como maestro-detalle (lista ↔ hilo con "volver");
- *  - el panel de detalles flota sobre el hilo en vez de robarle ancho;
- *  - ninguna pantalla recorta contenido a lo ancho (main no desborda);
- *  - los campos de texto miden ≥16px (si no, iOS hace zoom y descuadra todo);
- *  - en escritorio NADA de lo anterior cambia (el lateral sigue fijo);
- *  - la barra lateral es azul marino también con el tema claro, y el pomo de
- *    los interruptores queda dentro de su pista, encendido y apagado (#53);
- *  - con el tema oscuro la barra sigue más oscura que la página, lo que flota
- *    se despega y la franja del teléfono es la misma pieza que la barra (R8).
+ * Verifica que o CRM pode ser USADO pelo celular, não só que "caiba":
+ *  - a lateral vira gaveta com hambúrguer e fecha ao navegar;
+ *  - a Bandeja se comporta como mestre-detalhe (lista ↔ conversa com "voltar");
+ *  - o painel de detalhes flutua sobre a conversa em vez de roubar largura;
+ *  - nenhuma tela corta conteúdo na largura (main não estoura);
+ *  - os campos de texto medem ≥16px (senão o iOS dá zoom e desalinha tudo);
+ *  - no desktop NADA do que foi dito muda (a lateral continua fixa);
+ *  - a barra lateral é azul-marinho também com o tema claro, e a bolinha dos
+ *    interruptores fica dentro da sua trilha, ligada e desligada (#53);
+ *  - com o tema escuro a barra continua mais escura que a página, o que flutua
+ *    se destaca e a faixa do celular é a mesma peça que a barra (R8).
  *
  * Uso: node scripts/e2e-responsive.mjs
- * Requiere: app corriendo (pnpm dev) con WA_MOCK_ENABLED=true y Playwright.
+ * Requer: app rodando (pnpm dev) com WA_MOCK_ENABLED=true e Playwright.
  */
 import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
@@ -39,7 +39,7 @@ const until = async (fn, ms = 20000) => {
     try {
       if (await fn()) return true;
     } catch {
-      /* reintenta */
+      /* tenta de novo */
     }
     if (Date.now() - t0 > ms) return false;
     await sleep(250);
@@ -64,9 +64,9 @@ mkdirSync(SHOTS, { recursive: true });
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: DESKTOP });
 const req = ctx.request;
-// El canal SSE se corta en el navegador: no aporta nada al diseño y cada
-// stream vivo ocupa una ranura del servidor de `next dev` — a la ~15ª carga
-// el servidor deja de contestar (se cuelga el guion, no el producto).
+// O canal SSE é cortado no navegador: não traz nada para o design e cada
+// stream ativo ocupa um slot do servidor do `next dev` — na ~15ª carga o
+// servidor para de responder (trava o roteiro, não o produto).
 await ctx.route("**/api/events*", (route) => route.abort());
 
 console.log("== Setup ==");
@@ -104,19 +104,19 @@ const listo = await until(async () => {
 });
 ok("conversación de prueba creada", listo);
 
-// Calienta cada ruta: en `pnpm dev` la primera visita compila (3-4 s) y el
-// guion mediría la compilación, no el diseño.
-// La primera visita a cada ruta la COMPILA (`next dev`), y algunas pasan de
-// los 30 s por defecto de Playwright. Se calientan por HTTP, sin navegador: un
-// `page.goto` abriría además el canal SSE de la app, y varias páginas con SSE
-// vivo a la vez dejan clavado al servidor de desarrollo.
+// Aquece cada rota: no `pnpm dev` a primeira visita compila (3-4 s) e o
+// roteiro mediria a compilação, não o design.
+// A primeira visita a cada rota a COMPILA (`next dev`), e algumas passam dos
+// 30 s padrão do Playwright. Aquecem-se por HTTP, sem navegador: um
+// `page.goto` abriria também o canal SSE do app, e várias páginas com SSE
+// ativo ao mesmo tempo travam o servidor de desenvolvimento.
 ctx.setDefaultNavigationTimeout(120000);
 ctx.setDefaultTimeout(30000);
 for (const ruta of RUTAS) {
   await req.get(`${BASE}${ruta}`, { timeout: 180000 });
 }
 
-/** Ancho real del contenido contra el ancho visible del contenedor. */
+/** Largura real do conteúdo contra a largura visível do contêiner. */
 const desborde = (page) =>
   page.evaluate(() => {
     const main = document.querySelector("main");
@@ -130,8 +130,8 @@ const desborde = (page) =>
 async function recorrer(page, etiqueta) {
   for (const ruta of RUTAS) {
     await page.goto(`${BASE}${ruta}`, { waitUntil: "domcontentloaded" });
-    // Nada de `networkidle`: el canal SSE queda abierto a propósito y la
-    // espera nunca se cumpliría.
+    // Nada de `networkidle`: o canal SSE fica aberto de propósito e a
+    // espera nunca se cumpriria.
     await sleep(900);
     const d = await desborde(page);
     ok(
@@ -166,7 +166,7 @@ ok(
   "al tocar la hamburguesa el cajón abre",
   await until(async () => await linkBandeja.isVisible(), 3000)
 );
-// El cajón NO debe empujar el contenido: sale encima.
+// A gaveta NÃO deve empurrar o conteúdo: sai por cima.
 const encima = await phone.evaluate(() => {
   const aside = document.querySelector("aside");
   const main = document.querySelector("main");
@@ -214,14 +214,14 @@ const volver = phone.getByRole("button", { name: "Volver a las conversaciones" }
 ok("aparece el botón de volver", await volver.isVisible());
 await phone.screenshot({ path: `${SHOTS}/phone-hilo.png` });
 
-// El compositor debe quedar DENTRO de la pantalla (100dvh, no 100vh).
+// O compositor deve ficar DENTRO da tela (100dvh, não 100vh).
 const compBox = await composer.boundingBox();
 ok(
   "el compositor queda dentro de la pantalla",
   compBox !== null && compBox.y + compBox.height <= PHONE.height,
   compBox ? `borde inferior en ${Math.round(compBox.y + compBox.height)}px` : "sin caja"
 );
-// iOS: menos de 16px = zoom automático al enfocar.
+// iOS: menos de 16px = zoom automático ao focar.
 const fuenteComp = await composer.evaluate((el) =>
   parseFloat(getComputedStyle(el).fontSize)
 );
@@ -307,8 +307,8 @@ const medirColumnas = () =>
       secs: secs.map((s) => Math.round(s.getBoundingClientRect().width)),
     };
   });
-// El panel abre con transición de 220 ms: medir apenas aparece el compositor
-// atraparía un ancho a medio camino.
+// O painel abre com transição de 220 ms: medir assim que aparece o compositor
+// pegaria uma largura no meio do caminho.
 const columnasOk = (t) =>
   t.aside === 224 && t.secs[0] === 360 && t.secs.at(-1) === 320;
 await until(async () => columnasOk(await medirColumnas()), 8000);
@@ -321,9 +321,9 @@ ok(
 await desk.screenshot({ path: `${SHOTS}/desktop-inbox.png` });
 
 console.log("\n== 7. Barra bicolor e interruptores (#53) ==");
-// Luminancia relativa (WCAG) de un `rgb(...)` calculado: se afirma que la
-// barra es OSCURA y la página CLARA, no un hex concreto que un ajuste de
-// tokens cambiaría.
+// Luminância relativa (WCAG) de um `rgb(...)` calculado: afirma-se que a
+// barra é ESCURA e a página CLARA, não um hex concreto que um ajuste de
+// tokens mudaria.
 const luminancia = (rgb) => {
   const [r, g, b] = (rgb.match(/\d+(\.\d+)?/g) ?? []).slice(0, 3).map((v) => {
     const c = Number(v) / 255;
@@ -331,7 +331,7 @@ const luminancia = (rgb) => {
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
-// El contexto no manda la cookie de tema: la página está en claro.
+// O contexto não envia o cookie de tema: a página está em claro.
 const barra = await desk.evaluate(() => {
   const aside = document.querySelector("aside");
   return {
@@ -350,7 +350,7 @@ ok(
   JSON.stringify(barra)
 );
 
-/** Dónde queda el pomo respecto a su pista (px). */
+/** Onde fica a bolinha em relação à sua trilha (px). */
 const medirInterruptor = (page, nombre) =>
   page.evaluate((label) => {
     const pista = document.querySelector(`[role="switch"][aria-label="${label}"]`);
@@ -367,9 +367,9 @@ const medirInterruptor = (page, nombre) =>
       abajo: r(p.bottom - k.bottom),
     };
   }, nombre);
-// Dentro de la pista por los cuatro lados, y pegado al extremo de su estado.
-// El pomo que arrancaba del centro (#53) tenía `izq` ≈ 12 apagado y `der` < 0
-// encendido.
+// Dentro da trilha pelos quatro lados, e colada na extremidade do seu estado.
+// A bolinha que saía do centro (#53) tinha `esq` ≈ 12 desligado e `dir` < 0
+// ligado.
 const pomoEnSuSitio = (m) =>
   m !== null &&
   m.izq >= 0 && m.der >= 0 && m.arriba >= 0 && m.abajo >= 0 &&
@@ -379,7 +379,7 @@ async function probarInterruptor(page, nombre) {
   const sw = page.locator(`[role="switch"][aria-label="${nombre}"]`);
   await sw.waitFor({ timeout: 20000 });
   const revisar = async (cuando) => {
-    // La transición dura 150 ms: se espera a que el pomo llegue.
+    // A transição dura 150 ms: aguarda-se a bolinha chegar.
     const bien = await until(async () => pomoEnSuSitio(await medirInterruptor(page, nombre)), 3000);
     const m = await medirInterruptor(page, nombre);
     ok(
@@ -391,8 +391,8 @@ async function probarInterruptor(page, nombre) {
   };
   const inicial = await revisar("al cargar");
   if (await sw.isDisabled()) {
-    // El del Agente sin OPENROUTER_API_TOKEN: atenuado y sin reaccionar, a
-    // propósito. Se mide, pero no hay nada que alternar.
+    // O do Agente sem OPENROUTER_API_TOKEN: esmaecido e sem reagir, de
+    // propósito. Mede-se, mas não há nada para alternar.
     console.log(`  · «${nombre}» deshabilitado (sin proveedor de IA): solo se mide`);
     return;
   }
@@ -402,7 +402,7 @@ async function probarInterruptor(page, nombre) {
     await until(async () => (await medirInterruptor(page, nombre))?.on === !inicial, 15000)
   );
   await revisar("tras el clic");
-  // De vuelta como estaba, y con el teclado: es un <button>, Espacio lo opera.
+  // De volta como estava, e com o teclado: é um <button>, Espaço o aciona.
   await sw.focus();
   await page.keyboard.press("Space");
   ok(
@@ -411,7 +411,7 @@ async function probarInterruptor(page, nombre) {
   );
 }
 
-// Estado conocido para la conversación: IA activa y sin traspaso pendiente.
+// Estado conhecido para a conversa: IA ativa e sem repasse pendente.
 const convResp = (await (await req.get(`${BASE}/api/conversations`)).json())
   .conversations.find((c) => c.contact.name === NAME);
 await req.patch(`${BASE}/api/conversations/${convResp?.id}`, {
@@ -426,8 +426,8 @@ await probarInterruptor(desk, "Agente encendido");
 await desk.screenshot({ path: `${SHOTS}/desktop-agente.png` });
 
 console.log("\n== 8. Tema oscuro: el bicolor no desaparece (R8) ==");
-// Mismo criterio que la barra en claro: luminancias medidas en el navegador,
-// no un hex. Con el tema oscuro de antes, barra y página quedaban a 1.04:1.
+// Mesmo critério da barra no claro: luminâncias medidas no navegador,
+// não um hex. Com o tema escuro de antes, barra e página ficavam a 1.04:1.
 const contraste = (a, b) => {
   const [x, y] = [luminancia(a), luminancia(b)].sort((p, q) => q - p);
   return (x + 0.05) / (y + 0.05);
@@ -436,7 +436,7 @@ await ctx.addCookies([{ name: "vocero-theme", value: "dark", url: BASE }]);
 await desk.goto(`${BASE}/contacts`, { waitUntil: "domcontentloaded" });
 const nuevo = desk.getByRole("button", { name: /Nuevo contacto/ });
 const dialogo = desk.locator('[role="dialog"][aria-label="Nuevo contacto"]');
-// Un clic antes de hidratar se pierde: reintenta hasta que aparezca.
+// Um clique antes de hidratar se perde: tenta de novo até aparecer.
 await until(async () => {
   await nuevo.click();
   return dialogo.isVisible();

@@ -3,16 +3,16 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * Guardarraíl de la bitácora de etapas.
+ * Guardrail do histórico de etapas.
  *
- * Mover un lead y registrar el movimiento son la misma operación. Si un camino
- * nuevo escribe `lead.stage_id` por su cuenta, nada truena: simplemente el
- * historial nace con un hueco y las gráficas mienten meses después, cuando ya
- * no hay forma de reconstruirlo.
+ * Mover um lead e registrar a movimentação são a mesma operação. Se um caminho
+ * novo escreve `lead.stage_id` por conta própria, nada explode: simplesmente o
+ * histórico nasce com um buraco e os gráficos mentem meses depois, quando já
+ * não há como reconstruí-lo.
  *
- * Este test escanea el código fuente y falla si aparece esa escritura fuera de
- * la única puerta. Si estás leyendo esto porque el test se puso rojo: no lo
- * relajes — enruta tu cambio por `moveLeadToStage()`.
+ * Este teste varre o código-fonte e falha se aparecer essa escrita fora de
+ * a única porta. Se você está lendo isto porque o teste ficou vermelho: não o
+ * relaxe — roteie sua mudança por `moveLeadToStage()`.
  */
 
 const SRC = path.resolve(import.meta.dirname, "..", "..", "src");
@@ -31,7 +31,7 @@ function archivosTs(dir: string): string[] {
   return out;
 }
 
-/** Trozo que sigue a cada `.update(schema.lead)`, donde vive el `.set({…})`. */
+/** Trecho que segue a cada `.update(schema.lead)`, onde vive o `.set({…})`. */
 function bloquesDeUpdate(code: string): string[] {
   const bloques: string[] = [];
   const re = /\.update\(\s*schema\.lead\s*\)/g;
@@ -68,8 +68,8 @@ describe("guardarraíl: una sola puerta escribe la etapa del lead", () => {
   });
 
   it("la puerta sí escribe la etapa (el test detectaría el patrón)", () => {
-    // Si este test falla, la detección de arriba dejó de servir: alguien
-    // reescribió la puerta con otra forma y el guardarraíl quedó ciego.
+    // Se este teste falhar, a detecção acima deixou de servir: alguém
+    // reescreveu a porta com outra forma e o guardrail ficou cego.
     const code = readFileSync(path.join(SRC, PUERTA), "utf8");
     const bloques = bloquesDeUpdate(code);
     expect(bloques.some((b) => /\bstageId\s*:/.test(b))).toBe(true);

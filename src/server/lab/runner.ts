@@ -8,14 +8,14 @@ import { computeScore, judgeCase } from "@/server/lab/judge";
 import { PERSONAS, type Persona } from "@/server/lab/personas";
 
 /**
- * Runner del Laboratorio (FR-030/FR-034): corrida en segundo plano DENTRO del
- * proceso (sin cola externa), turnos secuenciales con debounce 0, timeout
- * global de 10 minutos, y lock de concurrencia por índice parcial UNIQUE en
- * BD (máx. 1 corrida `running` por organización).
+ * Runner do Laboratório (FR-030/FR-034): execução em segundo plano DENTRO do
+ * processo (sem fila externa), turnos sequenciais com debounce 0, timeout
+ * global de 10 minutos, e trava de concorrência por índice parcial UNIQUE no
+ * BD (máx. 1 execução `running` por organização).
  *
- * Sandbox (FR-031): las conversaciones se crean con is_test=true; el pipeline
- * del agente persiste las respuestas sin tocar la API, y el sender real lanza
- * si algo intenta enviarlas.
+ * Sandbox (FR-031): as conversas são criadas com is_test=true; o pipeline
+ * do agente persiste as respostas sem tocar a API, e o sender real lança
+ * se algo tentar enviá-las.
  */
 
 const RUN_TIMEOUT_MS = 10 * 60 * 1000;
@@ -32,7 +32,7 @@ export async function startRun(organizationId: string): Promise<string> {
       .returning();
     runId = inserted[0]!.id;
   } catch (err) {
-    // Violación del índice parcial UNIQUE → ya hay una corrida activa.
+    // Violação do índice parcial UNIQUE → já há uma execução ativa.
     if (isUniqueViolation(err)) {
       throw new RunConflictError("Ya hay una corrida en curso");
     }
@@ -49,7 +49,7 @@ export async function startRun(organizationId: string): Promise<string> {
     }))
   );
 
-  // Fire-and-forget in-process: el POST regresa ya; el progreso va por SSE.
+  // Fire-and-forget in-process: o POST retorna já; o progresso vai por SSE.
   void executeRun(runId, organizationId).catch(async (err) => {
     console.error("[lab] corrida falló:", err);
     await failRun(runId, organizationId, String(err));
@@ -166,7 +166,7 @@ async function runAllCases(
   publishProgress(organizationId, runId, "done", done, total, score);
 }
 
-/** Conversa el guion completo contra el agente real; corta al primer handoff. */
+/** Conduz o roteiro completo contra o agente real; corta na primeira transferência. */
 async function runConversation(
   organizationId: string,
   persona: Persona
@@ -176,7 +176,7 @@ async function runConversation(
 }> {
   const db = getDb();
 
-  // Contacto sintético ARCHIVADO (no aparece en la lista ni genera leads).
+  // Contato sintético ARQUIVADO (não aparece na lista nem gera leads).
   const contactId = await upsertTestContact(organizationId, persona);
 
   const convId = newId("conversation");
@@ -205,7 +205,7 @@ async function runConversation(
       .set({ lastInboundAt: now, lastMessageAt: now, updatedAt: now })
       .where(eq(schema.conversation.id, convId));
 
-    // Turno REAL del agente, secuencial y sin debounce (FR-030).
+    // Turno REAL do agente, sequencial e sem debounce (FR-030).
     await runAgentTurn(convId);
 
     const convRows = await db
@@ -248,9 +248,9 @@ async function upsertTestContact(
       name: persona.contactName,
       archivedAt: new Date(),
     })
-    // Ídem que en el alta manual: desde 014 el índice único incluye `channel`,
-    // y un ON CONFLICT que no lo nombra no corresponde a ningún índice. Sin
-    // esto, TODA corrida del Laboratorio muere antes de la primera persona.
+    // Idem ao cadastro manual: desde 014 o índice único inclui `channel`,
+    // e um ON CONFLICT que não o nomeia não corresponde a nenhum índice. Sem
+    // isto, TODA execução do Laboratório morre antes da primeira pessoa.
     .onConflictDoNothing({
       target: [
         schema.contact.organizationId,

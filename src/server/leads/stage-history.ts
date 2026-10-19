@@ -6,18 +6,18 @@ import type { LossReason, StageChangeSource } from "@/lib/types";
 import { reportStageChange } from "@/server/attribution/conversions";
 
 /**
- * La ÚNICA puerta que escribe `lead.stage_id`.
+ * A ÚNICA porta que escreve `lead.stage_id`.
  *
- * Regla dura: mover un lead y registrar el movimiento son
- * la misma operación, en la misma transacción. Hoy hay cuatro caminos que
- * cambian de etapa (el dueño arrastra, el bot avanza, el agente in-process, la
- * reubicación al borrar una etapa); si cada uno copiara el "anota el evento",
- * el quinto que alguien agregue lo olvidaría. Y olvidarlo NO truena: solo hace
- * que las gráficas mientan meses después.
+ * Regra rígida: mover um lead e registrar a movimentação são
+ * a mesma operação, na mesma transação. Hoje há quatro caminhos que
+ * mudam de etapa (o dono arrasta, o bot avança, o agente in-process, a
+ * realocação ao apagar uma etapa); se cada um copiasse o "anota o evento",
+ * o quinto que alguém adicionasse o esqueceria. E esquecê-lo NÃO dá erro: só faz
+ * com que os gráficos mintam meses depois.
  *
- * Un unit test de vigilancia (`tests/unit/stage-history-guard.test.ts`) escanea
- * `src/` y falla si aparece una escritura de `stageId` fuera de este archivo.
- * No lo "arregles" moviendo el UPDATE a otro lado: es un guardarraíl.
+ * Um unit test de vigilância (`tests/unit/stage-history-guard.test.ts`) varre
+ * `src/` e falha se aparecer uma escrita de `stageId` fora deste arquivo.
+ * Não o "conserte" movendo o UPDATE para outro lado: é uma salvaguarda.
  */
 
 type LeadRow = typeof schema.lead.$inferSelect;
@@ -33,20 +33,20 @@ export type MoveInput = {
   organizationId: string;
   leadId: string;
   toStageId: string;
-  /** Posición dentro de la columna destino. */
+  /** Posição dentro da coluna de destino. */
   position?: number;
-  /** Quién lo movió; NULL cuando no fue una persona. */
+  /** Quem o moveu; NULL quando não foi uma pessoa. */
   actorUserId?: string | null;
   source: StageChangeSource;
-  /** Obligatorio al ENTRAR a una etapa perdida. */
+  /** Obrigatório ao ENTRAR em uma etapa perdida. */
   lossReason?: LossReason | null;
   lossNote?: string | null;
-  /** Por defecto, ahora. */
+  /** Padrão: agora. */
   occurredAt?: Date;
   /**
-   * Otros campos del lead que se escriben en el MISMO update. Existe para que
-   * el PATCH del Pipeline no tenga que hacer dos viajes cuando el dueño mueve
-   * la tarjeta y toca el monto en la misma acción.
+   * Outros campos do lead que são gravados no MESMO update. Existe para que
+   * o PATCH do Pipeline não precise fazer duas viagens quando o dono move
+   * o cartão e altera o valor na mesma ação.
    */
   extra?: Record<string, unknown>;
 };
@@ -55,9 +55,9 @@ export async function moveLeadToStage(input: MoveInput): Promise<MoveResult> {
   const db = getDb();
   const occurredAt = input.occurredAt ?? new Date();
 
-  // 016: se anota aquí dentro y se reporta a Meta DESPUÉS del commit. Una
-  // llamada de red dentro de la transacción la mantendría abierta mientras
-  // Meta piensa, y una conversión jamás vale una transacción larga.
+  // 016: anota-se aqui dentro e se reporta à Meta DEPOIS do commit. Uma
+  // chamada de rede dentro da transação a manteria aberta enquanto a
+  // Meta pensa, e uma conversão jamais vale uma transação longa.
   let toStageKind: "open" | "won" | "lost" | null = null;
 
   const result = await db.transaction(async (tx) => {
@@ -98,8 +98,8 @@ export async function moveLeadToStage(input: MoveInput): Promise<MoveResult> {
     const changed = current.lead.stageId !== target.id;
     toStageKind = target.kind;
 
-    // El motivo se exige al ENTRAR a la etapa perdida. Reordenar una tarjeta
-    // que ya estaba ahí no vuelve a preguntar.
+    // O motivo é exigido ao ENTRAR na etapa perdida. Reordenar um cartão
+    // que já estava ali não volta a perguntar.
     if (changed && target.kind === "lost" && !input.lossReason) {
       return { ok: false as const, reason: "loss_reason_required" as const };
     }
@@ -147,10 +147,10 @@ export async function moveLeadToStage(input: MoveInput): Promise<MoveResult> {
     return { ok: true as const, lead: leadRow, changed };
   });
 
-  // 016 — Atribución: si esta instancia la tiene encendida, entrar a la etapa
-  // que el negocio marcó como "lead calificado" o a una etapa ganada se le
-  // reporta a Meta. Best-effort y ya fuera de la transacción: un fallo aquí
-  // jamás puede costar el movimiento del lead, que ya está en firme.
+  // 016 — Atribuição: se esta instância a tiver ligada, entrar na etapa
+  // que o negócio marcou como "lead qualificado" ou em uma etapa ganha é
+  // reportado à Meta. Best-effort e já fora da transação: uma falha aqui
+  // jamais pode custar a movimentação do lead, que já está firme.
   if (result.ok && result.changed && toStageKind !== null) {
     await reportStageChange({
       organizationId: input.organizationId,
@@ -165,12 +165,12 @@ export async function moveLeadToStage(input: MoveInput): Promise<MoveResult> {
 }
 
 /**
- * Evento de nacimiento del lead. Sin él, el embudo no tendría de dónde arrancar
- * y "prospectos que entraron" no podría contarse desde la bitácora.
+ * Evento de nascimento do lead. Sem ele, o funil não teria de onde começar
+ * e "prospectos que entraram" não poderia ser contado pelo histórico.
  *
- * Best-effort a propósito: quien lo llama viene de crear un lead (a veces desde
- * la ingesta de un mensaje de WhatsApp), y un fallo aquí jamás debe tumbar esa
- * ruta. El lead sin evento aparecería con su fecha de creación de todos modos.
+ * Best-effort de propósito: quem chama vem de criar um lead (às vezes a partir
+ * da ingestão de uma mensagem do WhatsApp), e uma falha aqui jamais deve derrubar esse
+ * caminho. O lead sem evento apareceria com sua data de criação de qualquer forma.
  */
 export async function recordLeadCreated(input: {
   organizationId: string;
@@ -215,16 +215,16 @@ export async function recordLeadCreated(input: {
     actorUserId: input.actorUserId ?? null,
     source: input.source ?? "sistema",
     approximate: false,
-    // Un lead no puede nacer perdido: el CHECK de la base lo permitiría solo
-    // con motivo, y aquí nunca hay uno que capturar.
+    // Um lead não pode nascer perdido: o CHECK do banco o permitiria só
+    // com motivo, e aqui nunca há um para capturar.
     lossReason: null,
     lossNote: null,
   });
 }
 
 /**
- * Reubicación masiva al eliminar una etapa. Un evento por lead: el embudo debe
- * poder explicar por qué 30 tarjetas cambiaron de columna el mismo minuto.
+ * Realocação em massa ao apagar uma etapa. Um evento por lead: o funil precisa
+ * poder explicar por que 30 cartões mudaram de coluna no mesmo minuto.
  */
 export async function relocateLeadsFromStage(input: {
   organizationId: string;
@@ -266,8 +266,8 @@ export async function relocateLeadsFromStage(input: {
       toStageId: input.toStageId,
       actorUserId: input.actorUserId ?? null,
       source: "sistema",
-      // Si el destino resulta ser la etapa perdida, el motivo no se puede
-      // inventar pero tampoco puede faltar: se registra lo que de verdad pasó.
+      // Se o destino resultar ser a etapa perdida, o motivo não se pode
+      // inventar, mas também não pode faltar: registra-se o que de fato aconteceu.
       lossReason: "otro",
       lossNote: `Reubicado al eliminar la etapa "${fromName}"`,
     });
@@ -276,7 +276,7 @@ export async function relocateLeadsFromStage(input: {
   return moved;
 }
 
-/** El último motivo de pérdida registrado de un lead, si lo hay. */
+/** O último motivo de perda registrado de um lead, se houver. */
 export async function lastLossReason(
   organizationId: string,
   leadId: string

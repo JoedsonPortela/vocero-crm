@@ -42,7 +42,7 @@ type ContactPayload = {
   phone?: string;
 };
 
-/** 008 — Previsualización del adjunto de un mensaje, por tipo. */
+/** 008 — Pré-visualização do anexo de uma mensagem, por tipo. */
 function MediaBlock({ media }: { media: MessageMediaDto }) {
   const src = `/api/media/${media.assetId}`;
 
@@ -224,10 +224,10 @@ export function MessageThread({ messages }: { messages: MessageDto[] }) {
             >
               <div
                 className={cn(
-                  // En el teléfono la burbuja necesita casi todo el renglón:
-                  // con 64% cada mensaje se parte en tres líneas.
-                  // Burbujas del mockup de la landing: el cliente entra en
-                  // verde WhatsApp, el CRM contesta con el lavado del acento.
+                  // No celular a bolha precisa de quase toda a linha:
+                  // com 64% cada mensagem se quebra em três linhas.
+                  // Bolhas do mockup da landing: o cliente entra em
+                  // verde WhatsApp, o CRM responde com o véu do acento.
                   "max-w-[85%] rounded-[14px] border px-3 pb-1.5 pt-2 text-[13.5px] leading-[1.45] shadow-sm sm:max-w-[64%]",
                   out
                     ? "border-bubble-out-border bg-bubble-out text-bubble-out-text"
@@ -278,8 +278,8 @@ export function MessageThread({ messages }: { messages: MessageDto[] }) {
                   {out && <StatusTicks status={m.status} />}
                 </span>
                 {out && m.status === "failed" && (
-                  // El triángulo solo decía "algo falló". El motivo lo manda
-                  // Meta y lo guardábamos sin enseñarlo nunca.
+                  // O triângulo só dizia "algo falhou". O motivo quem envia é a
+                  // Meta, e nós o guardávamos sem nunca mostrá-lo.
                   <p className="mt-1.5 flex items-start gap-1.5 rounded-md border border-danger-soft bg-danger-tint px-2 py-1.5 text-[11.5px] leading-snug text-danger-text">
                     <AlertTriangle
                       className="mt-[1px] h-3.5 w-3.5 shrink-0"

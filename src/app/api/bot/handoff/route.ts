@@ -11,19 +11,19 @@ export const dynamic = "force-dynamic";
 const bodySchema = z.object({
   conversationId: z.string().min(1),
   /**
-   * Texto libre a propósito: el catálogo se aplica después, con fallback
-   * (ver `server/bot/handoff`). Un motivo raro no puede costar el handoff.
+   * Texto livre de propósito: o catálogo é aplicado depois, com fallback
+   * (ver `server/bot/handoff`). Um motivo estranho não pode custar o handoff.
    */
   reason: z.string().optional(),
 });
 
 /**
- * Handoff pedido por el cerebro externo: pausa la IA y deja la conversación
- * para un humano. Idempotente — solo escribe en la transición, así que
- * reintentar no pisa la hora ni el motivo original.
+ * Handoff pedido pelo cérebro externo: pausa a IA e deixa a conversa
+ * para um humano. Idempotente — só escreve na transição, então
+ * repetir não sobrescreve a hora nem o motivo original.
  *
- * Es la misma pausa que el toggle de la bandeja, y publica el mismo evento,
- * así que la app lo ve en vivo sin refrescar.
+ * É a mesma pausa do toggle da bandeja, e publica o mesmo evento,
+ * então o app vê ao vivo sem atualizar.
  */
 export async function POST(req: Request) {
   const denied = requireBotKey(req);

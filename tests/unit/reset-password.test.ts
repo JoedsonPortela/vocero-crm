@@ -5,22 +5,22 @@ import { describe, expect, it } from "vitest";
 import { verifyPassword } from "better-auth/crypto";
 
 /**
- * `scripts/reset-password.mjs` es la única puerta de vuelta cuando alguien
- * pierde su contraseña: no hay recuperación por correo y el registro público
- * se cierra con la primera organización.
+ * `scripts/reset-password.mjs` é a única porta de volta quando alguém
+ * perde sua senha: não há recuperação por e-mail e o registro público
+ * se fecha com a primeira organização.
  *
- * Por eso se prueba corriéndolo de verdad como subproceso, igual que lo corre
- * una persona, en vez de importar sus piezas: `scripts/**` está fuera de
- * eslint y de tsconfig, así que este archivo es la ÚNICA cobertura automática
- * que tiene. Lo que se verifica es lo que importa — que el hash que imprime
- * realmente deje entrar.
+ * Por isso se testa rodando-o de verdade como subprocesso, igual a como o roda
+ * uma pessoa, em vez de importar suas peças: `scripts/**` fica fora do
+ * eslint e do tsconfig, então este arquivo é a ÚNICA cobertura automática
+ * que tem. O que se verifica é o que importa — que o hash que imprime
+ * realmente deixe entrar.
  */
 
 const exec = promisify(execFile);
 const SCRIPT = path.resolve(import.meta.dirname, "../../scripts/reset-password.mjs");
 const TIMEOUT = 20_000;
 
-/** Saca el hash `salt:clave` del SQL que imprime el script. */
+/** Extrai o hash `salt:chave` do SQL que o script imprime. */
 function hashDeLaSalida(stdout: string): string | null {
   return stdout.match(/'([0-9a-f]{32}:[0-9a-f]{128})'/)?.[1] ?? null;
 }
@@ -49,7 +49,7 @@ describe("reset-password", () => {
       const hash = hashDeLaSalida(stdout);
       expect(hash).not.toBeNull();
 
-      // Lo único que de verdad importa: better-auth acepta ese hash.
+      // O único que de fato importa: o better-auth aceita esse hash.
       expect(await verifyPassword({ hash: hash!, password })).toBe(true);
       expect(await verifyPassword({ hash: hash!, password: "otra-cosa-999" })).toBe(false);
     },
@@ -68,10 +68,10 @@ describe("reset-password", () => {
   );
 
   it("un hash generado antes sigue verificando (canario de formato)", async () => {
-    // Congelado a propósito. Si una versión futura de better-auth cambia el
-    // formato o los parámetros de scrypt, esto se pone rojo AQUÍ — antes de
-    // que las contraseñas ya guardadas dejen de funcionar en producción y
-    // nadie pueda entrar a arreglarlo.
+    // Congelado de propósito. Se uma versão futura do better-auth mudar o
+    // formato ou os parâmetros do scrypt, isto fica vermelho AQUI — antes de
+    // que as senhas já salvas deixem de funcionar em produção e
+    // ninguém consiga entrar para consertar.
     const congelado =
       "181acaf1397646b882722b5b5b7f71e7:b8106a42eb4765159f070a73f3bb5cd2f8839753da5b959dc4096a88e6af95a2622146a025f42c10cf6865fbbd065ecdc04766f19c0ba90992fff8080a5c847e";
     expect(
@@ -83,11 +83,11 @@ describe("reset-password", () => {
     "el SQL apunta a la credencial del usuario, no a toda la tabla",
     async () => {
       const { stdout } = await correr(["duena@ejemplo.com"], "una-contrasena-nueva-123");
-      // Las comillas van escapadas porque el SQL viaja dentro de `psql -c "…"`.
+      // As aspas são escapadas porque o SQL viaja dentro de `psql -c "…"`.
       expect(stdout).toContain(`\\"provider_id\\" = 'credential'`);
       expect(stdout).toContain(`lower(\\"email\\") = lower('duena@ejemplo.com')`);
-      // Sin WHERE acotado, un reset le daría la misma contraseña a todo el
-      // equipo — un incidente de seguridad disfrazado de rescate.
+      // Sem WHERE delimitado, um reset daria a mesma senha a toda a
+      // equipe — um incidente de segurança disfarçado de resgate.
       expect(stdout).toContain("WHERE");
       expect(stdout.match(/UPDATE \\"account\\"/g)).toHaveLength(1);
     },

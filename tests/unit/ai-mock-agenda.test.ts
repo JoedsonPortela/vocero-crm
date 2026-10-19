@@ -4,10 +4,10 @@ import { buildAgentSystemPrompt } from "@/server/ai/prompts";
 import { aiMockCompletion } from "@/server/dev/ai-mock";
 
 /**
- * R11 — El ai-mock refleja lo que el prompt le enseña. Con la agenda apagada
- * contestaba `offer_slots` a "quiero una cita", el esquema del turno lo
- * rechazaba y el self-test terminaba en "Error del proveedor de IA": probaba
- * algo que en producción no pasa.
+ * R11 — O ai-mock reflete o que o prompt lhe ensina. Com a agenda desligada
+ * respondia `offer_slots` a "quiero una cita", o esquema do turno o
+ * rejeitava e o self-test terminava em "Error del proveedor de IA": testava
+ * algo que em produção não acontece.
  */
 
 type Profile = Parameters<typeof buildAgentSystemPrompt>[0]["profile"];

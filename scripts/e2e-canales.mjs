@@ -1,20 +1,20 @@
 /**
- * Self-test E2E de comportamiento — 023: Ajustes → Canales y arreglos de Zernio.
+ * Self-test E2E de comportamento — 023: Ajustes → Canais e correções do Zernio.
  *
- * Conduce la app real con el simulador de Zernio: conecta Instagram, Messenger
- * y TikTok como lo haría el propietario desde las pantallas, y comprueba que
- * la cuenta se resuelve contra la llave, que el webhook queda dado de alta y
- * limitado a las cuentas, que la firma se exige con el secreto que tenga
- * Zernio y que la pantalla de estado dice la verdad. 030 — y que en la base
+ * Conduz a app real com o simulador do Zernio: conecta Instagram, Messenger
+ * e TikTok como faria o proprietário pelas telas, e verifica que a conta é
+ * resolvida pela chave, que o webhook é cadastrado e limitado às contas, que a assinatura
+ * é exigida com o segredo que o Zernio tiver e que a tela de status diz a verdade. 030 — e que no
+ * banco o segredo de assinatura vai cifrado, nunca em texto puro (precisa de DATABASE_URL).
  * el secreto de firma va cifrado, nunca en claro (necesita DATABASE_URL).
  *
  * Uso:
- *   1) app corriendo (`next dev`) sobre una base migrada, con CHANNELS que
- *      incluya `instagram`, `messenger` y `tiktok`, WA_MOCK_ENABLED=true y
+ *   1) app rodando (`next dev`) sobre um banco migrado, com CHANNELS que
+ *      inclua `instagram`, `messenger` e `tiktok`, WA_MOCK_ENABLED=true e
  *      ZERNIO_BASE_URL → zernio-mock.
  *   2) node --env-file=.env scripts/e2e-canales.mjs
  *
- * Sale con código 1 si algún check falla. Guion: tests/e2e/us-canales.md.
+ * Sai com código 1 se alguma verificação falhar. Roteiro: tests/e2e/us-canales.md.
  */
 import { createHmac } from "node:crypto";
 import postgres from "postgres";
@@ -23,11 +23,11 @@ const BASE = process.env.APP_BASE_URL ?? "http://localhost:3000";
 const VERIFY_TOKEN = process.env.META_WEBHOOK_VERIFY_TOKEN ?? "";
 const CHANNELS = (process.env.CHANNELS ?? "").split(",").map((c) => c.trim());
 const RUN = Date.now().toString(36);
-/** Marca de esta corrida: el arnés se puede repetir sobre la misma base. */
+/** Marca desta execução: o harness pode ser repetido sobre o mesmo banco. */
 const MARCA = `#${RUN}`;
 const LLAVE = "sk_llave-de-zernio-canales";
 
-// Un perfil de Zernio con sus tres redes, como el real.
+// Um perfil do Zernio com suas três redes, como o real.
 const PERFIL = `perfil-${RUN}`;
 const IG = `ig-${RUN}`;
 const FB = `fb-${RUN}`;
@@ -80,7 +80,7 @@ function ok(name, cond, extra = "") {
   }
 }
 
-/** `jar` aparte para actuar como otra persona sin perder la sesión del dueño. */
+/** `jar` à parte para agir como outra pessoa sem perder a sessão do dono. */
 async function api(path, opts = {}, jar = null) {
   const actual = jar ? jar.cookie : cookie;
   const res = await fetch(`${BASE}${path}`, {
@@ -118,7 +118,7 @@ async function hasta(cond, ms = 15000, paso = 200) {
 }
 
 // ---------------------------------------------------------------------------
-// El simulador de Zernio
+// O simulador do Zernio
 // ---------------------------------------------------------------------------
 
 const mock = (ruta, cuerpo) =>
@@ -127,13 +127,13 @@ const sembrar = (accounts) => mock("_accounts", { accounts });
 const ponerWebhooks = (webhooks) => mock("_webhooks", { webhooks });
 const tirar = (routes) => mock("_down", { routes });
 const estadoMock = async () => (await api("/api/dev/zernio-mock/_state")).json ?? {};
-/** Los webhooks del simulador que apuntan a esta instancia. */
+/** Os webhooks do simulador que apontam para esta instância. */
 const webhooksAqui = async () =>
   ((await estadoMock()).webhooks ?? []).filter((w) => w.url.includes(`/${VERIFY_TOKEN}`));
 
 const PLATAFORMA = { ig: "instagram", fb: "facebook", tt: "tiktok" };
 let nEvento = 0;
-/** Un `message.received` con la forma de la documentación de Zernio. */
+/** Um `message.received` com o formato da documentação do Zernio. */
 function evento(red, { cuentaId, perfil, sender, nombre, text }) {
   nEvento++;
   return {
@@ -159,7 +159,7 @@ function evento(red, { cuentaId, perfil, sender, nombre, text }) {
   };
 }
 
-/** Entrega un evento al webhook. `firma: null` = sin cabecera de firma. */
+/** Entrega um evento ao webhook. `firma: null` = sem cabeçalho de assinatura. */
 async function entregar(payload, { ruta = "ig", secreto, firma } = {}) {
   const cuerpo = JSON.stringify(payload);
   const valor =
@@ -188,9 +188,9 @@ const conectar = (canal, cuerpo, jar) =>
 const conexion = async (canal) => (await api(`/api/settings/${canal}`)).json?.connection ?? null;
 const estado = async (jar) => (await api("/api/settings/channels", {}, jar)).json ?? {};
 /**
- * Las cuentas que la organización tiene conectadas por Zernio AHORA. En una
- * base recién creada es solo lo que este guion va conectando; al repetirlo
- * sobre la misma base quedan además las de la corrida anterior.
+ * As contas que a organização tem conectadas pelo Zernio AGORA. Numa base recém-
+ * criada são apenas as que este roteiro vai conectando; ao repeti-lo sobre a mesma
+ * base, somam-se as da execução anterior.
  */
 async function cuentasConectadas() {
   const refs = [];
@@ -198,8 +198,8 @@ async function cuentasConectadas() {
     const c = await conexion(canal);
     if (c?.accountRef && (c.source ?? "zernio") === "zernio") refs.push(c.accountRef);
   }
-  // El webhook solo lleva las que la llave ve: una conexión que dejó otra
-  // corrida, con una cuenta que el simulador ya no tiene, no cuenta.
+  // O webhook só leva as que a chave enxerga: uma conexão deixada por outra
+  // execução, com uma conta que o simulador já não tem, não conta.
   const vistas = new Set(((await estadoMock()).accounts ?? []).map((a) => a._id));
   return refs.filter((r) => vistas.has(r)).sort();
 }
@@ -237,8 +237,8 @@ async function main() {
   await mock("_reset");
   await sembrar([cuenta.ig(), cuenta.fb(), cuenta.tt()]);
   await ponerWebhooks([]);
-  // ¿La base ya traía conexiones de otra corrida? Entonces ya hay un secreto
-  // guardado y el CRM lo reutiliza: no se genera uno nuevo.
+  // A base já trazia conexões de outra execução? Então já existe um segredo
+  // salvo e o CRM o reaproveita: não se gera um novo.
   for (const canal of ["instagram", "messenger", "tiktok"]) {
     if (await conexion(canal)) baseUsada = true;
   }
@@ -258,13 +258,13 @@ async function main() {
 }
 
 // ---------------------------------------------------------------------------
-// 030 — En la base el secreto va cifrado
+// 030 — No banco o segredo vai cifrado
 // ---------------------------------------------------------------------------
 
 /**
- * Tras conectar, firmar, reparar y reconectar: ninguna fila de las tres tablas
- * guarda el secreto en claro, y las de Zernio lo tienen cifrado. Se mira la
- * fila entera como texto, como la unitaria del token.
+ * Depois de conectar, assinar, reparar e reconectar: nenhuma linha das três tabelas
+ * guarda o segredo em texto puro, e as do Zernio o têm cifrado. Olha-se a
+ * linha inteira como texto, como a unitária do token.
  */
 async function enReposo(S) {
   console.log("\n== 030: el secreto en reposo ==");
@@ -294,7 +294,7 @@ async function enReposo(S) {
 }
 
 // ---------------------------------------------------------------------------
-// D1 — La cuenta se resuelve contra Zernio
+// D1 — A conta é resolvida contra o Zernio
 // ---------------------------------------------------------------------------
 
 async function resolverLaCuenta() {
@@ -390,7 +390,7 @@ async function resolverLaCuenta() {
 }
 
 // ---------------------------------------------------------------------------
-// D7 — Conectar es cosa del propietario
+// D7 — Conectar é coisa do proprietário
 // ---------------------------------------------------------------------------
 
 async function soloElPropietario() {
@@ -430,12 +430,12 @@ async function soloElPropietario() {
 }
 
 // ---------------------------------------------------------------------------
-// D4 — El CRM da de alta su webhook en Zernio
+// D4 — O CRM cadastra o seu webhook no Zernio
 // ---------------------------------------------------------------------------
 
 async function elWebhook() {
   console.log("\n== D4: el webhook se da de alta solo, limitado a las cuentas ==");
-  // Un webhook ajeno, de otra herramienta del negocio: no se toca.
+  // Um webhook alheio, de outra ferramenta do negócio: não se mexe.
   const ajeno = {
     _id: `ajeno-${RUN}`,
     name: "otra-herramienta",
@@ -528,7 +528,7 @@ async function elWebhook() {
     JSON.stringify(otro)
   );
 
-  // Zernio falla al registrar: la conexión se guarda igual y se dice.
+  // O Zernio falha ao registrar: a conexão é salva mesmo assim e isso é informado.
   await tirar(["webhooks/settings"]);
   const conFallo = await conectar("instagram", { source: "zernio", token: LLAVE });
   ok(
@@ -542,7 +542,7 @@ async function elWebhook() {
 }
 
 // ---------------------------------------------------------------------------
-// D3 — Un secreto para todos los canales, y el de Zernio también vale
+// D3 — Um segredo para todos os canais, e o do Zernio também vale
 // ---------------------------------------------------------------------------
 
 async function laFirma() {
@@ -564,20 +564,20 @@ async function laFirma() {
   ok("con la firma rota → 401", (await entregar(e2, { firma: "deadbeef" })) === 401);
   ok("sin firma → 401", (await entregar(e2, { firma: null })) === 401);
 
-  // Un webhook, una URL, un secreto: Messenger llega por la URL de Instagram.
+  // Um webhook, uma URL, um segredo: o Messenger chega pela URL do Instagram.
   const nombreFb = `Cliente FB ${MARCA}`;
   const e3 = evento("fb", { cuentaId: FB, sender: `fbs-${RUN}`, nombre: nombreFb, text: `hola fb ${MARCA}` });
   ok("Messenger firmado con el MISMO secreto, por la misma URL → 200", (await entregar(e3, { secreto: S })) === 200);
   const convFb = await convDe(nombreFb);
   ok("y entra a la bandeja como Messenger", convFb?.channel === "messenger", JSON.stringify(convFb?.channel));
 
-  // Reparar deja a Zernio con el secreto guardado y vacía lo que el CRM
-  // recordaba de sus webhooks.
+  // Reparar deixa o Zernio com o segredo salvo e esvazia o que o CRM lembrava
+  // de seus webhooks.
   const reparar = await api("/api/settings/channels", { method: "POST" });
   ok("«reparar» actualiza el webhook → 200, sin crear otro", reparar.res.ok && reparar.json?.created === false, JSON.stringify(reparar.json));
   ok("y Zernio firma con el secreto guardado", (await webhooksAqui())[0]?.secret === S, "");
 
-  // El secreto cambia en Zernio y el CRM no se entera: se lee de Zernio.
+  // O segredo muda no Zernio e o CRM não fica sabendo: ele é lido do Zernio.
   const S2 = "secreto-cambiado-en-zernio";
   await ponerWebhooks(((await estadoMock()).webhooks ?? []).map((x) => (x._id === w._id ? { ...x, secret: S2 } : x)));
   const nombreIg2 = `Cliente IG dos ${MARCA}`;
@@ -602,8 +602,8 @@ async function laFirma() {
   );
   ok("y el secreto guardado sigue valiendo → 200", (await entregar(e7, { secreto: S })) === 200);
 
-  // Zernio caído y un secreto desconocido: no se abre. («Reparar» vacía lo
-  // que el CRM recordaba y deja a Zernio con el secreto guardado.)
+  // Zernio fora do ar e um segredo desconhecido: não se abre. («Reparar» esvazia o que
+  // o CRM lembrava e deixa o Zernio com o segredo salvo.)
   await api("/api/settings/channels", { method: "POST" });
   const S3 = "otro-secreto-con-zernio-caido";
   await ponerWebhooks(((await estadoMock()).webhooks ?? []).map((x) => (x._id === w._id ? { ...x, secret: S3 } : x)));
@@ -614,7 +614,7 @@ async function laFirma() {
   await tirar([]);
   await ponerWebhooks(((await estadoMock()).webhooks ?? []).map((x) => (x._id === w._id ? { ...x, secret: S } : x)));
 
-  // Una cuenta que nadie conectó aquí: no hay contra qué comparar y no entra.
+  // Uma conta que ninguém conectou aqui: não há com o que comparar e não entra.
   const nombreAjeno = `No Debe Entrar ${MARCA}`;
   const e9 = evento("ig", { cuentaId: `ajena-${RUN}`, sender: `x-${RUN}`, nombre: nombreAjeno, text: "x" });
   ok("un evento de una cuenta que no es de esta instancia → 200…", (await entregar(e9, { firma: "deadbeef" })) === 200);
@@ -624,13 +624,13 @@ async function laFirma() {
 }
 
 // ---------------------------------------------------------------------------
-// D2 — Una fila con el id del perfil se corrige sola
+// D2 — Uma linha com o id do perfil se corrige sozinha
 // ---------------------------------------------------------------------------
 
 async function autocuracion(S) {
   console.log("\n== D2: una conexión guardada con el id del perfil se corrige sola ==");
-  // Para llegar al estado de una instalación anterior a la 1.6: el simulador
-  // dice que el id del perfil ES una página, y así se guarda tal cual.
+  // Para chegar ao estado de uma instalação anterior à 1.6: o simulador
+  // diz que o id do perfil É uma página, e assim se salva como está.
   await sembrar([cuenta.ig(), cuenta.fb({ _id: PERFIL }), cuenta.tt()]);
   const vieja = await conectar("messenger", { source: "zernio", accountRef: PERFIL, token: LLAVE });
   ok("(preparación) la conexión de Messenger queda con el id del perfil", vieja.res.ok && (await conexion("messenger"))?.accountRef === PERFIL, JSON.stringify(vieja.json));
@@ -652,7 +652,7 @@ async function autocuracion(S) {
 }
 
 // ---------------------------------------------------------------------------
-// D5 — La pantalla de estado
+// D5 — A tela de status
 // ---------------------------------------------------------------------------
 
 async function pantallaDeEstado(S) {
@@ -738,7 +738,7 @@ async function pantallaDeEstado(S) {
     JSON.stringify(fila(e, "instagram")?.health?.webhook)
   );
 
-  // Sin webhook hacia aquí.
+  // Sem webhook apontando para cá.
   await ponerWebhooks(((await estadoMock()).webhooks ?? []).filter((x) => x._id !== mio._id));
   e = await estado();
   ok(
@@ -767,7 +767,7 @@ async function pantallaDeEstado(S) {
   );
   await tirar([]);
 
-  // TikTok ya es Business: al reconectar deja de avisar.
+  // O TikTok já é Business: ao reconectar deixa de avisar.
   await sembrar([cuenta.ig(), cuenta.fb(), cuenta.tt({ tiktokAccountType: "business" })]);
   const tt2 = await conectar("tiktok", { token: LLAVE });
   ok("TikTok Business se conecta sin aviso", tt2.res.ok && tt2.json?.health?.level === "ok", JSON.stringify(tt2.json?.health));

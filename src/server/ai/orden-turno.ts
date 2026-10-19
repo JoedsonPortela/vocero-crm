@@ -1,25 +1,25 @@
 /**
- * 025 — El orden en que el agente incluido lee la conversación cuando el
- * cliente escribió mientras pensaba. Puras: no tocan la base.
+ * 025 — A ordem em que o agente incluído lê a conversa quando o
+ * cliente escreveu enquanto pensava. Puras: não tocam o banco.
  *
- * Puerto de `src/server/ai/orden-turno.ts` de Vocero Cloud. Allá los debidos
- * los trae el despacho; aquí, la entrada de coalesce de `pipeline.ts`.
+ * Adaptação de `src/server/ai/orden-turno.ts` do Vocero Cloud. Lá, os pendentes
+ * vêm do despacho; aqui, da entrada do coalesce de `pipeline.ts`.
  */
 
 type Mensaje = { id: string; direction: "in" | "out"; createdAt: Date };
 
 /**
- * Pura: el historial en el orden en que lo debe leer el modelo.
+ * Pura: o histórico na ordem em que o modelo deve lê-lo.
  *
- * Por hora de llegada, lo que el cliente escribió mientras el agente pensaba
- * queda ANTES de la respuesta que salió de ese turno: usuario, usuario,
- * asistente. Leído así, el modelo ve una conversación que termina en su
- * propia respuesta y da por contestado un mensaje que nunca leyó.
+ * Pela hora de chegada, o que o cliente escreveu enquanto o agente pensava
+ * fica ANTES da resposta que saiu desse turno: usuário, usuário,
+ * assistente. Lido assim, o modelo vê uma conversa que termina na sua
+ * própria resposta e dá por respondida uma mensagem que nunca leu.
  *
- * `debidos` son los entrantes que este turno tiene que atender. Van al final
- * junto con lo que llegó después de la última respuesta, en su orden; el resto
- * se queda como estaba. Sin `debidos` no se mueve nada: el Laboratorio y el
- * turno normal leen el historial igual que siempre.
+ * `debidos` são as mensagens recebidas que este turno deve atender. Vão para o fim
+ * junto com o que chegou depois da última resposta, na sua ordem; o resto
+ * fica como estava. Sem `debidos` nada se move: o Laboratório e o
+ * turno normal leem o histórico igual de sempre.
  */
 export function ordenarParaElTurno<T extends Mensaje>(
   historial: readonly T[],
@@ -46,15 +46,15 @@ export function ordenarParaElTurno<T extends Mensaje>(
 }
 
 /**
- * Pura: de lo debido, lo que ninguna PERSONA contestó ya.
+ * Pura: do que está pendente, o que nenhuma PESSOA já respondeu.
  *
- * Un debido sigue debiéndose aunque después venga una respuesta del agente
- * (no lo había leído). Si lo que viene después es un saliente de una persona,
- * ese mensaje ya tuvo quien lo atendiera: moverlo al final sería hacer que el
- * agente le conteste encima.
+ * Uma pendente continua pendente mesmo que depois venha uma resposta do agente
+ * (não a tinha lido). Se o que vem depois é uma saída de uma pessoa,
+ * essa mensagem já teve quem a atendesse: movê-la para o fim seria fazer com que o
+ * agente respondesse por cima.
  *
- * Se decide por la posición en el historial, que viene ordenado por Postgres;
- * la hora solo desempata un debido tan viejo que ya no cabe en él.
+ * Decide-se pela posição no histórico, que vem ordenado pelo Postgres;
+ * a hora só desempata uma pendente tão antiga que já não cabe nele.
  */
 export function debidosVigentes<T extends Mensaje & { aiGenerated: boolean }>(
   historial: readonly T[],
@@ -77,12 +77,12 @@ export function debidosVigentes<T extends Mensaje & { aiGenerated: boolean }>(
 }
 
 /**
- * Pura: ¿lo último que pasó en la conversación es que contestó una PERSONA?
+ * Pura: o que aconteceu por último na conversa foi uma PESSOA ter respondido?
  *
- * Entra un mensaje y, antes de que venza la ventana de agrupado, el operador
- * responde desde la bandeja. Ese mensaje ya está atendido: un turno del agente
- * sería contestarle encima. Con el despacho, esto mismo deja la ráfaga vacía
- * y el despacho se descarta.
+ * Entra uma mensagem e, antes de vencer a janela de agrupamento, o operador
+ * responde pela caixa de entrada. Essa mensagem já está atendida: um turno do agente
+ * seria responder por cima. Com o despacho, isso deixa a rajada vazia
+ * e o despacho é descartado.
  */
 export function atendidoPorPersona(
   historial: readonly { direction: "in" | "out"; aiGenerated: boolean }[]
@@ -96,12 +96,12 @@ export function atendidoPorPersona(
 }
 
 /**
- * Pura: ¿hace falta otro turno?
+ * Pura: é preciso outro turno?
  *
- * `anotados` es lo que entró mientras el turno corría; `vistos`, los entrantes
- * que ese turno alcanzó a leer (`undefined` si no llegó a abrir el historial:
- * falló o se calló antes). Lo que entró y el turno ya leyó está atendido: otro
- * turno sería contestar dos veces. Lo que no leyó se le sigue debiendo.
+ * `anotados` é o que entrou enquanto o turno corria; `vistos`, as
+ * mensagens recebidas que esse turno chegou a ler (`undefined` se não chegou a abrir o histórico:
+ * falhou ou parou antes). O que entrou e o turno já leu está atendido: outro
+ * turno seria responder duas vezes. O que não leu continua pendente.
  */
 export function quedanDebidos(
   anotados: ReadonlySet<string>,

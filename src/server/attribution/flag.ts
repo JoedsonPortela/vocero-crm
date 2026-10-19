@@ -1,32 +1,32 @@
 /**
- * 016 — Si esta instancia atribuye anuncios y le reporta conversiones a Meta.
+ * 016 — Se esta instância atribui anúncios e reporta conversões à Meta.
  *
- * Mismo trato que los canales opcionales (ADR-001) y la agenda (ADR-002): el
- * código viaja siempre en `main` y lo que decide si EXISTE para el usuario es
- * una variable de despliegue. Una instancia que no anuncia no ve esto por
- * ningún lado: ni pestaña de Ajustes, ni rutas, ni una credencial que pedir.
+ * Mesmo tratamento dos canais opcionais (ADR-001) e da agenda (ADR-002): o
+ * código viaja sempre na `main` e o que decide se ele EXISTE para o usuário é
+ * uma variável de implantação. Uma instância que não anuncia não vê isto por
+ * nenhum lado: nem aba de Configurações, nem rotas, nem uma credencial a pedir.
  *
- * Qué apaga la bandera y qué no (decisión del dueño, 2026-09-21, spec 018):
+ * O que a bandeira desliga e o que não desliga (decisão do dono, 2026-09-21, spec 018):
  *
- * - NO apaga el ORIGEN del anuncio. Que una conversación llegó del anuncio A,
- *   con su titular y su creativo, se guarda y se ve siempre en la bandeja: el
- *   dato viaja dentro del webhook que la instancia ya recibe, no pide
- *   credenciales ni llama a nadie, y es inerte si nunca llega un anuncio.
- * - SÍ apaga el `ctwa_clid`, además del envío a Meta y la pestaña de Ajustes.
- *   El identificador de clic llega gratis en el webhook y guardarlo "por si
- *   acaso" haría que encender la bandera meses después tuviera historia que
- *   reportar — pero llenar una tabla con identificadores de clic de Meta en
- *   una instancia que nunca pidió esa función rompe la promesa de ADR-001 por
- *   el lado que más importa, el de los datos. Sin la bandera el anuncio se
- *   guarda sin él, ni en su columna ni dentro del `raw`. El costo (encender
- *   atribuye de ahí en adelante) es menor de lo que parece: la ventana de
- *   atribución de Meta se mide en días, no en meses.
+ * - NÃO desliga a ORIGEM do anúncio. Que uma conversa veio do anúncio A,
+ *   com seu título e seu criativo, é guardado e sempre visto na caixa de entrada: o
+ *   dado viaja dentro do webhook que a instância já recebe, não pede
+ *   credenciais nem chama ninguém, e é inerte se nunca chegar um anúncio.
+ * - SIM desliga o `ctwa_clid`, além do envio à Meta e da aba de Configurações.
+ *   O identificador de clique chega de graça no webhook, e guardá-lo "por via das
+ *   dúvidas" faria com que ligar a bandeira meses depois tivesse histórico a
+ *   reportar — mas encher uma tabela com identificadores de clique da Meta numa
+ *   instância que nunca pediu essa função quebra a promessa do ADR-001 pelo
+ *   lado que mais importa, o dos dados. Sem a bandeira o anúncio é
+ *   guardado sem ele, nem na sua coluna nem dentro do `raw`. O custo (ligar
+ *   atribui daí em diante) é menor do que parece: a janela de
+ *   atribuição da Meta é medida em dias, não em meses.
  *
- * La migración se aplica siempre: unas tablas vacías son inertes, y a cambio
- * todas las instancias comparten la misma estructura.
+ * A migração é aplicada sempre: tabelas vazias são inertes, e em troca
+ * todas as instâncias compartilham a mesma estrutura.
  */
 
-/** Valores que cuentan como "encendida". Cualquier otra cosa, apagada. */
+/** Valores que contam como "ligada". Qualquer outra coisa, desligada. */
 const ON_VALUES = new Set(["on", "1", "true", "si", "sí", "yes"]);
 
 export function parseAtribucionFlag(raw: string | undefined): boolean {
@@ -34,23 +34,23 @@ export function parseAtribucionFlag(raw: string | undefined): boolean {
 }
 
 /**
- * Se lee de `process.env` directo, no por `getEnv()`, igual que
- * `agendaEnabled()` e `isMockEnabled()`: preguntar si una feature existe no
- * puede depender de que TODO el entorno valide. La ingesta de un mensaje
- * consulta esta bandera (para decidir si guarda el `ctwa_clid`), y un entorno
- * a medio configurar debe degradar —no reventar— justo ahí.
+ * Lê-se de `process.env` direto, não por `getEnv()`, igual a
+ * `agendaEnabled()` e `isMockEnabled()`: perguntar se uma funcionalidade existe não
+ * pode depender de todo o ambiente ser validado. A ingestão de uma mensagem
+ * consulta esta bandeira (para decidir se guarda o `ctwa_clid`), e um ambiente
+ * meio configurado deve degradar — não estourar — justo ali.
  *
- * `ATRIBUCION` sí está declarada en el esquema de `lib/env.ts`: ahí viven su
- * documentación y su tipo. Lo que no pasa por el validador es esta consulta.
+ * `ATRIBUCION` está declarada no esquema de `lib/env.ts`: ali vivem sua
+ * documentação e seu tipo. O que não passa pelo validador é esta consulta.
  */
 export function atribucionEnabled(): boolean {
   return parseAtribucionFlag(process.env.ATRIBUCION);
 }
 
 /**
- * Respuesta para una superficie apagada. 404 y no 403 a propósito: si la
- * bandera está apagada, ese endpoint no existe en esta instancia — no hay nada
- * que revelar sobre él.
+ * Resposta para uma superfície desligada. 404 e não 403 de propósito: se a
+ * bandeira estiver desligada, esse endpoint não existe nesta instância — não há nada
+ * a revelar sobre ele.
  */
 export function atribucionDisabledResponse(): Response {
   return new Response(null, { status: 404 });

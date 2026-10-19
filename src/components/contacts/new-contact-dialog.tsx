@@ -16,9 +16,9 @@ const SOURCES: { value: SourceValue; label: string }[] = [
 ];
 
 /**
- * Alta manual de un prospecto que no llegó por WhatsApp.
- * El teléfono es obligatorio porque ES la identidad en WhatsApp: sin él, el
- * contacto no podría recibir ni mandar nada, y sería una ficha muerta.
+ * Cadastro manual de um prospect que não chegou pelo WhatsApp.
+ * O telefone é obrigatório porque É a identidade no WhatsApp: sem ele, o
+ * contato não poderia receber nem enviar nada, e seria uma ficha morta.
  */
 export function NewContactDialog({
   onClose,
@@ -27,7 +27,7 @@ export function NewContactDialog({
 }: {
   onClose: () => void;
   onCreated: () => void;
-  /** Duplicado: en vez de un error seco, se ofrece ir a quien ya existe. */
+  /** Duplicado: em vez de um erro seco, oferece-se ir até quem já existe. */
   onOpenExisting: (contactId: string) => void;
 }) {
   const [name, setName] = useState("");
@@ -90,8 +90,8 @@ export function NewContactDialog({
     onCreated();
   }
 
-  // 11 dígitos = código de país + número. Ver la nota del endpoint sobre por
-  // qué el código de país no puede faltar ni asumirse.
+  // 11 dígitos = código do país + número. Ver a nota do endpoint sobre por
+  // que o código do país não pode faltar nem ser presumido.
   const listo = name.trim().length > 0 && phone.replace(/\D/g, "").length >= 11;
 
   return (

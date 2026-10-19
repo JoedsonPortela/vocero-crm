@@ -4,11 +4,11 @@ import { schema } from "@/lib/db";
 import { newId } from "@/lib/db/ids";
 
 /**
- * Negocio de demostración "Ferretería El Martillo" (FR-075).
- * Idempotente: borra los datos demo previos de la organización (scoped por
- * los teléfonos demo) y reinserta. El KB queda lleno EXCEPTO garantías y
- * devoluciones — hueco INTENCIONAL para que el Laboratorio encuentre algo
- * real en la primera corrida.
+ * Negócio de demonstração "Ferretería El Martillo" (FR-075).
+ * Idempotente: apaga os dados demo anteriores da organização (escopados pelos
+ * telefones demo) e reinsere. A KB fica cheia EXCETO garantias e
+ * devoluções — lacuna INTENCIONAL para que o Laboratório encontre algo
+ * real na primeira execução.
  */
 
 type Db = ReturnType<typeof getDb>;
@@ -136,7 +136,7 @@ export async function seedDemo(
 ): Promise<{ contacts: number; kbEntries: number }> {
   const demoPhones = DEMO_CONTACTS.map((c) => c.phone);
 
-  // --- Idempotencia: limpiar datos demo previos (orden inverso de FKs) ---
+  // --- Idempotência: limpar dados demo anteriores (ordem inversa das FKs) ---
   const prevContacts = await db
     .select({ id: schema.contact.id })
     .from(schema.contact)
@@ -159,7 +159,7 @@ export async function seedDemo(
     await db.delete(schema.lead).where(inArray(schema.lead.contactId, prevIds));
     await db.delete(schema.contact).where(inArray(schema.contact.id, prevIds));
   }
-  // KB y corridas demo previas
+  // KB e execuções demo anteriores
   await db
     .delete(schema.kbEntry)
     .where(eq(schema.kbEntry.organizationId, organizationId));
@@ -170,7 +170,7 @@ export async function seedDemo(
     .delete(schema.agentTestRun)
     .where(eq(schema.agentTestRun.organizationId, organizationId));
 
-  // --- Etapas (por nombre) ---
+  // --- Etapas (por nome) ---
   const stages = await db
     .select()
     .from(schema.pipelineStage)
@@ -179,7 +179,7 @@ export async function seedDemo(
   const fallbackStage = stages[0]?.id;
   if (!fallbackStage) throw new Error("La organización no tiene etapas");
 
-  // --- Contactos + conversaciones + mensajes + leads ---
+  // --- Contatos + conversas + mensagens + leads ---
   const now = Date.now();
   let position = 0;
   for (const demo of DEMO_CONTACTS) {
@@ -239,7 +239,7 @@ export async function seedDemo(
     });
   }
 
-  // --- Knowledge base (con el hueco intencional) ---
+  // --- Base de conhecimento (com a lacuna intencional) ---
   for (const entry of DEMO_KB) {
     await db.insert(schema.kbEntry).values({
       id: newId("kbEntry"),
@@ -251,7 +251,7 @@ export async function seedDemo(
     });
   }
 
-  // --- Comportamiento del agente de la demo ---
+  // --- Comportamento do agente da demo ---
   await db
     .update(schema.agentProfile)
     .set({
@@ -266,7 +266,7 @@ export async function seedDemo(
     })
     .where(eq(schema.agentProfile.organizationId, organizationId));
 
-  // --- Corrida de Laboratorio de ejemplo (guardada, con el hueco encontrado) ---
+  // --- Execução de Laboratório de exemplo (salva, com a lacuna encontrada) ---
   const runId = newId("testRun");
   await db.insert(schema.agentTestRun).values({
     id: runId,
@@ -372,7 +372,7 @@ export async function seedDemo(
   return { contacts: DEMO_CONTACTS.length, kbEntries: DEMO_KB.length };
 }
 
-/** true si la organización aún no tiene datos de dominio (para el botón). */
+/** true se a organização ainda não tem dados de domínio (para o botão). */
 export async function isDomainEmpty(
   db: Db,
   organizationId: string

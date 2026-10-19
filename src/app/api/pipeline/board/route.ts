@@ -6,7 +6,7 @@ import { getBranding } from "@/server/branding";
 
 export const dynamic = "force-dynamic";
 
-/** Datos completos del kanban: etapas ordenadas + tarjetas con su contacto. */
+/** Dados completos do kanban: etapas ordenadas + cartões com o seu contato. */
 export const GET = withAuth(async (session) => {
   const db = getDb();
 
@@ -34,8 +34,8 @@ export const GET = withAuth(async (session) => {
     .where(scoped(schema.lead.organizationId, session.organizationId))
     .orderBy(asc(schema.lead.position));
 
-  // La moneda del negocio viaja con el tablero: el cliente suma sus columnas y
-  // necesita saber cuál es la única sumable, sin adivinarla ni pedirla aparte.
+  // A moeda do negócio viaja com o quadro: o cliente soma as suas colunas e
+  // precisa saber qual é a única somável, sem adivinhá-la nem pedi-la à parte.
   const { currency } = await getBranding(session.organizationId);
 
   return Response.json({

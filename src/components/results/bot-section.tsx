@@ -7,9 +7,9 @@ import { Rate, Section, Subhead } from "./section";
 import { RateCard, StatCard } from "./stat-card";
 
 /**
- * 019 — El trabajo del agente: si contesta, qué tan rápido, cuándo pasa a un
- * humano y —con la agenda encendida— cómo salen las citas. Todo sobre las
- * conversaciones que empezaron en el periodo, sin las del Laboratorio.
+ * 019 — O trabalho do agente: se responde, com que rapidez, quando passa para um
+ * humano e —com a agenda ligada— como saem os agendamentos. Tudo sobre as
+ * conversas que começaram no período, sem as do Laboratório.
  */
 export function BotSection({
   data,
@@ -20,7 +20,7 @@ export function BotSection({
   data: BotBlockDto | null;
   loading: boolean;
   error: string | null;
-  /** 015 — Sin la bandera AGENDA no se habla de citas en ningún lado. */
+  /** 015 — Sem a flag AGENDA não se fala de agendamentos em lugar nenhum. */
   agenda: boolean;
 }) {
   return (
@@ -104,9 +104,9 @@ export function BotSection({
             <div>
               <Subhead>Ficha del prospecto</Subhead>
               {data.fichaCoverage === null ? (
-                // `null` NO es 0 %: es que el agente de esta instancia no escribe
-                // ficha. Enseñar 0 % sería acusarlo de no hacer algo que nunca se
-                // le pidió.
+                // `null` NÃO é 0 %: significa que o agente desta instância não escreve
+                // na ficha. Mostrar 0 % seria acusá-lo de não fazer algo que nunca lhe
+                // foi pedido.
                 <p className="text-sm text-text-3">
                   Nadie está llenando la ficha de los prospectos. La escribe un cerebro
                   externo (<code className="font-mono text-xs">PUT /api/bot/ficha</code>) o
@@ -130,14 +130,14 @@ export function BotSection({
   );
 }
 
-/** Las citas del periodo que todavía no tienen desenlace (siguen agendadas). */
+/** Os agendamentos do período que ainda não têm desfecho (seguem agendados). */
 function pendientes(s: NonNullable<BotBlockDto["sessions"]>): string | undefined {
   const n = s.booked - s.done - s.noShow - s.cancelled;
   if (n <= 0) return undefined;
   return n === 1 ? "1 sin desenlace todavía" : `${n} sin desenlace todavía`;
 }
 
-/** Segundos en algo que se lee de un vistazo. */
+/** Segundos em algo que se lê de relance. */
 export function formatSegundos(s: number): string {
   if (s < 60) return `${Math.round(s)} s`;
   if (s < 3600) return `${Math.round(s / 60)} min`;

@@ -3,23 +3,23 @@ import { getDb, schema } from "@/lib/db";
 import { scoped } from "@/lib/db/tenant";
 
 /**
- * Ficha de calificación del lead: lo que el cerebro externo va descubriendo
- * en la conversación.
+ * Ficha de qualificação do lead: o que o cérebro externo vai descobrindo
+ * na conversa.
  *
- * Las claves NO están cableadas. Cada negocio califica distinto —una clínica
- * pregunta el tratamiento, una constructora los metros, una agencia el
- * presupuesto— y el CRM no tiene por qué migrar cada vez que alguien cambia su
- * cuestionario. Lo que sí impone el CRM es que lo guardado sea sano: escalares,
- * acotados y en número razonable.
+ * As chaves NÃO estão fixas. Cada negócio qualifica de um jeito — uma clínica
+ * pergunta o tratamento, uma construtora os metros, uma agência o
+ * orçamento — e o CRM não precisa migrar a cada vez que alguém muda seu
+ * questionário. O que o CRM impõe é que o guardado seja saudável: escalares,
+ * limitados e em número razoável.
  *
- * La validación es FLOJA a propósito. Del otro lado hay un LLM que deriva: hoy
- * manda `dolor_principal` y mañana `dolorPrincipal`, o un `"sí"` donde antes
- * mandaba `true`. Devolverle un 422 le tira datos reales de calificación que ya
- * costaron una conversación; se prefiere guardar lo que se entienda e ignorar
- * en silencio lo que no.
+ * A validação é FROUXA de propósito. Do outro lado há um LLM que deriva: hoje
+ * manda `dolor_principal` e amanhã `dolorPrincipal`, ou um `"sim"` onde antes
+ * mandava `true`. Devolver-lhe um 422 jogaria fora dados reais de qualificação que já
+ * custaram uma conversa; prefere-se guardar o que se entende e ignorar
+ * em silêncio o que não.
  */
 
-/** Tope de claves por ficha: contiene un bot en bucle sin estorbar a nadie. */
+/** Limite de chaves por ficha: contém um bot em loop sem atrapalhar ninguém. */
 const MAX_KEYS = 40;
 const MAX_KEY_LEN = 60;
 const MAX_VALUE_LEN = 500;
@@ -28,9 +28,9 @@ export type FichaInput = Record<string, unknown>;
 export type Ficha = Record<string, string | number | boolean | null>;
 
 /**
- * Deja la ficha en valores que se puedan guardar y mostrar: escalares
- * acotados. `null` sobrevive porque significa "borra esta clave". Objetos,
- * arreglos y claves absurdas se ignoran sin error.
+ * Deixa a ficha em valores que possam ser guardados e exibidos: escalares
+ * limitados. `null` sobrevive porque significa "apague esta chave". Objetos,
+ * arranjos e chaves absurdas são ignorados sem erro.
  */
 export function normalizeFicha(raw: FichaInput): Ficha {
   const out: Ficha = {};
@@ -53,17 +53,17 @@ export function normalizeFicha(raw: FichaInput): Ficha {
     }
     if (typeof value === "string") {
       const v = value.trim();
-      // La cadena vacía no borra: para eso está `null` explícito. Un LLM manda
-      // "" con demasiada facilidad como para dejarlo tirar un dato bueno.
+      // A string vazia não apaga: para isso existe o `null` explícito. Um LLM envia
+      // "" com facilidade demais para deixar que ela jogue fora um dado bom.
       if (v) out[key] = v.slice(0, MAX_VALUE_LEN);
       continue;
     }
-    // Objetos y arreglos: fuera. Se ignoran sin error (ver arriba).
+    // Objetos e arranjos: fora. São ignorados sem erro (ver acima).
   }
   return out;
 }
 
-/** Merge campo a campo: lo ausente se conserva, `null` explícito borra. */
+/** Merge campo a campo: o ausente se mantém, `null` explícito apaga. */
 export function mergeFicha(prev: Ficha | null | undefined, patch: Ficha): Ficha {
   const out: Ficha = { ...(prev ?? {}) };
   for (const [key, value] of Object.entries(patch)) {
@@ -74,15 +74,15 @@ export function mergeFicha(prev: Ficha | null | undefined, patch: Ficha): Ficha 
 }
 
 /**
- * Escribe la ficha. Es la ÚNICA puerta: por aquí pasa el cerebro externo
- * (`PUT /api/bot/ficha`) y también el dueño desde la bandeja, así que los dos
- * heredan el mismo merge —`null` borra— y las mismas cotas.
+ * Escreve a ficha. É a ÚNICA porta: por aqui passa o cérebro externo
+ * (`PUT /api/bot/ficha`) e também o dono pela caixa de entrada, então os dois
+ * herdam o mesmo merge —`null` apaga— e os mesmos limites.
  *
- * Merge y no reemplazo porque los dos escriben a la vez: el bot va llenando
- * mientras conversa y el dueño corrige lo que ve. Con reemplazo, el último en
- * guardar le borraría el trabajo al otro sin que nadie se entere.
+ * Merge e não substituição porque os dois escrevem ao mesmo tempo: o bot vai
+ * preenchendo enquanto conversa e o dono corrige o que vê. Com substituição, quem
+ * salvar por último apagaria o trabalho do outro sem que ninguém percebesse.
  *
- * Devuelve `null` si el contacto no existe en esa organización.
+ * Devolve `null` se o contato não existir nessa organização.
  */
 export async function upsertFicha(input: {
   organizationId: string;
@@ -92,9 +92,9 @@ export async function upsertFicha(input: {
   const db = getDb();
   const patch = normalizeFicha(input.ficha);
 
-  // El acotamiento va aquí y no en cada llamador: una ficha es información de
-  // calificación de un cliente ajeno, y confiar en que quien llame se acuerde
-  // de filtrar por organización es exactamente como se filtran los datos entre
+  // O limite fica aqui e não em cada chamador: uma ficha é informação de
+  // qualificação de um cliente alheio, e confiar em que quem chama lembre
+  // de filtrar por organização é exatamente como se vazam dados entre
   // inquilinos.
   const alcance = scoped(
     schema.contact.organizationId,
@@ -120,12 +120,12 @@ export async function upsertFicha(input: {
 }
 
 /**
- * 026 — Vacía la ficha entera. Solo para cuando se elimina la conversación de
- * la que salió (`server/inbox/eliminar.ts`): la ficha es lo que el agente fue
- * aprendiendo, y viaja al cerebro en cada turno.
+ * 026 — Esvazia a ficha inteira. Só para quando se apaga a conversa da qual
+ * ela saiu (`server/inbox/eliminar.ts`): a ficha é o que o agente foi
+ * aprendendo, e viaja ao cérebro a cada turno.
  *
- * Recibe el ejecutor para correr DENTRO de la transacción del borrado: vaciar
- * la ficha de un hilo que al final no se borró sería perder datos por nada.
+ * Recebe o executor para rodar DENTRO da transação da exclusão: esvaziar
+ * a ficha de um fio que no fim não foi apagado seria perder dados à toa.
  */
 export async function vaciarFicha(
   ejecutor: Pick<ReturnType<typeof getDb>, "update">,

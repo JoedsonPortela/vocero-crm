@@ -7,14 +7,14 @@ import { cn } from "@/lib/utils";
 import { settingsSections } from "@/lib/nav";
 
 /**
- * #87 — Ajustes en tres secciones (Canales, Agente, Negocio). Qué enlaces
- * existen lo decide el servidor y baja por prop: este es un componente de
- * cliente y no puede leer variables de entorno.
+ * #87 — Ajustes em três seções (Canais, Agente, Negócio). Quais links
+ * existem quem decide é o servidor, que os envia por prop: este é um componente de
+ * cliente e não pode ler variáveis de ambiente.
  *
- * Por debajo de `sm` las secciones van en una fila que se desplaza, cada una
- * con su encabezado delante de sus enlaces, para que en el teléfono siga
- * siendo una tira de pestañas navegable y no una columna que empuje el
- * contenido abajo.
+ * Abaixo de `sm` as seções ficam numa linha que rola, cada uma
+ * com seu cabeçalho à frente de seus links, para que no celular continue
+ * sendo uma faixa de abas navegável e não uma coluna que empurre o
+ * conteúdo para baixo.
  */
 export function SettingsNav({
   agenda = false,

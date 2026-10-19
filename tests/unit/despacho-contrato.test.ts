@@ -12,14 +12,14 @@ import {
 import { entregar } from "@/server/brains/deliver";
 
 /**
- * 021 — El contrato del despacho, fijado byte a byte.
+ * 021 — O contrato do despacho, fixado byte a byte.
  *
- * Lo que se protege: que el JSON que el CRM firma sea EXACTAMENTE este. Un
- * cerebro verifica la firma sobre el cuerpo crudo, así que reordenar una clave
- * o cambiar cómo se serializa una fecha rompe todas las instalaciones a la
- * vez, con un 401 mudo. La prueba gemela vive en el repo del cerebro
- * (nea-agent) con este mismo cuerpo y esta misma firma: cambiar un lado sin el
- * otro rompe una prueba, no una instalación.
+ * O que se protege: que o JSON que o CRM assina seja EXATAMENTE este. Um
+ * cérebro verifica a assinatura sobre o corpo cru, então reordenar uma chave
+ * ou mudar como se serializa uma data quebra todas as instalações de uma vez,
+ * com um 401 mudo. A prova gêmea vive no repositório do cérebro
+ * (nea-agent) com este mesmo corpo e esta mesma assinatura: mudar um lado sem o
+ * outro quebra um teste, não uma instalação.
  */
 
 const SECRETO = "llave-de-prueba-del-contrato-0001";

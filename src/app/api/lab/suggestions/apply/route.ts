@@ -8,9 +8,9 @@ import { scoped } from "@/lib/db/tenant";
 export const dynamic = "force-dynamic";
 
 /**
- * Aplica una sugerencia del juez con un click: crea la entrada P/R en el
- * knowledge base (FR-033). El front permite editarla antes de guardar; aquí
- * llega el texto final.
+ * Aplica uma sugestão do juiz com um clique: cria a entrada P/R na
+ * knowledge base (FR-033). O front permite editá-la antes de salvar; aqui
+ * chega o texto final.
  */
 const bodySchema = z.object({
   caseId: z.string().min(1),

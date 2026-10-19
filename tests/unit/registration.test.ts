@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-/** FR-060/FR-081: registro cerrado tras la 1ª organización, salvo escape. */
+/** FR-060/FR-081: cadastro fechado após a 1ª organização, salvo exceção. */
 
 let orgCount = 0;
 

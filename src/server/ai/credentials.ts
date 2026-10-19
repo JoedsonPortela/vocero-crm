@@ -5,16 +5,16 @@ import { decryptSecret, encryptSecret } from "@/lib/crypto";
 import { last4, type AiProviderId, type AiStatus } from "@/lib/ai/presets";
 
 /**
- * La credencial del proveedor de IA de la organización (puerto de
- * `ai_credentials` de Vocero Cloud, issue #85).
+ * A credencial do provedor de IA da organização (adaptação de
+ * `ai_credentials` do Vocero Cloud, issue #85).
  *
- * Mismo patrón que `server/whatsapp/credentials.ts`: cifrado AES-256-GCM en
- * reposo y hacia fuera solo los últimos 4 caracteres. La resolución «la fila
- * manda, el entorno es respaldo» vive en `lib/ai/provider.ts`; aquí solo la
- * fila.
+ * Mesmo padrão de `server/whatsapp/credentials.ts`: criptografia AES-256-GCM em
+ * repouso e para fora só os últimos 4 caracteres. A resolução «a linha
+ * manda, o ambiente é reserva» fica em `lib/ai/provider.ts`; aqui só a
+ * linha.
  */
 
-/** Lo que puede salir hacia el cliente. NUNCA incluye el token. */
+/** O que pode sair para o cliente. NUNCA inclui o token. */
 export type AiCredentialPublic = {
   provider: AiProviderId;
   baseUrl: string;
@@ -26,7 +26,7 @@ export type AiCredentialPublic = {
   updatedAt: Date;
 };
 
-/** Para el adaptador: la misma fila con el token en claro. */
+/** Para o adaptador: a mesma linha com o token em texto claro. */
 export type AiCredentialSecret = AiCredentialPublic & { token: string };
 
 type Row = typeof schema.aiCredentials.$inferSelect;
@@ -62,8 +62,8 @@ export async function getAiCredentialPublic(
 }
 
 /**
- * La fila con el token en claro, ESTÉ COMO ESTÉ: quien decide si una
- * credencial pausada se usa es la resolución, no esta lectura.
+ * A linha com o token em texto claro, ESTEJA COMO ESTIVER: quem decide se uma
+ * credencial pausada é usada é a resolução, não esta leitura.
  */
 export async function getAiCredentialSecret(
   organizationId: string
@@ -90,16 +90,16 @@ export class AiCredentialError extends Error {
 }
 
 /**
- * Guarda (o reemplaza) la configuración de la organización.
+ * Salva (ou substitui) a configuração da organização.
  *
- * Con token: se cifra, se guarda y el estado VUELVE A `active`. Si el dueño
- * pegó una llave nueva es porque cree que la anterior estaba mal; dejarla
- * pausada sería que arregla el problema y su agente sigue mudo sin motivo
- * visible.
+ * Com token: criptografa, salva e o estado VOLTA PARA `active`. Se o dono
+ * colou uma chave nova é porque achou que a anterior estava errada; deixá-la
+ * pausada faria o agente continuar mudo, sem motivo
+ * visível.
  *
- * Sin token: solo cambia proveedor, base URL o modelo sobre la fila que ya
- * existe, con su llave y su estado tal cual. Cambiar de modelo no arregla una
- * llave rechazada, así que no se finge que sí.
+ * Sem token: só altera provedor, base URL ou modelo sobre a linha que já
+ * existe, com a chave e o estado como estão. Trocar de modelo não conserta uma
+ * chave recusada, então não se finge que conserta.
  */
 export async function saveAiCredential(input: {
   organizationId: string;
@@ -166,18 +166,18 @@ export async function deleteAiCredential(organizationId: string): Promise<void> 
 }
 
 /**
- * Qué hacer con el estado según lo que respondió el proveedor.
+ * O que fazer com o estado conforme a resposta do provedor.
  *
- * Función PURA para poder probar la tabla de decisión sin base de datos: es
- * una de esas reglas que se ven obvias y se implementan mal.
+ * Função PURA para poder testar a tabela de decisão sem banco de dados: é
+ * uma dessas regras que parecem óbvias e são implementadas errado.
  *
- * - **401** → la llave no sirve. Pausa.
- * - **402** → sin saldo. Pausa, con otro motivo: al dueño le sirve saber si
- *   tiene que cambiar la llave o recargar la cuenta.
- * - **429** → límite de TASA, no falta de crédito. **No pausa**: confundirlos
- *   apagaría el agente por una ráfaga de tráfico, justo cuando más se necesita.
- * - Cualquier otro error (500 del proveedor, timeout, red) → tampoco pausa.
- *   Un hipo del proveedor no es un problema de la credencial.
+ * - **401** → a chave não funciona. Pausa.
+ * - **402** → sem saldo. Pausa, com outro motivo: ao dono interessa saber se
+ *   precisa trocar a chave ou recarregar a conta.
+ * - **429** → limite de TAXA, não falta de crédito. **Não pausa**: confundi-los
+ *   desligaria o agente por um pico de tráfego, justo quando mais é preciso.
+ * - Qualquer outro erro (500 do provedor, timeout, rede) → também não pausa.
+ *   Um soluço do provedor não é um problema da credencial.
  */
 export function estadoSegunRespuesta(httpStatus: number): AiStatus | null {
   if (httpStatus === 401) return "paused_invalid_token";
@@ -185,7 +185,7 @@ export function estadoSegunRespuesta(httpStatus: number): AiStatus | null {
   return null;
 }
 
-/** Aplica la pausa que dicte el proveedor. Devuelve true si pausó. */
+/** Aplica a pausa que o provedor determinar. Retorna true se pausou. */
 export async function marcarEstadoPorRespuesta(
   organizationId: string,
   httpStatus: number,
@@ -207,9 +207,9 @@ export async function marcarEstadoPorRespuesta(
 }
 
 /**
- * El proveedor aceptó la llave guardada (botón «Probar conexión»): si estaba
- * pausada, vuelve a `active`. Es el camino de «recargué saldo y quiero que
- * vuelva a contestar» sin tener que pegar la misma llave otra vez.
+ * O provedor aceitou a chave salva (botão «Testar conexão»): se estava
+ * pausada, volta para `active`. É o caminho de «recarreguei o saldo e quero que
+ * volte a responder» sem precisar colar a mesma chave de novo.
  */
 export async function marcarActiva(organizationId: string): Promise<void> {
   const db = getDb();

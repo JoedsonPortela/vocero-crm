@@ -10,7 +10,7 @@ const TONO: Record<PriorityValue, string> = {
   baja: "border-border bg-secondary text-text-2",
 };
 
-/** Etiqueta de prioridad. Solo se pinta cuando alguien la fijó. */
+/** Rótulo de prioridade. Só é desenhado quando alguém a definiu. */
 export function PriorityBadge({ value }: { value: PriorityValue }) {
   return (
     <span
@@ -25,9 +25,9 @@ export function PriorityBadge({ value }: { value: PriorityValue }) {
 }
 
 /**
- * Elegir la prioridad de un lead. Incluye "Sin prioridad" a propósito: poder
- * QUITARLA importa tanto como ponerla — si no, el primer clic por error queda
- * para siempre y el dueño deja de confiar en la columna.
+ * Escolher a prioridade de um lead. Inclui "Sin prioridad" de propósito: poder
+ * REMOVÊ-LA importa tanto quanto colocá-la — senão, o primeiro clique errado fica
+ * para sempre e o dono deixa de confiar na coluna.
  */
 export function PriorityPicker({
   value,

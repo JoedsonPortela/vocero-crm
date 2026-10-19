@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * #86 — La guía de inicio: de los pasos verificados (`onboardingStatus`) a
- * lo que ve el dueño, y cuándo es la primera pantalla. Puerto de la prueba de
- * Vocero Cloud con los pasos de la raíz: aquí no hay modelo de plataforma,
- * dueño invitado, cerebro compartido ni cobertura.
+ * #86 — O guia de início: dos passos verificados (`onboardingStatus`) ao
+ * que vê o dono, e quando é a primeira tela. Porta do teste do
+ * Vocero Cloud com os passos da raiz: aqui não há modelo de plataforma,
+ * dono convidado, cérebro compartilhado nem cobertura.
  */
 
 const onboardingStatus = vi.hoisted(() => vi.fn());
@@ -83,7 +83,7 @@ describe("guía de inicio", () => {
       "Meta dejó de aceptar el token.",
       "Elegiste Zoom pero no está conectado.",
     ]);
-    // Un conector desconocido también bloquea: no es «listo» ni «no aplica».
+    // Um conector desconhecido também bloqueia: não é «pronto» nem «não se aplica».
     steps[3] = step("calendar", "unsupported", { problem: "El conector no existe." });
     expect(guideFrom({ steps, enabled: false }).complete).toBe(false);
   });

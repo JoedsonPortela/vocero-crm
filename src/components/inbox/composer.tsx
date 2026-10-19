@@ -17,10 +17,10 @@ import { CHANNEL_LABEL } from "@/lib/channels";
 import { formatBytes, formatRemaining, formatRemainingLong } from "./helpers";
 import { TemplateSender } from "./template-sender";
 
-/** 008 — Panel secundario del clip: formulario de ubicación o contacto. */
+/** 008 — Painel secundário do clipe: formulário de localização ou contato. */
 type AttachPanel = "location" | "contact" | null;
 
-/** Extrae lat,long de "21.019, -101.257" o de un enlace de Google Maps. */
+/** Extrai lat,long de "21.019, -101.257" ou de um link do Google Maps. */
 function parseCoords(raw: string): { latitude: number; longitude: number } | null {
   const m =
     raw.match(/(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/) ??
@@ -70,7 +70,7 @@ export function Composer({
     };
   }, []);
 
-  // La URL del preview de imagen se libera al reemplazar/limpiar el archivo.
+  // A URL da pré-visualização da imagem é liberada ao substituir/limpar o arquivo.
   useEffect(() => {
     return () => {
       if (filePreview) URL.revokeObjectURL(filePreview);
@@ -103,8 +103,8 @@ export function Composer({
     setError(null);
 
     if (file) {
-      // El adjunto sí espera: sube el archivo y no tiene sentido encolar otro
-      // mientras tanto.
+      // O anexo espera sim: envia o arquivo e não faz sentido enfileirar outro
+      // enquanto isso.
       if (sending) return;
       setSending(true);
       const form = new FormData();
@@ -129,17 +129,17 @@ export function Composer({
 
     const value = text.trim();
     if (!value) return;
-    // Aquí NO se espera al servidor. Enviar tarda ~1.5 s (el viaje a Meta) y
-    // durante ese rato el renglón siguiente se escribía encima del anterior y
-    // salía todo como un solo mensaje. El campo se limpia ya; la burbuja
-    // "enviando" del hilo es la que informa el estado real.
+    // Aqui NÃO se espera o servidor. Enviar leva ~1,5 s (a viagem até a Meta) e
+    // durante esse tempo a linha seguinte era escrita por cima da anterior e
+    // tudo saía como uma única mensagem. O campo é limpo já; a bolha
+    // "enviando" da conversa é a que informa o estado real.
     setText("");
     if (taRef.current) taRef.current.style.height = "auto";
     const err = await onSend(value);
     if (err) {
       setError(err);
-      // Lo que no salió vuelve al campo. Si ya empezaste a escribir otra cosa
-      // se antepone en vez de pisarte: nada se pierde en silencio.
+      // O que não saiu volta ao campo. Se você já começou a escrever outra coisa
+      // é anteposto em vez de sobrescrever: nada se perde em silêncio.
       setText((actual) => (actual ? `${value}\n${actual}` : value));
       taRef.current?.focus();
       setTimeout(autogrow, 0);
@@ -199,8 +199,8 @@ export function Composer({
     onSent();
   }
 
-  // 022 — TikTok no tiene plantillas ni otra forma de reabrir: con la ventana
-  // cerrada no hay nada que ofrecer, solo decir qué pasa y qué lo arregla.
+  // 022 — O TikTok não tem modelos nem outra forma de reabrir: com a janela
+  // fechada não há nada a oferecer, só dizer o que acontece e o que resolve.
   if (!conversation.windowOpen && conversation.channel === "tiktok") {
     return (
       <div className="border-t bg-background px-[18px] py-3.5">
@@ -219,9 +219,9 @@ export function Composer({
     );
   }
 
-  // 024 — Instagram y Messenger no tienen plantillas. Pasadas 24 horas una
-  // persona todavía puede contestar (hasta 7 días, sigue abajo con su aviso);
-  // pasado ese plazo no hay nada que ofrecer salvo esperar al cliente.
+  // 024 — Instagram e Messenger não têm modelos. Passadas 24 horas uma
+  // pessoa ainda pode responder (até 7 dias, continua abaixo com o seu aviso);
+  // passado esse prazo não há nada a oferecer além de esperar o cliente.
   const human = conversation.humanWindow;
   const canal = CHANNEL_LABEL[conversation.channel];
   if (!conversation.windowOpen && human && !human.open) {
@@ -405,7 +405,7 @@ export function Composer({
         </div>
       )}
 
-      {/* La caja de escritura en píldora, como la del mockup de la landing */}
+      {/* A caixa de escrita em pílula, como a do mockup da landing */}
       <div className="flex items-end gap-2 rounded-[23px] border border-border-strong bg-background py-1.5 pl-2 pr-1.5 shadow-sm transition-[border-color,box-shadow] focus-within:border-brand focus-within:ring-[3px] focus-within:ring-brand-soft">
         <input
           ref={fileRef}
@@ -413,7 +413,7 @@ export function Composer({
           className="hidden"
           onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
         />
-        {/* 028: solo lo que el canal puede mandar; en las redes, la caja sola. */}
+        {/* 028: só o que o canal pode enviar; nas redes, a caixa sozinha. */}
         {(conversation.composer.media || conversation.composer.structured) && (
           <div className="flex shrink-0 items-center gap-0.5">
             {conversation.composer.media && (

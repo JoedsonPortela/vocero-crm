@@ -2,7 +2,7 @@ import { count, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db";
 import { newId } from "@/lib/db/ids";
 
-/** Etapas sembradas del pipeline (US2). */
+/** Etapas semeadas do pipeline (US2). */
 const SEED_STAGES: { name: string; kind: "open" | "won" | "lost" }[] = [
   { name: "Novo", kind: "open" },
   { name: "Em conversa", kind: "open" },
@@ -12,18 +12,18 @@ const SEED_STAGES: { name: string; kind: "open" | "won" | "lost" }[] = [
 ];
 
 /**
- * Primer registro de la instancia: crea la organización, deja al usuario como
- * propietario y siembra pipeline + perfil del agente.
+ * Primeiro cadastro da instância: cria a organização, deixa o usuário como
+ * proprietário e semeia pipeline + perfil do agente.
  *
- * Solo actúa si NO existe ninguna organización (las cuentas de equipo las crea
- * el propietario y reciben su membresía explícita). Un advisory lock evita que
- * dos registros simultáneos en instancia vacía creen dos organizaciones.
+ * Só age se NÃO existir nenhuma organização (as contas de equipe as cria
+ * o proprietário e recebem sua associação explícita). Um advisory lock evita que
+ * dois cadastros simultâneos em instância vazia criem duas organizações.
  */
 export async function onUserCreated(userId: string, userName: string) {
   const db = getDb();
   await db.transaction(async (tx) => {
-    // Lock transaccional de "primer arranque" (clave arbitraria fija):
-    // dos registros simultáneos en instancia vacía → solo uno crea la org.
+    // Lock transacional de "primeira inicialização" (chave arbitrária fixa):
+    // dois cadastros simultâneos em instância vazia → só um cria a org.
     await tx.execute(sql`select pg_advisory_xact_lock(874201)`);
     const [orgs] = await tx
       .select({ n: count() })
@@ -58,7 +58,7 @@ export async function onUserCreated(userId: string, userName: string) {
   });
 }
 
-/** Organización activa de un usuario (su primera membresía). */
+/** Organização ativa de um usuário (sua primeira associação). */
 export async function resolveActiveOrganizationId(
   userId: string
 ): Promise<string | null> {

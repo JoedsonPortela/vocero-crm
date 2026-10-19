@@ -3,9 +3,9 @@ import { mediaInputFrom } from "@/server/inbox/ingest";
 import type { WebhookMessage } from "@/server/inbox/webhook";
 
 /**
- * 008 — Parser tolerante de adjuntos del webhook (entrantes y echoes).
- * La integración completa (echo → hilo + pausa de IA) se ejercita en el
- * self-test E2E (scripts/e2e-selftest.mjs, sección 008).
+ * 008 — Parser tolerante de anexos do webhook (recebidos e echoes).
+ * A integração completa (echo → fio + pausa da IA) é exercitada no
+ * self-test E2E (scripts/e2e-selftest.mjs, seção 008).
  */
 describe("mediaInputFrom (008)", () => {
   const base = { id: "wamid.x", timestamp: "1722800000" };

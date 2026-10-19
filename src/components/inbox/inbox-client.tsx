@@ -16,9 +16,9 @@ import { Composer } from "./composer";
 import { ContactPanel } from "./contact-panel";
 
 /**
- * Texto que ya salió del compositor pero cuyo POST todavía viaja. Existe solo
- * en el cliente: se pinta como burbuja "enviando" para que escribir el
- * siguiente renglón no espere a Meta (~1,5 s de ida y vuelta).
+ * Texto que já saiu do compositor mas cujo POST ainda está em trânsito. Existe só
+ * no cliente: é desenhado como bolha "enviando" para que escrever a
+ * próxima linha não espere a Meta (~1,5 s de ida e volta).
  */
 type PendingOut = {
   id: string;
@@ -28,9 +28,9 @@ type PendingOut = {
 };
 
 /**
- * `xl` es el umbral donde caben las tres columnas (lista + hilo + detalles).
- * Debajo, el panel de detalles flota sobre el hilo. Debe coincidir con el
- * breakpoint `xl:` que usan las clases de la sección de detalles.
+ * `xl` é o limite onde cabem as três colunas (lista + conversa + detalhes).
+ * Abaixo, o painel de detalhes flutua sobre a conversa. Deve coincidir com o
+ * breakpoint `xl:` que usam as classes da seção de detalhes.
  */
 const PANEL_MEDIA_QUERY = "(min-width: 1280px)";
 const isWideEnoughForPanel = () =>
@@ -41,7 +41,7 @@ export function InboxClient({
   canDelete = false,
 }: {
   channels: readonly Channel[];
-  /** 026 — Eliminar es irreversible: solo quien administra ve la opción. */
+  /** 026 — Excluir é irreversível: só quem administra vê a opção. */
   canDelete?: boolean;
 }) {
   const multiChannel = channels.length > 1;
@@ -51,12 +51,12 @@ export function InboxClient({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageDto[]>([]);
   const [pending, setPending] = useState<PendingOut[]>([]);
-  // Arranca cerrado: en pantallas angostas el panel de detalles es un cajón
-  // ENCIMA del hilo, así que abrirlo por defecto taparía la conversación. El
-  // efecto de abajo lo abre solo si de veras hay tres columnas de ancho.
+  // Começa fechado: em telas estreitas o painel de detalhes é uma gaveta
+  // POR CIMA da conversa, então abri-lo por padrão taparia a conversa. O
+  // efeito abaixo o abre sozinho somente se houver de fato três colunas de largura.
   const [panelOpen, setPanelOpen] = useState(false);
-  // Se incrementa con cada evento SSE que puede cambiar la etapa/lead o el
-  // estado del agente: el panel de detalles lo observa y refetch en vivo.
+  // É incrementado a cada evento SSE que pode mudar a etapa/lead ou o
+  // estado do agente: o painel de detalhes o observa e faz nova busca ao vivo.
   const [detailRev, setDetailRev] = useState(0);
 
   useEffect(() => {
@@ -65,8 +65,8 @@ export function InboxClient({
   }, []);
   const togglePanel = useCallback((open: boolean) => {
     setPanelOpen(open);
-    // La preferencia es de escritorio: abrir el cajón en el teléfono no debe
-    // reescribir cómo queda la Bandeja en la computadora.
+    // A preferência é de desktop: abrir a gaveta no celular não deve
+    // reescrever como fica a Bandeja no computador.
     if (isWideEnoughForPanel()) {
       localStorage.setItem("vocero.panelOpen", String(open));
     }
@@ -75,9 +75,9 @@ export function InboxClient({
   selectedIdRef.current = selectedId;
   const lastFetchRef = useRef<string | null>(null);
   const tmpSeq = useRef(0);
-  // Los envíos salen en fila: el compositor ya no espera, pero WhatsApp debe
-  // recibir "hola" antes que el renglón siguiente. Sin esta cadena, dos POST
-  // simultáneos pueden llegar a Meta en desorden.
+  // Os envios saem em fila: o compositor já não espera, mas o WhatsApp deve
+  // receber "hola" antes da linha seguinte. Sem essa cadeia, dois POST
+  // simultâneos podem chegar à Meta fora de ordem.
   const sendQueue = useRef<Promise<unknown>>(Promise.resolve());
 
   const refetchConversations = useCallback(async () => {
@@ -115,7 +115,7 @@ export function InboxClient({
     [refetchMessages]
   );
 
-  /** 026 — Saca una conversación eliminada de todo lo que esta pestaña recuerda. */
+  /** 026 — Remove uma conversa excluída de tudo o que esta aba lembra. */
   const quitarConversacion = useCallback((id: string) => {
     setConversations((prev) => prev?.filter((c) => c.id !== id) ?? prev);
     setPending((prev) => prev.filter((p) => p.conversationId !== id));
@@ -125,7 +125,7 @@ export function InboxClient({
     }
   }, []);
 
-  // Enlace directo desde Contactos/Pipeline: /inbox?contact=<id>
+  // Link direto a partir de Contactos/Pipeline: /inbox?contact=<id>
   const searchParams = useSearchParams();
   const contactParam = searchParams.get("contact");
   useEffect(() => {
@@ -148,7 +148,7 @@ export function InboxClient({
         });
       }
       void refetchConversations();
-      // Un entrante nuevo puede crear/mover el lead: refresca el panel.
+      // Uma mensagem recebida nova pode criar/mover o lead: atualiza o painel.
       setDetailRev((v) => v + 1);
     },
     onMessageStatus: ({ conversationId, messageId, status, error }) => {
@@ -167,18 +167,18 @@ export function InboxClient({
     },
     onConversationUpdated: () => {
       void refetchConversations();
-      // El agente movió de etapa o cambió el handoff: refresca el panel en vivo.
+      // O agente mudou de etapa ou trocou o handoff: atualiza o painel ao vivo.
       setDetailRev((v) => v + 1);
     },
     onConversationDeleted: ({ conversationId }) => {
-      // 026: la eliminó alguien del equipo (o esta misma pestaña). Se quita
-      // ya, sin esperar al refetch, para que nadie le escriba a un hilo que
-      // no existe.
+      // 026: alguém da equipe a excluiu (ou esta mesma aba). É removida
+      // já, sem esperar a nova busca, para que ninguém escreva para uma conversa que
+      // não existe.
       quitarConversacion(conversationId);
       void refetchConversations();
     },
     onReconnect: () => {
-      // Catch-up tras reconexión (contrato sse.md): refetch completo.
+      // Recuperação após reconexão (contrato sse.md): nova busca completa.
       void refetchConversations();
       if (selectedIdRef.current) void refetchMessages(selectedIdRef.current);
       setDetailRev((v) => v + 1);
@@ -188,10 +188,10 @@ export function InboxClient({
   const selected = conversations?.find((c) => c.id === selectedId) ?? null;
 
   /**
-   * Hilo visible = lo confirmado + lo que aún viaja. El mensaje real puede
-   * llegar por refetch o por SSE antes de que retiremos el provisional, así
-   * que cada pendiente se empareja con UN mensaje real (no por texto suelto:
-   * mandar "hola" dos veces seguidas no debe borrar la segunda burbuja).
+   * Conversa visível = o confirmado + o que ainda está em trânsito. A mensagem real pode
+   * chegar por nova busca ou por SSE antes de retirarmos a provisória, então
+   * cada pendente é pareado com UMA mensagem real (não por texto solto:
+   * enviar "hola" duas vezes seguidas não deve apagar a segunda bolha).
    */
   const thread = useMemo(() => {
     const propios = pending.filter((p) => p.conversationId === selectedId);
@@ -228,10 +228,10 @@ export function InboxClient({
   }, [messages, pending, selectedId]);
 
   /**
-   * El compositor NO espera a que esto termine: limpia su campo al instante y
-   * aquí se pinta la burbuja "enviando". Si el envío falla, la burbuja se
-   * retira y el error vuelve al compositor, que devuelve el texto — un mensaje
-   * jamás se pierde en silencio.
+   * O compositor NÃO espera que isto termine: limpa o seu campo na hora e
+   * aqui é desenhada a bolha "enviando". Se o envio falhar, a bolha é
+   * retirada e o erro volta ao compositor, que devolve o texto — uma mensagem
+   * jamais se perde em silêncio.
    */
   const sendText = useCallback(
     async (text: string): Promise<string | null> => {
@@ -267,8 +267,8 @@ export function InboxClient({
           drop();
           return data?.error?.message ?? t("inbox.sendFailed");
         }
-        // Primero traer el mensaje real, después quitar el provisional: al
-        // revés, la burbuja parpadearía.
+        // Primeiro trazer a mensagem real, depois remover a provisória: ao
+        // contrário, a bolha piscaria.
         await refetchMessages(conversationId);
         drop();
         void refetchConversations();
@@ -295,7 +295,7 @@ export function InboxClient({
     [refetchConversations]
   );
 
-  /** 026 — Devuelve el mensaje de error, o null si la conversación ya no existe. */
+  /** 026 — Devolve a mensagem de erro, ou null se a conversa não existir mais. */
   const deleteConversation = useCallback(
     async (alsoContact: boolean): Promise<string | null> => {
       const id = selectedIdRef.current;
@@ -305,7 +305,7 @@ export function InboxClient({
         { method: "DELETE" }
       ).catch(() => null);
       if (!res) return t("inbox.noServer");
-      // 404 = otra persona la eliminó primero: para quien lo pidió, ya está.
+      // 404 = outra pessoa a excluiu antes: para quem pediu, já está feito.
       if (!res.ok && res.status !== 404) {
         const data = (await res.json().catch(() => null)) as {
           error?: { message?: string };
@@ -321,8 +321,8 @@ export function InboxClient({
 
   return (
     <div className="flex h-full">
-      {/* Móvil: una columna a la vez. La lista cede la pantalla completa al
-          hilo en cuanto hay conversación elegida (patrón maestro-detalle). */}
+      {/* Mobile: uma coluna por vez. A lista cede a tela inteira à
+          conversa assim que há uma conversa escolhida (padrão mestre-detalhe). */}
       <section
         className={cn(
           "w-full shrink-0 overflow-hidden border-r md:w-[300px] lg:w-[360px]",
@@ -347,7 +347,7 @@ export function InboxClient({
         {selected ? (
           <>
             <header className="flex items-center justify-between gap-1 border-b bg-background px-2 py-2.5 md:px-4">
-              {/* Volver a la lista: en móvil el hilo ocupa toda la pantalla. */}
+              {/* Voltar à lista: no mobile a conversa ocupa a tela toda. */}
               <button
                 onClick={() => setSelectedId(null)}
                 aria-label={t("inbox.backToList")}
@@ -379,14 +379,14 @@ export function InboxClient({
                     {selected.windowOpen
                       ? "ventana abierta"
                       : selected.humanWindow?.open
-                        ? // 024: pasadas 24 h en Instagram o Messenger solo
-                          // contesta una persona. No se llama «atención
-                          // humana»: eso ya es el traspaso, con la IA en pausa.
+                        ? // 024: passadas 24 h no Instagram ou no Messenger só
+                          // responde uma pessoa. Não se chama «atendimento
+                          // humano»: isso já é o repasse, com a IA em pausa.
                           "ventana humana"
                         : selected.contact.phone
                         ? formatPhone(selected.contact.phone)
-                        : // Instagram no tiene teléfono: decir "Sin teléfono"
-                          // sería contestar una pregunta que nadie hizo.
+                        : // O Instagram não tem telefone: dizer "Sin teléfono"
+                          // seria responder a uma pergunta que ninguém fez.
                           CHANNEL_LABEL[selected.channel]}
                   </p>
                 </div>
@@ -403,8 +403,8 @@ export function InboxClient({
             </header>
             <MessageThread messages={thread} />
             <Composer
-              // 028: uno por conversación. Sin la llave, el borrador, el adjunto
-              // elegido y el panel abierto pasaban a la siguiente conversación.
+              // 028: um por conversa. Sem a chave, o rascunho, o anexo
+              // escolhido e o painel aberto passavam para a conversa seguinte.
               key={selected.id}
               conversation={selected}
               onSend={sendText}
@@ -425,7 +425,7 @@ export function InboxClient({
         )}
       </section>
 
-      {/* Velo del cajón de detalles (solo donde no caben tres columnas). */}
+      {/* Véu da gaveta de detalhes (só onde não cabem três colunas). */}
       {panelOpen && selected && (
         <button
           aria-label={t("inbox.closeDetails")}
@@ -438,8 +438,8 @@ export function InboxClient({
       <section
         className={cn(
           "shrink-0 overflow-hidden border-l transition-[width] duration-200",
-          // Debajo de xl no hay ancho para una tercera columna: el panel se
-          // vuelve un cajón que entra desde la derecha, encima del hilo.
+          // Abaixo de xl não há largura para uma terceira coluna: o painel
+          // vira uma gaveta que entra pela direita, por cima da conversa.
           "max-xl:fixed max-xl:inset-y-0 max-xl:right-0 max-xl:z-40 max-xl:w-auto max-xl:bg-popover max-xl:transition-transform",
           panelOpen && selected
             ? "w-[320px] max-xl:translate-x-0 max-xl:shadow-pop"

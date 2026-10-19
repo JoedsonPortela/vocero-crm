@@ -37,21 +37,21 @@ import { MonthGrid } from "./month-grid";
 import { TimeGrid } from "./time-grid";
 
 /**
- * 015 → 215 — Citas: lo agendado por el operador y por la IA, en un
- * calendario como el de Google o Zoom (Día, Semana, Mes y Lista), con sus
- * acciones en un panel lateral.
+ * 015 → 215 — Agendamentos: o que foi marcado pelo operador e pela IA, num
+ * calendário como o do Google ou do Zoom (Dia, Semana, Mês e Lista), com suas
+ * ações num painel lateral.
  *
- * Solo se piden las citas del rango visible (`/api/bookings?from=&to=`), y la
- * vista se mantiene viva por SSE: la IA agenda mientras alguien mira. La
- * disponibilidad NO se pide aquí: solo al abrir «Reprogramar».
+ * Só são pedidos os agendamentos do intervalo visível (`/api/bookings?from=&to=`), e a
+ * visão se mantém viva por SSE: a IA agenda enquanto alguém olha. A
+ * disponibilidade NÃO é pedida aqui: só ao abrir «Reprogramar».
  */
 
-/** Preferencias de quien mira, en su navegador: no son datos del negocio. */
+/** Preferências de quem olha, no seu navegador: não são dados do negócio. */
 const VIEW_KEY = "vocero:citas:vista";
 const CANCELLED_KEY = "vocero:citas:canceladas";
 const TESTS_KEY = "vocero:citas:pruebas";
 
-/** Una ráfaga de eventos SSE (una cita y su enlace) se paga con UNA consulta. */
+/** Uma rajada de eventos SSE (um agendamento e o seu link) custa UMA consulta. */
 const SSE_COALESCE_MS = 250;
 
 type Loaded = { key: string; bookings: Booking[]; truncated: boolean };
@@ -60,7 +60,7 @@ function readPref(key: string): string | null {
   try {
     return window.localStorage.getItem(key);
   } catch {
-    return null; // modo privado o almacenamiento bloqueado
+    return null; // modo privado ou armazenamento bloqueado
   }
 }
 
@@ -68,7 +68,7 @@ function writePref(key: string, value: string) {
   try {
     window.localStorage.setItem(key, value);
   } catch {
-    // idem: la preferencia es una comodidad, no un requisito
+    // idem: a preferência é uma comodidade, não um requisito
   }
 }
 
@@ -87,8 +87,8 @@ export function BookingsClient({
   timezone: string;
   weeklyHours: WeeklyHours;
 }) {
-  // La vista se resuelve al montar (URL › última usada › tamaño de pantalla):
-  // el servidor no sabe si esto es un celular.
+  // A visão é resolvida ao montar (URL › último uso › tamanho da tela):
+  // o servidor não sabe se isto é um celular.
   const [view, setView] = useState<CalendarView | null>(null);
   const [anchor, setAnchor] = useState(initialDate);
   const [listTo, setListTo] = useState<string | null>(initialListTo);
@@ -118,7 +118,7 @@ export function BookingsClient({
             ? "dia"
             : "semana")
     );
-    // La línea de "ahora" y el resaltado de hoy se mueven solos.
+    // A linha de "agora" e o destaque de hoje se movem sozinhos.
     setNow(Date.now());
     const t = window.setInterval(() => setNow(Date.now()), 60_000);
     return () => window.clearInterval(t);
@@ -146,7 +146,7 @@ export function BookingsClient({
           truncated?: boolean;
         } | null)
       : null;
-    // Varias navegaciones seguidas: solo se pinta la respuesta del último rango.
+    // Várias navegações seguidas: só é desenhada a resposta do último intervalo.
     if (id !== seq.current) return;
     setLoading(false);
     if (!data) {
@@ -167,15 +167,15 @@ export function BookingsClient({
     if (rangeKey) void load(rangeKey);
   }, [rangeKey, load]);
 
-  // La agenda cambia también cuando agenda la IA. Antes cada evento pedía la
-  // lista Y la disponibilidad de toda la ventana; ahora una ráfaga de eventos
-  // se paga con UNA consulta del rango visible, y la disponibilidad solo se
-  // pide al abrir «Reprogramar».
+  // A agenda também muda quando a IA agenda. Antes cada evento pedia a
+  // lista E a disponibilidade de toda a janela; agora uma rajada de eventos
+  // custa UMA consulta do intervalo visível, e a disponibilidade só é
+  // pedida ao abrir «Reprogramar».
   const sse = useMemo(() => coalesce(() => void reload(), SSE_COALESCE_MS), [reload]);
   useEffect(() => () => sse.cancel(), [sse]);
   useEvents({ onBookingUpdated: sse.trigger, onReconnect: sse.trigger });
 
-  // La URL dice lo que se está viendo: recargar o compartir abre ahí mismo.
+  // A URL diz o que está sendo visto: recarregar ou compartilhar abre exatamente ali.
   useEffect(() => {
     if (!view) return;
     const params = new URLSearchParams({ vista: view });
@@ -222,7 +222,7 @@ export function BookingsClient({
 
   const closeDrawer = useCallback(() => setSelectedId(null), []);
 
-  /** Lleva el calendario a un día si no se ve en pantalla. */
+  /** Leva o calendário a um dia se ele não estiver visível na tela. */
   function reveal(day: string) {
     if (!view || !range) return;
     if (day >= range.from && day <= range.to) return;
@@ -274,7 +274,7 @@ export function BookingsClient({
     setView("dia");
   }
 
-  /** Bloquear: en el hueco tocado o, desde la barra, en la próxima media hora. */
+  /** Bloquear: no espaço tocado ou, pela barra, na próxima meia hora. */
   function openBlock(day?: string, time?: string) {
     setSelectedId(null);
     if (day && time) {
@@ -335,8 +335,8 @@ export function BookingsClient({
         onBlock={() => openBlock()}
       />
 
-      {/* En escritorio ancho el panel de la cita EMPUJA el calendario en vez
-          de taparlo: la semana entera sigue a la vista con la cita marcada. */}
+      {/* No desktop largo o painel do agendamento EMPURRA o calendário em vez
+          de cobri-lo: a semana inteira continua visível com o agendamento marcado. */}
       <div className="flex min-h-0 flex-1">
         <div className="flex min-w-0 flex-1 flex-col">
           <StatusBar
@@ -449,8 +449,8 @@ export function BookingsClient({
 }
 
 /**
- * Cuántas hay en el rango, en qué hora se pinta y si se ven las canceladas y
- * las citas de prueba del Laboratorio (ocultas por defecto: nunca ocupan la
+ * Quantos há no intervalo, em que hora são desenhados e se aparecem os cancelados e
+ * os agendamentos de teste do Laboratório (ocultos por padrão: nunca ocupam a
  * agenda real).
  */
 function StatusBar({
@@ -512,13 +512,13 @@ function StatusBar({
   );
 }
 
-/** Qué significa cada color: sin esto, el ámbar de «no asistió» es adivinanza. */
+/** O que cada cor significa: sem isso, o âmbar de «não compareceu» é adivinhação. */
 function Legend() {
   const items = [
     { label: "Agendada", dot: "rounded-full bg-brand" },
     { label: "Realizada", dot: "rounded-full bg-success" },
     { label: t("bookings.noShow"), dot: "rounded-full bg-warning" },
-    // El rayado no se lee en un punto de 10 px: un cuadrito con borde sí.
+    // A listra não se lê num ponto de 10 px: um quadradinho com borda sim.
     { label: "Bloqueo", dot: "booking-hatch rounded-[3px] border border-text-3" },
   ];
   return (

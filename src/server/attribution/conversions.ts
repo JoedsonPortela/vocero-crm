@@ -9,22 +9,22 @@ import { getCapiSettings } from "@/server/attribution/settings";
 import { getAttributionForConversation } from "@/server/attribution/store";
 
 /**
- * 016 — Reporte de conversiones a Meta.
+ * 016 — Reporte de conversões à Meta.
  *
- * Tres reglas duras, y ninguna es opcional:
+ * Três regras rígidas, e nenhuma é opcional:
  *
- * 1. **Dedup en la base**, no en el código: la fila se inserta ANTES de hablar
- *    con Meta, con `ON CONFLICT DO NOTHING` sobre (org, conversación, evento).
- *    A Meta no se le puede des-enviar una compra.
- * 2. **Best-effort absoluto**: nada de lo que pase aquí —Meta caído, token
- *    vencido, dataset sin configurar— puede impedir que el lead se mueva de
- *    etapa. Se registra el desenlace y se sigue.
- * 3. **Todo intento deja rastro**: `sent`, `failed` o `skipped` con el motivo
- *    escrito. Las filas `skipped` son la respuesta a "¿por qué este lead no
- *    aparece en Meta?", que sin ellas se contesta adivinando.
+ * 1. **Dedup na base**, não no código: a linha é inserida ANTES de falar
+ *    com a Meta, com `ON CONFLICT DO NOTHING` sobre (org, conversa, evento).
+ *    Não se pode desenviar uma compra à Meta.
+ * 2. **Best-effort absoluto**: nada do que acontecer aqui —Meta fora do ar, token
+ *    vencido, dataset não configurado— pode impedir que o lead mude de
+ *    etapa. Registra-se o desfecho e segue-se.
+ * 3. **Toda tentativa deixa rastro**: `sent`, `failed` ou `skipped` com o motivo
+ *    escrito. As linhas `skipped` são a resposta a "por que este lead não
+ *    aparece na Meta?", que sem elas se responde adivinhando.
  */
 
-/** Los dos eventos que Vocero emite (nombres del catálogo de Meta, tal cual). */
+/** Os dois eventos que a Vocero emite (nomes do catálogo da Meta, tal como são). */
 export const QUALIFIED_EVENT = "QualifiedLead";
 export const PURCHASE_EVENT = "Purchase";
 
@@ -36,9 +36,9 @@ const NOT_CONFIGURED_REASON =
 type EmitOutcome = "sent" | "failed" | "skipped" | "dedup" | "error";
 
 /**
- * Reporta un evento de una conversación. Público para que un fork pueda emitir
- * los suyos (p. ej. el espejo `InitiateCheckout` que documenta la guía) sin
- * reimplementar el dedup ni el manejo del acuse.
+ * Reporta um evento de uma conversa. Público para que um fork possa emitir
+ * os seus (p. ex. o espelho `InitiateCheckout` que o guia documenta) sem
+ * reimplementar o dedup nem o tratamento da confirmação.
  */
 export async function emitConversion(
   organizationId: string,
@@ -49,7 +49,7 @@ export async function emitConversion(
   try {
     const db = getDb();
 
-    // Dedup atómico: si ya existe ese evento para esta conversación, no-op.
+    // Dedup atômico: se esse evento já existe para esta conversa, não faz nada.
     const inserted = await db
       .insert(schema.conversionEvent)
       .values({
@@ -127,21 +127,21 @@ export async function emitConversion(
       return "failed";
     }
   } catch (err) {
-    // Best-effort absoluto: ni siquiera un fallo de la base puede tumbar a
-    // quien nos llamó (mover un lead de etapa).
+    // Best-effort absoluto: nem mesmo uma falha do banco pode derrubar
+    // quem nos chamou (mover um lead de etapa).
     console.warn(`[capi] emitConversion(${eventName}) falló: ${err}`);
     return "error";
   }
 }
 
 /**
- * `custom_data` de un `Purchase` a partir del monto del trato. Pura y exportada
- * para fijar en un test la conversión centavos → unidades: Meta espera unidades
- * de la moneda (450.50) y la base guarda centavos enteros (45050).
+ * `custom_data` de um `Purchase` a partir do valor do negócio. Pura e exportada
+ * para fixar num teste a conversão de centavos → unidades: a Meta espera unidades
+ * da moeda (450.50) e o banco guarda centavos inteiros (45050).
  *
- * Sin monto (o en cero) devuelve solo la etapa: la venta se cuenta igual, pero
- * sin precio. Mandar `value: 0` no significa "no sé cuánto" — le enseña al
- * optimizador que las ventas de este negocio valen nada.
+ * Sem valor (ou com zero) devolve só a etapa: a venda é contada igual, mas
+ * sem preço. Enviar `value: 0` não significa "não sei quanto" — ensina ao
+ * otimizador que as vendas deste negócio valem nada.
  */
 export function purchaseCustomData(amount: {
   amountCents: number | null;
@@ -157,14 +157,14 @@ export function purchaseCustomData(amount: {
 }
 
 /**
- * Punto de entrada desde la puerta única de etapas.
+ * Ponto de entrada a partir da porta única de etapas.
  *
- * Vive aquí y no en `stage-history.ts` para que aquel archivo siga siendo lo
- * que dice ser: la puerta que escribe `stage_id`. Y cuelga de esa puerta —y no
- * de donde el bot escribe la ficha, como en el fork del que viene esta idea—
- * porque así reportan IGUAL los cuatro caminos que mueven un lead: el dueño
- * arrastrando, el agente incluido, un cerebro externo por `/api/bot/*` y
- * cualquier quinto camino que alguien agregue mañana.
+ * Mora aqui e não em `stage-history.ts` para que aquele arquivo continue sendo o
+ * que diz ser: a porta que escreve `stage_id`. E pendura-se nessa porta —e não
+ * em onde o bot escreve a ficha, como no fork de onde vem esta ideia—
+ * porque assim reportam IGUAL os quatro caminhos que movem um lead: o dono
+ * arrastando, o agente incluído, um cérebro externo por `/api/bot/*` e
+ * qualquer quinto caminho que alguém adicione amanhã.
  */
 export async function reportStageChange(input: {
   organizationId: string;
@@ -184,9 +184,9 @@ export async function reportStageChange(input: {
     if (!isQualified && !isWon) return;
 
     const db = getDb();
-    // La conversación REAL del contacto (índice único parcial: una por
-    // contacto). Las del Laboratorio (`is_test`) no entran aquí — mismo
-    // guardrail que el sender: una conversación de prueba jamás toca el
+    // A conversa REAL do contato (índice único parcial: uma por
+    // contato). As do Laboratório (`is_test`) não entram aqui — mesma
+    // proteção do sender: uma conversa de teste jamais toca o
     // mundo real.
     const rows = await db
       .select({
@@ -213,8 +213,8 @@ export async function reportStageChange(input: {
       .limit(1);
 
     const row = rows[0];
-    // Sin conversación de WhatsApp no hay `ctwa_clid` posible ni nada que
-    // atribuir (p. ej. un prospecto capturado a mano que nunca escribió).
+    // Sem conversa de WhatsApp não há `ctwa_clid` possível nem nada que
+    // atribuir (p. ex. um prospecto capturado à mão que nunca escreveu).
     if (!row) return;
 
     if (isWon) {
@@ -238,28 +238,28 @@ export async function reportStageChange(input: {
   }
 }
 
-/* ---------------- Actividad reciente (solo lectura) ---------------- */
+/* ---------------- Atividade recente (somente leitura) ---------------- */
 
 export type ConversionActivityRow = {
   id: string;
   conversationId: string;
   eventName: string;
-  /** Nombre del contacto; null si la conversación ya no existe. */
+  /** Nome do contato; null se a conversa já não existir. */
   contactName: string | null;
-  /** Titular del anuncio de origen, si se capturó. */
+  /** Titular do anúncio de origem, se foi capturado. */
   adHeadline: string | null;
   status: "pending" | "sent" | "failed" | "skipped";
-  /** Momento a mostrar: el envío si ocurrió, si no la creación. */
+  /** Momento a mostrar: o envio se ocorreu, senão a criação. */
   at: string;
   fbTraceId: string | null;
   error: string | null;
 };
 
-/** Tope duro: es un panel de monitoreo, no un export. */
+/** Teto rígido: é um painel de monitoramento, não uma exportação. */
 const ACTIVITY_MAX_LIMIT = 50;
 export const ACTIVITY_DEFAULT_LIMIT = 25;
 
-/** Pura y exportada para probar el fallback de fecha sin tocar la base. */
+/** Pura e exportada para testar o fallback de data sem tocar a base. */
 export function toConversionActivityRow(row: {
   id: string;
   conversationId: string;
@@ -285,7 +285,7 @@ export function toConversionActivityRow(row: {
   };
 }
 
-/** Últimas conversiones de la organización, la más reciente primero. */
+/** Últimas conversões da organização, a mais recente primeiro. */
 export async function listConversionActivity(
   organizationId: string,
   limit = ACTIVITY_DEFAULT_LIMIT

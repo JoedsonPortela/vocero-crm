@@ -15,13 +15,13 @@ import { Label } from "@/components/ui/label";
 import { CONNECTOR_META, type ConnectorId } from "@/lib/agenda-connectors";
 
 /**
- * 015 — Las credenciales de un conector externo.
+ * 015 — As credenciais de um conector externo.
  *
- * Se guardan por su cuenta, no con el botón de la pantalla: primero se validan
- * CONTRA EL PROVEEDOR y solo entonces tocan la base. Unas credenciales que no
- * sirven no llegan a guardarse — el mismo trato que el wizard de WhatsApp.
+ * São salvas por conta própria, não com o botão da tela: primeiro são validadas
+ * CONTRA O PROVEDOR e só então tocam o banco. Credenciais que não
+ * funcionam não chegam a ser salvas — o mesmo tratamento do wizard do WhatsApp.
  *
- * Hacia fuera nunca vuelve un secreto: solo sus últimos 4 y el estado.
+ * Para fora nunca volta um segredo: apenas os últimos 4 e o estado.
  */
 
 type ExternalConnector = Exclude<ConnectorId, "enlace-fijo">;
@@ -58,7 +58,7 @@ const FIELDS: Record<ExternalConnector, Field[]> = {
   ],
 };
 
-/** Lo que hay que saber ANTES de pegar nada. Son los tropiezos reales. */
+/** O que é preciso saber ANTES de colar qualquer coisa. São os tropeços reais. */
 const HELP: Record<ExternalConnector, { title: string; items: string[] }> = {
   zoom: {
     title: "Crie um app Server-to-Server OAuth no Marketplace do Zoom",

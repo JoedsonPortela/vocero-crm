@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * FR-031/FR-082: el turno del agente sobre una conversación is_test persiste
- * la respuesta en BD y JAMÁS invoca el cliente Graph (spy sobre lib/meta).
+ * FR-031/FR-082: o turno do agente sobre uma conversa is_test persiste
+ * a resposta no BD e JAMAIS invoca o cliente Graph (spy sobre lib/meta).
  */
 
 const graphRequest = vi.fn();
@@ -20,15 +20,15 @@ vi.mock("@/lib/ai", () => ({
   }),
 }));
 
-// #85 — la resolución del proveedor mira primero la fila de Ajustes → IA. Sin
-// fila cae al entorno (`OPENROUTER_API_TOKEN`, abajo), sin tocar la cola de
-// selects de la BD simulada.
+// #85 — a resolução do provedor olha primeiro a linha de Ajustes → IA. Sem
+// linha cai no ambiente (`OPENROUTER_API_TOKEN`, abaixo), sem tocar a fila de
+// selects do BD simulado.
 vi.mock("@/server/ai/credentials", () => ({
   getAiCredentialPublic: async () => null,
   getAiCredentialSecret: async () => null,
 }));
 
-// BD simulada: cola de resultados de select + capturas de insert/update.
+// BD simulado: fila de resultados de select + capturas de insert/update.
 const selectQueue: unknown[][] = [];
 const inserts: { table: unknown; values: unknown }[] = [];
 
@@ -103,8 +103,8 @@ describe("sandbox del Laboratorio en el pipeline del agente", () => {
       lastInboundAt: new Date(),
     };
     selectQueue.push(
-      [testConversation], // conversación
-      [{ id: "agp_1", organizationId: "org_1", enabled: false, name: "Asistente", tone: null, instructions: null, escalationRules: null, greeting: null }], // perfil (apagado: el Lab evalúa igual)
+      [testConversation], // conversa
+      [{ id: "agp_1", organizationId: "org_1", enabled: false, name: "Asistente", tone: null, instructions: null, escalationRules: null, greeting: null }], // perfil (desligado: o Lab avalia igual)
       [
         {
           id: "msg_1",
@@ -112,7 +112,7 @@ describe("sandbox del Laboratorio en el pipeline del agente", () => {
           text: "¿tienen taladros?",
           createdAt: new Date(),
         },
-      ], // historial
+      ], // histórico
       [], // kb
       [] // etapas
     );
@@ -121,7 +121,7 @@ describe("sandbox del Laboratorio en el pipeline del agente", () => {
     await runAgentTurn("cv_lab");
 
     expect(graphRequest).not.toHaveBeenCalled();
-    // la respuesta quedó persistida como mensaje saliente ai_generated
+    // a resposta ficou persistida como mensagem de saída ai_generated
     const messageInsert = inserts.find(
       (i) =>
         typeof i.values === "object" &&

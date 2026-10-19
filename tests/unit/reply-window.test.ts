@@ -98,7 +98,7 @@ describe("024 · capacidades por canal", () => {
     expect(windowClosedMessage("messenger")).toContain("Messenger");
     expect(aiWindowClosedMessage("instagram")).toContain("24 horas");
     expect(aiWindowClosedMessage("instagram")).toContain("una persona");
-    // WhatsApp sigue pidiendo plantilla.
+    // WhatsApp continua pedindo modelo.
     expect(windowClosedMessage("whatsapp")).toContain("plantilla");
   });
 });

@@ -3,23 +3,23 @@
 import { cn } from "@/lib/utils";
 
 /**
- * El interruptor del CRM: el del Agente (Encendido/Apagado) y el de «IA en
- * esta conversación» son ESTE componente. Antes eran dos copias a mano y
- * divergieron dos veces, las dos en #53: primero el pomo perdió su sombra,
- * después el del Agente se salió de la pista. `tests/unit/switch.test.ts`
- * impide que vuelva a aparecer otra copia.
+ * O interruptor do CRM: o do Agente (Encendido/Apagado) e o de «IA nesta
+ * conversa» são ESTE componente. Antes eram duas cópias feitas à mão e
+ * divergiram duas vezes, ambas no #53: primeiro o botão perdeu a sombra,
+ * depois o do Agente saiu da pista. `tests/unit/switch.test.ts`
+ * impede que outra cópia volte a aparecer.
  *
- * Por qué `inline-flex` y no un pomo `absolute`: un `<button>` centra su
- * contenido por defecto, así que un hijo absoluto sin `left` arranca desde el
- * CENTRO de la pista y al desplazarse queda medio afuera. Con flex el pomo
- * parte del borde interior izquierdo (`px-0.5`) y se desplaza exactamente el
- * ancho que le sobra a la pista.
+ * Por que `inline-flex` e não um botão `absolute`: um `<button>` centraliza o
+ * seu conteúdo por padrão, então um filho absoluto sem `left` começa do
+ * CENTRO da pista e, ao se deslocar, fica meio para fora. Com flex o botão
+ * parte da borda interna esquerda (`px-0.5`) e se desloca exatamente a
+ * largura que sobra à pista.
  */
 
 const SIZES = {
-  /** Cabeceras: la pista de 44 px que ya usaba el Agente. */
+  /** Cabeçalhos: a pista de 44 px que o Agente já usava. */
   md: { track: "h-6 w-11 px-0.5", knob: "h-5 w-5", on: "translate-x-5" },
-  /** Paneles compactos: la de 36 px del panel de contacto. */
+  /** Painéis compactos: a de 36 px do painel de contato. */
   sm: { track: "h-5 w-9 px-0.5", knob: "h-4 w-4", on: "translate-x-4" },
 } as const;
 
@@ -33,7 +33,7 @@ export function Switch({
 }: {
   checked: boolean;
   onCheckedChange: (next: boolean) => void;
-  /** Nombre accesible: el interruptor no lleva texto propio. */
+  /** Nome acessível: o interruptor não leva texto próprio. */
   label: string;
   disabled?: boolean;
   size?: keyof typeof SIZES;
@@ -50,9 +50,9 @@ export function Switch({
       onClick={() => onCheckedChange(!checked)}
       className={cn(
         "relative inline-flex shrink-0 items-center rounded-full transition-colors",
-        // El anillo de `ui/button`: el acento sólido, separado de la pista
-        // (encendida ya es del color del acento). El suave (`ring-brand-soft`)
-        // queda a ~1.3:1 del fondo y se veía menos que el del navegador.
+        // O anel de `ui/button`: o acento sólido, separado da pista
+        // (ligada já é da cor do acento). O suave (`ring-brand-soft`)
+        // fica a ~1,3:1 do fundo e aparecia menos que o do navegador.
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         "disabled:cursor-not-allowed disabled:opacity-40",
         s.track,
@@ -60,8 +60,8 @@ export function Switch({
         className
       )}
     >
-      {/* `shadow-sm` no es adorno: el pomo es `--knob` (blanco) y sobre el
-          acento se perdía sin él. */}
+      {/* `shadow-sm` não é enfeite: o botão é `--knob` (branco) e sobre o
+          acento se perdia sem ele. */}
       <span
         aria-hidden
         className={cn(

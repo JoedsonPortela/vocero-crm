@@ -3,21 +3,21 @@ import { zernioFetch } from "@/server/zernio";
 import type { Health } from "@/server/zernio/cuentas";
 
 /**
- * 023 — Los webhooks de Zernio que entregan a esta instancia.
+ * 023 — Os webhooks da Zernio que entregam a esta instância.
  *
- * Zernio guarda la verdad de dos cosas que antes se capturaban a mano y se
- * capturaban mal: con qué secreto firma, y si el webhook existe, está activo y
- * cubre la cuenta. Aquí se leen con la llave ya guardada.
+ * A Zernio guarda a verdade de duas coisas que antes eram capturadas à mão e
+ * capturadas mal: com qual segredo assina, e se o webhook existe, está ativo e
+ * cobre a conta. Aqui são lidos com a chave já guardada.
  *
- * Un webhook «apunta aquí» si su URL lleva el segmento secreto de esta
- * instancia. Los demás webhooks de esa llave (otro CRM, otra herramienta del
- * negocio) no se usan para nada y jamás se modifican.
+ * Um webhook «aponta para cá» se a sua URL leva o segmento secreto desta
+ * instância. Os demais webhooks dessa chave (outro CRM, outra ferramenta do
+ * negócio) não são usados para nada e jamais são modificados.
  */
 
-/** El evento con el que llega un mensaje de un cliente. */
+/** O evento com o qual chega uma mensagem de um cliente. */
 export const ZERNIO_MESSAGE_EVENT = "message.received";
 
-/** Un webhook de `GET /webhooks/settings`, en lo que a Vocero le importa. */
+/** Um webhook de `GET /webhooks/settings`, no que interessa ao Vocero. */
 export type ZernioWebhook = {
   _id: string;
   name?: string | null;
@@ -25,27 +25,27 @@ export type ZernioWebhook = {
   secret?: string | null;
   events?: string[] | null;
   isActive?: boolean;
-  /** Vacío = todas las cuentas de esa llave. */
+  /** Vazio = todas as contas dessa chave. */
   accountIds?: string[] | null;
   failureCount?: number | null;
   lastFiredAt?: string | null;
 };
 
-/** Cuánto vale una lectura buena, y cuánto se recuerda un fallo. */
+/** Quanto vale uma leitura boa, e quanto tempo se lembra uma falha. */
 export const WEBHOOKS_OK_MS = 10 * 60 * 1000;
 export const WEBHOOKS_FAIL_MS = 60 * 1000;
 /**
- * Cuando una firma no coincide con lo leído, se relee si la lectura tiene más
- * de esto: es lo que tarda el CRM en enterarse de que el secreto cambió en
- * Zernio, y también el tope de consultas que alguien puede provocar mandando
- * firmas inválidas (una por minuto y por llave).
+ * Quando uma assinatura não coincide com o lido, relê-se se a leitura tiver mais
+ * que isto: é o que o CRM demora para perceber que o segredo mudou na
+ * Zernio, e também o teto de consultas que alguém pode provocar enviando
+ * assinaturas inválidas (uma por minuto e por chave).
  */
 export const WEBHOOKS_RECHECK_MS = 60 * 1000;
 
 type Entry = { at: number; ok: boolean; webhooks: ZernioWebhook[] };
 
-// En globalThis porque Next recarga módulos en desarrollo; una instancia es un
-// proceso, así que la memoria alcanza. La llave nunca es la del mapa: su hash.
+// Em globalThis porque o Next recarrega módulos em desenvolvimento; uma instância é um
+// processo, então a memória basta. A chave nunca é a do mapa: o seu hash.
 const g = globalThis as unknown as { __voceroZernioWebhooks?: Map<string, Entry> };
 function cache(): Map<string, Entry> {
   if (!g.__voceroZernioWebhooks) g.__voceroZernioWebhooks = new Map();
@@ -53,7 +53,7 @@ function cache(): Map<string, Entry> {
 }
 const keyOf = (token: string) => createHash("sha256").update(token).digest("hex");
 
-/** Los webhooks de esa llave, sin caché. Lanza `MetaApiError` si Zernio falla. */
+/** Os webhooks dessa chave, sem cache. Lança `MetaApiError` se a Zernio falhar. */
 export async function fetchZernioWebhooks(token: string): Promise<ZernioWebhook[]> {
   const json = (await zernioFetch("/webhooks/settings", { token, timeoutMs: 5000 })) as {
     webhooks?: ZernioWebhook[];
@@ -64,13 +64,13 @@ export async function fetchZernioWebhooks(token: string): Promise<ZernioWebhook[
 }
 
 /**
- * Lo mismo, con caché y sin lanzar: es lo que usa la verificación de firma,
- * que corre en cada entrega. Un fallo se recuerda un minuto para que una
- * ráfaga de entregas con Zernio caído no se convierta en una ráfaga de
- * consultas; la última lectura buena se sigue usando mientras tanto.
+ * O mesmo, com cache e sem lançar: é o que usa a verificação de assinatura,
+ * que roda em cada entrega. Uma falha é lembrada por um minuto para que uma
+ * rajada de entregas com a Zernio fora não se converta em uma rajada de
+ * consultas; a última leitura boa segue sendo usada enquanto isso.
  *
- * `maxAgeMs` pide una lectura más fresca que la de por defecto (solo acorta
- * la vida de una lectura buena; un fallo se sigue recordando su minuto).
+ * `maxAgeMs` pede uma leitura mais fresca que a padrão (só encurta a vida de
+ * uma leitura boa; uma falha continua sendo lembrada pelo seu minuto).
  */
 export async function cachedZernioWebhooks(
   token: string,
@@ -95,7 +95,7 @@ export function forgetZernioWebhooks(token: string): void {
   cache().delete(keyOf(token));
 }
 
-/** Puro: ¿la URL de ese webhook lleva el segmento secreto de esta instancia? */
+/** Puro: a URL desse webhook leva o segmento secreto desta instância? */
 export function pointsHere(webhook: ZernioWebhook, segment: string): boolean {
   if (!segment || typeof webhook.url !== "string") return false;
   try {
@@ -105,7 +105,7 @@ export function pointsHere(webhook: ZernioWebhook, segment: string): boolean {
   }
 }
 
-/** Puro: activo, con el evento de mensajes y con esa cuenta dentro de su límite. */
+/** Puro: ativo, com o evento de mensagens e com essa conta dentro do seu limite. */
 export function coversAccount(webhook: ZernioWebhook, accountId: string): boolean {
   if (webhook.isActive === false) return false;
   const events = webhook.events ?? [];
@@ -114,7 +114,7 @@ export function coversAccount(webhook: ZernioWebhook, accountId: string): boolea
   return accounts.length === 0 || accounts.includes(accountId);
 }
 
-/** Los secretos con los que Zernio firma lo que entrega a esta instancia. */
+/** Os segredos com que a Zernio assina o que entrega a esta instância. */
 export async function webhookSecretsFromZernio(
   token: string,
   segment: string,
@@ -132,7 +132,7 @@ export type WebhookHealth = Health & {
   failureCount: number;
 };
 
-/** Puro: cómo está el webhook para una cuenta concreta. */
+/** Puro: como está o webhook para uma conta específica. */
 export function webhookHealth(
   webhooks: readonly ZernioWebhook[],
   segment: string,
@@ -182,13 +182,13 @@ export function webhookHealth(
 }
 
 /**
- * Deja UN webhook de esa llave apuntando aquí, con el evento de mensajes, el
- * secreto dado y limitado a esas cuentas. Si ya hay uno que apunta aquí (o que
- * lleva el nombre de esta instancia, que es lo que queda cuando se rotó el
- * segmento secreto), se actualiza en vez de crear otro.
+ * Deixa UM webhook dessa chave apontando para cá, com o evento de mensagens, o
+ * segredo informado e limitado a essas contas. Se já houver um que aponte para cá (ou que
+ * leve o nome desta instância, que é o que sobra quando se rotacionou o
+ * segmento secreto), atualiza-se em vez de criar outro.
  *
- * El límite de cuentas no es un detalle: un webhook sin él recibe los mensajes
- * de TODAS las cuentas de la llave, y la llave de una agencia ve las de sus
+ * O limite de contas não é um detalhe: um webhook sem ele recebe as mensagens
+ * de TODAS as contas da chave, e a chave de uma agência enxerga as de seus
  * clientes.
  */
 export async function ensureZernioWebhook(input: {
@@ -196,7 +196,7 @@ export async function ensureZernioWebhook(input: {
   segment: string;
   name: string;
   url: string;
-  /** Mantiene la URL del webhook existente si es una de estas. */
+  /** Mantém a URL do webhook existente se for uma destas. */
   acceptableUrls: readonly string[];
   accountIds: readonly string[];
   secret: string;

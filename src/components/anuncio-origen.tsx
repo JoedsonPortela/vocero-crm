@@ -7,9 +7,9 @@ import type { AnuncioDto } from "@/lib/types";
 import { etiquetaDeOrigen, titularDeOrigen } from "@/lib/anuncios";
 
 /**
- * 019 — Miniatura del creativo para listas y tablas (Resultados). Sin imagen,
- * o si deja de servirse, queda el megáfono en el mismo hueco para que las filas
- * no bailen.
+ * 019 — Miniatura do criativo para listas e tabelas (Resultados). Sem imagem,
+ * ou se deixar de ser servida, fica o megafone no mesmo espaço para que as linhas
+ * não se mexam.
  */
 export function MiniaturaDeAnuncio({
   imageAssetId,
@@ -30,7 +30,7 @@ export function MiniaturaDeAnuncio({
     );
   }
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- adjunto privado servido con sesión; no hay host que optimizar
+    // eslint-disable-next-line @next/next/no-img-element -- anexo privado servido com sessão; não há host que otimizar
     <img
       src={`/api/media/${imageAssetId}`}
       alt={alt}
@@ -42,18 +42,18 @@ export function MiniaturaDeAnuncio({
 }
 
 /**
- * 018 — De qué anuncio llegó esta persona.
+ * 018 — De qual anúncio esta pessoa veio.
  *
- * La misma tarjeta en la bandeja y en el cajón del trato: la pregunta "¿quién
- * la trajo?" se hace en los dos sitios. Va entera o no va: una conversación
- * orgánica no enseña un hueco vacío.
+ * O mesmo cartão na Bandeja e na gaveta do negócio: a pergunta "quem
+ * a trouxe?" é feita nos dois lugares. Aparece inteiro ou não aparece: uma conversa
+ * orgânica não mostra um espaço vazio.
  *
- * Solo lo que Meta manda en el `referral`: el nombre del anuncio, la campaña o
- * el conjunto no vienen ahí, y pedirlos exigiría la API de Marketing.
+ * Só o que a Meta envia no `referral`: o nome do anúncio, a campanha ou
+ * o conjunto não vêm ali, e pedi-los exigiria a API de Marketing.
  */
 export function AnuncioOrigen({ anuncio }: { anuncio: AnuncioDto }) {
-  // La imagen puede no estar (caducó antes de copiarse, host no permitido) o
-  // dejar de servirse: la tarjeta sigue diciendo lo importante sin ella.
+  // A imagem pode não estar (expirou antes de ser copiada, host não permitido) ou
+  // deixar de ser servida: o cartão continua mostrando o essencial sem ela.
   const [imagenRota, setImagenRota] = useState(false);
   const etiqueta = etiquetaDeOrigen(anuncio.sourceType);
   const titular = titularDeOrigen(anuncio.headline, anuncio.sourceType);
@@ -75,7 +75,7 @@ export function AnuncioOrigen({ anuncio }: { anuncio: AnuncioDto }) {
 
       <div className="mt-2 flex items-start gap-2.5">
         {anuncio.imageAssetId && !imagenRota && (
-          // eslint-disable-next-line @next/next/no-img-element -- adjunto privado servido con sesión; no hay host que optimizar
+          // eslint-disable-next-line @next/next/no-img-element -- anexo privado servido com sessão; não há host que otimizar
           <img
             src={`/api/media/${anuncio.imageAssetId}`}
             alt={`Creativo: ${titular}`}
@@ -106,8 +106,8 @@ export function AnuncioOrigen({ anuncio }: { anuncio: AnuncioDto }) {
             ID {anuncio.sourceId}
           </p>
         )}
-        {/* Solo la presencia, y solo en una instancia que atribuye: el valor
-            del identificador de clic no sale del servidor. */}
+        {/* Só a presença, e só numa instância que atribui: o valor
+            do identificador de clique não sai do servidor. */}
         {anuncio.hasCtwaClid && <p>{t("anuncio.clickIdentified")}</p>}
       </div>
 

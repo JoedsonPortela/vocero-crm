@@ -2,12 +2,12 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * #87 — Un solo estado vacío para todas las pantallas: icono en un círculo
- * del acento, título, una línea que dice qué va a pasar aquí y, si hay algo
- * que hacer ahora mismo, el botón para hacerlo.
+ * #87 — Um único estado vazio para todas as telas: ícone num círculo
+ * do acento, título, uma linha que diz o que vai acontecer aqui e, se houver algo
+ * a fazer agora mesmo, o botão para fazê-lo.
  *
- * Centra en el espacio que le den (la Bandeja le da la columna entera; las
- * Plantillas, una tarjeta punteada): el contenedor lo pone quien lo usa por
+ * Centraliza no espaço que lhe derem (a Bandeja dá a coluna inteira; os
+ * Modelos, um cartão pontilhado): o contêiner é definido por quem o usa via
  * `className`.
  */
 export function EmptyState({

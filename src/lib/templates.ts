@@ -1,15 +1,15 @@
 /**
- * Variables posicionales {{n}} del cuerpo de una plantilla de WhatsApp.
- * Puro y sin dependencias: lo usan tanto el servicio de servidor como la UI
- * (que necesita saber cuántos campos pintar antes de enviar).
+ * Variáveis posicionais {{n}} do corpo de um modelo do WhatsApp.
+ * Puro e sem dependências: usam-no tanto o serviço do servidor como a UI
+ * (que precisa saber quantos campos desenhar antes de enviar).
  */
 
 const VARIABLE_REGEX = /\{\{\s*(\d+)\s*\}\}/g;
 
-/** Máximo de parámetros posicionales por cuerpo que acepta Meta. */
+/** Máximo de parâmetros posicionais por corpo que a Meta aceita. */
 export const MAX_TEMPLATE_VARIABLES = 10;
 
-/** Índices distintos de {{n}} presentes en el cuerpo, ordenados. */
+/** Índices distintos de {{n}} presentes no corpo, ordenados. */
 function variableIndexes(body: string): number[] {
   const found = new Set<number>();
   for (const m of body.matchAll(VARIABLE_REGEX)) found.add(Number(m[1]));
@@ -17,8 +17,8 @@ function variableIndexes(body: string): number[] {
 }
 
 /**
- * Cuántos parámetros exige el cuerpo = el índice más alto. Con la numeración
- * validada (1..N sin saltos) equivale al número de variables distintas.
+ * Quantos parâmetros o corpo exige = o índice mais alto. Com a numeração
+ * validada (1..N sem saltos) equivale ao número de variáveis distintas.
  */
 export function countVariables(body: string): number {
   const indexes = variableIndexes(body);
@@ -26,8 +26,8 @@ export function countVariables(body: string): number {
 }
 
 /**
- * Meta acepta varias variables por cuerpo, pero exige numeración posicional
- * contigua desde {{1}}: un salto ({{1}} y {{3}}) es rechazo seguro.
+ * A Meta aceita várias variáveis por corpo, mas exige numeração posicional
+ * contígua a partir de {{1}}: um salto ({{1}} e {{3}}) é uma rejeição certa.
  */
 export function validateBodyVariables(body: string): string | null {
   const indexes = variableIndexes(body);
@@ -44,9 +44,9 @@ export function validateBodyVariables(body: string): string | null {
 }
 
 /**
- * Lo que suele hacer que Meta rechace una plantilla aunque las variables
- * estén bien numeradas. No bloquea el envío —Meta decide—, solo avisa antes
- * de esperar horas por un rechazo previsible.
+ * O que costuma fazer a Meta rejeitar um modelo mesmo com as variáveis
+ * numeradas corretamente. Não bloqueia o envio — a Meta decide —, só avisa antes
+ * de esperar horas por uma rejeição previsível.
  */
 export function templateWarnings(body: string): string[] {
   const text = body.trim();
@@ -69,7 +69,7 @@ export function templateWarnings(body: string): string[] {
   return warnings;
 }
 
-/** Sustituye {{n}} por `variables[n-1]` (vacío si no hay valor). */
+/** Substitui {{n}} por `variables[n-1]` (vazio se não houver valor). */
 export function renderBody(body: string, variables: string[] = []): string {
   return body.replace(VARIABLE_REGEX, (_match, index: string) => {
     return variables[Number(index) - 1] ?? "";

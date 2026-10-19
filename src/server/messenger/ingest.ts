@@ -10,36 +10,36 @@ import { fetchMessengerProfileName } from "@/server/messenger/send";
 import { zernioSentAtSeconds, type ZernioEvent } from "@/server/zernio";
 
 /**
- * 017 — Adaptadores de entrada del canal de Messenger.
+ * 017 — Adaptadores de entrada do canal do Messenger.
  *
- * Dos fuentes con formatos que no se parecen: Meta manda los mensajes de la
- * página con `object: "page"` y la forma `entry[].messaging[]`; Zernio manda un
- * evento plano con `account`. Cada una se normaliza aquí y de ahí en adelante
- * corre el MISMO núcleo de ingesta que ya resuelve contacto, conversación,
- * idempotencia y bus de eventos (SSE).
+ * Duas fontes com formatos que não se parecem: a Meta envia as mensagens da
+ * página com `object: "page"` e a forma `entry[].messaging[]`; a Zernio envia um
+ * evento plano com `account`. Cada uma é normalizada aqui e, dali em diante,
+ * roda o MESMO núcleo de ingestão que já resolve contato, conversa,
+ * idempotência e barramento de eventos (SSE).
  *
- * Los normalizadores son funciones puras para poder probarlos sin base de
- * datos: qué se ingiere y qué se descarta (echos, acuses, postbacks, otra
- * plataforma) es la parte que más fácil se rompe cuando el proveedor cambia un
+ * Os normalizadores são funções puras para poder testá-los sem base de
+ * dados: o que se ingere e o que se descarta (echos, confirmações, postbacks, outra
+ * plataforma) é a parte que mais facilmente quebra quando o provedor muda um
  * campo.
  */
 
-/** Un mensaje entrante ya en la forma que entiende el núcleo. */
+/** Uma mensagem recebida já na forma que o núcleo entende. */
 export type MessengerInbound = {
-  /** Llave de enrutado: la página (Meta) o la cuenta de Zernio. */
+  /** Chave de roteamento: a página (Meta) ou a conta da Zernio. */
   routeKey: string;
-  /** Page-Scoped ID del remitente: la identidad del contacto (`fb:<PSID>`). */
+  /** Page-Scoped ID do remetente: a identidade do contato (`fb:<PSID>`). */
   psid: string;
-  /** Id del mensaje en la plataforma, para deduplicar. */
+  /** Id da mensagem na plataforma, para deduplicar. */
   messageId: string;
   text: string | null;
-  /** Tipo para la bandeja: text | image | video | audio | document | sticker | unsupported */
+  /** Tipo para a caixa de entrada: text | image | video | audio | document | sticker | unsupported */
   type: string;
-  /** Segundos desde epoch, como lo consume el núcleo. */
+  /** Segundos desde epoch, como o núcleo consome. */
   timestamp: string;
-  /** Nombre del perfil si la fuente lo entrega (Zernio sí, Meta no). */
+  /** Nome do perfil se a fonte o entregar (a Zernio sim, a Meta não). */
   profileName: string | null;
-  /** Hilo en la plataforma de origen: hace falta para responder por Zernio. */
+  /** Thread na plataforma de origem: é necessário para responder pela Zernio. */
   threadRef: string | null;
 };
 
@@ -69,10 +69,10 @@ type MetaPagePayload = {
 };
 
 /**
- * Tipos de adjunto → tipo de mensaje del CRM. En la v1 el adjunto no se
- * descarga (ambas fuentes lo entregan como URL temporal, no como id de media):
- * el mensaje entra con su tipo para que la bandeja enseñe "📎 Imagen" en vez
- * de perder el mensaje, y el operador sepa que hay algo que ver.
+ * Tipos de anexo → tipo de mensagem do CRM. Na v1 o anexo não é
+ * baixado (as duas fontes o entregam como URL temporária, não como id de mídia):
+ * a mensagem entra com seu tipo para que a caixa de entrada mostre "📎 Imagem" em vez
+ * de perder a mensagem, e o operador saiba que há algo para ver.
  */
 const ATTACHMENT_TYPE: Record<string, string> = {
   image: "image",
@@ -82,7 +82,7 @@ const ATTACHMENT_TYPE: Record<string, string> = {
   document: "document",
 };
 
-/** Plataformas con las que Zernio nombra a Messenger. */
+/** Plataformas com as quais a Zernio nomeia o Messenger. */
 const ZERNIO_MESSENGER_PLATFORMS = new Set(["facebook", "messenger"]);
 
 export function normalizeMetaPagePayload(payload: unknown): MessengerInbound[] {
@@ -96,11 +96,11 @@ export function normalizeMetaPagePayload(payload: unknown): MessengerInbound[] {
 
     for (const m of entry.messaging ?? []) {
       const msg = m.message;
-      // Acuses de entrega/lectura y postbacks no son mensajes: nada que
-      // enseñar en la bandeja.
+      // Confirmações de entrega/leitura e postbacks não são mensagens: nada que
+      // mostrar na caixa de entrada.
       if (!msg) continue;
-      // Los echos son lo que la página mandó desde su propia bandeja de
-      // Facebook. Fuera del alcance de la v1: se ignoran sin ruido.
+      // Os echos são o que a página enviou da sua própria caixa de entrada do
+      // Facebook. Fora do escopo da v1: são ignorados sem ruído.
       if (msg.is_echo) continue;
 
       const psid = m.sender?.id;
@@ -121,7 +121,7 @@ export function normalizeMetaPagePayload(payload: unknown): MessengerInbound[] {
         timestamp: String(
           m.timestamp ? Math.floor(m.timestamp / 1000) : Math.floor(Date.now() / 1000)
         ),
-        // Meta no manda nombre ni usuario en el webhook: se consulta aparte.
+        // A Meta não envia nome nem usuário no webhook: consulta-se à parte.
         profileName: null,
         threadRef: null,
       });
@@ -131,9 +131,9 @@ export function normalizeMetaPagePayload(payload: unknown): MessengerInbound[] {
 }
 
 /**
- * Evento de Zernio. El MISMO webhook trae Instagram, WhatsApp y X si esas
- * cuentas están conectadas: sin el filtro de plataforma acabaríamos ingiriendo
- * otro canal como si fueran mensajes de la página.
+ * Evento da Zernio. O MESMO webhook traz Instagram, WhatsApp e X se essas
+ * contas estiverem conectadas: sem o filtro de plataforma acabaríamos ingerindo
+ * outro canal como se fossem mensagens da página.
  */
 export function normalizeZernioEvent(payload: unknown): MessengerInbound[] {
   const evt = payload as ZernioEvent | null;
@@ -168,8 +168,8 @@ export function normalizeZernioEvent(payload: unknown): MessengerInbound[] {
       profileName:
         sender?.name?.trim() ||
         (sender?.username ? `@${sender.username}` : null),
-      // Opaco por contrato: se guarda tal cual y no se parsea. Es lo que hace
-      // falta para responder por Zernio.
+      // Opaco por contrato: é guardado tal como está e não se interpreta. É o que
+      // faz falta para responder pela Zernio.
       threadRef: evt.message?.conversationId ?? null,
     },
   ];
@@ -231,9 +231,9 @@ async function ingestAll(
       continue;
     }
     if (creds.source !== source) {
-      // Defensa en profundidad: si esta instancia no habla con esa fuente, un
-      // payload con su forma no puede ser legítimo aunque llegue por la URL
-      // correcta. Sin esto, la única barrera de la forma ajena es la URL.
+      // Defesa em profundidade: se esta instância não fala com essa fonte, um
+      // payload com o seu formato não pode ser legítimo mesmo que chegue pela URL
+      // correta. Sem isto, a única barreira contra formato alheio é a URL.
       console.warn(
         `[messenger] payload de ${source} en una instancia configurada como ` +
           `'${creds.source}': descartado`
@@ -242,10 +242,10 @@ async function ingestAll(
     }
 
     const identity = `${FB_PREFIX}${evt.psid}`;
-    // El nombre se resuelve UNA vez, la primera que se ve al PSID: después el
-    // contacto ya existe y el nombre que tenga (o el que editó el operador)
-    // manda. Consultarlo en cada mensaje sería un viaje al proveedor por
-    // renglón.
+    // O nome é resolvido UMA vez, a primeira que se vê do PSID: depois o
+    // contato já existe e o nome que tiver (ou o que o operador editou)
+    // manda. Consultá-lo em cada mensagem seria uma viagem ao provedor por
+    // linha.
     const profileName =
       evt.profileName ??
       ((await contactExists(creds.organizationId, identity))
@@ -261,8 +261,8 @@ async function ingestAll(
         waUserId: null,
         profileName,
       },
-      // Prefijado para que no colisione jamás con un id de WhatsApp ni de
-      // Instagram en el índice único de mensajes.
+      // Prefixado para que jamais colida com um id de WhatsApp nem de
+      // Instagram no índice único de mensagens.
       waMessageId: `fb_${evt.messageId}`,
       type: evt.type,
       text: evt.text,

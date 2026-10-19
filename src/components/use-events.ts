@@ -8,7 +8,7 @@ export type EventHandlers = {
     conversationId: string;
     messageId: string;
     status: string;
-    /** Motivo, presente solo cuando status = "failed". */
+    /** Motivo, presente só quando status = "failed". */
     error?: string | null;
   }) => void;
   onConversationUpdated?: (data: { conversation: unknown }) => void;
@@ -24,16 +24,16 @@ export type EventHandlers = {
     progress: { done: number; total: number };
     score?: number | null;
   }) => void;
-  /** 015 — Algo cambió en la agenda (también cuando agenda la IA). */
+  /** 015 — Algo mudou na agenda (também quando a IA agenda). */
   onBookingUpdated?: (data: { bookingId: string }) => void;
-  /** Se llama tras RECONECTAR (no en la conexión inicial): catch-up con refetch. */
+  /** É chamado após RECONECTAR (não na conexão inicial): recuperação com nova busca. */
   onReconnect?: () => void;
 };
 
 /**
- * Suscripción SSE de la bandeja (contrato sse.md). EventSource reconecta
- * solo; el servidor no garantiza replay, así que al reconectar el consumidor
- * debe refetch con `since=` (onReconnect).
+ * Assinatura SSE da bandeja (contrato sse.md). O EventSource reconecta
+ * sozinho; o servidor não garante replay, então ao reconectar o consumidor
+ * deve buscar de novo com `since=` (onReconnect).
  */
 export function useEvents(handlers: EventHandlers): void {
   const handlersRef = useRef(handlers);

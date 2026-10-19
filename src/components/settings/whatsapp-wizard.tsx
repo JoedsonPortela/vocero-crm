@@ -31,16 +31,16 @@ type WebhookInfo = {
   signatureLayer: boolean;
 };
 
-/** Lo que devuelve el registro del webhook en Meta (al guardar o a demanda). */
+/** O que devolve o registro do webhook na Meta (ao salvar ou sob demanda). */
 type WebhookRegistration =
   | { ok: true; appWithoutWebhook: boolean }
   | { ok: true; skipped: "waba_override"; host: string }
   | { ok: false; message: string };
 
 /**
- * El último registro, y desde dónde se pidió. Uno solo para las dos tarjetas:
- * con uno por tarjeta, guardar con un token sin permiso dejaba el «registrado»
- * de un clic anterior al lado del aviso nuevo.
+ * O último registro, e de onde foi pedido. Um só para os dois cartões:
+ * com um por cartão, salvar com um token sem permissão deixava o «registrado»
+ * de um clique anterior ao lado do aviso novo.
  */
 type LastRegistration = { result: WebhookRegistration; from: "save" | "button" };
 
@@ -138,11 +138,11 @@ export function WhatsappWizard() {
 }
 
 /**
- * Soltar el número.
+ * Soltar o número.
  *
- * Pide confirmación porque corta la entrada y la salida de mensajes al
- * instante — no es un ajuste, es apagar el canal. Lo que NO hace es borrar la
- * bandeja, y el aviso lo dice: sin eso, nadie se atreve a tocarlo.
+ * Pede confirmação porque corta a entrada e a saída de mensagens na
+ * hora — não é um ajuste, é desligar o canal. O que NÃO faz é apagar a
+ * bandeja, e o aviso diz isso: sem isso, ninguém se atreve a mexer.
  */
 function Desconectar({ onHecho }: { onHecho: () => void }) {
   const [confirmando, setConfirmando] = useState(false);
@@ -393,10 +393,10 @@ function ConnectForm({
 }
 
 /**
- * El resultado de registrar el webhook en Meta, en palabras de quien lo lee.
+ * O resultado de registrar o webhook na Meta, em palavras de quem lê.
  *
- * Un fallo aquí NO deshace el guardado: el token es válido y la conexión
- * envía. Por eso el aviso es de advertencia, no de error, y dice qué hacer.
+ * Uma falha aqui NÃO desfaz o salvamento: o token é válido e a conexão
+ * envia. Por isso o aviso é de advertência, não de erro, e diz o que fazer.
  */
 function RegistrationNotice({
   registration,

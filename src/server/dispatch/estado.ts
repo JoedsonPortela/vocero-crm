@@ -5,10 +5,10 @@ import type { BrainDispatchDto } from "@/lib/brain-status";
 import { leerConfigDespacho, type ConfigDespacho } from "@/server/brains/config";
 
 /**
- * 021 — Lo que «Quién responde» enseña del despacho: a quién se le empuja,
- * cuándo llegó el último turno, cuál fue el último que no llegó y cuántos
- * esperan. Sale de la tabla, no de la memoria del proceso: sobrevive a un
- * reinicio, a diferencia de la «última llamada» de `/api/bot/*`.
+ * 021 — O que «Quem responde» mostra do despacho: para quem se empurra,
+ * quando chegou o último turno, qual foi o último que não chegou e quantos
+ * esperam. Sai da tabela, não da memória do processo: sobrevive a um
+ * reinício, diferente da «última chamada» de `/api/bot/*`.
  */
 
 type Hechos = {
@@ -17,7 +17,7 @@ type Hechos = {
   pending: number;
 };
 
-/** Pura: de la configuración y los hechos de la tabla, al DTO. */
+/** Pura: da configuração e dos fatos da tabela, ao DTO. */
 export function dispatchDto(config: ConfigDespacho, hechos: Hechos): BrainDispatchDto {
   return {
     active: config.active,
@@ -37,8 +37,8 @@ export async function estadoDelDespacho(
   organizationId: string
 ): Promise<BrainDispatchDto> {
   const config = leerConfigDespacho();
-  // Sin variable no se le pregunta nada a la base: una instancia que no
-  // despacha no paga tres consultas cada vez que se pinta la tarjeta.
+  // Sem variável não se pergunta nada ao banco: uma instância que não
+  // despacha não paga três consultas cada vez que o cartão é pintado.
   if (!config.active && config.host === null && config.problem === null) {
     return dispatchDto(config, SIN_HECHOS);
   }
@@ -53,8 +53,8 @@ export async function estadoDelDespacho(
       .where(deLaOrg(eq(schema.dispatch.status, "entregado")))
       .orderBy(desc(schema.dispatch.updatedAt))
       .limit(1),
-    // Un fallo que costó el turno (caducó) o que sigue reintentándose. Uno que
-    // se recuperó no cuenta: `marcarEntregado` limpia su `last_error`.
+    // Uma falha que custou o turno (expirou) ou que continua sendo reintentada. Uma que
+    // se recuperou não conta: `marcarEntregado` limpa o seu `last_error`.
     db
       .select({ at: schema.dispatch.updatedAt, detail: schema.dispatch.lastError })
       .from(schema.dispatch)

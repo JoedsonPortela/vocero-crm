@@ -1,32 +1,32 @@
 /**
- * Restablecer la contraseña de un usuario SIN correo.
+ * Redefinir a senha de um usuário SEM e-mail.
  *
- * Vocero no tiene flujo de "olvidé mi contraseña" —sería una dependencia
- * externa, y la constitución las prohíbe en v1— y el registro público se cierra
- * en cuanto existe la primera organización. Cuando la contraseña se pierde, la
- * única salida es reescribir el hash en la base.
+ * O Vocero não tem fluxo de "esqueci minha senha" — seria uma dependência
+ * externa, e a constituição as proíbe na v1; além disso o registro público
+ * fecha assim que existe a primeira organização. Quando a senha se perde, a
+ * única saída é reescrever o hash no banco.
  *
- * Este script NO toca ninguna base de datos: no abre conexión, no lee
- * DATABASE_URL, no escribe nada. Genera el hash y te imprime el `UPDATE` listo
- * para pegar. Quien decide aplicarlo es un humano con acceso al servidor, que
- * es exactamente la barrera que uno quiere para una operación así.
+ * Este script NÃO toca em nenhum banco de dados: não abre conexão, não lê
+ * DATABASE_URL, não escreve nada. Gera o hash e imprime o `UPDATE` pronto
+ * para colar. Quem decide aplicá-lo é uma pessoa com acesso ao servidor, que
+ * é exatamente a barreira que se quer para uma operação assim.
  *
  * Uso (bash):
- *   NEW_PASSWORD='tu-contraseña-nueva' node scripts/reset-password.mjs correo@ejemplo.com
+ *   NEW_PASSWORD='sua-senha-nova' node scripts/reset-password.mjs email@exemplo.com
  *
  * Uso (PowerShell):
- *   $env:NEW_PASSWORD='tu-contraseña-nueva'; node scripts/reset-password.mjs correo@ejemplo.com
+ *   $env:NEW_PASSWORD='sua-senha-nova'; node scripts/reset-password.mjs email@exemplo.com
  */
 import { hashPassword, verifyPassword } from "better-auth/crypto";
 
-/** Mismo mínimo que pide el registro; no tiene sentido abrir una puerta más débil. */
+/** Mesmo mínimo que pede o registro; não faz sentido abrir uma porta mais fraca. */
 const MIN_PASSWORD_LENGTH = 8;
 
 const email = process.argv[2];
-// Por variable de entorno y no por argumento: un argumento queda en el
-// historial del shell y es visible en `ps` para cualquier otro usuario de la
-// máquina mientras el proceso corre. En un servidor suele haber más de una
-// sesión abierta.
+// Por variável de ambiente e não por argumento: um argumento fica no
+// histórico do shell e é visível em `ps` para qualquer outro usuário da
+// máquina enquanto o processo roda. Num servidor costuma haver mais de uma
+// sessão aberta.
 const password = process.env.NEW_PASSWORD;
 
 if (!email || !password) {
@@ -45,15 +45,15 @@ if (password.length < MIN_PASSWORD_LENGTH) {
   process.exit(1);
 }
 
-// El hash sale de `better-auth/crypto`, la MISMA función con la que el login
-// verifica. Reimplementar scrypt aquí significaría duplicar sus parámetros: el
-// día que la librería los cambie, este script seguiría generando hashes viejos
-// y el login los rechazaría sin decir por qué — justo el escenario que este
-// script existe para resolver, y con el usuario ya fuera de su cuenta.
+// O hash sai de `better-auth/crypto`, a MESMA função com que o login
+// verifica. Reimplementar o scrypt aqui significaria duplicar seus parâmetros: o
+// dia em que a biblioteca mudá-los, este script continuaria gerando hashes antigos
+// e o login os rejeitaria sem dizer por quê — justamente o cenário que este
+// script existe para resolver, e com o usuário já fora da própria conta.
 const hash = await hashPassword(password);
 
-// Se verifica el hash recién generado antes de imprimir nada. Vale más fallar
-// aquí que dejar a alguien pegando un `UPDATE` que lo deja igual de fuera.
+// Verifica-se o hash recém-gerado antes de imprimir qualquer coisa. Vale mais falhar
+// aqui do que deixar alguém colando um `UPDATE` que o deixa igualmente de fora.
 if (!(await verifyPassword({ hash, password }))) {
   console.error(
     "El hash generado no se verifica a sí mismo. NO uses el SQL: algo cambió " +
@@ -62,11 +62,11 @@ if (!(await verifyPassword({ hash, password }))) {
   process.exit(1);
 }
 
-/** Escapa un valor para un literal SQL entre comillas simples. */
+/** Escapa um valor para um literal SQL entre aspas simples. */
 const lit = (value) => value.replace(/'/g, "''");
 
-// `lower(email)` porque el correo pudo guardarse con mayúsculas, y un
-// `UPDATE 0` silencioso es peor que un error: parece que funcionó.
+// `lower(email)` porque o e-mail pode ter sido salvo com maiúsculas, e um
+// `UPDATE 0` silencioso é pior que um erro: parece que funcionou.
 const sql =
   `UPDATE "account" SET "password" = '${lit(hash)}', "updated_at" = now() ` +
   `WHERE "provider_id" = 'credential' AND "user_id" = ` +

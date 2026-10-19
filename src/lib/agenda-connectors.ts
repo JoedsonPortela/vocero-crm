@@ -1,19 +1,19 @@
 /**
- * 015 — El catálogo de conectores de agenda, sem dependências de servidor.
+ * 015 — O catálogo de conectores de agenda, sem dependências de servidor.
  *
- * Vive en `lib/` por la misma razón que `lib/channels.ts`: la interfaz también
- * necesita saber qué conectores existen, cómo se llaman y qué prometen, para
- * que Ajustes → Agenda pueda ofrecerlos sin duplicar la lista a mano.
+ * Vive em `lib/` pelo mesmo motivo que `lib/channels.ts`: a interface também
+ * precisa saber quais conectores existem, como se chamam e o que prometem, para
+ * que Ajustes → Agenda possa oferecê-los sem duplicar a lista à mão.
  *
- * Un conector es la forma en que la cita se convierte en una reunión. El motor
- * no sabe de proveedores: PREGUNTA capacidades, igual que el envío pregunta las
- * del canal. Agregar el tuyo en un fork es escribir su adaptador y declararlo
- * aquí — ver docs/agenda-conectores.md.
+ * Um conector é a forma como o agendamento vira uma reunião. O motor
+ * não conhece provedores: PERGUNTA capacidades, igual ao envio que pergunta as
+ * do canal. Adicionar o seu em um fork é escrever o seu adaptador e declará-lo
+ * aqui — ver docs/agenda-conectores.md.
  */
 
 export type ConnectorId = "enlace-fijo" | "zoom" | "google";
 
-/** Orden en que se le presentan al operador. El soberano primero. */
+/** Ordem em que são apresentados ao operador. O soberano primeiro. */
 export const CONNECTOR_ORDER: readonly ConnectorId[] = [
   "enlace-fijo",
   "zoom",
@@ -22,18 +22,18 @@ export const CONNECTOR_ORDER: readonly ConnectorId[] = [
 
 export type ConnectorMeta = {
   label: string;
-  /** Qué hace, en una línea, para la pantalla de Ajustes. */
+  /** O que faz, em uma linha, para a tela de Ajustes. */
   description: string;
-  /** ¿Genera un link distinto por cita? (`enlace-fijo` no: es la sala de siempre.) */
+  /** Gera um link diferente por agendamento? (`enlace-fijo` não: é a sala de sempre.) */
   perBookingLink: boolean;
-  /** ¿Reprogramar mueve la reunión en el proveedor? */
+  /** Reagendar move a reunião no provedor? */
   updatesMeeting: boolean;
-  /** ¿La cita aparece además en el calendario del dueño? */
+  /** O agendamento aparece também no calendário do dono? */
   writesCalendarEvent: boolean;
   /**
-   * ¿Habla con un servicio de terceros? Es la puerta constitucional: los
-   * conectores externos existen solo apagados por defecto, aislados tras su
-   * adaptador y degradando sin bloquear (Principio II, 1.4.0).
+   * Fala com um serviço de terceiros? É a porta constitucional: os
+   * conectores externos existem apenas desligados por padrão, isolados atrás do
+   * seu adaptador e degradando sem bloquear (Princípio II, 1.4.0).
    */
   external: boolean;
 };
@@ -54,8 +54,8 @@ export const CONNECTOR_META: Record<ConnectorId, ConnectorMeta> = {
       "Cada consulta cria sua reunião no Zoom. Reagendar a move; cancelar a exclui.",
     perBookingLink: true,
     updatesMeeting: true,
-    // Zoom sincroniza con el calendario del dueño por su cuenta, si él lo
-    // configuró allá; el CRM no lo hace ni lo sabe.
+    // O Zoom sincroniza com o calendário do dono por conta própria, se ele o
+    // configurou lá; o CRM não faz isso nem sabe.
     writesCalendarEvent: false,
     external: true,
   },
@@ -74,5 +74,5 @@ export function isConnectorId(value: string): value is ConnectorId {
   return (CONNECTOR_ORDER as readonly string[]).includes(value);
 }
 
-/** El conector por defecto: el único que no depende de nadie. */
+/** O conector padrão: o único que não depende de ninguém. */
 export const DEFAULT_CONNECTOR: ConnectorId = "enlace-fijo";

@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 import { bookingTitle, bookingTone, type Booking } from "./booking-look";
 
 /**
- * 215 — La vista de mes: de lunes a domingo, hasta tres citas por día y
- * «+N más». Tocar el número del día, el «+N más» o el fondo de la celda abre
- * ese día en la vista Día; tocar una cita abre su panel.
+ * 215 — A visão de mês: de segunda a domingo, até três agendamentos por dia e
+ * «+N mais». Tocar no número do dia, no «+N mais» ou no fundo da célula abre
+ * esse dia na visão Dia; tocar num agendamento abre o seu painel.
  */
 
 const MAX_CHIPS = 3;
@@ -24,7 +24,7 @@ export function MonthGrid({
   onOpenDay,
 }: {
   weeks: string[][];
-  /** `AAAA-MM` del mes que se está viendo: los demás días se atenúan. */
+  /** `AAAA-MM` do mês que está sendo visto: os demais dias são atenuados. */
   month: string;
   bookings: Booking[];
   timezone: string;
@@ -33,7 +33,7 @@ export function MonthGrid({
   onSelect: (b: Booking) => void;
   onOpenDay: (day: string) => void;
 }) {
-  // Cada cita en el día en que EMPIEZA en la zona del negocio.
+  // Cada agendamento no dia em que COMEÇA no fuso horário do negócio.
   const byDay = useMemo(() => {
     const map = new Map<string, { booking: Booking; startMin: number }[]>();
     for (const b of bookings) {

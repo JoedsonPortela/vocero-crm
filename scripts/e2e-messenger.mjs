@@ -1,17 +1,17 @@
 /**
- * Self-test E2E de comportamiento — 017: canal de Messenger.
+ * Self-test E2E de comportamento — 017: canal de Messenger.
  *
- * Conduce la app real en localhost con los mocks: conecta la página por las
- * DOS fuentes (Meta directo y Zernio), mete mensajes por el webhook como lo
- * haría cada proveedor y responde desde la bandeja, comprobando cada paso por
- * las mismas superficies que usa el operador.
+ * Conduz o app real em localhost com os mocks: conecta a página pelas
+ * DUAS fontes (Meta direto e Zernio), envia mensagens pelo webhook como faria
+ * cada provedor e responde a partir da bandeja, verificando cada passo pelas
+ * mesmas superfícies que o operador usa.
  *
  * Uso:
- *   1) app corriendo con WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL → wa-mock,
- *      ZERNIO_BASE_URL → zernio-mock, CHANNELS con messenger, y BD migrada
+ *   1) app rodando com WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL → wa-mock,
+ *      ZERNIO_BASE_URL → zernio-mock, CHANNELS com messenger, e BD migrada
  *   2) node --env-file=.env scripts/e2e-messenger.mjs
  *
- * Sale con código 1 si algún check falla.
+ * Sai com código 1 se alguma verificação falhar.
  */
 import { createHmac } from "node:crypto";
 
@@ -23,7 +23,7 @@ const SECRET = "secreto-del-webhook-de-zernio";
 const RUN = Date.now().toString(36);
 const PSID_META = `psid-meta-${RUN}`;
 const PSID_ZERNIO = `psid-zernio-${RUN}`;
-/** Marca de esta corrida: el arnes se puede repetir sobre la misma base. */
+/** Marca desta execução: o arnês pode ser repetido sobre o mesmo banco. */
 const MARCA = `#${RUN}`;
 const NOMBRE_ZERNIO = `Jane Doe ${MARCA}`;
 
@@ -59,7 +59,7 @@ async function api(path, opts = {}) {
   return { res, json };
 }
 
-/** El proveedor entrega por POST sin cookies; la ruta lleva el segmento secreto. */
+/** O provedor entrega por POST sem cookies; a rota leva o segmento secreto. */
 async function webhook(payload, { token = VERIFY_TOKEN, signature } = {}) {
   const body = JSON.stringify(payload);
   return fetch(`${BASE}/api/webhooks/messenger/${token}`, {
@@ -98,7 +98,7 @@ function zernioEvent(over = {}) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/** La ingesta corre tras responder el webhook: se espera a que aparezca. */
+/** A ingestão roda depois de responder o webhook: aguarda-se que apareça. */
 async function waitForConversation(pred, tries = 25) {
   for (let i = 0; i < tries; i++) {
     const { json } = await api("/api/conversations");
@@ -257,7 +257,7 @@ async function main() {
   // ------------------------------------------------------------------
   console.log("\n===== FUENTE: ZERNIO =====");
   await fetch(`${BASE}/api/dev/zernio-mock/_reset`, { method: "POST" });
-  // 023: la cuenta se resuelve contra las de la llave; el simulador las sirve.
+  // 023: a conta é resolvida pelas da chave; o simulador as serve.
   await api("/api/dev/zernio-mock/_accounts", {
     method: "POST",
     body: JSON.stringify({
@@ -285,8 +285,8 @@ async function main() {
   });
   ok("una API key que Zernio rechaza NO se guarda → 422", badZ.res.status === 422, String(badZ.res.status));
 
-  // 023: sin accountId ya no es un error (se toma la única página de la
-  // llave; lo cubre e2e-canales). Lo que no se guarda es una cuenta ajena.
+  // 023: sem accountId já não é um erro (toma-se a única página da
+  // chave; isso é coberto por e2e-canales). O que não se salva é uma conta alheia.
   const noAccount = await api("/api/settings/messenger", {
     method: "PUT",
     body: JSON.stringify({ source: "zernio", accountRef: "no-es-de-esta-llave", token: "sk_test-ok" }),

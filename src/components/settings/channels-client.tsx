@@ -19,12 +19,12 @@ import { CHANNEL_LABEL, type Channel } from "@/lib/channels";
 import { cn } from "@/lib/utils";
 
 /**
- * 023 — Ajustes → Canales → Status.
+ * 023 — Ajustes → Canais → Status.
  *
- * Una fila por canal encendido con las tres cosas que alguien pregunta cuando
- * «no me llegan los mensajes»: ¿está conectado?, ¿cuándo entró el último? y,
- * si llega por Zernio, ¿siguen bien la cuenta y el webhook? La salud se le
- * pregunta a Zernio al abrir la pantalla; nada de esto se guarda.
+ * Uma linha por canal ligado com as três coisas que alguém pergunta quando
+ * «não chegam as mensagens»: está conectado?, quando entrou a última? e,
+ * se chega pelo Zernio, a conta e o webhook continuam certos? A saúde é
+ * consultada no Zernio ao abrir a tela; nada disso é salvo.
  */
 
 type Level = "ok" | "warn" | "error";
@@ -79,8 +79,8 @@ export function ChannelsClient() {
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  // La hora se fija al cargar: leer el reloj durante el render hace que el
-  // servidor y el navegador pinten textos distintos.
+  // A hora é fixada ao carregar: ler o relógio durante a renderização faz com que o
+  // servidor e o navegador desenhem textos diferentes.
   const [now, setNow] = useState(0);
 
   const refetch = useCallback(async () => {
@@ -101,8 +101,8 @@ export function ChannelsClient() {
 
   useEffect(() => {
     void refetch();
-    // La URL para quien prefiera crear el webhook a mano en Zernio: cualquiera
-    // de las tres sirve, porque el CRM reparte por red.
+    // A URL para quem preferir criar o webhook manualmente no Zernio: qualquer
+    // uma das três serve, porque o CRM distribui por rede.
     void fetch("/api/settings/webhook")
       .then((r) => (r.ok ? r.json() : null))
       .then((w) => setWebhookUrl(w?.instagramUrl ?? w?.messengerUrl ?? w?.tiktokUrl ?? null))
@@ -115,7 +115,7 @@ export function ChannelsClient() {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // sin portapapeles (contexto no seguro): el texto sigue visible
+      // sem área de transferência (contexto não seguro): o texto continua visível
     }
   }
 
@@ -314,8 +314,8 @@ export function ChannelsClient() {
 }
 
 /**
- * El distintivo dice lo peor que le pasa al canal: «Conectado» en verde encima
- * de una cuenta que Zernio pide reconectar sería la pantalla mintiendo.
+ * O distintivo informa o pior que acontece com o canal: «Conectado» em verde por cima
+ * de uma conta que o Zernio pede para reconectar seria a tela mentindo.
  */
 function Status({ row }: { row: Row }) {
   if (!row.connected) return <Badge variant="secondary">Não conectado</Badge>;

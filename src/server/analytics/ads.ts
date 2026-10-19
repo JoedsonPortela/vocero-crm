@@ -18,24 +18,24 @@ import {
 } from "@/server/analytics/shared";
 
 /**
- * 019 — De dónde llegan: por origen y por anuncio, SOLO en conteos.
+ * 019 — De onde chegam: por origem e por anúncio, SOMENTE em contagens.
  *
- * Sin gasto ni costo ni retorno (spec 019, D1-D2): lo único que el raíz sabe
- * de un anuncio es lo que Meta manda en el `referral` del webhook y la 018 ya
- * guarda. Contar conversaciones, prospectos y ventas no pide la API de
- * Marketing ni un conector.
+ * Sem gasto, custo ou retorno (spec 019, D1-D2): o único que a raiz sabe
+ * de um anúncio é o que a Meta envia no `referral` do webhook, e a 018 já
+ * guarda. Contar conversas, prospectos e vendas não exige a API de
+ * Marketing nem um conector.
  *
- * Tres conteos por fila, con significados que no se mezclan:
- *  - conversaciones: las que EMPEZARON en el periodo;
- *  - prospectos: los leads creados en el periodo;
- *  - ventas: de esos prospectos, los que hoy están en Ganado. Es una cohorte a
- *    propósito: así «ventas ÷ prospectos» es la conversión de la fila y no
- *    puede pasar de 100 %.
+ * Três contagens por linha, com significados que não se misturam:
+ *  - conversas: as que COMEÇARAM no período;
+ *  - prospectos: os leads criados no período;
+ *  - vendas: desses prospectos, os que hoje estão em Ganho. É uma coorte de
+ *    propósito: assim «vendas ÷ prospectos» é a conversão da linha e não
+ *    pode passar de 100 %.
  */
 
 const FUENTES: readonly SourceKey[] = [...SOURCE_VALUES, "desconocida"];
 
-/** Cuántas filas enseña la tabla por anuncio: más no se lee en una pantalla. */
+/** Quantas linhas a tabela por anúncio mostra: mais não se lê numa tela. */
 export const MAX_ANUNCIOS = 50;
 
 export async function adsBlock(
@@ -70,7 +70,7 @@ export async function adsBlock(
 type Conteo = { key: string | null; n: number };
 type ConteoLeads = { key: string | null; leads: number; won: number };
 
-/** Conversaciones reales que empezaron en el rango, por el origen del contacto. */
+/** Conversas reais que começaram no intervalo, pela origem do contato. */
 async function conversacionesPorFuente(
   organizationId: string,
   start: Date,
@@ -119,7 +119,7 @@ async function contarConversaciones(
   return rows[0]?.n ?? 0;
 }
 
-/** Prospectos creados en el rango y cuántos de ellos están hoy en Ganado. */
+/** Prospectos criados no intervalo e quantos deles estão hoje em Ganho. */
 async function prospectosPorFuente(
   organizationId: string,
   start: Date,
@@ -150,7 +150,7 @@ async function prospectosPorFuente(
     .groupBy(sql`1`);
 }
 
-/** Las filas por anuncio: la llave es el `source_id`, o la fila si no hay. */
+/** As linhas por anúncio: a chave é o `source_id`, ou a própria linha se não houver. */
 const llave = sql<string>`coalesce(${schema.adAttribution.sourceId}, ${schema.adAttribution.id})`;
 const metadatos = {
   sourceId: sql<string | null>`max(${schema.adAttribution.sourceId})`,
@@ -170,9 +170,9 @@ type Metadatos = {
 };
 
 /**
- * Conversaciones reales que empezaron en el rango, por el anuncio que las
- * abrió. Cada fila de `ad_attribution` es de UNA conversación (el primer
- * anuncio gana, 016), así que no hay doble conteo.
+ * Conversas reais que começaram no intervalo, pelo anúncio que as
+ * abriu. Cada linha de `ad_attribution` é de UMA conversa (o primeiro
+ * anúncio vence, 016), então não há contagem dupla.
  */
 async function conversacionesPorAnuncio(
   organizationId: string,
@@ -205,12 +205,12 @@ async function conversacionesPorAnuncio(
 }
 
 /**
- * Prospectos del periodo por el anuncio que los trajo, y cuántos están hoy en
- * Ganado.
+ * Prospectos do período pelo anúncio que os trouxe, e quantos estão hoje em
+ * Ganho.
  *
- * Cada contacto cuenta UNA vez, con su PRIMER anuncio (el que enseña su
- * ficha): unir contra todas sus filas lo contaría dos veces si escribió desde
- * dos conversaciones.
+ * Cada contato conta UMA vez, com seu PRIMEIRO anúncio (o que mostra sua
+ * ficha): juntar com todas as suas linhas o contaria duas vezes se escreveu desde
+ * duas conversas.
  */
 async function prospectosPorAnuncio(
   organizationId: string,
@@ -249,7 +249,7 @@ async function prospectosPorAnuncio(
     .groupBy(llave);
 }
 
-/** Las seis fuentes en su orden fijo, solo las que tienen algo. */
+/** As seis fontes na sua ordem fixa, só as que têm algo. */
 export function unirFuentes(convs: Conteo[], leads: ConteoLeads[]): SourceRowDto[] {
   const conv = new Map(convs.map((c) => [c.key ?? "desconocida", c.n]));
   const lead = new Map(leads.map((l) => [l.key ?? "desconocida", l]));
@@ -270,9 +270,9 @@ export function unirFuentes(convs: Conteo[], leads: ConteoLeads[]): SourceRowDto
 }
 
 /**
- * Une las dos vistas por anuncio. Más conversaciones primero; a igualdad, más
- * prospectos, y luego el anuncio que trajo a alguien más recientemente, que
- * es el que el dueño está mirando.
+ * Une as duas visões por anúncio. Mais conversas primeiro; em empate, mais
+ * prospectos, e depois o anúncio que trouxe alguém mais recentemente, que
+ * é o que o dono está olhando.
  */
 export function unirAnuncios(
   convs: (Metadatos & { conversations: number })[],
@@ -300,8 +300,8 @@ export function unirAnuncios(
     fila.leads = l.leads;
     fila.won = l.won;
     fila.winRate = rate(l.won, l.leads);
-    // La imagen se descarga una vez por anuncio y puede llegar después: la que
-    // haya, de cualquiera de las dos vistas.
+    // A imagem é baixada uma vez por anúncio e pode chegar depois: vale a que
+    // houver, de qualquer uma das duas visões.
     fila.imageAssetId ??= l.imageAssetId;
     fila.headline ??= l.headline;
     if (l.lastAt > fila.lastAt) fila.lastAt = l.lastAt;

@@ -21,7 +21,7 @@ const PAGE = "1092837465";
 const PSID = "83719264018";
 const ACCOUNT = "665f1c2e8b3a4d0012345678";
 
-/** Un webhook de Meta con lo que trae de verdad: `object: "page"`. */
+/** Um webhook da Meta com o que ele traz de verdade: `object: "page"`. */
 function metaWebhook(messaging: unknown[], overrides: Record<string, unknown> = {}) {
   return {
     object: "page",
@@ -30,7 +30,7 @@ function metaWebhook(messaging: unknown[], overrides: Record<string, unknown> = 
   };
 }
 
-/** Un evento de Zernio, con la forma de su documentación. */
+/** Um evento do Zernio, com o formato da sua documentação. */
 function zernioEvent(over: Record<string, unknown> = {}) {
   return {
     id: "5f8e2a1c-0000",
@@ -63,15 +63,15 @@ describe("017 · Messenger en el catálogo de canales", () => {
     expect(caps.outsideWindow).toBe("human_agent_tag");
     expect(caps.outboundMedia).toBe(false);
     expect(caps.deliveryReceipts).toBe(false);
-    // Fuera de ventana no se le pide nada al operador: sale etiquetado solo.
-    // 024: la extensión humana tiene tope (7 días) y su propio mensaje.
+    // Fora da janela não se pede nada ao operador: sai etiquetado sozinho.
+    // 024: a extensão humana tem teto (7 dias) e sua própria mensagem.
     expect(windowClosedMessage("messenger")).toContain("7 días");
   });
 
   it("el límite de texto es de 2000 y se cuenta en BYTES", () => {
     expect(textFits("messenger", "a".repeat(2000))).toBe(true);
     expect(textFits("messenger", "a".repeat(2001))).toBe(false);
-    // 1200 acentos = 2400 bytes: contando caracteres pasaría y Meta lo rechazaría.
+    // 1200 acentos = 2400 bytes: contando caracteres passaria e a Meta o rejeitaria.
     expect(textFits("messenger", "é".repeat(1200))).toBe(false);
   });
 
@@ -156,7 +156,7 @@ describe("017 · normalizeMetaPagePayload (qué entra y qué se descarta)", () =
     expect(normalizeMetaPagePayload(null)).toEqual([]);
     expect(normalizeMetaPagePayload("basura")).toEqual([]);
     expect(normalizeMetaPagePayload({ object: "page" })).toEqual([]);
-    // Un evento de Zernio NO debe colarse por el normalizador de Meta.
+    // Um evento do Zernio NÃO deve se infiltrar pelo normalizador da Meta.
     expect(normalizeMetaPagePayload(zernioEvent())).toEqual([]);
   });
 
@@ -186,7 +186,7 @@ describe("017 · normalizeZernioEvent (la fuente unificada)", () => {
     expect(evt?.messageId).toBe("665f0001");
     expect(evt?.text).toBe("Hola");
     expect(evt?.type).toBe("text");
-    // El conversationId es lo ÚNICO con lo que se puede responder por Zernio.
+    // O conversationId é o ÚNICO com que se pode responder pelo Zernio.
     expect(evt?.threadRef).toBe("664a0001");
     expect(evt?.profileName).toBe("Jane Doe");
   });
@@ -283,9 +283,9 @@ describe("017 · firma de Zernio (control de seguridad compartido)", () => {
 
 describe("017 · la hora del mensaje sale del evento, no de la ingesta", () => {
   it("usa `sentAt` cuando viene", () => {
-    // Importa porque `lastInboundAt` abre la ventana de 24 h: una reentrega
-    // tardía sellada con la hora de llegada haría creer que la ventana está
-    // abierta cuando la plataforma ya la cerró.
+    // Importa porque `lastInboundAt` abre a janela de 24 h: uma reentrega
+    // atrasada selada com a hora de chegada faria crer que a janela está
+    // aberta quando a plataforma já a fechou.
     expect(zernioSentAtSeconds("2026-09-02T00:56:04.336Z")).toBe("1788310564");
   });
 
@@ -317,16 +317,16 @@ describe("017 · la hora del mensaje sale del evento, no de la ingesta", () => {
 
 describe("017 · reparto de Zernio por plataforma (un webhook, varios canales)", () => {
   it("manda cada plataforma a su canal", () => {
-    // Zernio entrega TODAS las cuentas de la llave por un solo webhook: si
-    // cada canal atendiera solo su URL, quien tenga el webhook apuntado a
-    // Instagram vería sus mensajes de Messenger descartados en silencio.
+    // O Zernio entrega TODAS as contas da chave por um só webhook: se
+    // cada canal atendesse só a sua URL, quem tiver o webhook apontado para
+    // o Instagram veria suas mensagens do Messenger descartadas em silêncio.
     expect(zernioTargetChannel(zernioEvent({ account: { id: ACCOUNT, platform: "instagram" } }))).toBe("instagram");
     expect(zernioTargetChannel(zernioEvent({ account: { id: ACCOUNT, platform: "facebook" } }))).toBe("messenger");
     expect(zernioTargetChannel(zernioEvent({ account: { id: ACCOUNT, platform: "MESSENGER" } }))).toBe("messenger");
   });
 
   it("una plataforma que Vocero no atiende no es de nadie", () => {
-    // 022: `tiktok` salió de esta lista: ya es un canal (tests/unit/tiktok.test.ts).
+    // 022: `tiktok` saiu desta lista: agora é um canal (tests/unit/tiktok.test.ts).
     for (const platform of ["whatsapp", "x", "twitter", "linkedin", ""]) {
       expect(zernioTargetChannel(zernioEvent({ account: { id: ACCOUNT, platform } }))).toBeNull();
     }

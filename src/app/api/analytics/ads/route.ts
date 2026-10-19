@@ -5,8 +5,8 @@ import { adsBlock } from "@/server/analytics/ads";
 export const dynamic = "force-dynamic";
 
 /**
- * 019 — De dónde llegan: conversaciones, prospectos y ventas por origen y por
- * anuncio. Solo conteos: sin gasto, sin costo, sin retorno (spec 019, D1-D2).
+ * 019 — De onde chegam: conversas, prospects e vendas por origem e por
+ * anúncio. Só contagens: sem gasto, sem custo, sem retorno (spec 019, D1-D2).
  */
 export const GET = withAuth(async (session, req: Request) => {
   try {

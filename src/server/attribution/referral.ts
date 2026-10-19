@@ -1,15 +1,15 @@
 import type { WebhookReferral } from "@/server/inbox/webhook";
 
 /**
- * 018 — Del `referral` de WhatsApp a UN anuncio de origen.
+ * 018 — Do `referral` do WhatsApp a UM anúncio de origem.
  *
- * Puro a propósito: se prueba sin base de datos, y es la única puerta por la
- * que un payload externo llega a una columna. Tiene que aguantar entradas
- * hostiles, no solo las bonitas de la documentación de Meta.
+ * Puro de propósito: testa-se sem banco de dados, e é a única porta pela qual
+ * um payload externo chega a uma coluna. Tem que aguentar entradas
+ * hostis, não só as bonitas da documentação da Meta.
  *
- * Solo WhatsApp por ahora (spec 018, D3). Instagram y Messenger mandan otra
- * forma (`ad_id`, `ads_context_data`) y tendrán su propia función al lado de
- * esta, con la misma salida.
+ * Só WhatsApp por enquanto (spec 018, D3). Instagram e Messenger enviam outra
+ * forma (`ad_id`, `ads_context_data`) e terão a própria função ao lado de
+ * esta, com a mesma saída.
  */
 
 export type AnuncioDeOrigen = {
@@ -20,15 +20,15 @@ export type AnuncioDeOrigen = {
   body: string | null;
   mediaType: string | null;
   ctwaClid: string | null;
-  /** De dónde bajar la imagen del creativo; se valida antes de usarla. */
+  /** De onde baixar a imagem do criativo; valida-se antes de usá-la. */
   imageUrl: string | null;
-  /** El referral recortado, para no perder campos que Meta añada después. */
+  /** O referral recortado, para não perder campos que a Meta acrescentar depois. */
   raw: Record<string, unknown>;
 };
 
 /**
- * Cotas de lo que se guarda. El payload de Meta es corto, pero nada impide que
- * un webhook traiga un titular de un megabyte, y no tiene por qué acabar en la
+ * Limites do que é guardado. O payload da Meta é curto, mas nada impede que
+ * um webhook traga um título de um megabyte, e isso não precisa acabar na
  * base.
  */
 export const COTAS = {
@@ -36,11 +36,11 @@ export const COTAS = {
   titular: 300,
   texto: 2000,
   url: 2048,
-  /** Tamaño máximo del `raw` serializado. */
+  /** Tamanho máximo do `raw` serializado. */
   raw: 8_000,
 } as const;
 
-/** Claves de primer nivel que se conservan en `raw`. */
+/** Chaves de primeiro nível que são mantidas em `raw`. */
 const CLAVES_WHATSAPP = [
   "source_url",
   "source_id",
@@ -58,7 +58,7 @@ function esObjeto(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 
-/** Texto útil recortado, o null. Cualquier cosa que no sea texto no cuenta. */
+/** Texto útil recortado, ou null. Qualquer coisa que não seja texto não conta. */
 function texto(v: unknown, max: number): string | null {
   if (typeof v !== "string") return null;
   const limpio = v.trim();
@@ -67,9 +67,9 @@ function texto(v: unknown, max: number): string | null {
 }
 
 /**
- * Solo URLs http(s) completas: un `javascript:` jamás llega a un href. El http
- * pasa aquí porque el wa-mock sirve sus creativos así; la descarga y la tarjeta
- * vuelven a filtrar (https y hosts de Meta).
+ * Só URLs http(s) completas: um `javascript:` jamais chega a um href. O http
+ * passa aqui porque o wa-mock serve seus criativos assim; o download e o cartão
+ * filtram de novo (https e hosts da Meta).
  */
 function url(v: unknown): string | null {
   const t = texto(v, COTAS.url);
@@ -95,8 +95,8 @@ function recortarCampos(
 }
 
 /**
- * Si aun recortado el `raw` excede la cota, se queda con lo que identifica al
- * anuncio. Con cotas por campo no debería pasar, pero la cota total es la que
+ * Se, mesmo recortado, o `raw` exceder o limite, fica-se com o que identifica o
+ * anúncio. Com limites por campo isso não deveria acontecer, mas o limite total é o que
  * se promete.
  */
 function acotarRaw(raw: Record<string, unknown>, esencial: Record<string, unknown>) {
@@ -112,7 +112,7 @@ export function anuncioDeWhatsapp(referral: unknown): AnuncioDeOrigen | null {
   const ctwaClid = texto(r.ctwa_clid, COTAS.texto);
   const headline = texto(r.headline, COTAS.titular);
   const sourceUrl = url(r.source_url);
-  // Sin nada que identifique el anuncio no hay nada que enseñar.
+  // Sem nada que identifique o anúncio não há nada a mostrar.
   if (!sourceId && !ctwaClid && !headline && !sourceUrl) return null;
 
   const raw = recortarCampos(r, CLAVES_WHATSAPP);
@@ -124,16 +124,16 @@ export function anuncioDeWhatsapp(referral: unknown): AnuncioDeOrigen | null {
     body: texto(r.body, COTAS.texto),
     mediaType: texto(r.media_type, COTAS.id),
     ctwaClid,
-    // La miniatura pesa menos; `image_url` es el creativo completo.
+    // A miniatura pesa menos; `image_url` é o criativo completo.
     imageUrl: url(r.thumbnail_url) ?? url(r.image_url),
     raw: acotarRaw(raw, { source_id: sourceId, headline }),
   };
 }
 
 /**
- * 018 (D2) — Sin la bandera `ATRIBUCION`, el anuncio se guarda sin su
- * identificador de clic: ni en la columna ni dentro del `raw`. Una instancia que
- * no atribuye no acumula identificadores de Meta "por si acaso" (016).
+ * 018 (D2) — Sem a bandeira `ATRIBUCION`, o anúncio é guardado sem o seu
+ * identificador de clique: nem na coluna nem dentro do `raw`. Uma instância que
+ * não atribui não acumula identificadores da Meta "por via das dúvidas" (016).
  */
 export function sinIdentificadorDeClic(anuncio: AnuncioDeOrigen): AnuncioDeOrigen {
   const raw = { ...anuncio.raw };

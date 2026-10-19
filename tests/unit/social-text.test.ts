@@ -22,7 +22,7 @@ describe("024 · texto de la IA sin formato para redes", () => {
     expect(plainSocialText("Tenemos:\n- Martillos\n* Clavos\n+ Tornillos")).toBe(
       "Tenemos:\n• Martillos\n• Clavos\n• Tornillos"
     );
-    // Una lista numerada ya se lee bien.
+    // Uma lista numerada já se lê bem.
     expect(plainSocialText("1. Uno\n2. Dos")).toBe("1. Uno\n2. Dos");
   });
 

@@ -4,39 +4,39 @@ import { getTiktokCredentialsByAccountRef } from "@/server/tiktok/credentials";
 import { zernioSentAtSeconds, type ZernioEvent } from "@/server/zernio";
 
 /**
- * 022 — Entrada del canal de TikTok.
+ * 022 — Entrada do canal do TikTok.
  *
- * Una sola fuente (Zernio), un evento plano con `account`. Se normaliza aquí
- * y de ahí en adelante corre el MISMO núcleo de ingesta que los demás canales:
- * contacto, conversación, idempotencia, bus de eventos y turno del agente.
+ * Uma única fonte (a Zernio), um evento plano com `account`. Normaliza-se aqui
+ * e, dali em diante, roda o MESMO núcleo de ingestão dos demais canais:
+ * contato, conversa, idempotência, barramento de eventos e turno do agente.
  *
- * El normalizador es una función pura para poder probarlo sin base de datos:
- * qué se ingiere y qué se descarta es la parte que más fácil se rompe cuando
- * el proveedor cambia un campo.
+ * O normalizador é uma função pura para poder testá-lo sem banco de dados:
+ * o que se ingere e o que se descarta é a parte que mais facilmente quebra quando
+ * o provedor muda um campo.
  */
 
-/** Un mensaje entrante ya en la forma que entiende el núcleo. */
+/** Uma mensagem recebida já na forma que o núcleo entende. */
 export type TiktokInbound = {
-  /** `account.id` de Zernio: la llave de enrutado a la organización. */
+  /** `account.id` da Zernio: a chave de roteamento para a organização. */
   accountRef: string;
-  /** Id del remitente: la identidad del contacto (`tt:<id>`). */
+  /** Id do remetente: a identidade do contato (`tt:<id>`). */
   senderId: string;
-  /** Id del mensaje en Zernio, para deduplicar. */
+  /** Id da mensagem na Zernio, para deduplicar. */
   messageId: string;
   text: string | null;
   /** text | image | video | audio | document | sticker | unsupported */
   type: string;
-  /** Segundos desde epoch, como lo consume el núcleo. */
+  /** Segundos desde epoch, como o núcleo consome. */
   timestamp: string;
   profileName: string | null;
-  /** `conversationId` opaco de Zernio: hace falta para responder. */
+  /** `conversationId` opaco da Zernio: é necessário para responder. */
   threadRef: string | null;
 };
 
 /**
- * Tipos de adjunto → tipo de mensaje del CRM. El adjunto no se descarga
- * (Zernio lo entrega como URL temporal): el mensaje entra con su tipo para que
- * la bandeja enseñe qué llegó en vez de perderlo.
+ * Tipos de anexo → tipo de mensagem do CRM. O anexo não é baixado
+ * (a Zernio o entrega como URL temporária): a mensagem entra com seu tipo para que
+ * a caixa de entrada mostre o que chegou em vez de perdê-lo.
  */
 const ATTACHMENT_TYPE: Record<string, string> = {
   image: "image",
@@ -46,15 +46,15 @@ const ATTACHMENT_TYPE: Record<string, string> = {
   sticker: "sticker",
 };
 
-/** La plataforma del evento: Zernio la manda en la cuenta y en el mensaje. */
+/** A plataforma do evento: a Zernio a envia na conta e na mensagem. */
 export function zernioPlatform(evt: ZernioEvent | null): string {
   return (evt?.account?.platform ?? evt?.message?.platform ?? "").toLowerCase();
 }
 
 /**
- * Evento de Zernio → mensaje de TikTok, o nada. El MISMO webhook trae las
- * demás plataformas conectadas a esa llave: sin el filtro acabaríamos
- * ingiriendo un DM de Instagram como si fuera de TikTok.
+ * Evento da Zernio → mensagem do TikTok, ou nada. O MESMO webhook traz as
+ * demais plataformas conectadas a essa chave: sem o filtro acabaríamos
+ * ingerindo uma DM do Instagram como se fosse do TikTok.
  */
 export function normalizeZernioTiktokEvent(payload: unknown): TiktokInbound[] {
   const evt = payload as ZernioEvent | null;
@@ -62,8 +62,8 @@ export function normalizeZernioTiktokEvent(payload: unknown): TiktokInbound[] {
 
   if (zernioPlatform(evt) !== "tiktok") return [];
   if (evt.event !== "message.received") return [];
-  // `message.sent` no llega aquí, pero un evento marcado saliente tampoco es
-  // algo que el cliente dijo.
+  // `message.sent` não chega aqui, mas um evento marcado como saída também não é
+  // algo que o cliente disse.
   if (evt.message?.direction && evt.message.direction !== "incoming") return [];
 
   const accountRef = evt.account?.id ?? evt.account?.accountId;
@@ -95,7 +95,7 @@ export function normalizeZernioTiktokEvent(payload: unknown): TiktokInbound[] {
       profileName:
         sender?.name?.trim() ||
         (sender?.username ? `@${sender.username.replace(/^@/, "")}` : null),
-      // Opaco por contrato: se guarda tal cual y no se parsea.
+      // Opaco por contrato: é guardado tal como está e não se interpreta.
       threadRef: evt.message?.conversationId ?? evt.conversation?.id ?? null,
     },
   ];
@@ -121,8 +121,8 @@ export async function processZernioTiktokEvent(payload: unknown): Promise<void> 
         waUserId: null,
         profileName: evt.profileName,
       },
-      // Prefijado para que no colisione jamás con un id de otro canal en el
-      // índice único de mensajes.
+      // Prefixado para que jamais colida com um id de outro canal no
+      // índice único de mensagens.
       waMessageId: `tt_${evt.messageId}`,
       type: evt.type,
       text: evt.text,

@@ -1,15 +1,15 @@
 import type { PriorityValue } from "@/lib/types";
 
 /**
- * Prioridad de cierre del lead.
+ * Prioridade de fechamento do lead.
  *
- * La fija el dueño y NADA la escribe automáticamente. Un CRM que adivina la
- * prioridad y la pisa cuando cambia de opinión es un CRM en el que se deja de
- * confiar: NULL significa "nadie la ha decidido", no "media".
+ * Quem a define é o dono, e NADA a escreve automaticamente. Um CRM que adivinha a
+ * prioridade e a sobrescreve quando muda de ideia é um CRM em que se deixa de
+ * confiar: NULL significa "ninguém a decidiu", não "média".
  *
- * Sin sugerencias a propósito. Deducirla exigiría señales que este CRM no tiene
- * (¿está calificado? ¿respondió?), y una sugerencia calculada con dos datos
- * pobres se equivoca lo bastante como para que el dueño deje de mirarla.
+ * Sem sugestões de propósito. Deduzi-la exigiria sinais que este CRM não tem
+ * (está qualificado? respondeu?), e uma sugestão calculada com dois dados
+ * pobres erra o bastante para que o dono deixe de olhá-la.
  */
 
 export const PRIORITY_VALUES: readonly PriorityValue[] = ["alta", "media", "baja"];
@@ -24,7 +24,7 @@ export function isPriority(v: unknown): v is PriorityValue {
   return typeof v === "string" && (PRIORITY_VALUES as readonly string[]).includes(v);
 }
 
-/** Orden de trabajo: alta primero, y lo que no tiene prioridad va al final. */
+/** Ordem de trabalho: alta primeiro, e o que não tem prioridade vai para o fim. */
 export const PRIORITY_RANK: Record<PriorityValue, number> = {
   alta: 0,
   media: 1,
@@ -36,8 +36,8 @@ export function priorityRank(value: PriorityValue | null): number {
 }
 
 /**
- * Ordena por prioridad y, a igualdad, deja el orden que traía. Los leads sin
- * prioridad quedan al final: no son urgentes, pero tampoco se esconden.
+ * Ordena por prioridade e, em caso de empate, mantém a ordem que trazia. Os leads sem
+ * prioridade ficam no fim: não são urgentes, mas também não se escondem.
  */
 export function byPriority<T extends { priority: PriorityValue | null }>(
   leads: readonly T[]

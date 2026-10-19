@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { parseAgendaFlag } from "@/server/agenda/flag";
 
 /**
- * 015 — La bandera de la agenda. El caso que importa es el DEFAULT: una
- * instancia que no la pidió no debe acabar con la agenda encendida por un
- * despiste de configuración.
+ * 015 — A flag da agenda. O caso que importa é o DEFAULT: uma
+ * instância que não a pediu não deve acabar com a agenda ligada por um
+ * descuido de configuração.
  */
 
 describe("parseAgendaFlag", () => {
@@ -35,7 +35,7 @@ describe("parseAgendaFlag", () => {
     expect(parseAgendaFlag("0")).toBe(false);
     expect(parseAgendaFlag("no")).toBe(false);
     expect(parseAgendaFlag("agenda")).toBe(false);
-    // Un typo no enciende nada: apagada es el estado seguro.
+    // Um erro de digitação não liga nada: desligada é o estado seguro.
     expect(parseAgendaFlag("onn")).toBe(false);
   });
 });

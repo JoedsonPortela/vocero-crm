@@ -4,10 +4,10 @@ import { getWaMockState } from "@/server/dev/wa-mock-state";
 export const dynamic = "force-dynamic";
 
 /**
- * Lo que el CRM le ha registrado a «Meta»: la suscripción de cada WABA (con su
- * override, si alguien lo puso) y el override de webhook de cada número. Para
- * que un self-test compruebe que guardar la conexión dejó el webhook puesto, y
- * que desconectar lo quitó, sin mirar dentro del CRM.
+ * O que o CRM registrou na «Meta»: a inscrição de cada WABA (com o seu
+ * override, se alguém definiu) e o override de webhook de cada número. Para
+ * que um self-test confira que salvar a conexão deixou o webhook definido, e
+ * que desconectar o removeu, sem olhar dentro do CRM.
  */
 export async function GET() {
   const guard = mockGuard();

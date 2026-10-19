@@ -1,11 +1,11 @@
 /**
- * 015 — Estado del mock de Zoom (solo entorno de pruebas).
+ * 015 — Estado do mock do Zoom (somente ambiente de testes).
  *
- * Existe para que el self-test pueda AFIRMAR sobre lo que el CRM le mandó al
- * proveedor —no solo que la petición no falló—: qué reunión se creó, que
- * moverla usó el mismo id, y que cancelarla la borró. Y para que el sandbox
- * del Laboratorio se pueda verificar por ausencia: tras una corrida de prueba,
- * este estado tiene que estar VACÍO.
+ * Existe para que o self-test possa AFIRMAR sobre o que o CRM enviou ao
+ * provedor —não só que a requisição não falhou—: qual reunião foi criada, que
+ * movê-la usou o mesmo id, e que cancelá-la a apagou. E para que o sandbox
+ * do Laboratório possa ser verificado por ausência: após uma execução de teste,
+ * este estado tem que estar VAZIO.
  */
 
 export type MockMeeting = {
@@ -49,10 +49,10 @@ export function zoomMockSnapshot() {
 }
 
 /**
- * El camino infeliz, determinista: un secreto terminado en `-invalid` hace que
- * el mock rechace la autenticación. Sin esto, el self-test solo podría probar
- * que todo sale bien — y lo que hay que probar es que cuando el proveedor
- * falla, la cita se crea igual.
+ * O caminho infeliz, determinista: um segredo terminado em `-invalid` faz com
+ * que o mock rejeite a autenticação. Sem isto, o self-test só poderia testar
+ * que tudo sai bem — e o que precisa ser testado é que, quando o provedor
+ * falha, o agendamento é criado mesmo assim.
  */
 export function mockCredentialsAreBad(authHeader: string | null): boolean {
   if (!authHeader?.startsWith("Basic ")) return true;

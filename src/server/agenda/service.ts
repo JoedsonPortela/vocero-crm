@@ -26,19 +26,19 @@ import { moveLeadToStage } from "@/server/leads/stage-history";
 import { publish } from "@/server/events/bus";
 
 /**
- * 015 — Ciclo de vida de la cita y las dos reglas INNEGOCIABLES:
+ * 015 — Ciclo de vida do agendamento e as duas regras INEGOCIÁVEIS:
  *
- *  1. Quien conduce la conversación (agente in-process o cerebro externo) solo
- *     puede reservar un instante que ya se ofreció a ESA conversación
- *     (`offered_slot`, comparación por epoch exacto).
- *  2. Al confirmar se re-valida el hueco y la base lo cierra con su índice
- *     único parcial; si se ocupó, se responde `slot_taken` con alternativas
- *     frescas y NO se crea nada. Nunca se confirma una reserva que no se creó.
+ *  1. Quem conduz a conversa (agente in-process ou cérebro externo) só
+ *     pode reservar um instante que já foi ofertado a ESTA conversa
+ *     (`offered_slot`, comparação por epoch exato).
+ *  2. Ao confirmar, revalida-se o horário e o banco o fecha com seu índice
+ *     único parcial; se estiver ocupado, responde-se `slot_taken` com alternativas
+ *     frescas e NADA é criado. Nunca se confirma uma reserva que não foi criada.
  *
- * Y una regla de honestidad: la entrega de la reunión (el conector) corre
- * DESPUÉS de escribir la verdad del CRM y es best-effort. Si el proveedor está
- * caído, la cita se crea igual con el enlace pendiente — un tercero no puede
- * costarnos la conversión, ni hacernos prometer un enlace que no existe.
+ * E uma regra de honestidade: a entrega da reunião (o conector) roda
+ * DEPOIS de gravar a verdade do CRM e é best-effort. Se o provedor estiver
+ * fora do ar, o agendamento é criado mesmo assim com o link pendente — um terceiro não pode
+ * nos custar a conversão, nem nos fazer prometer um link que não existe.
  */
 
 export type BookingErrorCode =
@@ -50,9 +50,9 @@ export type BookingErrorCode =
 export class BookingError extends Error {
   code: BookingErrorCode;
   /**
-   * Horarios para re-ofrecer. En `slot_taken` son alternativas frescas YA
-   * registradas como la nueva oferta de la conversación; en `slot_not_offered`
-   * es lo que sí se había ofrecido.
+   * Horários para re-ofertar. Em `slot_taken` são alternativas frescas JÁ
+   * registradas como a nova oferta da conversa; em `slot_not_offered`
+   * é o que de fato tinha sido ofertado.
    */
   slots: OfferedSlot[];
 
@@ -77,22 +77,22 @@ export type BookingResult = {
   label: string;
 };
 
-/** Cuántas alternativas se devuelven cuando el hueco se ocupó. */
+/** Quantas alternativas são devolvidas quando o horário foi ocupado. */
 const FRESH_ALTERNATIVES = 3;
 
 export async function createSessionBooking(input: {
   organizationId: string;
   startUtc: string;
   source: "manual" | "ai";
-  /** Obligatoria en el camino conversacional; de ella sale el contacto. */
+  /** Obrigatória no caminho conversacional; dela sai o contato. */
   conversationId?: string | null;
-  /** Camino manual del operador. */
+  /** Caminho manual do operador. */
   contactId?: string | null;
   notes?: string | null;
   /**
-   * true ⇒ exige que el instante figure entre los ofrecidos a la conversación
-   * (agente/bot). El operador elige de la disponibilidad que está viendo, así
-   * que reserva sin oferta previa.
+   * true ⇒ exige que o instante conste entre os ofertados à conversa
+   * (agente/bot). O operador escolhe da disponibilidade que está vendo, então
+   * reserva sem oferta prévia.
    */
   requireOffer: boolean;
   now?: Date;
@@ -104,7 +104,7 @@ export async function createSessionBooking(input: {
     throw new BookingError("invalid", "Instante inválido");
   }
 
-  // Contexto de la conversación: contacto y si es del Laboratorio.
+  // Contexto da conversa: contato e se é do Laboratório.
   let isTest = false;
   let contactId = input.contactId ?? null;
   let contactName = "";
@@ -134,7 +134,7 @@ export async function createSessionBooking(input: {
   }
   contactName = await getContactName(input.organizationId, contactId);
 
-  // REGLA 1: solo se reserva lo que se ofreció.
+  // REGRA 1: só se reserva o que foi ofertado.
   if (input.requireOffer) {
     if (!input.conversationId) {
       throw new BookingError(
@@ -152,7 +152,7 @@ export async function createSessionBooking(input: {
     }
   }
 
-  // REGLA 2 (primera mitad): el hueco debe seguir libre AHORA.
+  // REGRA 2 (primeira metade): o horário deve continuar livre AGORA.
   const slot = await findSlot(input.organizationId, input.startUtc, {
     now: input.now,
     settings,
@@ -193,8 +193,8 @@ export async function createSessionBooking(input: {
         leadId: leadRows[0]?.id ?? null,
         scheduledAt: new Date(slot.startUtc),
         durationMinutes: settings.slotMinutes,
-        // Copia histórica: si el negocio cambia de conector, esta cita conserva
-        // el que le tocó y sigue hablando con él al moverse o cancelarse.
+        // Cópia histórica: se o negócio trocar de conector, este agendamento mantém
+        // o que lhe coube e continua falando com ele ao ser movido ou cancelado.
         connector: settings.connector,
         isTest,
         notes: input.notes ?? null,
@@ -202,9 +202,9 @@ export async function createSessionBooking(input: {
       .returning();
     booking = inserted[0]!;
   } catch (err) {
-    // REGLA 2 (segunda mitad): la llave única cierra la carrera exacta. Dos
-    // confirmaciones simultáneas del mismo instante — la perdedora sale por
-    // aquí, sin cita creada.
+    // REGRA 2 (segunda metade): a chave única fecha a corrida exata. Duas
+    // confirmações simultâneas do mesmo instante — a perdedora sai por
+    // aqui, sem agendamento criado.
     if (isUniqueViolation(err)) {
       throw new BookingError(
         "slot_taken",
@@ -217,7 +217,7 @@ export async function createSessionBooking(input: {
     throw err;
   }
 
-  // La oferta cumplió su propósito.
+  // A oferta cumpriu seu propósito.
   if (input.conversationId) {
     await clearOffers(input.organizationId, input.conversationId).catch(
       (err) => {
@@ -226,7 +226,7 @@ export async function createSessionBooking(input: {
     );
   }
 
-  // Efectos secundarios: ninguno puede revertir la cita.
+  // Efeitos colaterais: nenhum pode reverter o agendamento.
   const delivered = await deliverMeeting(booking, settings, contactName);
   await advanceLeadStage(
     input.organizationId,
@@ -299,7 +299,7 @@ export async function rescheduleBooking(input: {
   }
 
   const settings = await getSettings(input.organizationId);
-  // excludeBookingId: la propia cita no debe bloquearse a sí misma.
+  // excludeBookingId: o próprio agendamento não deve bloquear a si mesmo.
   const slot = await findSlot(input.organizationId, input.startUtc, {
     excludeBookingId: booking.id,
     now: input.now,
@@ -324,9 +324,9 @@ export async function rescheduleBooking(input: {
     throw err;
   }
 
-  // Mover la reunión en el proveedor conserva el enlace: es la MISMA reunión,
-  // en otra hora. Un fallo aquí no deshace nada — el enlace anterior sigue
-  // sirviendo en la práctica.
+  // Mover a reunião no provedor mantém o link: é a MESMA reunião,
+  // em outro horário. Uma falha aqui não desfaz nada — o link anterior segue
+  // funcionando na prática.
   await withConnector(next, settings, async (conn, externalRef) => {
     await conn.updateMeeting(externalRef, {
       startUtc: slot.startUtc,
@@ -348,9 +348,9 @@ export async function rescheduleBooking(input: {
 }
 
 /**
- * Reprograma la PRÓXIMA cita activa de la conversación. Es el camino del
- * agente: mover una cita no debería obligar a pausar la IA y pasarle el
- * problema a un humano.
+ * Reagenda o PRÓXIMO agendamento ativo da conversa. É o caminho do
+ * agente: mover um agendamento não deveria obrigar a pausar a IA e passar o
+ * problema para um humano.
  */
 export async function rescheduleForConversation(input: {
   organizationId: string;
@@ -375,7 +375,7 @@ export async function rescheduleForConversation(input: {
   const conv = convRows[0];
   if (!conv) throw new BookingError("not_found", "Conversación no encontrada");
 
-  // Mismas reglas que al crear: el instante nuevo tiene que haberse ofrecido.
+  // Mesmas regras de criar: o novo instante precisa ter sido ofertado.
   const offers = await getOffers(input.organizationId, input.conversationId);
   if (!findOffered(offers, input.startUtc)) {
     throw new BookingError(
@@ -418,7 +418,7 @@ export async function rescheduleForConversation(input: {
   return result;
 }
 
-/** Idempotente: cancelar una cita ya cancelada no falla ni cambia nada. */
+/** Idempotente: cancelar um agendamento já cancelado não falha nem muda nada. */
 export async function cancelBooking(input: {
   organizationId: string;
   bookingId: string;
@@ -456,7 +456,7 @@ export async function markBookingStatus(input: {
       .set({ status: input.status, updatedAt: new Date() })
       .where(eq(schema.booking.id, booking.id));
   } catch (err) {
-    // Reactivar a `realizada` un instante que otra cita ya ocupa.
+    // Reativar para `realizada` um instante que outro agendamento já ocupa.
     if (isUniqueViolation(err)) {
       throw new BookingError("slot_taken", "Ese horario ya está ocupado");
     }
@@ -469,11 +469,11 @@ export async function markBookingStatus(input: {
 }
 
 /**
- * Reintenta la entrega de una cita que quedó sin enlace porque el proveedor
- * falló. Habla con el conector con el que NACIÓ la cita, no con el activo.
+ * Tenta de novo a entrega de um agendamento que ficou sem link porque o provedor
+ * falhou. Fala com o conector com o qual o agendamento NASCEU, não com o ativo.
  *
- * Sin esto, un hipo del proveedor sería una pérdida silenciosa que nadie
- * repara — que es exactamente lo que pasa hoy en el fork.
+ * Sem isso, um soluço do provedor seria uma perda silenciosa que ninguém
+ * conserta — que é exatamente o que acontece hoje no fork.
  */
 export async function retryMeetingLink(input: {
   organizationId: string;
@@ -502,11 +502,11 @@ export async function retryMeetingLink(input: {
 }
 
 /**
- * Crea la reunión en el proveedor y la guarda en la cita.
+ * Cria a reunião no provedor e a guarda no agendamento.
  *
- * SANDBOX: una cita del Laboratorio jamás llega a un conector. La aserción va
- * aquí, ANTES de resolver cuál es, para que valga igual para todos — hoy y
- * para el que agregue un fork mañana.
+ * SANDBOX: um agendamento do Laboratório jamais chega a um conector. A asserção fica
+ * aqui, ANTES de resolver qual é, para que valha igual para todos — hoje e
+ * para o que for adicionado num fork amanhã.
  */
 async function deliverMeeting(
   booking: BookingRow,
@@ -523,9 +523,9 @@ async function deliverMeeting(
       settings
     );
 
-    // Si la cita YA tiene reunión, esto es un reintento: se vuelve a leer, no
-    // se crea otra. Sin esta rama, reintentar el enlace de un evento de Google
-    // dejaría al dueño con dos citas en su calendario.
+    // Se o agendamento JÁ tem reunião, isto é uma nova tentativa: relê-se, não
+    // cria-se outra. Sem esta ramificação, tentar de novo o link de um evento do Google
+    // deixaria o dono com dois agendamentos na sua agenda.
     const meeting =
       booking.externalRef && conn.refreshMeeting
         ? await conn.refreshMeeting(booking.externalRef)
@@ -540,9 +540,9 @@ async function deliverMeeting(
     return await persistDelivery(booking.id, {
       externalRef: meeting.externalId ?? booking.externalRef,
       meetingLink: meeting.joinUrl,
-      // Un conector que promete enlace por cita y no lo trajo todavía deja la
-      // cita "sin enlace" — reintentable. `enlace-fijo` sin sala configurada,
-      // en cambio, no tiene nada pendiente: simplemente no hay enlace.
+      // Um conector que promete link por agendamento e ainda não o trouxe deixa o
+      // agendamento "sem link" — reintentável. O `enlace-fijo` sem sala configurada,
+      // em compensação, não tem nada pendente: simplesmente não há link.
       linkPending: CONNECTOR_META[connectorId].perBookingLink && !meeting.joinUrl,
     });
   } catch (err) {
@@ -554,9 +554,9 @@ async function deliverMeeting(
         () => {}
       );
     }
-    // La cita ya existe y se queda: el enlace es lo único que falta. Se
-    // conserva la referencia externa si ya la había, para que el reintento
-    // sepa que no debe crear otra reunión.
+    // O agendamento já existe e fica: o link é o único que falta. Mantém-se a
+    // referência externa se ela já existia, para que a nova tentativa
+    // saiba que não deve criar outra reunião.
     return await persistDelivery(booking.id, {
       externalRef: booking.externalRef,
       meetingLink: null,
@@ -583,9 +583,9 @@ async function persistDelivery(
 }
 
 /**
- * Corre un efecto sobre el proveedor de una cita ya creada (mover, borrar).
- * Best-effort y con el mismo guardarraíl de sandbox. Sin `external_ref` no hay
- * nada que mover: el conector no generó reunión (p. ej. el enlace fijo).
+ * Executa um efeito sobre o provedor de um agendamento já criado (mover, apagar).
+ * Best-effort e com a mesma proteção de sandbox. Sem `external_ref` não há
+ * nada a mover: o conector não gerou reunião (p. ex. o link fixo).
  */
 async function withConnector(
   booking: BookingRow,
@@ -615,9 +615,9 @@ async function withConnector(
 }
 
 /**
- * Alternativas frescas para re-ofrecer. Si hay conversación, quedan
- * REGISTRADAS como su nueva oferta: el cliente puede aceptar una de inmediato
- * y la validación seguirá siendo válida.
+ * Alternativas frescas para re-ofertar. Se houver conversa, ficam
+ * REGISTRADAS como a sua nova oferta: o cliente pode aceitar uma de imediato
+ * e a validação continuará válida.
  */
 async function refreshOffer(
   organizationId: string,
@@ -686,13 +686,13 @@ async function getContactName(
 }
 
 /**
- * El lead avanza a la siguiente etapa abierta al agendar — solo hacia adelante,
+ * O lead avança para a próxima etapa aberta ao agendar — só para a frente,
  * nunca retrocede.
  *
- * Pasa por `moveLeadToStage`, la única puerta que puede escribir `stage_id`:
- * mover el lead y registrar el movimiento en la bitácora son la misma
- * operación. Escribir el UPDATE aquí no truena, solo hace que las gráficas
- * mientan meses después — y hay un test de vigilancia que lo impide.
+ * Passa por `moveLeadToStage`, a única porta que pode escrever `stage_id`:
+ * mover o lead e registrar a movimentação no histórico são a mesma
+ * operação. Escrever o UPDATE aqui não quebra na hora, só faz os gráficos
+ * mentirem meses depois — e há um teste de vigilância que impede isso.
  */
 async function advanceLeadStage(
   organizationId: string,
@@ -738,10 +738,10 @@ async function advanceLeadStage(
   });
 }
 
-/** Citas que ocupan agenda de verdad. */
+/** Agendamentos que ocupam a agenda de verdade. */
 export const ACTIVE_STATUSES = ["agendada", "realizada"] as const;
 
-/** ¿Hay alguna cita activa para este contacto? Lo usa el agente. */
+/** Há algum agendamento ativo para este contato? Usado pelo agente. */
 export async function hasActiveBooking(
   organizationId: string,
   contactId: string,

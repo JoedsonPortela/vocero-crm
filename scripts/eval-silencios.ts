@@ -1,21 +1,21 @@
 /**
- * 029 — ¿El agente incluido se queda callado cuando le toca contestar?
+ * 029 — O agente incluído fica em silêncio quando lhe cabe responder?
  *
- * Mide el prompt real (`src/server/ai/prompts.ts`) contra el modelo real: un
- * negocio de ejemplo, una lista de mensajes y varias vueltas de cada uno, con
- * los mismos reintentos que `chatJson`. Los saludos, las pruebas y las
- * preguntas tienen que contestarse siempre; los cierres («ok gracias», «👍»)
- * pueden quedar en silencio.
+ * Mede o prompt real (`src/server/ai/prompts.ts`) contra o modelo real: um
+ * negócio de exemplo, uma lista de mensagens e várias voltas de cada uma, com
+ * as mesmas tentativas de `chatJson`. As saudações, os testes e as
+ * perguntas precisam ser sempre respondidos; os encerramentos («ok gracias», «👍»)
+ * podem ficar em silêncio.
  *
- * Gasta dinero real (centavos) y por eso NO corre en CI. Usa la llave y el
- * modelo del `.env` (`OPENROUTER_API_TOKEN`, `OPENROUTER_BASE_URL`,
- * `OPENROUTER_MODEL`); el modelo se puede cambiar con `EVAL_MODEL`.
+ * Gasta dinheiro real (centavos) e por isso NÃO roda no CI. Usa a chave e o
+ * modelo do `.env` (`OPENROUTER_API_TOKEN`, `OPENROUTER_BASE_URL`,
+ * `OPENROUTER_MODEL`); o modelo pode ser trocado com `EVAL_MODEL`.
  *
- *   pnpm eval:silencios            # 6 vueltas por mensaje
+ *   pnpm eval:silencios            # 6 voltas por mensagem
  *   EVAL_VUELTAS=10 EVAL_MODEL=openai/gpt-4o-mini pnpm eval:silencios
  *
- * Sale distinto de cero si algún mensaje que debía contestarse se quedó sin
- * respuesta o si algún turno agotó los reintentos.
+ * Sai com código diferente de zero se alguma mensagem que devia ser respondida
+ * ficou sem resposta ou se algum turno esgotou as novas tentativas.
  */
 import { agentActionSchema, type AgentActionType } from "@/server/ai/actions";
 import { buildAgentSystemPrompt, TURN_FORMAT_REMINDER } from "@/server/ai/prompts";
@@ -34,7 +34,7 @@ if (!token || !model) {
   process.exit(2);
 }
 
-// Un consultorio de ejemplo, como los que configura cualquier instalación.
+// Um consultório de exemplo, como os que qualquer instalação configura.
 const profile = {
   name: "Sofía",
   tone: "Cálido, respetuoso y claro. Habla de usted, con frases cortas.",
@@ -57,7 +57,7 @@ const precio = "La consulta general cuesta $600 MXN. ¿Le gustaría agendar una?
 const u = (content: string): Msg => ({ role: "user", content });
 const a = (content: string): Msg => ({ role: "assistant", content });
 
-/** [nombre, historial, ¿callar está bien?] */
+ /** [nome, histórico, ficar em silêncio está bem?] */
 const escenarios: [string, Msg[], boolean][] = [
   ["«Hola»", [u("Hola")], false],
   ["«Buenas tardes»", [u("Buenas tardes")], false],
@@ -76,7 +76,7 @@ const schema = agentActionSchema(false);
 
 type Turno = { action: AgentActionType | null; intentos: number };
 
-/** Igual que el pipeline y `chatJson`: recordatorio al final, 3 intentos. */
+ /** Igual ao pipeline e ao `chatJson`: lembrete no final, 3 tentativas. */
 async function turno(historial: Msg[]): Promise<Turno> {
   for (let intento = 1; intento <= 3; intento++) {
     const messages: Msg[] = [
@@ -99,13 +99,13 @@ async function turno(historial: Msg[]): Promise<Turno> {
       const parsed = schema.safeParse(JSON.parse(raw.slice(desde, hasta + 1)));
       if (parsed.success) return { action: parsed.data, intentos: intento };
     } catch {
-      // sin JSON: siguiente intento, como chatJson
+      // sem JSON: próxima tentativa, como no chatJson
     }
   }
   return { action: null, intentos: 3 };
 }
 
-/** El cliente no recibe nada con esta acción. */
+ /** O cliente não recebe nada com esta ação. */
 function sinRespuesta(x: AgentActionType | null): boolean {
   if (!x) return true;
   if (x.action === "none") return true;

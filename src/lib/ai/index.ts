@@ -8,13 +8,13 @@ import {
 import { marcarEstadoPorRespuesta } from "@/server/ai/credentials";
 
 /**
- * Adaptador LLM OpenRouter-compatible — ÚNICA frontera con el proveedor de IA
- * (Constitución II). Regla operativa: la salida del modelo es impredecible;
- * todo consumo pasa por extracción robusta + Zod + reintentos, y un hipo del
- * proveedor jamás propaga excepción (resultado `error` tipado).
+ * Adaptador LLM compatível com OpenRouter — ÚNICA fronteira com o provedor de IA
+ * (Constituição II). Regra operacional: a saída do modelo é imprevisível;
+ * todo consumo passa por extração robusta + Zod + novas tentativas, e uma falha pontual do
+ * provedor jamais propaga exceção (resultado `error` tipado).
  *
- * Con quién habla lo decide `lib/ai/provider.ts`: la fila de Ajustes → IA de
- * la organización, y si no hay, las variables `OPENROUTER_*` del entorno.
+ * Com quem fala quem decide é `lib/ai/provider.ts`: a linha de Ajustes → IA da
+ * organização, e se não houver, as variáveis `OPENROUTER_*` do ambiente.
  */
 
 export type ChatMessage = {
@@ -29,7 +29,7 @@ export type ChatJsonResult<T> =
 const MAX_ATTEMPTS = 3;
 const RETRY_DELAY_MS = 500;
 
-/** El proveedor contestó con un código HTTP de error. */
+/** O provedor respondeu com um código HTTP de erro. */
 export class ProviderHttpError extends Error {
   constructor(
     readonly status: number,
@@ -48,8 +48,8 @@ export async function chatJson<T>(
     judge?: boolean;
     timeoutMs?: number;
     /**
-     * De quién es la configuración con la que se paga esta llamada. Sin ella
-     * solo cuenta el entorno: no hay fila que consultar ni que pausar.
+     * De quem é a configuração com a qual esta chamada é paga. Sem ela
+     * só conta o ambiente: não há linha para consultar nem para pausar.
      */
     organizationId?: string;
   }
@@ -109,14 +109,14 @@ export async function chatJson<T>(
     } catch (err) {
       lastDetail = err instanceof Error ? err.message : String(err);
       /**
-       * El estado de la credencial lo dicta QUIEN COBRA, no la UI.
+       * O estado da credencial é ditado por QUEM COBRA, não pela UI.
        *
-       * Si el proveedor dijo 401 o 402 sobre la llave guardada en Ajustes → IA,
-       * la credencial queda pausada y se deja de intentar: reintentar una
-       * llave que el proveedor rechaza solo gasta tiempo, y el turno ya está
-       * perdido. Un 429 o un 500 NO pausan (ver `estadoSegunRespuesta`), así
-       * que ahí sí se reintenta. La llave del entorno no tiene fila que
-       * pausar: ahí se reintenta como siempre.
+       * Se o provedor disse 401 ou 402 sobre a chave salva em Ajustes → IA,
+       * a credencial fica pausada e para-se de tentar: tentar de novo uma
+       * chave que o provedor recusa só gasta tempo, e o turno já está
+       * perdido. Um 429 ou um 500 NÃO pausam (ver `estadoSegunRespuesta`), então
+       * aí sim se tenta de novo. A chave do ambiente não tem linha para
+       * pausar: ali se tenta como sempre.
        */
       if (
         err instanceof ProviderHttpError &&
@@ -168,7 +168,7 @@ async function callProvider(
     const res = await fetch(chatCompletionsUrl(provider.baseUrl), {
       method: "POST",
       headers: {
-        // El token jamás se loguea; solo viaja en este header.
+        // O token jamais é logado; só trafega neste header.
         Authorization: `Bearer ${provider.token}`,
         "Content-Type": "application/json",
       },
@@ -193,9 +193,9 @@ async function callProvider(
 }
 
 /**
- * Extracción robusta de JSON de una respuesta de modelo:
- * 1) bloque ```json ... ``` (o ``` ... ```), 2) el texto completo,
- * 3) del primer `{` al último `}`.
+ * Extração robusta de JSON de uma resposta de modelo:
+ * 1) bloco ```json ... ``` (ou ``` ... ```), 2) o texto completo,
+ * 3) do primeiro `{` ao último `}`.
  */
 export function extractJson(raw: string): unknown | null {
   const candidates: string[] = [];
@@ -211,7 +211,7 @@ export function extractJson(raw: string): unknown | null {
     try {
       return JSON.parse(c);
     } catch {
-      // siguiente candidato
+      // próximo candidato
     }
   }
   return null;

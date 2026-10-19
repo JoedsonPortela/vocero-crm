@@ -1,21 +1,21 @@
 /**
- * Self-test E2E de comportamiento — 024: texto del agente en redes y ventana
- * de atención humana.
+ * Self-test E2E de comportamento — 024: texto do agente nas redes e janela
+ * de atendimento humano.
  *
- * Conduce la app real con los simuladores: mete mensajes por el webhook como
- * lo haría Zernio (con la fecha que haga falta para envejecer la ventana),
- * contesta como cerebro (`/api/bot/messages`) y como persona (la bandeja), y
- * comprueba lo que salió hacia cada plataforma y lo que quedó en el hilo.
+ * Conduz o app real com os simuladores: envia mensagens pelo webhook como
+ * faria o Zernio (com a data necessária para envelhecer a janela),
+ * responde como cérebro (`/api/bot/messages`) e como pessoa (a bandeja), e
+ * confere o que saiu para cada plataforma e o que ficou na conversa.
  *
  * Uso:
- *   1) app corriendo (`next dev`) sobre una base migrada, SIN
- *      BRAIN_DISPATCH_URL, con CHANNELS=whatsapp,instagram,messenger,tiktok,
+ *   1) app rodando (`next dev`) sobre um banco migrado, SEM
+ *      BRAIN_DISPATCH_URL, com CHANNELS=whatsapp,instagram,messenger,tiktok,
  *      WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL → wa-mock, ZERNIO_BASE_URL →
- *      zernio-mock, OPENROUTER_BASE_URL → ai-mock con OPENROUTER_API_TOKEN y
- *      OPENROUTER_MODEL, BOT_API_KEY y AGENT_COALESCE_MS corta (1500).
+ *      zernio-mock, OPENROUTER_BASE_URL → ai-mock com OPENROUTER_API_TOKEN e
+ *      OPENROUTER_MODEL, BOT_API_KEY e AGENT_COALESCE_MS curto (1500).
  *   2) node --env-file=.env scripts/e2e-ventana-social.mjs
  *
- * Sale con código 1 si algún check falla. Guion: tests/e2e/us-ventana-social.md.
+ * Sai com código 1 se alguma verificação falhar. Roteiro: tests/e2e/us-ventana-social.md.
  */
 import { createHmac } from "node:crypto";
 
@@ -35,7 +35,7 @@ const CUENTA = { ig: `ig-vs-${RUN}`, fb: `fb-vs-${RUN}`, tt: `tt-vs-${RUN}` };
 const PLATAFORMA = { ig: "instagram", fb: "facebook", tt: "tiktok" };
 const CANAL = { ig: "instagram", fb: "messenger", tt: "tiktok" };
 
-// Lo que escribe una IA: formato de WhatsApp y Markdown mezclados.
+// O que uma IA escreve: formato de WhatsApp e Markdown misturados.
 const CON_FORMATO = (m) =>
   `*Hola* ${m}\n**Horario:** de _9 a 6_\n- Martillos\n- ~Clavos~ agotados\nMira el [catálogo](https://tienda.mx/cat_2026)`;
 const PLANO = (m) =>
@@ -91,7 +91,7 @@ async function hasta(cond, ms = 15000, paso = 200) {
 // ---------------------------------------------------------------------------
 
 let nEvento = 0;
-/** Un `message.received` de Zernio; `hace` envejece el mensaje del cliente. */
+/** Um `message.received` do Zernio; `hace` envelhece a mensagem do cliente. */
 async function entranteSocial(red, { sender, nombre, text, hace = 0 }) {
   nEvento++;
   const hilo = `zconv-vs-${red}-${sender}`;
@@ -136,9 +136,9 @@ const entranteWa = (from, name, text) =>
   });
 
 const conversaciones = async () => (await api("/api/conversations")).json?.conversations ?? [];
-// La ingesta corre tras responder el webhook y sella `lastInboundAt` al final:
-// se espera a la conversación YA con su último entrante, que es de lo que
-// depende la ventana.
+// A ingestão roda depois de responder o webhook e grava `lastInboundAt` no final:
+// aguarda-se a conversa JÁ com sua última mensagem recebida, que é do que
+// depende a janela.
 const convDe = (nombre) =>
   hasta(async () =>
     (await conversaciones()).find((c) => c.contact.name === nombre && c.lastInboundAt !== null)
@@ -153,7 +153,7 @@ const aMano = (conversationId, text) =>
 const agente = (enabled) =>
   api("/api/agent/profile", { method: "PUT", body: JSON.stringify({ enabled }) });
 
-/** Abre una conversación social con un mensaje del cliente de hace `hace` ms. */
+/** Abre uma conversa social com uma mensagem do cliente de `hace` ms atrás. */
 async function conversacion(red, etiqueta, hace = 0) {
   const sender = `${red}-${etiqueta}-${RUN}`;
   const nombre = `Cliente ${red} ${etiqueta} ${MARCA}`;
@@ -221,7 +221,7 @@ async function main() {
     body: JSON.stringify({ wabaId: "WABA-E2E", phoneNumberId: PN, token: "tok-e2e" }),
   });
   ok("WhatsApp conectado (wa-mock)", wa.res.ok, JSON.stringify(wa.json));
-  // Apagado mientras el guion hace de cerebro: así solo sale lo que él manda.
+  // Desligado enquanto o roteiro faz de cérebro: assim só sai o que ele manda.
   ok("agente incluido apagado para la primera parte", (await agente(false)).res.ok);
 
   await textoPlano();
@@ -233,7 +233,7 @@ async function main() {
 }
 
 // ---------------------------------------------------------------------------
-// D1 — En redes, el texto de la IA sale plano
+// D1 — Nas redes, o texto da IA sai puro
 // ---------------------------------------------------------------------------
 
 async function textoPlano() {
@@ -289,7 +289,7 @@ async function textoPlano() {
 }
 
 // ---------------------------------------------------------------------------
-// D2–D4 — La ventana de atención humana
+// D2–D4 — A janela de atendimento humano
 // ---------------------------------------------------------------------------
 
 async function ventanaHumana() {
@@ -297,7 +297,7 @@ async function ventanaHumana() {
   for (const red of ["ig", "fb"]) {
     const canal = CANAL[red];
 
-    // Dentro de las 24 horas: normal, sin etiqueta.
+    // Dentro das 24 horas: normal, sem etiqueta.
     const dentro = await conversacion(red, "23h", 23 * HORA);
     ok(
       `${canal} a las 23 h: ventana abierta y sin atención humana en la bandeja`,
@@ -312,7 +312,7 @@ async function ventanaHumana() {
       JSON.stringify(sinEtiqueta)
     );
 
-    // Entre 24 horas y 7 días: solo una persona, con la etiqueta.
+    // Entre 24 horas e 7 dias: só uma pessoa, com a etiqueta.
     const en = await conversacion(red, "30h", 30 * HORA);
     const h = en.conv?.humanWindow;
     ok(
@@ -347,7 +347,7 @@ async function ventanaHumana() {
       JSON.stringify(tras?.humanWindow)
     );
 
-    // Pasados 7 días: nadie.
+    // Passados 7 dias: ninguém.
     const fuera = await conversacion(red, "8d", 8 * DIA);
     ok(
       `${canal} a los 8 días: la bandeja la da por cerrada`,
@@ -366,7 +366,7 @@ async function ventanaHumana() {
     ok(`${canal} a los 8 días: ni la IA → 409`, tardeIa.res.status === 409, String(tardeIa.res.status));
     ok(`${canal} a los 8 días: a la plataforma no salió nada`, (await enviadosPorZernio(fuera.hilo)).length === 0);
 
-    // El cliente vuelve a escribir: todo se abre otra vez.
+    // O cliente volta a escrever: tudo se abre de novo.
     await entranteSocial(red, { sender: fuera.sender, nombre: fuera.nombre, text: `ya volví ${MARCA}` });
     const reabierta = await hasta(async () => {
       const c = (await conversaciones()).find((x) => x.id === fuera.conv.id);
@@ -389,7 +389,7 @@ async function ventanaHumana() {
   const convWa = (await conversaciones()).find((c) => c.channel === "whatsapp");
   ok("WhatsApp tampoco la tiene", convWa?.humanWindow === null, JSON.stringify(convWa?.humanWindow));
 
-  // 028 · D1 — El compositor solo ofrece lo que el canal puede mandar.
+  // 028 · D1 — O compositor só oferece o que o canal pode enviar.
   console.log("\n== 028: lo que el compositor ofrece por canal ==");
   const todas = await conversaciones();
   ok(
@@ -408,7 +408,7 @@ async function ventanaHumana() {
 }
 
 // ---------------------------------------------------------------------------
-// El agente incluido también sale plano
+// O agente incluído também sai puro
 // ---------------------------------------------------------------------------
 
 async function agenteIncluido() {
@@ -416,8 +416,8 @@ async function agenteIncluido() {
   ok("agente incluido encendido", (await agente(true)).res.ok);
   const sender = `ig-agente-${RUN}`;
   const nombre = `Cliente ig agente ${MARCA}`;
-  // El simulador de IA repite lo que dijo el cliente: si el cliente manda
-  // asteriscos, la respuesta del agente los trae.
+  // O simulador de IA repete o que o cliente disse: se o cliente manda
+  // asteriscos, a resposta do agente os traz.
   const dicho = `quiero el *martillo* de **bola** ${MARCA}`;
   const e = await entranteSocial("ig", { sender, nombre, text: dicho });
   const conv = e.status === 200 ? await convDe(nombre) : null;

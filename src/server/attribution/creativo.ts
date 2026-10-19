@@ -7,27 +7,27 @@ import { publish } from "@/server/events/bus";
 import { deleteMediaFile, saveMediaFile } from "@/server/whatsapp/media";
 
 /**
- * 018 — La imagen del creativo, copiada al llegar.
+ * 018 — A imagem do criativo, copiada na chegada.
  *
- * La URL que Meta manda en el `referral` caduca en días (el parámetro `oe` de
- * su CDN). Si no se copia en ese momento, la tarjeta del anuncio se queda sin
- * imagen para siempre. Se guarda como un adjunto más —mismo volumen, misma
- * ruta con sesión— y UNA vez por anuncio.
+ * A URL que a Meta envia no `referral` expira em dias (o parâmetro `oe` do
+ * seu CDN). Se não for copiada nesse momento, o cartão do anúncio fica sem
+ * imagem para sempre. Ela é guardada como um anexo a mais — mesmo volume, mesma
+ * rota com sessão — e UMA vez por anúncio.
  *
- * Todo aquí es best-effort y corre fuera del camino del webhook: el mensaje del
- * cliente ya está en la bandeja cuando esto empieza, y nada de lo que falle
- * aquí puede tocarlo.
+ * Tudo aqui é best-effort e roda fora do caminho do webhook: a mensagem do
+ * cliente já está na caixa de entrada quando isto começa, e nada do que falhe
+ * aqui pode afetá-la.
  */
 
-/** El jpg de un creativo ronda 20-150 KB; más que esto no es una miniatura. */
+/** O jpg de um criativo fica em torno de 20-150 KB; acima disso não é uma miniatura. */
 export const CREATIVO_MAX_BYTES = 300_000;
-/** Tiempo por intento, contando redirecciones y la lectura del cuerpo. */
+/** Tempo por tentativa, contando redirecionamentos e a leitura do corpo. */
 const TIEMPO_MS = 5_000;
 const MAX_REDIRECCIONES = 3;
-/** Espera antes del único reintento: lo justo para un tropiezo de red. */
+/** Espera antes da única nova tentativa: o suficiente para um tropeço de rede. */
 const REINTENTO_MS = 1_500;
 
-/** Sin SVG: servido desde nuestro origen, un SVG puede ejecutar scripts. */
+/** Sem SVG: servido a partir da nossa origem, um SVG pode executar scripts. */
 const TIPOS: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -36,9 +36,9 @@ const TIPOS: Record<string, string> = {
 };
 
 /**
- * Dominios desde los que Meta sirve los creativos. La URL llega dentro de un
- * payload externo: sin esta lista, la ingesta descargaría cualquier URL que
- * alguien le escriba, incluida la red interna del servidor (SSRF).
+ * Domínios dos quais a Meta serve os criativos. A URL chega dentro de um
+ * payload externo: sem esta lista, a ingestão baixaria qualquer URL que
+ * alguém escrever, inclusive a rede interna do servidor (SSRF).
  */
 const DOMINIOS_DE_META = [
   "fbcdn.net",
@@ -54,10 +54,10 @@ function esDeMeta(hostname: string): boolean {
 }
 
 /**
- * ¿Se puede descargar esta URL? Pura para poder probarla.
+ * Esta URL pode ser baixada? Pura para poder testá-la.
  *
- * `origenMock` es el origen del wa-mock y solo se pasa con los mocks
- * habilitados, que en producción no existen (`isMockEnabled` exige
+ * `origenMock` é a origem do wa-mock e só é passado com os mocks
+ * habilitados, que em produção não existem (`isMockEnabled` exige
  * `NODE_ENV !== "production"`).
  */
 export function urlDeCreativoPermitida(
@@ -73,7 +73,7 @@ export function urlDeCreativoPermitida(
   if (u.username || u.password) return false;
   if (origenMock && u.origin === origenMock) return true;
   if (u.protocol !== "https:") return false;
-  // Meta sirve sus CDN por el 443: un puerto explícito no es de Meta.
+  // A Meta serve seus CDNs pela 443: uma porta explícita não é da Meta.
   if (u.port !== "") return false;
   return esDeMeta(u.hostname);
 }
@@ -90,9 +90,9 @@ function origenDelMock(): string | null {
 }
 
 /**
- * Cómo acabó una descarga. `transitoria` vale la pena reintentarla (la red, un
- * 5xx, un 429, el tiempo); `permanente` no va a cambiar por insistir (host no
- * permitido, no es imagen, demasiado grande, 404).
+ * Como terminou um download. `transitoria` vale a pena tentar de novo (a rede, um
+ * 5xx, um 429, o tempo); `permanente` não vai mudar por insistir (host não
+ * permitido, não é imagem, grande demais, 404).
  */
 export type Descarga =
   | { ok: true; data: Buffer; mimeType: string }
@@ -101,14 +101,14 @@ export type Descarga =
 const PERMANENTE = { ok: false, falla: "permanente" } as const;
 const TRANSITORIA = { ok: false, falla: "transitoria" } as const;
 
-/** Suelta el cuerpo que no se va a leer: si no, la conexión queda ocupada. */
+/** Descarta o corpo que não será lido: senão a conexão fica ocupada. */
 function descartar(res: Response): void {
   void res.body?.cancel().catch(() => {});
 }
 
 /**
- * Lee el cuerpo con tope: se corta en cuanto pasa de `max`, en vez de cargar en
- * memoria lo que un servidor quiera mandar sin `content-length`.
+ * Lê o corpo com limite: corta-se assim que passa de `max`, em vez de carregar na
+ * memória o que um servidor queira enviar sem `content-length`.
  */
 async function leerConTope(
   res: Response,
@@ -136,8 +136,8 @@ async function leerConTope(
 }
 
 /**
- * Descarga acotada: cada salto de redirección se vuelve a validar, así que un
- * host de Meta no puede mandar la petición a otro sitio.
+ * Download limitado: cada salto de redirecionamento é validado de novo, então um
+ * host da Meta não pode mandar a requisição para outro site.
  */
 export async function descargarCreativo(url: string): Promise<Descarga> {
   const origenMock = origenDelMock();
@@ -192,7 +192,7 @@ export async function descargarCreativo(url: string): Promise<Descarga> {
   return PERMANENTE; // demasiadas redirecciones
 }
 
-/** Descarga con un reintento si el fallo fue transitorio. */
+/** Download com uma nova tentativa se a falha foi transitória. */
 export async function descargarConReintento(
   url: string,
   esperaMs = REINTENTO_MS
@@ -203,7 +203,7 @@ export async function descargarConReintento(
   return descargarCreativo(url);
 }
 
-/** La imagen ya guardada de este anuncio, si otra conversación la trajo. */
+/** A imagem já guardada deste anúncio, se outra conversa a trouxe. */
 async function imagenExistente(
   organizationId: string,
   sourceId: string
@@ -230,9 +230,9 @@ async function imagenExistente(
 }
 
 /**
- * Deja la imagen en todas las conversaciones del anuncio que aún no la tienen:
- * la bajada que trajo la primera le sirve también a las que llegaron mientras
- * tanto.
+ * Deixa a imagem em todas as conversas do anúncio que ainda não a têm:
+ * o download que trouxe a primeira serve também às que chegaram enquanto
+ * isso acontecia.
  */
 async function asignarImagen(
   organizationId: string,
@@ -256,14 +256,14 @@ async function asignarImagen(
 }
 
 /**
- * Descargas en curso por anuncio. El caso normal las junta: entra el primer
- * mensaje, se lanza la copia, y el panel abierto pide el detalle en ese mismo
- * instante y lanzaría la reparación. Sin esto serían dos descargas y un
- * adjunto de más.
+ * Downloads em andamento por anúncio. O caso normal os junta: entra a primeira
+ * mensagem, dispara-se a cópia, e o painel aberto pede o detalhe naquele mesmo
+ * instante e dispararia o reparo. Sem isso seriam dois downloads e um
+ * anexo a mais.
  */
 const enCurso = new Set<string>();
 
-/** ¿Hay ya una copia en marcha para este anuncio? */
+/** Já existe uma cópia em andamento para este anúncio? */
 export function descargaEnCurso(organizationId: string, sourceId: string): boolean {
   return enCurso.has(`${organizationId}:${sourceId}`);
 }
@@ -275,7 +275,7 @@ export async function guardarCreativo(input: {
   imageUrl: string;
 }): Promise<string | null> {
   const { organizationId, sourceId } = input;
-  // La tarjeta abierta se refresca con este evento: la imagen aparece sola.
+  // O cartão aberto é atualizado com este evento: a imagem aparece sozinha.
   const avisar = () =>
     publish(organizationId, {
       type: "conversation.updated",
@@ -339,15 +339,15 @@ async function descargarYGuardar(
       })
       .where(eq(schema.mediaAsset.id, assetId));
     if ((await asignarImagen(organizationId, sourceId, assetId)) === 0) {
-      // Otra descarga (otro proceso, o una que empezó antes) ya dejó su
-      // imagen: esta copia sobra y no debe quedarse ocupando el volumen.
+      // Outro download (outro processo, ou um que começou antes) já deixou sua
+      // imagem: esta cópia sobra e não deve ficar ocupando o volume.
       await deleteMediaFile(organizationId, assetId).catch(() => {});
       await db.delete(schema.mediaAsset).where(eq(schema.mediaAsset.id, assetId));
       return imagenExistente(organizationId, sourceId);
     }
   } catch (err) {
-    // Se quita lo que se alcanzó a crear; si ya estaba asignada, la clave
-    // foránea deja esas filas sin imagen (`set null`), no apuntando a nada.
+    // Remove-se o que foi possível criar; se já estava atribuído, a chave
+    // estrangeira deixa essas linhas sem imagem (`set null`), não apontando para nada.
     if (guardado) await deleteMediaFile(organizationId, assetId).catch(() => {});
     await db
       .delete(schema.mediaAsset)

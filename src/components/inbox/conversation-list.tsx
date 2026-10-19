@@ -14,8 +14,8 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { emptyInboxDescription, formatTime, previewText } from "./helpers";
 
-/* Puntos de etapa: los tokens del tema, no hex copiados del tema claro —
-   así siguen al acento white-label y se recalculan en oscuro. */
+/* Pontos de etapa: os tokens do tema, não hex copiados do tema claro —
+   assim seguem o acento white-label e são recalculados no escuro. */
 const STAGE_DOT: Record<string, string> = {
   Nuevo: "var(--text-3)",
   "Em conversa": "var(--accent)",
@@ -27,11 +27,11 @@ const STAGE_DOT: Record<string, string> = {
 const STAGE_DOT_FALLBACK = "var(--text-3)";
 
 /**
- * Foco por teclado de chips y selector: el anillo de `ui/button`, acento
- * sólido separado del control (el elegido ya ES del color del acento y un
- * anillo pegado se fundiría con él). El suave de los campos
- * (`ring-brand-soft`) queda a ~1.3:1 del fondo: aquí no hay borde que cambie
- * de color para compensarlo, y se veía menos que el del navegador.
+ * Foco por teclado de chips e seletor: o anel de `ui/button`, acento
+ * sólido separado do controle (o escolhido já É da cor do acento e um
+ * anel colado se fundiria com ele). O suave dos campos
+ * (`ring-brand-soft`) fica a ~1,3:1 do fundo: aqui não há borda que mude
+ * de cor para compensar, e ele aparecia menos que o do navegador.
  */
 const FOCO_SEPARADO =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
@@ -87,7 +87,7 @@ export function ConversationList({
   onSeeded,
 }: {
   conversations: ConversationDto[] | null;
-  /** Canales encendidos en esta instancia (ADR-001). */
+  /** Canais ligados nesta instância (ADR-001). */
   channels: readonly Channel[];
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -100,11 +100,11 @@ export function ConversationList({
   const inputRef = useRef<HTMLInputElement>(null);
 
   /**
-   * Rescate de lo tecleado ANTES de que hidratara el JS. La caja se pinta en
-   * el HTML del servidor, así que se puede escribir en ella mientras carga la
-   * página; al montar, React la dejaba vacía y esas pulsaciones se perdían en
-   * silencio (el usuario veía la lista entera "sin filtrar"). Por eso el input
-   * es NO controlado: el DOM manda y aquí solo adoptamos su valor.
+   * Resgate do que foi digitado ANTES de o JS hidratar. A caixa é desenhada no
+   * HTML do servidor, então dá para escrever nela enquanto a
+   * página carrega; ao montar, o React a deixava vazia e essas teclas se perdiam em
+   * silêncio (o usuário via a lista inteira "sem filtrar"). Por isso o input
+   * é NÃO controlado: o DOM manda e aqui só adotamos o seu valor.
    */
   useEffect(() => {
     const typed = inputRef.current?.value ?? "";
@@ -113,10 +113,10 @@ export function ConversationList({
 
   const loading = conversationsProp === null;
   const conversations = conversationsProp ?? [];
-  // Solo NOMBRE y TELÉFONO, como cualquier filtro de contactos. Antes también
-  // miraba el preview, y como el agente nombra al dueño en sus propios
-  // mensajes, buscar ese nombre devolvía media bandeja. Encima era una
-  // búsqueda de mensajes a medias: solo el último de cada hilo, no el historial.
+  // Só NOME e TELEFONE, como qualquer filtro de contatos. Antes também
+  // olhava a pré-visualização, e como o agente chama o dono pelo nome nas suas próprias
+  // mensagens, buscar esse nome devolvia metade da bandeja. Além disso era uma
+  // busca de mensagens pela metade: só a última de cada conversa, não o histórico.
   const searched = conversations.filter(
     (c) =>
       matchesQuery(query, {
@@ -124,14 +124,14 @@ export function ConversationList({
         phone: c.contact.phone,
       }) && (stage === "all" || c.stageName === stage)
   );
-  // La bandeja elegida es el filtro de AFUERA: "Todas" y t("inbox.unreadFilter") cuentan
-  // dentro de ella, no sobre la suma de los dos canales.
+  // A bandeja escolhida é o filtro de FORA: "Todas" e t("inbox.unreadFilter") contam
+  // dentro dela, e não sobre a soma dos dois canais.
   const inInbox =
     inbox === "all" ? searched : searched.filter((c) => c.channel === inbox);
   const inboxCount = (ch: Channel) =>
     searched.filter((c) => c.channel === ch).length;
   const unreadCount = inInbox.filter((c) => c.unreadCount > 0).length;
-  // 018: las que abrió un anuncio (o una publicación con botón de WhatsApp).
+  // 018: as que foram abertas por um anúncio (ou uma publicação com botão de WhatsApp).
   const deAnúncios = inInbox.filter((c) => c.anuncio !== null);
   const visible =
     filter === "unread"
@@ -139,9 +139,9 @@ export function ConversationList({
       : filter === "anuncios"
         ? deAnúncios
         : inInbox;
-  // Sin ninguna conversación de anuncio el filtro no aparece: a quien no
-  // anuncia no se le pinta un botón que siempre dice 0. Si está elegido, se
-  // queda, para poder salir de él aunque el contador baje a cero.
+  // Sem nenhuma conversa de anúncio o filtro não aparece: para quem não
+  // anuncia não se desenha um botão que sempre diz 0. Se estiver selecionado, ele
+  // permanece, para que se possa sair dele mesmo que o contador caia a zero.
   const filtros: { id: typeof filter; label: string; count: number }[] = [
     { id: "all", label: "Todas", count: inInbox.length },
     { id: "unread", label: t("inbox.unreadFilter"), count: unreadCount },
@@ -149,11 +149,11 @@ export function ConversationList({
   if (deAnúncios.length > 0 || filter === "anuncios") {
     filtros.push({ id: "anuncios", label: "Anúncios", count: deAnúncios.length });
   }
-  // Con un solo canal encendido no hay bandejas que distinguir: ni marca en
-  // los renglones ni filtro. La pantalla queda exactamente como antes de 014.
+  // Com um único canal ligado não há bandejas a distinguir: nem marca em
+  // as linhas nem filtro. A tela fica exatamente como antes do 014.
   const multiChannel = channels.length > 1;
 
-  // Etapas presentes en la bandeja, en el orden en que llegan del pipeline.
+  // Etapas presentes na bandeja, na ordem em que chegam do pipeline.
   const stages: string[] = [];
   for (const c of conversations) {
     if (c.stageName && !stages.includes(c.stageName)) stages.push(c.stageName);
@@ -227,9 +227,9 @@ export function ConversationList({
         </div>
       </header>
 
-      {/* Envuelve: con el filtro de anuncios, los tres botones y el selector de
-          etapa no caben en una columna de 300-360 px, y el selector se
-          aplastaba hasta dejar solo la flecha. */}
+      {/* Quebra linha: com o filtro de anúncios, os três botões e o seletor de
+          etapa não cabem numa coluna de 300-360 px, e o seletor era
+          achatado até deixar só a seta. */}
       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 border-b px-4 py-2.5">
         {filtros.map((f) => (
           <button
@@ -285,7 +285,7 @@ export function ConversationList({
           <InboxEmptyState onSeeded={onSeeded} channels={channels} />
         ) : visible.length === 0 ? (
           <p className="p-6 text-center text-xs text-text-3">
-            {/* 028: un canal en el que nadie ha escrito no es una búsqueda fallida. */}
+            {/* 028: um canal em que ninguém escreveu não é uma busca fracassada. */}
             {inbox !== "all" &&
             !query &&
             filter === "all" &&

@@ -9,16 +9,16 @@ export const dynamic = "force-dynamic";
 
 const bodySchema = z.object({
   conversationId: z.string().min(1),
-  // Objeto libre a propósito: las claves las define el negocio, y el servidor
-  // tolera el drift del LLM en vez de castigarlo con un 422 (ver server/bot/ficha).
+  // Objeto livre de propósito: as chaves são definidas pelo negócio, e o servidor
+  // tolera o drift do LLM em vez de puni-lo com um 422 (ver server/bot/ficha).
   ficha: z.record(z.unknown()),
 });
 
 /**
- * Ficha de calificación del lead, escrita por un cerebro externo.
- * Merge campo a campo contra lo que ya había; `null` explícito borra la clave.
- * Devuelve la ficha COMPLETA resultante, no solo el parche, para que el bot no
- * tenga que llevar su propia copia sincronizada.
+ * Ficha de qualificação do lead, escrita por um cérebro externo.
+ * Merge campo a campo com o que já existia; `null` explícito apaga a chave.
+ * Devolve a ficha COMPLETA resultante, não só o patch, para que o bot não
+ * precise manter a sua própria cópia sincronizada.
  */
 export async function PUT(req: Request) {
   const denied = requireBotKey(req);

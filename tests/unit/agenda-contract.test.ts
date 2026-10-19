@@ -8,12 +8,12 @@ import { BookingError } from "@/server/agenda/service";
 import { agendaDisabledResponse } from "@/server/agenda/flag";
 
 /**
- * 015 — El CONTRATO observable de la agenda, fijado en un test.
+ * 015 — O CONTRATO observável da agenda, fixado num teste.
  *
- * No es purismo REST: los dos fallos que esto previene ocurrieron en
- * producción y ninguno lo detectaron los mocks, porque los mocks respondían
- * otra cosa que el servidor real. Aquí el cliente y el servidor miran la misma
- * definición.
+ * Não é purismo REST: as duas falhas que isto previne ocorreram em
+ * produção e nenhuma foi detectada pelos mocks, porque os mocks respondiam
+ * outra coisa que o servidor real. Aqui o cliente e o servidor olham a mesma
+ * definição.
  */
 
 const result = {
@@ -68,11 +68,11 @@ describe("forma del error", () => {
       error: { code: string; message: string };
       slots: { label: string }[];
     };
-    // Anidado: un mock con la forma plana `{code}` hizo que todo 409 se leyera
-    // como conflicto genérico y el camino de re-oferta nunca se activara.
+    // Aninhado: um mock com a forma plana `{code}` fez com que todo 409 fosse lido
+    // como conflito genérico e o caminho de nova oferta nunca fosse ativado.
     expect(body.error.code).toBe("slot_taken");
     expect(body.error.message).toContain("ocuparse");
-    // Hermano: es lo que el cliente usa para re-ofrecer sin otra ida y vuelta.
+    // Irmão: é o que o cliente usa para oferecer de novo sem outra ida e volta.
     expect(body.slots).toHaveLength(1);
     expect(body.slots[0]!.label).toBe("mié 5 ago, 09:30");
   });
@@ -94,7 +94,7 @@ describe("forma del error", () => {
 describe("la agenda apagada", () => {
   it("responde 404 sin cuerpo: ese endpoint no existe en esta instancia", () => {
     const res = agendaDisabledResponse();
-    // 404 y no 403: un 403 confirmaría que la agenda existe pero está vedada.
+    // 404 e não 403: um 403 confirmaria que a agenda existe mas está vedada.
     expect(res.status).toBe(404);
   });
 });

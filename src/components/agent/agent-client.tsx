@@ -43,8 +43,8 @@ export function AgentClient() {
   const [entries, setEntries] = useState<KbEntry[]>([]);
   const [kbSize, setKbSize] = useState<{ chars: number; warnAt: number; warning: boolean } | null>(null);
   const [saved, setSaved] = useState(false);
-  // «Quién responde»: se refresca solo, porque la última llamada del cerebro
-  // externo y su /health cambian sin que nadie toque esta pantalla.
+  // «Quién responde»: atualiza sozinho, porque a última chamada do cérebro
+  // externo e o seu /health mudam sem que ninguém mexa nesta tela.
   const [brain, setBrain] = useState<BrainStatusDto | null>(null);
 
   const loadBrain = useCallback(async () => {
@@ -98,9 +98,9 @@ export function AgentClient() {
     void refetch();
   }
 
-  // Sin token de IA, este aviso pedía configurarlo aunque contestara un
-  // cerebro externo, y eso mentía. Con uno contestando, se dice eso; con uno
-  // caído, ya lo dice la tarjeta de arriba.
+  // Sem token de IA, este aviso pedia para configurá-lo mesmo quando respondia um
+  // cérebro externo, e isso era mentira. Com um respondendo, diz isso; com um
+  // fora do ar, o próprio cartão de cima já informa.
   const aiCallout = aiConfigured
     ? null
     : brain && externalAnswering(brain)
@@ -118,12 +118,12 @@ export function AgentClient() {
           <span className="text-sm text-muted-foreground">
             {profile.enabled ? "Encendido" : "Apagado"}
           </span>
-          {/* El interruptor compartido (#53): el pomo propio de aquí era
-              `absolute` sin `left`, arrancaba del centro de la pista y
-              encendido quedaba afuera. */}
-          {/* Encender exige IA; APAGAR se puede siempre. Con la llave pausada
-              (#85) el agente sigue «encendido» sin poder pensar, y un
-              interruptor bloqueado dejaría al dueño sin forma de callarlo. */}
+          {/* O interruptor compartilhado (#53): o botão próprio daqui era
+              `absolute` sem `left`, começava do centro da pista e
+              ligado ficava para fora. */}
+          {/* Ligar exige IA; DESLIGAR pode sempre. Com a chave pausada
+              (#85) o agente segue «ligado» sem conseguir pensar, e um
+              interruptor bloqueado deixaria o dono sem como silenciá-lo. */}
           <Switch
             checked={profile.enabled}
             disabled={!aiConfigured && !profile.enabled}

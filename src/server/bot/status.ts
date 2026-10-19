@@ -10,29 +10,29 @@ import {
 } from "@/lib/brain-status";
 
 /**
- * «Quién responde a tus clientes»: qué cerebro contesta los WhatsApp de la
- * instancia y si hay dos contestando a la vez.
+ * «Quem responde aos seus clientes»: qual cérebro responde os WhatsApp da
+ * instância e se há dois respondendo ao mesmo tempo.
  *
- * El agente incluido solo contesta con token de IA Y el interruptor del
- * Agente encendido. Un cerebro externo (Nea) no mira ese interruptor —ni le
- * llega: `/api/bot/profile` no lo manda—, así que con los dos activos el
- * cliente recibe dos respuestas distintas. El CRM no sabe de Nea más que dos
- * cosas: cuándo llamó por última vez a `/api/bot/*` y, si se configuró
- * `BRAIN_HEALTH_URL`, qué dice su `/health`.
+ * O agente incluído só responde com token de IA E o interruptor do
+ * Agente ligado. Um cérebro externo (Nea) não olha esse interruptor — nem
+ * recebe: `/api/bot/profile` não o envia —, então com os dois ativos o
+ * cliente recebe duas respostas diferentes. O CRM não sabe da Nea mais que duas
+ * coisas: quando chamou pela última vez `/api/bot/*` e, se foi configurado
+ * `BRAIN_HEALTH_URL`, o que diz o seu `/health`.
  *
- * 021 — Con el despacho activo (`BRAIN_DISPATCH_URL`) ya no hay que adivinar:
- * el CRM le empuja cada turno al cerebro y calla al agente incluido, así que
- * la doble respuesta no puede salir de aquí.
+ * 021 — Com o despacho ativo (`BRAIN_DISPATCH_URL`) não é preciso adivinhar:
+ * o CRM empurra cada turno para o cérebro e cala o agente incluído, então
+ * a dupla resposta não pode sair daqui.
  */
 
-/** Una llamada a `/api/bot/*` en esta ventana cuenta como «está contestando». */
+/** Uma chamada a `/api/bot/*` nesta janela conta como «está respondendo». */
 export const EXTERNAL_SEEN_WINDOW_MS = 24 * 60 * 60 * 1000;
-/** El `/health` se pregunta desde el servidor y no puede colgar la tarjeta. */
+/** O `/health` é perguntado a partir do servidor e não pode travar o cartão. */
 export const BRAIN_HEALTH_TIMEOUT_MS = 2000;
-/** Cuánto se reutiliza una respuesta: la tarjeta se refresca sola y el panel
- *  de contacto la pide con cada evento de la bandeja. */
+/** Por quanto tempo uma resposta é reutilizada: o cartão se atualiza sozinho e o painel
+ *  de contato a pede a cada evento da caixa de entrada. */
 export const BRAIN_HEALTH_TTL_MS = 15_000;
-/** Un `/health` son unos cientos de bytes; más que esto no es un `/health`. */
+/** Um `/health` são umas centenas de bytes; mais que isso não é um `/health`. */
 const MAX_HEALTH_BYTES = 64 * 1024;
 
 type HealthCacheEntry = {
@@ -41,15 +41,15 @@ type HealthCacheEntry = {
   pending: Promise<BrainHealthDto>;
 };
 
-// En globalThis: los módulos pueden evaluarse más de una vez (una por ruta en
-// dev) y la última llamada la anota `requireBotKey`, en otra ruta.
+// Em globalThis: os módulos podem ser avaliados mais de uma vez (uma por rota em
+// dev) e a última chamada é anotada por `requireBotKey`, em outra rota.
 const globalForBrain = globalThis as unknown as {
   __voceroBotLastSeen?: number;
   __voceroBrainHealth?: HealthCacheEntry;
 };
 
-/** La anota `requireBotKey` en cada llamada autenticada. Solo memoria: se
- *  pierde al reiniciar, y la UI lo dice («desde el último arranque»). */
+/** Quem anota é `requireBotKey` em cada chamada autenticada. Só memória: se
+ *  perde ao reiniciar, e a UI diz isso («desde o último arranque»). */
 export function markBotSeen(now: number = Date.now()): void {
   globalForBrain.__voceroBotLastSeen = now;
 }
@@ -59,14 +59,14 @@ export function botLastSeenAt(): Date | null {
   return typeof t === "number" ? new Date(t) : null;
 }
 
-/** Solo para tests. */
+/** Só para testes. */
 export function resetBrainStatusState(): void {
   delete globalForBrain.__voceroBotLastSeen;
   delete globalForBrain.__voceroBrainHealth;
 }
 
 // ---------------------------------------------------------------------------
-// El cálculo (puro)
+// O cálculo (puro)
 // ---------------------------------------------------------------------------
 
 export type BrainStatusInput = {
@@ -75,15 +75,15 @@ export type BrainStatusInput = {
   botKeyConfigured: boolean;
   lastSeenAt: Date | null;
   health: BrainHealthDto | null;
-  /** 021. Opcional: sin él, una instancia que no despacha. */
+  /** 021. Opcional: sem ele, uma instância que não despacha. */
   dispatch?: BrainDispatchDto;
   now: Date;
 };
 
 export function computeBrainStatus(input: BrainStatusInput): BrainStatusDto {
   const dispatch = input.dispatch ?? SIN_DESPACHO;
-  // El despacho activo calla al agente incluido (`server/ai/trigger.ts`):
-  // aunque tenga IA e interruptor, no es él quien contesta.
+  // O despacho ativo cala o agente incluído (`server/ai/trigger.ts`):
+  // mesmo que tenha IA e interruptor, não é ele quem responde.
   const wouldAnswer = input.aiConfigured && input.agentEnabled;
   const answering = wouldAnswer && !dispatch.active;
   const seenRecently =
@@ -95,8 +95,8 @@ export function computeBrainStatus(input: BrainStatusInput): BrainStatusDto {
 
   let warning: BrainWarning | null = null;
   if (answering && active) warning = "doble_respuesta";
-  // Nadie puede contestar: sin agente incluido y con /api/bot/* cerrada (sin
-  // llave, un Nea en línea tampoco puede hablar por el CRM).
+  // Ninguém pode responder: sem agente incluído e com /api/bot/* fechada (sem
+  // chave, um Nea online também não pode falar pelo CRM).
   else if (!answering && !input.botKeyConfigured) warning = "sin_cerebro";
 
   return {
@@ -118,28 +118,28 @@ export function computeBrainStatus(input: BrainStatusInput): BrainStatusDto {
 }
 
 // ---------------------------------------------------------------------------
-// El /health del cerebro externo
+// O /health do cérebro externo
 // ---------------------------------------------------------------------------
 
 export type FetchBrainHealthOptions = {
   timeoutMs?: number;
-  /** Solo para tests. */
+  /** Só para testes. */
   fetchImpl?: typeof fetch;
   now?: () => Date;
 };
 
 /**
- * Pregunta al `/health` del cerebro externo. Nunca lanza: cualquier fallo es
- * `reachable: false` con su motivo, en 2 s como mucho. Una URL que no es
- * http(s) ni se intenta: `problem: "config"`.
+ * Pergunta ao `/health` do cérebro externo. Nunca lança: qualquer falha é
+ * `reachable: false` com seu motivo, em 2 s no máximo. Uma URL que não é
+ * http(s) nem se tenta: `problem: "config"`.
  *
- * - No sigue redirecciones: el `/health` de un servicio interno no redirige,
- *   y seguirla sería pedirle al servidor que llame a donde diga otro.
- * - Las credenciales de la URL (`http://user:pass@nea:8000/health`) viajan
- *   como `Authorization: Basic` —fetch rechaza una URL que las trae— y, como
- *   la ruta y la query, jamás salen en la respuesta: solo el host.
- * - Tolera cualquier subconjunto de campos (una Nea vieja solo manda
- *   `status`): el mínimo es 200 con `ok: true` o `status: "ok"`.
+ * - Não segue redirecionamentos: o `/health` de um serviço interno não redireciona,
+ *   e segui-lo seria pedir ao servidor que chame outro destino.
+ * - As credenciais da URL (`http://user:pass@nea:8000/health`) viajam
+ *   como `Authorization: Basic` —o fetch rejeita uma URL que as traz— e, como
+ *   a rota e a query, jamais saem na resposta: só o host.
+ * - Tolera qualquer subconjunto de campos (uma Nea antiga só manda
+ *   `status`): o mínimo é 200 com `ok: true` ou `status: "ok"`.
  */
 export async function fetchBrainHealth(
   rawUrl: string,
@@ -179,7 +179,7 @@ export async function fetchBrainHealth(
       cache: "no-store",
       signal: controller.signal,
     });
-    // Node devuelve el 3xx tal cual; un navegador, un `opaqueredirect`.
+    // O Node devolve o 3xx tal como está; um navegador, um `opaqueredirect`.
     if (res.type === "opaqueredirect" || (res.status >= 300 && res.status < 400)) {
       await res.body?.cancel().catch(() => {});
       return {
@@ -190,7 +190,7 @@ export async function fetchBrainHealth(
       };
     }
     const body = parseJsonObject(await readCapped(res, MAX_HEALTH_BYTES));
-    // La identidad sale aunque no esté sana: Nea la manda también en su 503.
+    // A identidade sai mesmo que não esteja saudável: a Nea a manda também no seu 503.
     const identity = body ? parseIdentity(body) : {};
     if (res.status !== 200) {
       return { ...base, ...identity, reachable: false, problem: "status", httpStatus: res.status };
@@ -211,9 +211,9 @@ export async function fetchBrainHealth(
 }
 
 /**
- * `fetchBrainHealth` con caché de 15 s por URL, compartida entre llamadas
- * simultáneas: la tarjeta y el panel de contacto no martillan a Nea.
- * `null` si no hay URL configurada.
+ * `fetchBrainHealth` com cache de 15 s por URL, compartilhado entre chamadas
+ * simultâneas: o cartão e o painel de contato não martelam a Nea.
+ * `null` se não houver URL configurada.
  */
 export async function getBrainHealth(
   rawUrl: string | undefined,
@@ -227,7 +227,7 @@ export async function getBrainHealth(
   }
   const entry: HealthCacheEntry = {
     url: rawUrl,
-    // En vuelo no caduca: quien llegue mientras tanto espera la misma.
+    // Em voo não expira: quem chegar nesse meio-tempo espera a mesma.
     expiresAt: Number.POSITIVE_INFINITY,
     pending: fetchBrainHealth(rawUrl, opts),
   };
@@ -238,10 +238,10 @@ export async function getBrainHealth(
 }
 
 // ---------------------------------------------------------------------------
-// Lectura defensiva
+// Leitura defensiva
 // ---------------------------------------------------------------------------
 
-/** El cuerpo como texto, o `null` si excede el tope. */
+/** O corpo como texto, ou `null` se exceder o limite. */
 async function readCapped(res: Response, max: number): Promise<string | null> {
   const declared = Number(res.headers.get("content-length"));
   if (Number.isFinite(declared) && declared > max) {

@@ -2,32 +2,32 @@ import { getEnv } from "@/lib/env";
 import { isChannel, type Channel } from "@/lib/channels";
 
 /**
- * 014 — Qué canales están encendidos en esta instancia.
+ * 014 — Quais canais estão ligados nesta instância.
  *
- * El código de todos los canales viaja siempre en main; lo que decide si
- * existen para el usuario es la variable `CHANNELS`. Una instalación normal
- * (`CHANNELS=whatsapp`, el default) no ve Instagram por ningún lado: ni
- * pantalla, ni webhook, ni variables que llenar.
+ * O código de todos os canais viaja sempre na main; o que decide se eles
+ * existem para o usuário é a variável `CHANNELS`. Uma instalação normal
+ * (`CHANNELS=whatsapp`, o padrão) não vê o Instagram por nenhum lado: nem
+ * tela, nem webhook, nem variáveis para preencher.
  *
- * Se hace así, y no con una rama por feature, porque una rama tiene que
- * mantenerse compatible con main Y con las demás ramas opcionales, y su
- * cadena de migraciones diverge sin arreglo posible. Con la bandera hay UNA
- * cadena de migraciones para todo el mundo y los conflictos los resuelve el
- * autor una vez, no cada usuario en cada actualización.
+ * Foi feito assim, e não com um ramo por funcionalidade, porque um ramo precisa
+ * se manter compatível com a main E com as demais ramificações opcionais, e sua
+ * cadeia de migrações diverge sem conserto possível. Com a bandeira há UMA
+ * cadeia de migrações para todo mundo, e os conflitos são resolvidos pelo
+ * autor uma vez, não por cada usuário em cada atualização.
  *
- * La migración se aplica siempre: una columna con default y una tabla vacía
- * son inertes, y a cambio todas las instancias tienen la misma estructura.
+ * A migração é aplicada sempre: uma coluna com padrão e uma tabela vazia
+ * são inertes, e em troca todas as instâncias têm a mesma estrutura.
  */
 
-/** WhatsApp no se puede apagar: es el canal por el que existe el producto. */
+/** O WhatsApp não pode ser desligado: é o canal pelo qual o produto existe. */
 const ALWAYS_ON: Channel = "whatsapp";
 
 export function parseChannels(raw: string | undefined): Set<Channel> {
   const enabled = new Set<Channel>([ALWAYS_ON]);
   for (const part of (raw ?? "").split(",")) {
     const name = part.trim().toLowerCase();
-    // Cualquier canal del catalogo, no una lista escrita a mano aqui: el
-    // canal siguiente solo tiene que existir en lib/channels.ts.
+    // Qualquer canal do catálogo, não uma lista escrita à mão aqui: o
+    // canal seguinte só precisa existir em lib/channels.ts.
     if (isChannel(name)) enabled.add(name);
   }
   return enabled;
@@ -42,9 +42,9 @@ export function isChannelEnabled(channel: Channel): boolean {
 }
 
 /**
- * Respuesta para una superficie de un canal apagado. 404 y no 403 a
- * propósito: si el canal no está encendido, ese endpoint no existe en esta
- * instancia — no hay nada que revelar sobre él.
+ * Resposta para uma superfície de um canal desligado. 404 e não 403 de
+ * propósito: se o canal não estiver ligado, esse endpoint não existe nesta
+ * instância — não há nada a revelar sobre ele.
  */
 export function channelDisabledResponse(): Response {
   return new Response(null, { status: 404 });

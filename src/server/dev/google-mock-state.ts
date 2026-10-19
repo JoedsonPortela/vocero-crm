@@ -1,10 +1,10 @@
 /**
- * 015 — Estado del mock de Google Calendar (solo entorno de pruebas).
+ * 015 — Estado do mock do Google Calendar (somente ambiente de testes).
  *
- * Imita la parte que más cuesta creer hasta que se ve: la conferencia de Meet
- * NO viene en la respuesta de crear el evento. Aquí el primer `GET` del evento
- * todavía la da como pendiente y el siguiente ya trae el enlace — así el
- * self-test ejercita el camino real, no uno cómodo.
+ * Imita a parte que mais custa acreditar até ser vista: a conferência do Meet
+ * NÃO vem na resposta de criar o evento. Aqui o primeiro `GET` do evento
+ * ainda a dá como pendente e o seguinte já traz o link — assim o
+ * self-test exercita o caminho real, não um confortável.
  */
 
 export type MockEvent = {
@@ -12,7 +12,7 @@ export type MockEvent = {
   summary: string;
   start: string;
   end: string;
-  /** Cuántas veces se ha leído: la conferencia "termina" tras la primera. */
+  /** Quantas vezes foi lido: a conferência "termina" após a primeira. */
   reads: number;
   meetLink: string | null;
   updates: number;
@@ -22,7 +22,7 @@ type MockState = {
   events: Map<string, MockEvent>;
   deleted: string[];
   nextId: number;
-  /** Lecturas que tarda la conferencia en estar lista. */
+  /** Leituras que a conferência leva para estar pronta. */
   conferenceDelayReads: number;
 };
 
@@ -57,9 +57,9 @@ export function googleMockSnapshot() {
 }
 
 /**
- * Camino infeliz determinista: un refresh token terminado en `-invalid` hace
- * que Google responda `invalid_grant` — exactamente lo que pasa cuando la app
- * OAuth sigue en modo prueba y caducó a los 7 días.
+ * Caminho infeliz determinista: um refresh token terminado em `-invalid` faz
+ * com que o Google responda `invalid_grant` — exatamente o que acontece quando o app
+ * OAuth continua em modo de teste e expirou após 7 dias.
  */
 export function mockRefreshTokenIsBad(body: string): boolean {
   return new URLSearchParams(body).get("refresh_token")?.endsWith("-invalid") ?? true;

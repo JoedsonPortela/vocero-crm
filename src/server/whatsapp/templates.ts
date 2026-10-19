@@ -19,7 +19,7 @@ import { callGraphSend, SendError } from "@/server/inbox/send";
 import { serializeMessage } from "@/server/inbox/ingest";
 import type { WebhookValue } from "@/server/inbox/webhook";
 
-/** Errores tipados del servicio de plantillas → HTTP en la capa de API. */
+/** Erros tipados do serviço de templates → HTTP na camada de API. */
 export class TemplateError extends Error {
   code:
     | "not_connected"
@@ -65,7 +65,7 @@ export function serializeTemplate(t: TemplateRow) {
   };
 }
 
-/** Crea la plantilla y la manda a aprobación de Meta (FR-050). */
+/** Cria o template e o envia para aprovação da Meta (FR-050). */
 export async function createTemplate(
   organizationId: string,
   input: {
@@ -73,7 +73,7 @@ export async function createTemplate(
     language: string;
     category: string;
     body: string;
-    /** Un ejemplo por variable, en orden; es lo que ve quien revisa en Meta. */
+    /** Um exemplo por variável, em ordem; é o que vê quem revisa na Meta. */
     examples?: string[];
   }
 ): Promise<TemplateRow> {
@@ -94,9 +94,9 @@ export async function createTemplate(
     .replace(/[^a-z0-9_]/g, "");
   if (!name) throw new TemplateError("invalid", "Nombre de plantilla inválido");
 
-  // Meta pide un ejemplo por variable: si faltan, rechaza la plantilla. Uno
-  // realista («Ana», «martes 14») ayuda a que la aprueben; si el dueño no
-  // escribió alguno, va el genérico.
+  // A Meta pede um exemplo por variável: se faltarem, rejeita o template. Um
+  // realista («Ana», «terça 14») ajuda a aprová-lo; se o dono não
+  // escreveu nenhum, vai o genérico.
   const variableCount = countVariables(input.body);
   const examples = Array.from(
     { length: variableCount },
@@ -185,9 +185,9 @@ function mapMetaStatus(
 }
 
 /**
- * Sincroniza estados desde Graph (`GET {waba}/message_templates`). Cubre el
- * modo agencia: los webhooks de plantillas NO siguen el override de callback,
- * así que el pull es la vía universal (DV-VC-04/DV-VC-15).
+ * Sincroniza os estados a partir do Graph (`GET {waba}/message_templates`). Cobre o
+ * modo agência: os webhooks de templates NÃO seguem o override de callback,
+ * então o pull é a via universal (DV-VC-04/DV-VC-15).
  */
 export async function syncTemplates(organizationId: string): Promise<number> {
   const creds = await getCredentialsByOrg(organizationId);
@@ -229,8 +229,8 @@ export async function syncTemplates(organizationId: string): Promise<number> {
         (t.name === remote.name && t.language === remote.language)
     );
     if (!match) continue;
-    // Meta reclasifica la categoría al aprobar (una UTILITY puede volverse
-    // MARKETING, lo que cambia el costo por conversación): es autoridad.
+    // A Meta reclassifica a categoria ao aprovar (uma UTILITY pode virar
+    // MARKETING, o que muda o custo por conversa): é a autoridade.
     const category = remote.category ?? match.category;
     if (match.status === status && match.category === category) continue;
     await db
@@ -248,7 +248,7 @@ export async function syncTemplates(organizationId: string): Promise<number> {
   return updated;
 }
 
-/** Evento webhook `message_template_status_update` (modo directo, FR-050). */
+/** Evento de webhook `message_template_status_update` (modo direto, FR-050). */
 export async function applyTemplateStatusEvent(
   wabaId: string | null,
   value: WebhookValue
@@ -279,7 +279,7 @@ export async function applyTemplateStatusEvent(
     );
 }
 
-/** Envía una plantilla APROBADA a una conversación (ventana cerrada, FR-051). */
+/** Envia um template APROVADO para uma conversa (janela fechada, FR-051). */
 export async function sendTemplate(input: {
   organizationId: string;
   conversationId: string;
@@ -304,8 +304,8 @@ export async function sendTemplate(input: {
   if (template.status !== "approved") {
     throw new TemplateError("invalid", "Solo se pueden enviar plantillas aprobadas");
   }
-  // Meta exige EXACTAMENTE un parámetro por variable del cuerpo: si sobran o
-  // falta alguno responde 132000 (plantilla y parámetros no coinciden).
+  // A Meta exige EXATAMENTE um parâmetro por variável do corpo: se sobrarem ou
+  // faltar algum, responde 132000 (template e parâmetros não coincidem).
   const variableCount = countVariables(template.body);
   const values = (input.variables ?? [])
     .slice(0, variableCount)
@@ -339,7 +339,7 @@ export async function sendTemplate(input: {
   const row = rows[0];
   if (!row) throw new TemplateError("not_found", "Conversación no encontrada");
   if (row.conversation.isTest) {
-    // Aserción dura del sandbox (FR-031)
+    // Asserção rígida do sandbox (FR-031)
     throw new SendError(
       "sandbox_violation",
       "Conversación de prueba del Laboratorio: el envío real está prohibido"
@@ -352,9 +352,9 @@ export async function sendTemplate(input: {
     throw new TemplateError("reconnect_required", "Reconecta el número");
   }
 
-  // 003: destinatario = teléfono normalizado o BSUID.
-  // 003: teléfono en `to`, BSUID en `recipient` — Meta los pide en campos
-  // distintos y mandar el BSUID en `to` devuelve 131026.
+  // 003: destinatário = telefone normalizado ou BSUID.
+  // 003: telefone em `to`, BSUID em `recipient` — a Meta os pede em campos
+  // diferentes, e mandar o BSUID em `to` devolve 131026.
   const destinatario = destinatarioMeta(
     row.contact.phone ? normalizeRecipient(row.contact.phone) : null,
     row.contact.waUserId

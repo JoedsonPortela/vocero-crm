@@ -8,27 +8,27 @@ import {
 import { resolveAccentSet, type Branding } from "./branding";
 
 /**
- * El icono de la pestaña, white-label.
+ * O ícone da aba, white-label.
  *
- * Toda instancia tiene uno **sin configurar nada**: si se llama Vocero, es el
- * logo de la marca (la "v" con remate cian sobre el mosaico azul, igual que en
- * vocerocrm.com); con otro nombre se dibuja la inicial sobre el acento. Una
- * agencia que despliega para su cliente puede subir el logo real y
- * reemplazarlo.
+ * Toda instância tem um **sem configurar nada**: se chamar Vocero, é o
+ * logo da marca (o "v" com remate ciano sobre o mosaico azul, igual ao de
+ * vocerocrm.com); com outro nome desenha-se a inicial sobre o acento. Uma
+ * agência que implanta para o seu cliente pode enviar o logo real e
+ * substituí-lo.
  *
- * Que exista un respaldo generado no es un adorno: sin él, quien no suba nada
- * se queda con el icono genérico del navegador, y con cinco instancias abiertas
- * en pestañas todas se ven iguales.
+ * Que exista uma reserva gerada não é enfeite: sem ela, quem não envia nada
+ * fica com o ícone genérico do navegador, e com cinco instâncias abertas
+ * em abas todas parecem iguais.
  */
 
 /**
- * Nombre fijo dentro del volumen de medios: una organización tiene un solo
- * icono. Vive aquí y no en la ruta que lo sirve porque Next solo admite
- * handlers como exports de un `route.ts` — cualquier otra cosa rompe el build.
+ * Nome fixo dentro do volume de mídia: uma organização tem um só
+ * ícone. Vive aqui e não na rota que o serve porque o Next só admite
+ * handlers como exports de um `route.ts` — qualquer outra coisa quebra o build.
  */
 export const FAVICON_ASSET = "favicon";
 
-/** Lo que el navegador acepta como icono y nosotros sabemos verificar. */
+/** O que o navegador aceita como ícone e que sabemos verificar. */
 export const FAVICON_MIMES = [
   "image/png",
   "image/svg+xml",
@@ -41,8 +41,8 @@ export const FAVICON_MIMES = [
 export type FaviconMime = (typeof FAVICON_MIMES)[number];
 
 /**
- * 256 KB. Un favicon de más no existe; el tope está para que nadie use este
- * campo como almacén de archivos.
+ * 256 KB. Um favicon maior não existe; o limite está para que ninguém use este
+ * campo como armazenamento de arquivos.
  */
 export const MAX_FAVICON_BYTES = 256 * 1024;
 
@@ -51,12 +51,11 @@ export function isFaviconMime(value: string): value is FaviconMime {
 }
 
 /**
- * Qué es el archivo DE VERDAD, según sus primeros bytes.
+ * O que o arquivo É DE VERDADE, segundo os seus primeiros bytes.
  *
- * No se confía en el `content-type` que manda el cliente: declarar `image/png`
- * y subir un HTML es la forma clásica de colar un documento donde se espera
- * una imagen. Devuelve null si no reconoce el formato — y entonces no se
- * guarda.
+ * Não se confia no `content-type` enviado pelo cliente: declarar `image/png`
+ * e enviar um HTML é a forma clássica de passar um documento onde se espera
+ * uma imagem. Devolve null se não reconhecer o formato — e aí não é salvo.
  */
 export function sniffFaviconMime(bytes: Uint8Array): FaviconMime | null {
   const at = (i: number) => bytes[i];
@@ -79,7 +78,7 @@ export function sniffFaviconMime(bytes: Uint8Array): FaviconMime | null {
     [...s].every((c, k) => bytes[i + k] === c.charCodeAt(0));
   if (ascii(0, "RIFF") && ascii(8, "WEBP")) return "image/webp";
 
-  // SVG: es texto. Se admite con o sin declaración XML o comentarios delante.
+  // SVG: é texto. Aceita-se com ou sem declaração XML ou comentários à frente.
   const head = new TextDecoder("utf-8", { fatal: false })
     .decode(bytes.slice(0, 1024))
     .trimStart();
@@ -90,16 +89,16 @@ export function sniffFaviconMime(bytes: Uint8Array): FaviconMime | null {
   return null;
 }
 
-/** Inicial que se dibuja. Vacío o raro cae a la V de Vocero. */
+/** Inicial que é desenhada. Vazio ou estranho cai no V do Vocero. */
 export function faviconInitial(name: string): string {
   const c = name.trim().charAt(0).toUpperCase();
   return c || "V";
 }
 
 /**
- * El icono generado. SVG y no PNG a propósito: se dibuja nítido en cualquier
- * densidad, pesa cientos de bytes y no necesita ninguna librería de imagen en
- * el servidor.
+ * O ícone gerado. SVG e não PNG de propósito: desenha nítido em qualquer
+ * densidade, pesa centenas de bytes e não precisa de nenhuma biblioteca de imagem no
+ * servidor.
  */
 export function generatedFaviconSvg(branding: Branding): string {
   const { accent, hover, fg } = resolveAccentSet(branding.accent);
@@ -117,9 +116,9 @@ export function generatedFaviconSvg(branding: Branding): string {
 }
 
 /**
- * El favicon de vocerocrm.com, con el degradado en el acento de la instancia:
- * una instancia llamada Vocero pero con otro color sigue viendo SU color.
- * El trazo sale de `lib/brand`, el mismo que dibuja la barra lateral.
+ * O favicon do vocerocrm.com, com o degradê no acento da instância:
+ * uma instância chamada Vocero mas com outra cor continua vendo SUA cor.
+ * O traço vem de `lib/brand`, o mesmo que desenha a barra lateral.
  */
 function voceroFaviconSvg(from: string, to: string): string {
   return [
@@ -136,12 +135,12 @@ function voceroFaviconSvg(from: string, to: string): string {
 }
 
 /**
- * Sufijo de caché del icono.
+ * Sufixo de cache do ícone.
  *
- * Los navegadores guardan el favicon con una insistencia notable: sin que la
- * URL cambie, el logo nuevo puede tardar días en aparecer. Para el subido va
- * el número de versión; para el generado, un hash del nombre y el acento, que
- * son justo lo que lo cambia.
+ * Os navegadores guardam o favicon com uma teimosia notável: sem que a
+ * URL mude, o logo novo pode demorar dias para aparecer. Para o enviado vai
+ * o número da versão; para o gerado, um hash do nome e do acento, que
+ * são justamente o que o muda.
  */
 export function faviconCacheKey(
   branding: Pick<Branding, "name" | "accent" | "favicon">
@@ -155,7 +154,7 @@ export function faviconCacheKey(
   return `g${h.toString(36)}`;
 }
 
-/** URL que va en el `<link rel="icon">`. */
+/** URL que vai no `<link rel="icon">`. */
 export function faviconHref(
   branding: Pick<Branding, "name" | "accent" | "favicon">
 ): string {

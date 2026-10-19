@@ -1,14 +1,14 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * #85 — La llave del proveedor de IA se guarda cifrada (jamás texto plano en
- * la fila), a la UI solo viajan sus últimos 4, y el estado lo escribe el
- * adaptador según lo que respondió el proveedor.
+ * #85 — A chave do provedor de IA é salva cifrada (jamais texto puro na
+ * linha), à UI só viajam seus últimos 4, e o estado é escrito pelo
+ * adaptador conforme o que o provedor respondeu.
  */
 
 const inserted: Record<string, unknown>[] = [];
 const updated: Record<string, unknown>[] = [];
-/** Lo que devuelve el UPDATE … RETURNING: vacío = no había fila. */
+/** O que devolve o UPDATE … RETURNING: vazio = não havia linha. */
 let filaExistente: Record<string, unknown>[] = [];
 
 vi.mock("@/lib/db", () => ({
@@ -82,7 +82,7 @@ describe("saveAiCredential", () => {
     expect(row.statusReason).toBeNull();
     expect(String(row.id)).toMatch(/^aicred_/);
 
-    // y el cifrado es reversible con la clave de la instancia
+    // e a cifra é reversível com a chave da instância
     const { decryptSecret } = await import("@/lib/crypto");
     expect(
       decryptSecret({
@@ -92,7 +92,7 @@ describe("saveAiCredential", () => {
       })
     ).toBe(token);
 
-    // lo que vuelve hacia fuera no trae el token ni el cifrado
+    // o que volta para fora não traz o token nem a cifra
     expect(JSON.stringify(guardada)).not.toContain(token);
     expect(guardada).not.toHaveProperty("tokenCipher");
     expect(guardada.tokenLast4).toBe("abcd");

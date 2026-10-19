@@ -5,9 +5,9 @@ import path from "node:path";
 import { parseEnv } from "node:util";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Todo lo que toca la base recibe su sonda por parámetro; aquí no hay
-// Postgres ni drizzle. Se mockea la capa de BD para que el módulo cargue sin
-// ella (como en credentials.test.ts) y la prueba siga siendo unitaria.
+// Tudo o que toca o banco recebe sua sonda por parâmetro; aqui não há
+// Postgres nem drizzle. Mocka-se a camada de BD para que o módulo carregue sem
+// ela (como em credentials.test.ts) e o teste siga sendo unitário.
 vi.mock("@/lib/db", () => ({ getDb: vi.fn(), schema: {}, PG_CONNECTION_OPTIONS: {} }));
 vi.mock("@/lib/db/tenant", () => ({ scoped: vi.fn() }));
 
@@ -27,9 +27,9 @@ import { renderInitEnv } from "@/server/doctor/init-env";
 import type { Credentials } from "@/server/whatsapp/credentials";
 
 /**
- * `pnpm doctor` usa el MISMO esquema que el arranque (safeParseEnv) y, para
- * cada ✗, dice el comando exacto. Y jamás imprime un secreto: aquí se busca
- * cada valor secreto en la salida formateada, no solo en los campos.
+ * `pnpm doctor` usa o MESMO esquema do arranque (safeParseEnv) e, para
+ * cada ✗, diz o comando exato. E jamais imprime um segredo: aqui se busca
+ * cada valor secreto na saída formatada, não só nos campos.
  */
 
 const RAIZ = path.resolve(import.meta.dirname, "..", "..");
@@ -85,7 +85,7 @@ describe("evaluateEnv", () => {
     expect(porLabel(results, "ENCRYPTION_KEY")?.fix).toContain("openssl rand -base64 32");
     expect(porLabel(results, "META_WEBHOOK_VERIFY_TOKEN")?.fix).toContain("openssl rand -hex 32");
     expect(porLabel(results, "APP_BASE_URL")?.fix).toContain("https://");
-    // Las de compose las lista evaluateComposeEnv: aquí no se duplican.
+    // As do compose quem lista é evaluateComposeEnv: aqui não se duplicam.
     expect(porLabel(results, "DOMAIN")).toBeUndefined();
     expect(porLabel(results, "POSTGRES_PASSWORD")).toBeUndefined();
   });

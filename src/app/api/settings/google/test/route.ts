@@ -13,7 +13,7 @@ const schema = z.object({
   calendarId: z.string().trim().optional(),
 });
 
-/** Probar sin guardar; con los campos vacíos prueba lo ya guardado. */
+/** Testar sem salvar; com os campos vazios testa o que já está salvo. */
 export const POST = withAuth(async (session, req: Request) => {
   if (!agendaEnabled()) return agendaDisabledResponse();
   const body = await parseBody(req, schema);

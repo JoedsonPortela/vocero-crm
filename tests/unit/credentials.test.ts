@@ -1,8 +1,8 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 /**
- * FR-040/FR-080s: el token se guarda cifrado (jamás texto plano en la fila)
- * y a la UI solo viajan los últimos 4 caracteres.
+ * FR-040/FR-080s: o token é salvo cifrado (jamais texto puro na linha)
+ * e à UI só viajam os últimos 4 caracteres.
  */
 
 const insertedRows: Record<string, unknown>[] = [];
@@ -48,7 +48,7 @@ describe("credenciales de WhatsApp", () => {
     expect(row.tokenIv).toBeTruthy();
     expect(row.tokenTag).toBeTruthy();
 
-    // y el cifrado es reversible con la clave de la instancia
+    // e a cifra é reversível com a chave da instância
     const { decryptSecret } = await import("@/lib/crypto");
     expect(
       decryptSecret({

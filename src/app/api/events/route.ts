@@ -2,9 +2,9 @@ import { requireSession, UnauthorizedError } from "@/lib/auth/session";
 import { subscribe } from "@/server/events/bus";
 
 /**
- * Canal SSE de la bandeja (contrato sse.md).
- * Headers exactos + heartbeat ~25s para sobrevivir detrás de Caddy/Traefik.
- * El servidor no garantiza replay: el cliente hace catch-up con `since=`.
+ * Canal SSE da bandeja (contrato sse.md).
+ * Headers exatos + heartbeat a cada ~25s para sobreviver atrás do Caddy/Traefik.
+ * O servidor não garante replay: o cliente faz catch-up com `since=`.
  */
 export const dynamic = "force-dynamic";
 
@@ -53,7 +53,7 @@ export async function GET(req: Request) {
         try {
           controller.close();
         } catch {
-          // ya cerrado
+          // já fechado
         }
       };
 

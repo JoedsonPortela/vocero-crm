@@ -4,29 +4,29 @@ import type { Channel } from "@/lib/channels";
 import { capabilitiesFor } from "@/server/channels/capabilities";
 
 /**
- * 022 — El tope de mensajes de un canal.
+ * 022 — O teto de mensagens de um canal.
  *
- * TikTok acepta hasta 10 mensajes después del último mensaje del cliente, y
- * el undécimo falla con un error de la plataforma que no dice gran cosa. Se
- * cuenta aquí, antes de llamar a nadie, para rechazarlo con un motivo que el
- * operador entienda y un código que un cerebro pueda tratar.
+ * O TikTok aceita até 10 mensagens depois da última mensagem do cliente, e
+ * a décima primeira falha com um erro da plataforma que não diz muita coisa. Conta-se
+ * aqui, antes de chamar ninguém, para rejeitá-la com um motivo que o
+ * operador entenda e um código que um cérebro possa tratar.
  *
- * No es un límite de velocidad: no se recupera esperando, solo cuando el
- * cliente vuelve a escribir.
+ * Não é um limite de velocidade: não se recupera esperando, só quando o
+ * cliente volta a escrever.
  */
 
-/** Pura: ¿cabe un mensaje más? Un canal sin tope siempre dice que sí. */
+/** Pura: cabe mais uma mensagem? Um canal sem teto sempre diz que sim. */
 export function cabeOtroMensaje(channel: Channel, enviados: number): boolean {
   const tope = capabilitiesFor(channel).maxOutboundPerWindow;
   return tope === null || enviados < tope;
 }
 
 /**
- * Cuántos mensajes salieron en la conversación desde el último entrante.
+ * Quantas mensagens saíram na conversa desde a última mensagem recebida.
  *
- * Cuenta lo que salió de verdad —de una persona o del agente—; un envío
- * fallido no gastó nada en la plataforma. La comparación de horas se hace en
- * Postgres, que guarda microsegundos.
+ * Conta o que saiu de fato —de uma pessoa ou do agente—; um envio
+ * falho não gastou nada na plataforma. A comparação de horas é feita no
+ * Postgres, que guarda microssegundos.
  */
 export async function salientesDesdeElUltimoEntrante(
   organizationId: string,

@@ -15,15 +15,15 @@ import {
 } from "@/lib/time/slots";
 
 /**
- * 015 — La configuración de la agenda del negocio (una por organización):
- * lectura con defaults y upsert normalizado.
+ * 015 — A configuração da agenda do negócio (uma por organização):
+ * leitura com padrões e upsert normalizado.
  */
 
 export type WeeklyHours = Partial<Record<WeekdayKey, Interval[]>>;
 
 export const DEFAULT_TIMEZONE = "America/Mexico_City";
 
-/** L-V 09:00-18:00 — se ajusta en Ajustes → Agenda. */
+/** Seg-Sex 09:00-18:00 — ajusta-se em Configurações → Agenda. */
 export const DEFAULT_WEEKLY_HOURS: WeeklyHours = {
   mon: [{ start: "09:00", end: "18:00" }],
   tue: [{ start: "09:00", end: "18:00" }],
@@ -39,13 +39,13 @@ export type CalendarSettings = {
   minNoticeHours: number;
   maxDaysAhead: number;
   timezone: string;
-  /** Cómo se entrega la reunión. */
+  /** Como a reunião é entregue. */
   connector: ConnectorId;
-  /** Sala fija del conector `enlace-fijo`; null ⇒ citas sin link. */
+  /** Sala fixa do conector `enlace-fijo`; null ⇒ agendamentos sem link. */
   meetingLink: string | null;
 };
 
-/** Lo que ve una instancia recién encendida: útil sin configurar nada. */
+/** O que vê uma instância recém-ligada: útil sem configurar nada. */
 export const DEFAULT_CALENDAR_SETTINGS: CalendarSettings = {
   weeklyHours: DEFAULT_WEEKLY_HOURS,
   slotMinutes: 30,
@@ -75,7 +75,7 @@ export async function getSettings(
     .limit(1);
 
   const row = rows[0];
-  // Sin fila: la instancia recién encendida ya es usable.
+  // Sem linha: a instância recém-ligada já é utilizável.
   if (!row) return DEFAULT_CALENDAR_SETTINGS;
 
   return {
@@ -85,8 +85,8 @@ export async function getSettings(
     minNoticeHours: row.minNoticeHours,
     maxDaysAhead: row.maxDaysAhead,
     timezone: row.timezone,
-    // Un conector que ya no existe en el código (p. ej. venías de un fork) no
-    // puede dejar la agenda inservible: se degrada al soberano.
+    // Um conector que não existe mais no código (p. ex. você vinha de um fork) não
+    // pode deixar a agenda inútil: rebaixa-se para o soberano.
     connector: isConnectorId(row.connector) ? row.connector : DEFAULT_CONNECTOR,
     meetingLink: row.meetingLink,
   };
@@ -100,10 +100,10 @@ export class CalendarSettingsError extends Error {
 }
 
 /**
- * Lo que llega de fuera, antes de normalizar: el horario y el conector vienen
- * sueltos porque su validación vive AQUÍ. Si el tipo estricto se exigiera en la
- * ruta, cada llamador tendría que hacer un cast — y un cast es justamente la
- * comprobación que no ocurre.
+ * O que chega de fora, antes de normalizar: o horário e o conector vêm
+ * soltos porque sua validação mora AQUI. Se o tipo estrito fosse exigido na
+ * rota, cada chamador teria que fazer um cast — e um cast é justamente a
+ * verificação que não acontece.
  */
 export type CalendarSettingsInput = Partial<
   Omit<CalendarSettings, "weeklyHours" | "connector">
@@ -119,7 +119,7 @@ export async function upsertSettings(
   const current = await getSettings(organizationId);
 
   const timezone = input.timezone ?? current.timezone;
-  // Una zona desconocida rompería el motor entero: se rechaza al guardar.
+  // Um fuso desconhecido quebraria o motor inteiro: rejeita-se ao salvar.
   if (!isValidTimeZone(timezone)) {
     throw new CalendarSettingsError(`Zona horaria desconocida: ${timezone}`);
   }
@@ -187,9 +187,9 @@ export async function upsertSettings(
 }
 
 /**
- * Descarta intervalos inválidos y días vacíos (día cerrado) y ordena por hora
- * de inicio. Se prefiere limpiar a rechazar: un día mal escrito no debe tumbar
- * el guardado completo del horario.
+ * Descarta intervalos inválidos e dias vazios (dia fechado) e ordena por hora
+ * de início. Prefere-se limpar a rejeitar: um dia mal escrito não deve derrubar
+ * o salvamento completo do horário.
  */
 export function normalizeWeeklyHours(input: unknown): WeeklyHours {
   const out: WeeklyHours = {};
@@ -206,7 +206,7 @@ export function normalizeWeeklyHours(input: unknown): WeeklyHours {
   return out;
 }
 
-/** Cadena vacía o espacios ⇒ null (el campo es opcional de verdad). */
+/** String vazia ou espaços ⇒ null (o campo é opcional de fato). */
 function normalizeLink(link: string | null | undefined): string | null {
   const trimmed = (link ?? "").trim();
   return trimmed.length > 0 ? trimmed : null;

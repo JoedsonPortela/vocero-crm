@@ -19,10 +19,10 @@ type Block<T> = { data: T | null; loading: boolean; error: string | null };
 const inicial = <T,>(): Block<T> => ({ data: null, loading: true, error: null });
 
 /**
- * Pide un bloque y lo deja en su estado. Mientras llega, CONSERVA lo anterior
- * (la sección lo atenúa): vaciar en cada cambio de rango haría saltar la
- * pantalla. Una respuesta que llega tarde, de un rango que ya no es el
- * elegido, se descarta con el `AbortSignal`.
+ * Pede um bloco e o deixa no seu estado. Enquanto chega, MANTÉM o anterior
+ * (a seção o atenua): esvaziar a cada mudança de intervalo faria a
+ * tela pular. Uma resposta que chega atrasada, de um intervalo que já não é o
+ * escolhido, é descartada com o `AbortSignal`.
  */
 async function cargar<T>(
   url: string,
@@ -54,12 +54,12 @@ async function cargar<T>(
 }
 
 /**
- * 019 — Pantalla Resultados.
+ * 019 — Tela Resultados.
  *
- * Cada bloque carga por su cuenta: son una veintena de consultas repartidas en
- * cuatro grupos, y en una sola respuesta el más lento retrasaría a los tres
- * rápidos. Así la pantalla pinta en cascada y un bloque roto muestra su propio
- * error sin tumbar el resto.
+ * Cada bloco carrega por conta própria: são cerca de vinte consultas distribuídas em
+ * quatro grupos, e numa única resposta o mais lento atrasaria os três
+ * rápidos. Assim a tela desenha em cascata e um bloco quebrado mostra o seu próprio
+ * erro sem derrubar o resto.
  */
 export function ResultsClient({
   currency,
@@ -69,7 +69,7 @@ export function ResultsClient({
 }: {
   currency: string;
   agenda: boolean;
-  /** Hoy en la zona del negocio (`YYYY-MM-DD`), resuelto en el servidor. */
+  /** Hoje no fuso horário do negócio (`YYYY-MM-DD`), resolvido no servidor. */
   today: string;
   timezone: string;
 }) {
@@ -88,7 +88,7 @@ export function ResultsClient({
     return () => ctl.abort();
   }, [range]);
 
-  // La higiene describe el AHORA: no depende del rango elegido.
+  // A higiene descreve o AGORA: não depende do intervalo escolhido.
   useEffect(() => {
     const ctl = new AbortController();
     void cargar("/api/analytics/hygiene", setHygiene, ctl.signal);

@@ -1,13 +1,13 @@
 /**
- * Idiomas que Meta acepta para plantillas de WhatsApp Cloud API.
+ * Idiomas que a Meta aceita para modelos do WhatsApp Cloud API.
  *
- * Copiado de la lista oficial («Supported Languages», actualizada por Meta el
- * 21-may-2026). El código es lo que viaja a Meta; el nombre es para el
- * selector. Un código fuera de esta lista Meta lo rechaza, así que el servidor
- * valida contra ella antes de gastar la llamada.
+ * Copiado da lista oficial («Supported Languages», atualizada pela Meta em
+ * 21-mai-2026). O código é o que vai para a Meta; o nome é para o
+ * seletor. Um código fora desta lista a Meta rejeita, então o servidor
+ * valida contra ela antes de gastar a chamada.
  *
- * Puro y sin dependencias: lo usan la API, la pantalla de Plantillas y el
- * selector de la Bandeja.
+ * Puro e sem dependências: usam-no a API, a tela de Modelos e o
+ * seletor da Bandeja.
  */
 
 export type TemplateLanguageGroup = "es" | "pt-en" | "otros";
@@ -102,7 +102,7 @@ export function isTemplateLanguage(code: string): boolean {
   return BY_CODE.has(code);
 }
 
-/** Nombre legible; un código desconocido (p. ej. sincronizado de Meta) se muestra tal cual. */
+/** Nome legível; um código desconhecido (ex.: sincronizado da Meta) é mostrado como está. */
 export function templateLanguageName(code: string): string {
   return BY_CODE.get(code) ?? code;
 }

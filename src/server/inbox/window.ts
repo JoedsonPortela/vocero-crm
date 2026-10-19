@@ -1,12 +1,12 @@
 /**
- * Ventana de servicio: solo se puede enviar texto libre dentro de cierto
- * tiempo tras el último mensaje ENTRANTE. Una conversación sin entrantes
- * (p. ej. iniciada por plantilla) tiene la ventana cerrada.
+ * Janela de serviço: só se pode enviar texto livre dentro de certo
+ * tempo após a última mensagem RECEBIDA. Uma conversa sem recebidas
+ * (p. ex. iniciada por template) tem a janela fechada.
  *
- * 022 — La duración es del canal: 24 horas en WhatsApp, Instagram y Messenger,
- * 48 en TikTok. Sale de `windowMsFor(channel)`
- * (`src/server/channels/capabilities.ts`); el valor por defecto de aquí es la
- * de WhatsApp, para quien no tiene una conversación a mano.
+ * 022 — A duração é do canal: 24 horas no WhatsApp, Instagram e Messenger,
+ * 48 no TikTok. Sai de `windowMsFor(channel)`
+ * (`src/server/channels/capabilities.ts`); o valor padrão daqui é o
+ * do WhatsApp, para quem não tem uma conversa à mão.
  */
 
 import type { Channel } from "@/lib/channels";
@@ -14,24 +14,24 @@ import { capabilitiesFor, windowMsFor } from "@/server/channels/capabilities";
 
 export const WINDOW_MS = 24 * 60 * 60 * 1000;
 
-/** 024 — Quién puede escribir ahora en una conversación, y cómo sale. */
+/** 024 — Quem pode escrever agora em uma conversa, e como sai. */
 export type ReplyWindow = {
-  /** Ventana normal del canal abierta: escribe cualquiera, persona o IA. */
+  /** Janela normal do canal aberta: escreve qualquer um, pessoa ou IA. */
   standardOpen: boolean;
-  /** Una persona puede escribir (ventana normal o extensión humana). */
+  /** Uma pessoa pode escrever (janela normal ou extensão humana). */
   operatorOpen: boolean;
-  /** La respuesta de la persona sale con la etiqueta de agente humano. */
+  /** A resposta da pessoa sai com a etiqueta de agente humano. */
   humanAgentTag: boolean;
-  /** Lo que le queda a una persona para contestar, en ms. */
+  /** O que resta para uma pessoa responder, em ms. */
   operatorRemainingMs: number;
 };
 
 /**
- * 024 — La ventana de respuesta de un canal, vista desde quien escribe.
+ * 024 — A janela de resposta de um canal, vista de quem escreve.
  *
- * Cuenta desde el último mensaje del CLIENTE: lo que manda el negocio no la
- * alarga. Sin entrantes, con una fecha inválida o con una del futuro no hay
- * ventana: no se puede afirmar que el cliente escribió hace poco.
+ * Conta desde a última mensagem do CLIENTE: o que o negócio envia não a
+ * alonga. Sem recebidas, com uma data inválida ou com uma do futuro não há
+ * janela: não se pode afirmar que o cliente escreveu há pouco.
  */
 export function replyWindow(
   channel: Channel,
@@ -57,7 +57,7 @@ export function replyWindow(
       operatorRemainingMs: Number.MAX_SAFE_INTEGER,
     };
   }
-  // La extensión nunca es más corta que la ventana normal.
+  // A extensão nunca é mais curta que a janela normal.
   const limit = Math.max(standardMs, capabilitiesFor(channel).humanAgentWindowMs ?? 0);
   const operatorOpen = elapsed < limit;
   return {
@@ -77,20 +77,20 @@ export function isWindowOpen(
   return now.getTime() - lastInboundAt.getTime() < windowMs;
 }
 
-/** Milisegundos restantes de ventana (0 si está cerrada). */
+/** Milissegundos restantes da janela (0 se estiver fechada). */
 export function windowRemainingMs(
   lastInboundAt: Date | null,
   now: Date = new Date(),
   windowMs: number = WINDOW_MS
 ): number {
   if (!lastInboundAt) return 0;
-  // Un canal sin ventana no se cierra nunca: no hay «restante» que contar.
+  // Um canal sem janela nunca fecha: não há «restante» para contar.
   if (!Number.isFinite(windowMs)) return Number.MAX_SAFE_INTEGER;
   const remaining = windowMs - (now.getTime() - lastInboundAt.getTime());
   return Math.max(0, remaining);
 }
 
-/** Cuándo se cierra la ventana; null sin entrantes o en un canal sin ventana. */
+/** Quando a janela fecha; null sem recebidas ou em um canal sem janela. */
 export function windowExpiresAt(
   lastInboundAt: Date | null,
   windowMs: number = WINDOW_MS

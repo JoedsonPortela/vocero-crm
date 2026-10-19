@@ -6,21 +6,21 @@ import type { CanalDelEvento } from "@/server/brains/contract";
 import { deleteMediaFile } from "@/server/whatsapp/media";
 
 /**
- * 026 — Eliminar una conversación, por petición explícita de quien administra
- * el negocio.
+ * 026 — Eliminar uma conversa, por pedido explícito de quem administra
+ * o negócio.
  *
- * Dos alcances, porque son dos intenciones distintas:
+ * Dois alcances, porque são duas intenções diferentes:
  *
- * - `hilo`: se van los mensajes, sus adjuntos y la ficha. El contacto, su
- *   lugar en el pipeline y sus citas pasadas se quedan. Si la persona vuelve a
- *   escribir, es una conversación nueva.
- * - `contacto`: se va la persona entera. Todo lo que cuelga de ella cae en
- *   cascada, incluido su historial de etapas — los números de Resultados
- *   cambian, y por eso es una casilla aparte y no el comportamiento normal.
+ * - `fio`: vão-se as mensagens, seus anexos e a ficha. O contato, seu
+ *   lugar no pipeline e seus agendamentos passados ficam. Se a pessoa voltar a
+ *   escrever, é uma conversa nova.
+ * - `contato`: vai-se a pessoa inteira. Tudo o que depende dela cai em
+ *   cascata, incluindo seu histórico de etapas — os números de Resultados
+ *   mudam, e por isso é uma caixa à parte e não o comportamento normal.
  *
- * Casi todo el trabajo lo hacen las foráneas con ON DELETE CASCADE. Lo que
- * este módulo añade es lo que una cascada no puede hacer: los adjuntos (fila y
- * archivo), la ficha y la cita por venir que detiene el borrado.
+ * Quase todo o trabalho é feito pelas chaves estrangeiras com ON DELETE CASCADE. O que
+ * este módulo acrescenta é o que uma cascata não consegue fazer: os anexos (linha e
+ * arquivo), a ficha e o agendamento futuro que detém a exclusão.
  */
 
 export type AlcanceBorrado = "hilo" | "contacto";
@@ -36,7 +36,7 @@ export type ResultadoEliminar =
       alcance: AlcanceBorrado;
       organization: { id: string; slug: string | null };
       contact: { id: string; identity: string };
-      /** En `hilo`, una. En `contacto`, todas las reales de esa persona. */
+      /** Em `fio`, um. Em `contato`, todas as reais dessa pessoa. */
       conversaciones: ConversacionEliminada[];
     }
   | { ok: false; motivo: "no_encontrada" }
@@ -78,12 +78,12 @@ export async function eliminarConversacion(
           eq(schema.conversation.id, conversationId)
         )
       )
-      // Dos personas eliminando a la vez: la segunda espera y luego no la
-      // encuentra, en vez de borrar a medias.
+      // Duas pessoas apagando ao mesmo tempo: a segunda espera e depois não a
+      // encontra, em vez de apagar pela metade.
       .for("update")
       .limit(1);
-    // Una conversación del Laboratorio no vive en la bandeja: por aquí no
-    // existe. Sus corridas se limpian desde el Laboratorio.
+    // Uma conversa do Laboratório não vive na caixa de entrada: por aqui não
+    // existe. Suas execuções são limpas pelo Laboratório.
     if (!fila || fila.conversation.isTest) return { ok: false, motivo: "no_encontrada" };
     const { contact } = fila;
     const todoElContacto = alcance === "contacto";
@@ -103,13 +103,13 @@ export async function eliminarConversacion(
     const ids = conversaciones.map((c) => c.id);
 
     /**
-     * Una cita por venir detiene el borrado, en los dos alcances.
+     * Um agendamento futuro detém a exclusão, nos dois alcances.
      *
-     * La cita sobrevive al hilo (`conversation_id` queda en NULL), pero su
-     * recordatorio se manda POR la conversación: sin ella no saldría, y nadie
-     * se enteraría. Y borrar el contacto se llevaría la cita de la base
-     * dejando viva la reunión en Google o Zoom. Cancelar es el camino que
-     * avisa a quien hay que avisar.
+     * O agendamento sobrevive ao fio (`conversation_id` fica em NULL), mas seu
+     * lembrete é enviado PELA conversa: sem ela não sairia, e ninguém
+     * ficaria sabendo. E apagar o contato levaria o agendamento do banco
+     * deixando viva a reunião no Google ou no Zoom. Cancelar é o caminho que
+     * avisa quem precisa ser avisado.
      */
     const [cita] = await tx
       .select({ cuando: schema.booking.scheduledAt })
@@ -130,8 +130,8 @@ export async function eliminarConversacion(
       .limit(1);
     if (cita) return { ok: false, motivo: "cita_pendiente", cuando: cita.cuando };
 
-    // Los adjuntos se anotan ANTES de borrar: después ya no hay mensaje que
-    // diga cuáles eran.
+    // Os anexos são anotados ANTES de apagar: depois já não há mensagem que
+    // diga quais eram.
     const deMensajes = await tx
       .selectDistinct({ id: schema.message.mediaAssetId })
       .from(schema.message)
@@ -182,15 +182,15 @@ export async function eliminarConversacion(
             eq(schema.conversation.id, conversationId)
           )
         );
-      // La ficha es lo que el agente fue aprendiendo de esta persona, y viaja
-      // al cerebro en cada turno: dejarla sería borrar el hilo y conservar
-      // justo lo que el agente recordaba de él.
+      // A ficha é o que o agente foi aprendendo desta pessoa, e viaja
+      // ao cérebro em cada turno: deixá-la seria apagar o fio e conservar
+      // justamente o que o agente lembrava dele.
       await vaciarFicha(tx, organizationId, contact.id);
     }
 
     if (candidatos.length > 0) {
-      // Solo los adjuntos que ya nadie usa: la imagen de un anuncio puede
-      // estar en otra conversación.
+      // Só os anexos que ninguém mais usa: a imagem de um anúncio pode
+      // estar em outra conversa.
       const borrados = await tx
         .delete(schema.mediaAsset)
         .where(
@@ -220,16 +220,16 @@ export async function eliminarConversacion(
       alcance,
       organization: org,
       contact: { id: contact.id, identity: contact.waIdentity },
-      // Al cerebro solo se le avisa de las reales: de una de prueba nunca supo.
+      // Ao cérebro só se avisa das reais: de uma de teste ele nunca soube.
       conversaciones: conversaciones
         .filter((c) => !c.isTest)
         .map((c) => ({ id: c.id, channel: c.channel })),
     };
   });
 
-  // Los archivos, DESPUÉS del commit: si la transacción se revierte, las
-  // filas vuelven y sus archivos tienen que seguir ahí. Al revés solo queda
-  // un archivo huérfano que nadie puede abrir, y no un mensaje sin adjunto.
+  // Os arquivos, DEPOIS do commit: se a transação for revertida, as
+  // linhas voltam e seus arquivos têm que continuar ali. Ao contrário, só fica
+  // um arquivo órfão que ninguém consegue abrir, e não uma mensagem sem anexo.
   if (resultado.ok && archivos.length > 0) {
     const intentos = await Promise.allSettled(
       archivos.map((id) => deleteMediaFile(organizationId, id))

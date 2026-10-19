@@ -11,13 +11,13 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * 015 — La configuración de la agenda del negocio.
+ * 015 — A configuração da agenda do negócio.
  *
- * Una instancia sin configurar responde 200 con los defaults, no 404: la
- * agenda ya es usable el día que se enciende.
+ * Uma instância não configurada responde 200 com os defaults, não 404: a
+ * agenda já é utilizável no dia em que é ligada.
  *
- * Jamás devuelve credenciales de un conector — esas viven en su propio
- * endpoint y solo salen como últimos 4 dígitos.
+ * Nunca devolve credenciais de um conector — elas vivem no seu próprio
+ * endpoint e só saem como últimos 4 dígitos.
  */
 export const GET = withAuth(async (session) => {
   if (!agendaEnabled()) return agendaDisabledResponse();
@@ -37,8 +37,8 @@ const putSchema = z.object({
   minNoticeHours: z.number().optional(),
   maxDaysAhead: z.number().optional(),
   timezone: z.string().optional(),
-  // El catálogo manda: un conector que no existe se rechaza aquí, y el
-  // servicio lo vuelve a comprobar por si el llamador no es esta ruta.
+  // O catálogo manda: um conector que não existe é recusado aqui, e o
+  // serviço verifica de novo caso quem chamou não seja esta rota.
   connector: z
     .string()
     .refine((v) => (CONNECTOR_ORDER as readonly string[]).includes(v), {
@@ -49,10 +49,10 @@ const putSchema = z.object({
 });
 
 /**
- * Guarda lo que se pueda salvar: los enteros fuera de rango se recortan y los
- * intervalos mal escritos se descartan, en vez de tumbar el horario entero por
- * una celda. Lo que sí se rechaza es lo que rompería el motor después: una
- * zona horaria que el runtime no conoce, o un conector inexistente.
+ * Salva o que for possível: os inteiros fora da faixa são ajustados e os
+ * intervalos mal escritos são descartados, em vez de derrubar o horário inteiro por
+ * uma célula. O que é recusado é o que quebraria o motor depois: um
+ * fuso horário que o runtime não conhece, ou um conector inexistente.
  */
 export const PUT = withAuth(async (session, req: Request) => {
   if (!agendaEnabled()) return agendaDisabledResponse();
@@ -62,7 +62,7 @@ export const PUT = withAuth(async (session, req: Request) => {
   try {
     const settings = await upsertSettings(session.organizationId, {
       ...body.data,
-      // `undefined` = no lo tocaron; `null` = lo vaciaron a propósito.
+      // `undefined` = não foi tocado; `null` = foi esvaziado de propósito.
       meetingLink:
         body.data.meetingLink === undefined ? undefined : body.data.meetingLink,
     });

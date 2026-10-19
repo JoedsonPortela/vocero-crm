@@ -13,17 +13,17 @@ import { median, type ResolvedPeriod } from "@/server/analytics/period";
 import { notLabContact } from "@/server/analytics/shared";
 
 /**
- * 019 — El trabajo del agente.
+ * 019 — O trabalho do agente.
  *
- * Se quedan las medidas que valen para cualquier negocio —contestó, cuánto
- * tardó, cuántas veces pasó a un humano, cómo salieron las citas—. Todas miran
- * la MISMA cohorte: las conversaciones que empezaron en el periodo. Así una
- * tasa no puede pasar de 100 % por contar en el numerador escalamientos de
- * conversaciones viejas que el denominador no tiene.
+ * Ficam as medidas que valem para qualquer negócio —respondeu, quanto
+ * demorou, quantas vezes passou para um humano, como saíram os agendamentos. Todas olham
+ * a MESMA coorte: as conversas que começaram no período. Assim uma
+ * taxa não pode passar de 100 % por contar no numerador escalonamentos de
+ * conversas antigas que o denominador não tem.
  *
- * Solo conversaciones reales: el Laboratorio escala a propósito (su persona
- * «pide humano») y contesta siempre; contarlo haría ver al agente mejor y peor
- * de lo que es.
+ * Só conversas reais: o Laboratório escala de propósito (sua persona
+ * «pede humano») e responde sempre; contá-lo faria o agente parecer melhor e pior
+ * do que é.
  */
 export async function botBlock(
   organizationId: string,
@@ -36,8 +36,8 @@ export async function botBlock(
     conteosDeLaCohorte(organizationId, start, end),
     medianaPrimeraRespuesta(organizationId, start, end),
     escalamientos(organizationId, start, end),
-    // Sin la bandera no hay agenda, y sin agenda no hay citas que contar: ni
-    // siquiera se consulta (spec 019, D4).
+    // Sem a bandeira não há agenda, e sem agenda não há agendamentos a contar: nem
+    // sequer se consulta (spec 019, D4).
     agenda ? sesionesDelPeriodo(organizationId, start, end) : Promise.resolve(null),
     coberturaDeFicha(organizationId, start, end),
   ]);
@@ -59,15 +59,15 @@ export async function botBlock(
 }
 
 /**
- * La conversación de afuera, para las subconsultas correlacionadas, con su
- * nombre de tabla ESCRITO. En la lista de SELECT de una consulta de una sola
- * tabla, drizzle le quita la tabla a toda columna interpolada: `${id}` saldría
- * como `"id"`, y dentro de `from "message" m` eso es `m.id` — la subconsulta se
- * compararía consigo misma y la primera respuesta saldría siempre vacía.
+ * A conversa de fora, para as subconsultas correlacionadas, com seu
+ * nome de tabela ESCRITO. Na lista de SELECT de uma consulta de uma só
+ * tabela, o drizzle tira a tabela de toda coluna interpolada: `${id}` sairia
+ * como `"id"`, e dentro de `from "message" m` isso é `m.id` — a subconsulta se
+ * compararia consigo mesma e a primeira resposta sairia sempre vazia.
  */
 const conversacionId = sql.raw(`"conversation"."id"`);
 
-/** Las conversaciones reales que empezaron en el rango. */
+/** As conversas reais que começaram no intervalo. */
 function cohorte(organizationId: string, start: Date, end: Date) {
   return scoped(
     schema.conversation.organizationId,
@@ -79,9 +79,9 @@ function cohorte(organizationId: string, start: Date, end: Date) {
 }
 
 /**
- * Cuántas son, en cuántas escribió el cliente y en cuántas de ésas contestó el
- * agente. «El agente» es todo saliente con origen IA: el in-process y un
- * cerebro externo por `/api/bot/messages` escriben igual.
+ * Quantas são, em quantas o cliente escreveu e em quantas dessas o
+ * agente respondeu. «O agente» é toda saída com origem IA: o in-process e um
+ * cérebro externo por `/api/bot/messages` gravam igual.
  */
 async function conteosDeLaCohorte(organizationId: string, start: Date, end: Date) {
   const entrante = sql`exists (select 1 from "message" mi where mi."conversation_id" = ${conversacionId} and mi."direction" = 'in')`;
@@ -102,10 +102,10 @@ async function conteosDeLaCohorte(organizationId: string, start: Date, end: Date
 }
 
 /**
- * Mediana —no promedio— del tiempo hasta la primera respuesta del agente.
+ * Mediana —não média— do tempo até a primeira resposta do agente.
  *
- * Una conversación que se quedó colgada ocho horas arrastraría el promedio y
- * haría ver lento a un agente que contesta en segundos.
+ * Uma conversa que ficou travada oito horas puxaria a média para cima e
+ * faria parecer lento um agente que responde em segundos.
  */
 async function medianaPrimeraRespuesta(
   organizationId: string,
@@ -134,7 +134,7 @@ async function medianaPrimeraRespuesta(
   return { median: median(valores), sample: valores.length };
 }
 
-/** De la cohorte, las que hoy están en manos de un humano, por motivo. */
+/** Da coorte, as que hoje estão nas mãos de um humano, por motivo. */
 async function escalamientos(
   organizationId: string,
   start: Date,
@@ -170,7 +170,7 @@ async function escalamientos(
     .sort((a, b) => b.count - a.count);
 }
 
-/** Citas del periodo por desenlace. Las de prueba no son citas. */
+/** Agendamentos do período por desfecho. Os de teste não são agendamentos. */
 async function sesionesDelPeriodo(
   organizationId: string,
   start: Date,
@@ -199,20 +199,20 @@ async function sesionesDelPeriodo(
     done,
     noShow,
     cancelled: n("cancelada"),
-    // Contra las que LLEGARON a su hora, no contra todas: una cita cancelada
-    // con aviso no es un plantón, y meterla en el denominador haría ver mal a
-    // un negocio cuyos clientes avisan.
+    // Contra os que CHEGARAM na hora, não contra todos: um agendamento cancelado
+    // com aviso não é um não comparecimento, e incluí-lo no denominador faria parecer ruim um
+    // negócio cujos clientes avisam.
     showRate: rate(done, done + noShow),
   };
 }
 
 /**
- * Qué parte de los contactos nuevos tiene ficha.
+ * Que parte dos contatos novos tem ficha.
  *
- * Devuelve `null` cuando NINGÚN contacto real tiene ficha: eso no es «0 % de
- * cobertura», es que el agente de esta instancia no la escribe y la medida no
- * aplica. Enseñar 0 % ahí sería acusarlo de no hacer algo que nunca se le
- * pidió.
+ * Devolve `null` quando NENHUM contato real tem ficha: isso não é «0 % de
+ * cobertura», é que o agente desta instância não a escreve e a medida não
+ * se aplica. Mostrar 0 % ali seria acusá-lo de não fazer algo que nunca lhe
+ * foi pedido.
  */
 async function coberturaDeFicha(organizationId: string, start: Date, end: Date) {
   const db = getDb();

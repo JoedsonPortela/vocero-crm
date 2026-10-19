@@ -36,7 +36,7 @@ const HORA = 60 * 60 * 1000;
 const ACCOUNT = "6ace6bfe5d6259b1df1e1bf2";
 const SENDER = "tt-user-0001";
 
-/** Un `message.received` de Zernio para TikTok, con la forma de su documentación. */
+/** Um `message.received` do Zernio para o TikTok, com o formato da sua documentação. */
 function evento(over: Record<string, unknown> = {}) {
   return {
     id: "evt_5f8e2a1c",
@@ -91,7 +91,7 @@ describe("022 · TikTok en el catálogo de canales", () => {
   it("la identidad lleva su propio prefijo y no se confunde con un teléfono", () => {
     expect(TT_PREFIX).toBe("tt:");
     expect(new Set([TT_PREFIX, FB_PREFIX, IG_PREFIX, BSUID_PREFIX]).size).toBe(4);
-    // `/api/bot/context?identity=tt:…` no debe intentar leerla como WhatsApp.
+    // `/api/bot/context?identity=tt:…` não deve tentar lê-la como WhatsApp.
     expect(parseIdentity("tt:12345")).toBeNull();
   });
 });
@@ -104,7 +104,7 @@ describe("022 · lo que TikTok impone, declarado en las capacidades", () => {
     expect(caps.outboundMedia).toBe(false);
     expect(caps.deliveryReceipts).toBe(false);
     expect(windowMsFor("tiktok")).toBe(48 * HORA);
-    // Al operador se le dice qué pasa Y qué lo arregla.
+    // Ao operador se diz o que acontece E o que o conserta.
     expect(windowClosedMessage("tiktok")).toContain("TikTok");
     expect(windowClosedMessage("tiktok")).toContain("vuelva a escribir");
   });
@@ -114,33 +114,33 @@ describe("022 · lo que TikTok impone, declarado en las capacidades", () => {
       expect(windowMsFor(canal), canal).toBe(24 * HORA);
       expect(capabilitiesFor(canal).maxOutboundPerWindow, canal).toBeNull();
     }
-    // Instagram y Messenger miden en bytes; WhatsApp, en caracteres.
+    // Instagram e Messenger medem em bytes; WhatsApp, em caracteres.
     expect(capabilitiesFor("instagram").maxTextChars).toBeNull();
     expect(capabilitiesFor("messenger").maxTextChars).toBeNull();
-    // Sus textos de siempre no cambian.
+    // Os textos de sempre não mudam.
     expect(windowClosedMessage("whatsapp")).toBe(
       "La ventana de 24 horas está cerrada; usa una plantilla aprobada"
     );
-    // 024: la extensión humana tiene tope (7 días) y su propio mensaje.
+    // 024: a extensão humana tem teto (7 dias) e sua própria mensagem.
     expect(windowClosedMessage("messenger")).toContain("7 días");
   });
 
   it("el texto se mide en CARACTERES: 6,000, y un emoji cuenta uno", () => {
     expect(textFits("tiktok", "a".repeat(6000))).toBe(true);
     expect(textFits("tiktok", "a".repeat(6001))).toBe(false);
-    // 6,000 acentos son 12,000 bytes: contando bytes se rechazaría de más.
+    // 6.000 acentos são 12.000 bytes: contando bytes se rejeitaria demais.
     expect(textFits("tiktok", "é".repeat(6000))).toBe(true);
-    // 6,000 emojis son 12,000 unidades UTF-16: contando `.length`, también.
+    // 6.000 emojis são 12.000 unidades UTF-16: contando `.length`, também.
     expect(textFits("tiktok", "🙂".repeat(6000))).toBe(true);
     expect(textFits("tiktok", "🙂".repeat(6001))).toBe(false);
     expect(textLimitMessage("tiktok")).toContain("6,000 caracteres");
-    // WhatsApp conserva su límite de siempre (4,096), ahora declarado en el
-    // canal en vez de en el esquema de la API; y la API acepta hasta el mayor.
+    // O WhatsApp mantém seu limite de sempre (4.096), agora declarado no
+    // canal em vez de no esquema da API; e a API aceita até o maior.
     expect(textFits("whatsapp", "a".repeat(4096))).toBe(true);
     expect(textFits("whatsapp", "a".repeat(4097))).toBe(false);
     expect(textLimitMessage("whatsapp")).toContain("4,096 caracteres");
     expect(MAX_TEXT_CHARS_ANY_CHANNEL).toBe(6000);
-    // Messenger sigue midiendo en bytes.
+    // O Messenger continua medindo em bytes.
     expect(textFits("messenger", "é".repeat(1200))).toBe(false);
     expect(textLimitMessage("messenger")).toContain("2000 bytes");
   });
@@ -151,7 +151,7 @@ describe("022 · lo que TikTok impone, declarado en las capacidades", () => {
     expect(cabeOtroMensaje("tiktok", 9)).toBe(true);
     expect(cabeOtroMensaje("tiktok", 10)).toBe(false);
     expect(cabeOtroMensaje("tiktok", 11)).toBe(false);
-    // Un canal sin tope siempre deja pasar.
+    // Um canal sem teto sempre deixa passar.
     expect(cabeOtroMensaje("whatsapp", 500)).toBe(true);
     expect(outboundLimitMessage("tiktok")).toContain("10 mensajes");
     expect(outboundLimitMessage("tiktok")).toContain("vuelva a escribir");
@@ -195,11 +195,11 @@ describe("022 · normalizeZernioTiktokEvent (qué entra y qué se descarta)", ()
       messageId: "66d4a1b2c3e4f5a6b7c8d9e1",
       text: "Hola, ¿sigue disponible?",
       type: "text",
-      // La hora en que lo mandó la persona, no la de llegada: es lo que abre
-      // la ventana, y una reentrega tardía no debe reabrirla.
+      // A hora em que a pessoa o enviou, não a de chegada: é ela que abre
+      // a janela, e uma reentrega tardia não deve reabri-la.
       timestamp: String(Date.parse("2026-10-13T12:00:00.000Z") / 1000),
       profileName: "Jane",
-      // El conversationId es lo ÚNICO con lo que se puede responder.
+      // O conversationId é o ÚNICO com que se pode responder.
       threadRef: "66c3d2ae7b4f6c8d0e1f2a3b",
     });
   });
@@ -231,7 +231,7 @@ describe("022 · normalizeZernioTiktokEvent (qué entra y qué se descarta)", ()
     expect(tipo([{ type: "video", url: "https://cdn/x.mp4" }])).toBe("video");
     expect(tipo([{ type: "sticker" }])).toBe("sticker");
     expect(tipo([{ type: "share" }])).toBe("unsupported");
-    // Ni texto ni adjunto: no hay nada que ingerir.
+    // Nem texto nem anexo: não há nada para ingerir.
     expect(tipo([])).toBeUndefined();
   });
 

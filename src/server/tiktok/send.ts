@@ -2,15 +2,15 @@ import type { TiktokCredentials } from "@/server/tiktok/credentials";
 import { sendZernioMessage } from "@/server/zernio";
 
 /**
- * 022 — Frontera de salida del canal de TikTok (Constitución II: todo request
- * a una plataforma pasa por un único módulo).
+ * 022 — Fronteira de saída do canal do TikTok (Constituição II: toda requisição
+ * a uma plataforma passa por um único módulo).
  *
- * Un solo transporte: Zernio, que responde DENTRO de su conversación con el
- * `conversationId` opaco que guardó la ingesta. TikTok no deja que el negocio
- * inicie, así que una conversación sin esa referencia no tiene a dónde ir.
+ * Um único transporte: a Zernio, que responde DENTRO da sua conversa com o
+ * `conversationId` opaco que a ingestão guardou. O TikTok não deixa o negócio
+ * iniciar, então uma conversa sem essa referência não tem para onde ir.
  *
- * La ventana de 48 horas y el tope de mensajes se comprueban antes, en
- * `prepareSend` (`src/server/inbox/send.ts`): aquí ya solo se envía.
+ * A janela de 48 horas e o teto de mensagens são verificados antes, em
+ * `prepareSend` (`src/server/inbox/send.ts`): aqui só se envia.
  */
 
 export type TiktokSendResult = { platformMessageId: string };

@@ -25,15 +25,15 @@ const prefixes = {
   offeredSlot: "ofs",
   zoomCredentials: "zcred",
   googleCredentials: "gcred",
-  // 016 — atribución de anuncios
+  // 016 — atribuição de anúncios
   adAttribution: "att",
   conversionEvent: "cve",
   capiSettings: "capi",
   // Ajustes → IA (issue #85)
   aiCredentials: "aicred",
-  // 021 — despacho al cerebro
+  // 021 — despacho ao cérebro
   dispatch: "dsp",
-  // 026 — el aviso de que una conversación se eliminó
+  // 026 — o aviso de que uma conversa foi excluída
   olvido: "olv",
 } as const;
 

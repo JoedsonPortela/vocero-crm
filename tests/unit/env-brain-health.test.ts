@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 /**
- * `BRAIN_HEALTH_URL` es opcional y solo de diagnóstico: un valor mal escrito
- * no puede tumbar el CRM. Con `.url()` en el esquema, `getEnv()` lanzaba y
- * toda la app respondía 503 por una tarjeta. Ahora la tarjeta lo marca
- * (`problem: "config"`) y lo demás sigue.
+ * `BRAIN_HEALTH_URL` é opcional e só de diagnóstico: um valor mal escrito
+ * não pode derrubar o CRM. Com `.url()` no esquema, `getEnv()` lançava e
+ * todo o app respondia 503 por causa de um cartão. Agora o cartão marca isso
+ * (`problem: "config"`) e o resto segue.
  */
 
 const BASE = {

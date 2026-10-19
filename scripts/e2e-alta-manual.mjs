@@ -1,13 +1,13 @@
 /**
- * Self-test E2E de comportamiento — captura manual de prospectos
- * (guion tests/e2e/us2-pipeline.md, sección "alta manual").
+ * Self-test E2E de comportamento — cadastro manual de prospectos
+ * (roteiro tests/e2e/us2-pipeline.md, seção "alta manual").
  *
- * Antes: `POST /api/contacts` existía pero ninguna pantalla lo llamaba, y
- * cuando se llamaba por API creaba el contacto SIN lead — invisible en el
- * Pipeline, que es donde se trabaja el embudo.
+ * Antes: `POST /api/contacts` existia, mas nenhuma tela o chamava, e
+ * quando era chamado pela API criava o contato SEM lead — invisível no
+ * Pipeline, que é onde se trabalha o funil.
  *
  * Uso: node --env-file=.env scripts/e2e-alta-manual.mjs
- * Requiere: app corriendo (pnpm dev) con WA_MOCK_ENABLED=true y BD migrada.
+ * Requer: app rodando (pnpm dev) com WA_MOCK_ENABLED=true e BD migrada.
  */
 import postgres from "postgres";
 
@@ -47,7 +47,7 @@ async function api(path, opts = {}) {
   return { res, json };
 }
 
-// TimeZone UTC: invariante de tiempo del proyecto (ver src/lib/db/index.ts).
+// TimeZone UTC: invariante de tempo do projeto (ver src/lib/db/index.ts).
 const sql = postgres(process.env.DATABASE_URL, {
   max: 1,
   onnotice: () => {},

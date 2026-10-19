@@ -17,18 +17,18 @@ import {
 import type { SlotUtc } from "@/lib/time/slots";
 
 /**
- * Huecos por fecha, repartidos a lo largo del día, y hasta dónde llega lo
+ * Horários livres por data, distribuídos ao longo do dia, e até onde chega o
  * consultado.
  *
- * Fija el fallo de la prueba de punta a punta raíz + Nea: a «¿tienen algo
- * mañana en la tarde?» el agente ofreció 10:00, 10:30 y 11:00 y dijo que el
- * martes solo había mañana, con la agenda libre de 12:00 a 18:30. El CRM
- * ignoraba `date` y solo devolvía las tres primeras horas de cada día.
+ * Fixa a falha do teste de ponta a ponta raiz + Nea: a «¿tienen algo
+ * mañana en la tarde?» o agente ofereceu 10:00, 10:30 e 11:00 e disse que na terça
+ * só havia manhã, com a agenda livre das 12:00 às 18:30. O CRM
+ * ignorava `date` e só devolvia as três primeiras horas de cada dia.
  */
 
 const MX = "America/Mexico_City";
 const NY = "America/New_York";
-// Lunes 21 sep 2026, 09:00 en CDMX (UTC-6 todo el año desde 2022).
+// Segunda-feira 21 set 2026, 09:00 em CDMX (UTC-6 o ano todo desde 2022).
 const NOW = new Date("2026-09-21T15:00:00.000Z");
 
 const LUN_A_VIE: CalendarSettings["weeklyHours"] = {
@@ -50,7 +50,7 @@ function ajustes(over: Partial<CalendarSettings> = {}): CalendarSettings {
   };
 }
 
-/** Lo que devolvería el motor para [from, to] con `busy` ocupado. */
+/** O que o motor devolveria para [from, to] com `busy` ocupado. */
 function libres(
   s: CalendarSettings,
   from: string,
@@ -65,7 +65,7 @@ function libres(
   });
 }
 
-/** Una consulta por fecha, armada como la arma la ruta. */
+/** Uma consulta por data, montada como a monta a rota. */
 function porFecha(
   s: CalendarSettings,
   date: string,
@@ -102,7 +102,7 @@ describe("«¿mañana en la tarde?» (el fallo de la prueba de punta a punta)", 
     });
     const manana = slots.filter((x) => x.dayIso === "2026-09-22");
     expect(horas(manana)).toEqual(["10:00", "10:30", "11:00"]);
-    // 3 por día × 4 días = 12: el jueves 24 fue el último revisado.
+    // 3 por dia × 4 dias = 12: a quinta-feira 24 foi a última revisada.
     expect(query).toEqual({
       date: null,
       status: null,
@@ -114,7 +114,7 @@ describe("«¿mañana en la tarde?» (el fallo de la prueba de punta a punta)", 
 
   it("con date trae TODO el martes, tarde incluida", () => {
     const { slots, query } = porFecha(s, "2026-09-22");
-    expect(slots).toHaveLength(18); // 10:00 … 18:30, cada 30 min
+    expect(slots).toHaveLength(18); // 10:00 … 18:30, a cada 30 min
     expect(horas(slots)).toEqual(
       expect.arrayContaining(["12:00", "15:00", "18:30"])
     );
@@ -137,7 +137,7 @@ describe("«¿mañana en la tarde?» (el fallo de la prueba de punta a punta)", 
       maxDaysAhead: 7,
       limit: 1,
       perDay: 1,
-      days: 1, // el viernes 25 queda FUERA de una ventana de 1 día: no importa
+      days: 1, // a sexta 25 fica FORA de uma janela de 1 dia: não importa
       date: "2026-09-25",
       candidatosDelDia: 18,
     });
@@ -213,7 +213,7 @@ describe("por qué un día no tiene horas", () => {
   });
 
   it("lleno también cuando hoy ya cerró", () => {
-    const tarde = new Date("2026-09-22T01:30:00.000Z"); // lun 21, 19:30 CDMX
+    const tarde = new Date("2026-09-22T01:30:00.000Z"); // seg 21, 19:30 CDMX
     expect(porFecha(s, "2026-09-21", tarde).query.status).toBe("full");
   });
 
@@ -225,21 +225,21 @@ describe("por qué un día no tiene horas", () => {
   });
 
   it("más allá del horizonte no es «lleno»: aún no se abre agenda", () => {
-    const { slots, query } = porFecha(s, "2026-09-29"); // hoy + 8
+    const { slots, query } = porFecha(s, "2026-09-29"); // hoje + 8
     expect(slots).toEqual([]);
     expect(query).toMatchObject({
       status: "beyond_horizon",
       horizonEnd: "2026-09-28",
       coveredUntil: null,
     });
-    // El último día del horizonte todavía se agenda.
+    // O último dia do horizonte ainda é agendável.
     expect(porFecha(s, "2026-09-28").query.status).toBe("available");
   });
 });
 
 describe("la fecha es la del negocio, no la del servidor", () => {
   const s = ajustes();
-  // Lunes 21, 22:30 en CDMX; en UTC ya es martes 22.
+  // Segunda 21, 22:30 em CDMX; em UTC já é terça 22.
   const noche = new Date("2026-09-22T04:30:00.000Z");
 
   function consultas() {
@@ -257,7 +257,7 @@ describe("la fecha es la del negocio, no la del servidor", () => {
 
   it("«hoy» se decide en la zona del negocio", () => {
     const r = consultas();
-    expect(r.hoy).toBe("full"); // el lunes sigue siendo hoy: no «past»
+    expect(r.hoy).toBe("full"); // a segunda ainda é hoje: não «past»
     expect(r.manana).toBe("available");
     expect(r.dia).toMatch(/^mañana martes/);
     expect(r.primero).toBe("2026-09-22T16:00:00.000Z"); // 10:00 CDMX
@@ -269,13 +269,13 @@ describe("la fecha es la del negocio, no la del servidor", () => {
     const original = process.env.TZ;
     try {
       const offsets = {
-        "Pacific/Kiritimati": -840, // UTC+14: ya es otro día casi siempre
+        "Pacific/Kiritimati": -840, // UTC+14: já é outro dia quase sempre
         "Pacific/Pago_Pago": 660, // UTC-11
         "Asia/Tokyo": -540,
       };
       for (const [tz, offset] of Object.entries(offsets)) {
         process.env.TZ = tz;
-        // Que el cambio de zona sí surtió efecto en este proceso.
+        // Que a mudança de fuso surtiu efeito neste processo.
         expect(new Date("2026-01-01T00:00:00Z").getTimezoneOffset()).toBe(offset);
         expect(consultas()).toEqual(esperado);
       }
@@ -333,7 +333,7 @@ describe("sin date: el reparto de siempre, con cobertura", () => {
   const s = ajustes({ maxDaysAhead: 14 });
   const todos = libres(s, "2026-09-21", "2026-10-05");
 
-  /** La ruta ANTES de R10: repartir y luego recortar a `days`. */
+  /** A rota ANTES de R10: distribuir e depois recortar em `days`. */
   function antes(limit: number, perDay: number, days: number): string[] {
     const hoy = Date.parse("2026-09-21T00:00:00Z");
     return spreadByDay(todos, { timezone: MX, limit, perDay, now: NOW })
@@ -365,7 +365,7 @@ describe("sin date: el reparto de siempre, con cobertura", () => {
   });
 
   it("si no se llenó, se revisó toda la ventana", () => {
-    // 2 días hábiles × 3 = 6 < 12: lo que falta en la ventana SÍ está cerrado.
+    // 2 dias úteis × 3 = 6 < 12: o que falta na janela ESTÁ fechado.
     const { slots, query } = armarHuecos({
       todos,
       timezone: MX,

@@ -4,10 +4,10 @@ import { schema } from "@/lib/db";
 import type { EstadoIa } from "@/lib/ai/provider";
 
 /**
- * #86 — Los pasos verificados de la guía de inicio, con la base falsa: cada
- * paso sale de la misma fuente que ya decide si esa pieza funciona (la fila
- * de Ajustes → IA o el entorno, el `status` de la conexión, el catálogo de
- * conectores), y lo que está MAL se dice en `problem`.
+ * #86 — Os passos verificados do guia de início, com o banco falso: cada
+ * passo sai da mesma fonte que já decide se essa peça funciona (a linha
+ * de Ajustes → IA ou o ambiente, o `status` da conexão, o catálogo de
+ * conectores), e o que está ERRADO é dito em `problem`.
  */
 
 const estadoIaDe = vi.hoisted(() => vi.fn<() => Promise<EstadoIa>>());
@@ -19,7 +19,7 @@ vi.mock("@/lib/ai/provider", async (importOriginal) => ({
 import { onboardingStatus } from "@/server/onboarding/status";
 import { verifyCalendar, hasWeeklyHours } from "@/server/onboarding/calendar-verifiers";
 
-// Identidades REALES de las tablas; solo se reemplaza el transporte.
+// Identidades REAIS das tabelas; só se substitui o transporte.
 const rows = new Map<unknown, unknown[]>();
 const db = {
   select: () => ({
@@ -58,7 +58,7 @@ describe("una instancia recién instalada", () => {
       ["calendar", "not_applicable"],
     ]);
     expect(status.steps.find((s) => s.key === "calendar")?.href).toBeNull();
-    // Lo pendiente de un paso recién instalado no es un «problema».
+    // O pendente de um passo recém-instalado não é um «problema».
     expect(status.steps.every((s) => s.problem === null)).toBe(true);
   });
 
@@ -220,7 +220,7 @@ describe("verifyCalendar (pura)", () => {
       verifyCalendar({ connector: "google", weeklyHours: HORAS }, { zoom: true, google: false })
     ).toBe("pending");
     expect(verifyCalendar({ connector: "otro", weeklyHours: HORAS })).toBe("unsupported");
-    // Sin horarios manda lo pendiente, aunque el conector sea desconocido.
+    // Sem horários manda o pendente, mesmo que o conector seja desconhecido.
     expect(verifyCalendar({ connector: "otro", weeklyHours: {} })).toBe("pending");
   });
 });

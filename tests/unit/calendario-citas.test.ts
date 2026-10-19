@@ -21,10 +21,10 @@ import {
 } from "@/lib/time/calendar";
 
 /**
- * 215 — La aritmética del calendario de Citas. Lo que se prueba aquí es lo que
- * a simple vista "se ve bien" y sin embargo pinta una cita en el día o la hora
- * equivocados: la semana que empieza en lunes, el mes de seis filas, la zona
- * del negocio contra la del navegador y la cita que cruza la medianoche.
+ * 215 — A aritmética do calendário de Agendamentos. O que se testa aqui é o que
+ * à primeira vista "parece certo" e mesmo assim pinta um agendamento no dia ou na
+ * hora errados: a semana que começa na segunda, o mês de seis linhas, o fuso
+ * do negócio contra o do navegador e o agendamento que cruza a meia-noite.
  */
 
 const MX = "America/Mexico_City";
@@ -41,9 +41,9 @@ describe("fechas de calendario", () => {
   });
 
   it("la semana empieza en lunes, como el horario de Ajustes → Agenda", () => {
-    expect(startOfWeek("2026-09-18")).toBe("2026-09-14"); // viernes → lunes
-    expect(startOfWeek("2026-09-14")).toBe("2026-09-14"); // lunes → sí mismo
-    expect(startOfWeek("2026-09-20")).toBe("2026-09-14"); // domingo → el lunes anterior
+    expect(startOfWeek("2026-09-18")).toBe("2026-09-14"); // sexta → segunda
+    expect(startOfWeek("2026-09-14")).toBe("2026-09-14"); // segunda → ela mesma
+    expect(startOfWeek("2026-09-20")).toBe("2026-09-14"); // domingo → a segunda anterior
     expect(weekdayKeyOfDate("2026-09-20")).toBe("sun");
   });
 });
@@ -60,18 +60,18 @@ describe("visibleRange — qué días se ven", () => {
   });
 
   it("el mes cubre semanas completas, de 4 a 6 filas", () => {
-    // Septiembre 2026: el 1 es martes y el 30 miércoles → 5 filas.
+    // Setembro 2026: o dia 1 é terça e o 30 quarta → 5 linhas.
     expect(visibleRange("mes", "2026-09-18")).toEqual({ from: "2026-08-31", to: "2026-10-04" });
     expect(monthWeeks("2026-09-18")).toHaveLength(5);
-    // Agosto 2026: el 1 es sábado y el 31 lunes → 6 filas.
+    // Agosto 2026: o dia 1 é sábado e o 31 segunda → 6 linhas.
     expect(monthWeeks("2026-08-10")).toHaveLength(6);
-    // Febrero 2027: empieza en lunes y tiene 28 días → 4 filas.
+    // Fevereiro 2027: começa na segunda e tem 28 dias → 4 linhas.
     expect(monthWeeks("2027-02-10")).toHaveLength(4);
     expect(monthWeeks("2026-09-18").every((w) => w.length === 7)).toBe(true);
   });
 
   it("la Lista nunca pasa del máximo ni termina antes de empezar", () => {
-    expect(clampListTo("2026-09-18", "2027-09-18")).toBe("2026-12-18"); // 92 días
+    expect(clampListTo("2026-09-18", "2027-09-18")).toBe("2026-12-18"); // 92 dias
     expect(datesOf({ from: "2026-09-18", to: clampListTo("2026-09-18", "2027-09-18") })).toHaveLength(92);
     expect(clampListTo("2026-09-18", "2026-09-01")).toBe("2026-09-18");
     expect(clampListTo("2026-09-18", "no-es-fecha")).toBe("2026-10-17");
@@ -120,10 +120,10 @@ describe("etiquetas — lo que dice la barra", () => {
 
 describe("wallClock y tramos — en la zona del NEGOCIO", () => {
   it("la hora de pared sale de la zona, no del proceso", () => {
-    // 15:30 en México son las 21:30Z; en Madrid, las 23:30.
+    // 15:30 no México são 21:30Z; em Madri, 23:30.
     expect(wallClock("2026-09-18T21:30:00.000Z", MX)).toEqual({ day: "2026-09-18", minutes: 15 * 60 + 30 });
     expect(wallClock("2026-09-18T21:30:00.000Z", MADRID)).toEqual({ day: "2026-09-18", minutes: 23 * 60 + 30 });
-    // A las 02:00Z del 19 en México todavía es el 18.
+    // Às 02:00Z do dia 19 no México ainda é dia 18.
     expect(wallClock("2026-09-19T02:00:00.000Z", MX).day).toBe("2026-09-18");
     expect(hhmm(15 * 60 + 5)).toBe("15:05");
   });
@@ -135,7 +135,7 @@ describe("wallClock y tramos — en la zona del NEGOCIO", () => {
   });
 
   it("la que cruza la medianoche se parte en dos días", () => {
-    // 23:00 México + 120 min → 01:00 del día siguiente.
+    // 23:00 México + 120 min → 01:00 do dia seguinte.
     expect(bookingSegments("2026-09-19T05:00:00.000Z", 120, MX)).toEqual([
       { day: "2026-09-18", startMin: 1380, endMin: 1440, continuesBefore: false, continuesAfter: true },
       { day: "2026-09-19", startMin: 0, endMin: 60, continuesBefore: true, continuesAfter: false },
@@ -149,7 +149,7 @@ describe("wallClock y tramos — en la zona del NEGOCIO", () => {
   });
 
   it("en el retroceso del horario de verano conserva su duración", () => {
-    // Nueva York, 1 nov 2026: 01:30 (EDT) + 60 min = 01:30 (EST).
+    // Nova York, 1 nov 2026: 01:30 (EDT) + 60 min = 01:30 (EST).
     const [seg] = bookingSegments("2026-11-01T05:30:00.000Z", 60, NY);
     expect(seg?.startMin).toBe(90);
     expect(seg?.endMin).toBe(150);
@@ -232,7 +232,7 @@ describe("parseRangeQuery — ?from=&to= de /api/bookings", () => {
     expect(parseRangeQuery("2026-09-14", null).ok).toBe(false);
     expect(parseRangeQuery("2026-02-31", "2026-03-05").ok).toBe(false);
     expect(parseRangeQuery("2026-09-20", "2026-09-14").ok).toBe(false);
-    expect(parseRangeQuery("2026-01-01", "2026-04-03").ok).toBe(false); // 93 días
-    expect(parseRangeQuery("2026-01-01", "2026-04-02").ok).toBe(true); // 92 días, el tope
+    expect(parseRangeQuery("2026-01-01", "2026-04-03").ok).toBe(false); // 93 dias
+    expect(parseRangeQuery("2026-01-01", "2026-04-02").ok).toBe(true); // 92 dias, o teto
   });
 });

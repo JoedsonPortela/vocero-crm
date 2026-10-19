@@ -23,12 +23,12 @@ const bodySchema = z.object({
 });
 
 /**
- * Abre la conversación con un contacto que NUNCA ha escrito (capturado
- * a mano). WhatsApp solo permite iniciar con plantilla aprobada; esa es una
- * regla de Meta, no del CRM.
+ * Abre a conversa com um contato que NUNCA escreveu (capturado
+ * à mão). O WhatsApp só permite iniciar com template aprovado; essa é uma
+ * regra da Meta, não do CRM.
  *
- * La conversación se crea AQUÍ y no al capturar el contacto: un hilo vacío
- * ensuciaría la Bandeja y rompería su orden por último mensaje.
+ * A conversa é criada AQUI e não ao capturar o contato: um fio vazio
+ * sujaria a Bandeja e quebraria a sua ordem pela última mensagem.
  */
 export const POST = withAuth(async (session, req: Request, ctx: Params) => {
   const { id } = await ctx.params;
@@ -55,8 +55,8 @@ export const POST = withAuth(async (session, req: Request, ctx: Params) => {
     )
     .limit(1);
 
-  // Gastar una plantilla teniendo la ventana abierta es tirar dinero y
-  // reputación de plantilla: se avisa en vez de enviarla.
+  // Gastar um template com a janela aberta é jogar dinheiro e
+  // reputação do template: avisa-se em vez de enviá-lo.
   if (existing[0] && isWindowOpen(existing[0].lastInboundAt)) {
     return apiError(
       409,

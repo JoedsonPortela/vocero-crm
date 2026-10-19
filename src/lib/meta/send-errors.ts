@@ -1,11 +1,11 @@
 /**
- * Traduce el error de envío de Meta a algo que el operador pueda ACCIONAR.
+ * Traduz o erro de envio da Meta para algo que o operador possa ACIONAR.
  *
- * Meta manda el motivo en inglés y en jerga propia ("User's number is part of
- * an experiment"), y el CRM lo guardaba sin mostrarlo: el mensaje fallido solo
- * enseñaba un triángulo mudo. Aquí se convierte en una frase que dice qué
- * pasó y qué hacer, conservando el código para poder rastrearlo en la
- * documentación de Meta.
+ * A Meta envia o motivo em inglês e em jargão próprio ("User's number is part of
+ * an experiment"), e o CRM o guardava sem mostrá-lo: a mensagem falha só
+ * exibia um triângulo mudo. Aqui é convertido em uma frase que diz o que
+ * aconteceu e o que fazer, mantendo o código para poder rastreá-lo na
+ * documentação da Meta.
  */
 
 const DESCRIPTIONS: Record<number, string> = {
@@ -44,16 +44,16 @@ const DESCRIPTIONS: Record<number, string> = {
 };
 
 /**
- * @param code   Código numérico de Meta (`errors[0].code`), si vino.
- * @param detail Texto crudo de Meta, como respaldo cuando el código es nuevo.
+ * @param code   Código numérico da Meta (`errors[0].code`), se veio.
+ * @param detail Texto cru da Meta, como reserva quando o código é novo.
  */
 export function describeSendError(
   code: number | null | undefined,
   detail?: string | null
 ): string {
   const known = code != null ? DESCRIPTIONS[code] : undefined;
-  // `||` y no `??`: Meta a veces manda el texto vacío o en blanco, y un
-  // mensaje de error vacío es tan inútil como el triángulo mudo.
+  // `||` e não `??`: a Meta às vezes envia o texto vazio ou em branco, e um
+  // mensagem de erro vazia é tão inútil quanto o triângulo mudo.
   const base = known || detail?.trim() || "Meta rechazó el envío";
   return code != null ? `${base} (Meta ${code})` : base;
 }

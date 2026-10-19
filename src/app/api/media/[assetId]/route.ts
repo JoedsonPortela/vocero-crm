@@ -13,10 +13,10 @@ export const dynamic = "force-dynamic";
 type Params = { params: Promise<{ assetId: string }> };
 
 /**
- * 008 — Sirve el binario de un adjunto desde el volumen local. Solo con
- * sesión y dentro de la organización (un asset ajeno responde 404: jamás se
- * filtra existencia entre tenants). Si el archivo aún no se descargó,
- * intenta on-demand contra Graph; si Meta ya lo expiró → 410.
+ * 008 — Serve o binário de um anexo a partir do volume local. Só com
+ * sessão e dentro da organização (um asset alheio responde 404: nunca se
+ * revela a existência entre tenants). Se o arquivo ainda não foi baixado,
+ * tenta sob demanda no Graph; se a Meta já o expirou → 410.
  */
 export const GET = withAuth(async (session, _req: Request, ctx: Params) => {
   const { assetId } = await ctx.params;
@@ -40,12 +40,12 @@ export const GET = withAuth(async (session, _req: Request, ctx: Params) => {
   if (!asset) return apiError(404, "not_found", "Adjunto no encontrado");
 
   if (asset.kind === "location" || asset.kind === "contacts") {
-    // Sin binario: el payload viaja en el DTO del mensaje.
+    // Sem binário: o payload vem no DTO da mensagem.
     return apiError(404, "no_binary", "Este adjunto no tiene archivo");
   }
 
   if (asset.fetchStatus !== "available") {
-    // On-demand: reintenta la descarga en el momento (pending o failed).
+    // Sob demanda: tenta o download no momento (pending ou failed).
     asset = (await ensureAssetAvailable(session.organizationId, assetId)) ?? asset;
   }
   if (asset.fetchStatus !== "available" || !asset.storagePath) {
@@ -58,7 +58,7 @@ export const GET = withAuth(async (session, _req: Request, ctx: Params) => {
 
   try {
     const data = await readMediaFile(session.organizationId, assetId);
-    // #78: nosniff + CSP sandbox siempre; inline solo para lo previsualizable.
+    // #78: nosniff + CSP sandbox sempre; inline só para o que é visualizável.
     return new Response(new Uint8Array(data), {
       headers: mediaResponseHeaders(asset, data.byteLength),
     });

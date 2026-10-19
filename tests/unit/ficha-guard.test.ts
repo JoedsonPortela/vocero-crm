@@ -3,19 +3,19 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * Guardarraíl de la ficha del lead.
+ * Guardrail da ficha do lead.
  *
- * La ficha es información de calificación de los clientes de alguien: qué
- * presupuesto tiene, qué le duele, si decide él. Se escribe desde dos lados
- * —el cerebro externo por `PUT /api/bot/ficha` y el dueño desde la bandeja— y
- * las dos rutas entran por `upsertFicha`.
+ * A ficha é informação de qualificação dos clientes de alguém: qual
+ * orçamento tem, o que o incomoda, se decide sozinho. É escrita por dois lados
+ * —o cérebro externo por `PUT /api/bot/ficha` e o dono pela bandeja— e
+ * as duas rotas entram por `upsertFicha`.
  *
- * Aquí se verifica que esa puerta filtre por organización POR SÍ MISMA, y no
- * confiando en que el llamador se acuerde. Ese "acuérdate de filtrar" es
- * exactamente como se filtran datos entre inquilinos: nada truena, y el
- * incidente se descubre cuando ya salió.
+ * Aqui se verifica que essa porta filtre por organização POR SI MESMA, e não
+ * confiando que quem chama se lembre disso. Esse "lembre-se de filtrar" é
+ * exatamente como se vazam dados entre inquilinos: nada explode, e o
+ * incidente é descoberto quando já saiu.
  *
- * Si estás leyendo esto porque el test se puso rojo: no lo relajes.
+ * Se você está lendo isto porque o teste ficou vermelho: não o relaxe.
  */
 
 const SRC = path.resolve(import.meta.dirname, "..", "..", "src");
@@ -52,7 +52,7 @@ describe("guardarraíl: la ficha nunca se escribe sin organización", () => {
     for (const file of archivosTs(SRC)) {
       if (path.resolve(file) === path.resolve(PUERTA)) continue;
       const code = readFileSync(file, "utf8");
-      // `.set({ … ficha … })` sobre la tabla de contactos, fuera de la puerta.
+      // `.set({ … ficha … })` sobre a tabela de contatos, fora da porta.
       const re = /\.update\(\s*schema\.contact\s*\)/g;
       let m: RegExpExecArray | null;
       while ((m = re.exec(code)) !== null) {

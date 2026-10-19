@@ -1,14 +1,14 @@
 /**
- * Self-test E2E de comportamiento — un envío fallido DEBE decir por qué.
- * Guion tests/e2e/us-envio-fallido.md.
+ * Self-test E2E de comportamento — um envio falho DEVE dizer por quê.
+ * Roteiro tests/e2e/us-envio-fallido.md.
  *
- * Reproduce un caso real: se manda una plantilla APROBADA y el operador solo
- * ve un triángulo mudo. Meta sí había explicado el motivo (error 130472,
- * "User's number is part of an experiment"): el CRM lo guardaba en
- * `message.error` y nunca lo mostraba.
+ * Reproduz um caso real: envia-se um modelo APROVADO e o operador só
+ * vê um triângulo mudo. A Meta tinha explicado o motivo (erro 130472,
+ * "User's number is part of an experiment"): o CRM guardava isso em
+ * `message.error` e nunca mostrava.
  *
  * Uso: node scripts/e2e-send-failure.mjs
- * Requiere: app corriendo (pnpm dev) con WA_MOCK_ENABLED=true y Playwright.
+ * Requer: app rodando (pnpm dev) com WA_MOCK_ENABLED=true e Playwright.
  */
 import { chromium } from "playwright";
 
@@ -73,7 +73,7 @@ console.log("\n== Meta responde 'failed' con el error 130472 (caso real) ==");
 const waId = msgs
   .filter((m) => m.direction === "out")
   .at(-1);
-// El waMessageId no viaja en el DTO: se recupera del outbox del mock.
+// O waMessageId não viaja no DTO: recupera-se da caixa de saída do mock.
 const outbox = (await (await req.get(`${BASE}/api/dev/wa-mock/outbox`)).json()).outbox;
 const waMessageId = outbox.at(-1)?.waMessageId;
 ok("outbox del mock expone el wa_message_id", !!waMessageId, String(waMessageId));

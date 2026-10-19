@@ -6,14 +6,14 @@ import {
 } from "@/server/attribution/conversions";
 
 /**
- * 016 — Las piezas puras del reporte de conversiones y dos guardarraíles que
- * se leen del código fuente porque afirman AUSENCIA (que algo no se llama),
- * y eso no se observa desde fuera.
+ * 016 — As peças puras do relatório de conversões e dois guardrails que
+ * se leem do código-fonte porque afirmam AUSÊNCIA (que algo não é chamado),
+ * e isso não se observa de fora.
  */
 
 describe("purchaseCustomData", () => {
   it("convierte centavos a unidades de la moneda", () => {
-    // La base protege el dinero en centavos enteros; Meta espera unidades.
+    // O banco protege o dinheiro em centavos inteiros; a Meta espera unidades.
     expect(purchaseCustomData({ amountCents: 45050, currency: "MXN" })).toEqual({
       lead_stage: "won",
       value: 450.5,
@@ -22,8 +22,8 @@ describe("purchaseCustomData", () => {
   });
 
   it("sin monto, la venta se cuenta pero SIN precio", () => {
-    // `value: 0` no significa "no sé cuánto": le enseñaría al optimizador que
-    // las ventas de este negocio valen nada.
+    // `value: 0` não significa "não sei quanto": ensinaria ao otimizador que
+    // as vendas deste negócio não valem nada.
     expect(purchaseCustomData({ amountCents: null, currency: "MXN" })).toEqual({
       lead_stage: "won",
     });
@@ -76,8 +76,8 @@ describe("toConversionActivityRow", () => {
       error: "sin ctwa_clid",
     });
     expect(row.at).toBe("2026-08-28T10:00:00.000Z");
-    // El motivo se conserva tal cual: es la respuesta a "¿por qué este lead no
-    // aparece en Meta?".
+    // O motivo se conserva como está: é a resposta a "por que este lead não
+    // aparece na Meta?".
     expect(row.error).toBe("sin ctwa_clid");
   });
 });
@@ -86,21 +86,21 @@ describe("guardarraíles del reporte", () => {
   const source = readFileSync("src/server/attribution/conversions.ts", "utf8");
 
   it("una conversación de prueba jamás puede producir un evento", () => {
-    // Mismo guardrail que el sender: el Laboratorio no toca el mundo real.
+    // Mesmo guardrail do sender: o Laboratório não toca o mundo real.
     expect(source).toContain("eq(schema.conversation.isTest, false)");
   });
 
   it("el dedup es el UNIQUE de la base, no un chequeo previo", () => {
-    // A Meta no se le puede des-enviar una compra: dos movimientos simultáneos
-    // del mismo lead tienen que chocar en la base, no en un `if`.
+    // Não se consegue desenviar uma compra na Meta: dois movimentos simultâneos
+    // do mesmo lead têm que colidir no banco, não num `if`.
     expect(source).toContain("onConflictDoNothing");
   });
 
   it("la emisión cuelga de la puerta única de etapas", () => {
     const gate = readFileSync("src/server/leads/stage-history.ts", "utf8");
     expect(gate).toContain("reportStageChange");
-    // Y ocurre DESPUÉS del commit: una llamada de red dentro de la transacción
-    // la mantendría abierta mientras Meta piensa.
+    // E acontece DEPOIS do commit: uma chamada de rede dentro da transação
+    // a manteria aberta enquanto a Meta pensa.
     const txEnd = gate.indexOf("  });");
     expect(gate.indexOf("reportStageChange(", txEnd)).toBeGreaterThan(txEnd);
   });

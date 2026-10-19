@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 /**
- * Selector de plantilla aprobada para conversaciones con ventana cerrada
- * (FR-005/FR-051). Sin plantillas aprobadas muestra el estado vacío.
+ * Seletor de modelo aprovado para conversas com janela fechada
+ * (FR-005/FR-051). Sem modelos aprovados mostra o estado vazio.
  */
 export function TemplateSender({
   conversationId,
@@ -62,8 +62,8 @@ export function TemplateSender({
   }
 
   const selected = templates.find((t) => t.id === selectedId) ?? null;
-  // El cuerpo puede llevar {{1}}..{{n}}: el número de parámetros es el índice
-  // más alto, y Meta los exige todos.
+  // O corpo pode ter {{1}}..{{n}}: o número de parâmetros é o índice
+  // mais alto, e a Meta exige todos.
   const variableCount = selected ? countVariables(selected.body) : 0;
   const values = Array.from({ length: variableCount }, (_, i) => variables[i] ?? "");
   const missingValue = values.some((v) => !v.trim());

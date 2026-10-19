@@ -22,12 +22,12 @@ import { PriorityPicker } from "./priority-picker";
 import type { BoardLead } from "./pipeline-client";
 
 /**
- * El trato, abierto, sin salir del tablero.
+ * O negócio, aberto, sem sair do painel.
  *
- * Antes el clic en una tarjeta no hacía nada: para ver de quién era había que
- * irse a la bandeja y volver, y revisando una columna de quince eso son treinta
- * viajes. El cajón contesta la pregunta "¿quién es y cómo va?" en el sitio
- * donde uno la hace.
+ * Antes o clique num cartão não fazia nada: para ver de quem era era preciso
+ * ir à bandeja e voltar, e revisando uma coluna de quinze isso dá trinta
+ * viagens. A gaveta responde a pergunta "quem é e como está?" no lugar
+ * onde ela é feita.
  */
 export function LeadDrawer({
   lead,
@@ -40,16 +40,16 @@ export function LeadDrawer({
 }: {
   lead: BoardLead;
   stages: StageDto[];
-  /** Moneda del negocio, para el lead que aún no tiene la suya. */
+  /** Moeda do negócio, para o lead que ainda não tem a sua. */
   currency: string;
   onClose: () => void;
-  /** Pasa por el mismo camino que el arrastre: perder exige motivo. */
+  /** Passa pelo mesmo caminho do arrasto: perder exige motivo. */
   onMoveStage: (stageId: string) => void;
   onAmount: (cents: number | null) => void;
   onPriority: (value: PriorityValue | null) => void;
 }) {
   const [ficha, setFicha] = useState<FichaDto>({});
-  // 018: de qué anuncio llegó; null si escribió por su cuenta.
+  // 018: de qual anúncio veio; null se escreveu por conta própria.
   const [anuncio, setAnuncio] = useState<AnuncioDto | null>(null);
   const [monto, setMonto] = useState("");
   const [editandoMonto, setEditandoMonto] = useState(false);
@@ -65,7 +65,7 @@ export function LeadDrawer({
     setAnuncio(detail?.anuncio ?? null);
   }, [contactId]);
 
-  // Al abrir otro trato no puede asomarse el anuncio del anterior.
+  // Ao abrir outro negócio não pode aparecer o anúncio do anterior.
   useEffect(() => setAnuncio(null), [contactId]);
 
   useEffect(() => {
@@ -74,8 +74,8 @@ export function LeadDrawer({
     void cargarFicha();
   }, [cargarFicha, lead.amountCents]);
 
-  // Escape cierra: un cajón que solo se cierra con el ratón estorba a quien
-  // revisa el tablero con el teclado.
+  // Escape fecha: uma gaveta que só fecha com o mouse atrapalha quem
+  // revisa o painel com o teclado.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -106,7 +106,7 @@ export function LeadDrawer({
 
   return (
     <>
-      {/* Velo: cerrar tocando fuera es lo que uno intenta primero. */}
+      {/* Véu: fechar tocando fora é o que se tenta primeiro. */}
       <button
         aria-label={t("pipeline.closeDeal")}
         tabIndex={-1}
@@ -134,7 +134,7 @@ export function LeadDrawer({
         </header>
 
         <div className="flex-1 overflow-y-auto">
-          {/* Quién */}
+          {/* Quem */}
           <section className="border-b p-4">
             <div className="flex items-center gap-3">
               <ContactAvatar
@@ -170,7 +170,7 @@ export function LeadDrawer({
             )}
           </section>
 
-          {/* Cuánto */}
+          {/* Quanto */}
           <section className="border-b p-4">
             <p className="mb-2 kicker">
               Monto ({moneda})
@@ -237,7 +237,7 @@ export function LeadDrawer({
             )}
           </section>
 
-          {/* A quién llamar primero */}
+          {/* Para quem ligar primeiro */}
           <section className="border-b p-4">
             <p className="mb-2 kicker">
               Prioridad
@@ -245,7 +245,7 @@ export function LeadDrawer({
             <PriorityPicker value={lead.priority} onChange={onPriority} />
           </section>
 
-          {/* Dónde va */}
+          {/* Onde fica */}
           <section className="border-b p-4">
             <p className="mb-2 kicker">
               Etapa
@@ -273,7 +273,7 @@ export function LeadDrawer({
             </div>
           </section>
 
-          {/* Qué se sabe */}
+          {/* O que se sabe */}
           <FichaPanel ficha={ficha} onSave={guardarFicha} />
         </div>
       </aside>

@@ -1,24 +1,24 @@
 /**
- * Self-test E2E de comportamiento — 215: Citas en calendario (Día, Semana,
- * Mes y Lista). Guion: tests/e2e/us-calendario.md
+ * Self-test E2E de comportamento — 215: Agendamentos no calendário (Dia, Semana,
+ * Mês e Lista). Roteiro: tests/e2e/us-calendario.md
  *
- * Conduce la app real con un navegador en OTRA zona horaria que la del
- * negocio (Tokio contra Ciudad de México, 15 h de diferencia) para probar que
- * todo se pinta y se bloquea en la hora del NEGOCIO:
- *  - la API por rango (`?from=&to=`), sus 422 y que sin parámetros responde
- *    exactamente lo de siempre;
- *  - fallo 4: un rango trae TODAS sus citas, no las últimas 200;
- *  - las cuatro vistas, la navegación y la URL (`?vista=&fecha=`);
- *  - el panel de la cita con «Abrir conversación» y reprogramar con los huecos
- *    de toda la ventana por día (fallo 2: antes, 12);
- *  - bloquear tocando un hueco vacío, en la hora del negocio (fallo 1);
- *  - un evento SSE refresca la vista sin pedir disponibilidad (fallo 3);
- *  - las citas del Laboratorio (`is_test`) ocultas por defecto;
- *  - en el celular abre en «Día» y no desborda a lo ancho.
- * Con la agenda apagada, comprueba que la pantalla y la API son 404.
+ * Conduz a app real com um navegador em OUTRO fuso horário que o do
+ * negócio (Tóquio contra Cidade do México, 15 h de diferença) para provar que
+ * tudo se pinta e se bloqueia na hora do NEGÓCIO:
+ *  - a API por intervalo (`?from=&to=`), seus 422 e que sem parâmetros responde
+ *    exatamente o de sempre;
+ *  - falha 4: um intervalo traz TODOS os seus agendamentos, não os últimos 200;
+ *  - as quatro visões, a navegação e a URL (`?vista=&fecha=`);
+ *  - o painel do agendamento com «Abrir conversación» e remarcar com os horários
+ *    de toda a janela por dia (falha 2: antes, 12);
+ *  - bloquear tocando num horário vazio, na hora do negócio (falha 1);
+ *  - um evento SSE atualiza a visão sem pedir disponibilidade (falha 3);
+ *  - os agendamentos do Laboratório (`is_test`) ocultos por padrão;
+ *  - no celular abre em «Dia» e não estoura a largura.
+ * Com a agenda desligada, confere que a tela e a API são 404.
  *
  * Uso: node --env-file=.env scripts/e2e-calendario.mjs (pnpm test:e2e:calendario)
- * Requiere: app viva con WA_MOCK_ENABLED=true, BD migrada y Playwright.
+ * Requer: app ativa com WA_MOCK_ENABLED=true, BD migrada e Playwright.
  */
 import { chromium } from "playwright";
 import postgres from "postgres";
@@ -28,7 +28,7 @@ const AGENDA = /^(on|1|true|si|sí|yes)$/i.test((process.env.AGENDA ?? "").trim(
 const TZ_NEGOCIO = "America/Mexico_City";
 const TZ_NAVEGADOR = "Asia/Tokyo";
 const PN = "PN-E2E-1";
-const HOUR_PX = 48; // el alto de una hora en la rejilla (time-grid.tsx)
+const HOUR_PX = 48; // a altura de uma hora na grade (time-grid.tsx)
 const CORRIDA = Date.now();
 const TOPE_NOTA = "e2e-215-tope";
 
@@ -49,14 +49,14 @@ async function until(fn, ms = 20000) {
     try {
       if (await fn()) return true;
     } catch {
-      /* reintenta */
+      /* tenta de novo */
     }
     if (Date.now() - t0 > ms) return false;
     await sleep(250);
   }
 }
 
-/** Hora de pared del negocio → instante UTC (dos pasadas, como slots.ts). */
+/** Hora de parede do negócio → instante UTC (duas passadas, como slots.ts). */
 function offsetMin(date, tz) {
   const p = Object.fromEntries(
     new Intl.DateTimeFormat("en-US", {
@@ -89,10 +89,10 @@ const dayIn = (instant, tz = TZ_NEGOCIO) =>
     new Date(instant)
   );
 const addDays = (day, n) => new Date(Date.parse(`${day}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
-const weekdayIdx = (day) => (new Date(`${day}T00:00:00Z`).getUTCDay() + 6) % 7; // lunes = 0
+const weekdayIdx = (day) => (new Date(`${day}T00:00:00Z`).getUTCDay() + 6) % 7; // segunda = 0
 const mondayOf = (day) => addDays(day, -weekdayIdx(day));
 
-/** De 15 en 15: `next dev` no agradece 200 peticiones a la vez. */
+/** De 15 em 15: `next dev` não aguenta 200 requisições ao mesmo tempo. */
 async function enLotes(items, fn, n = 15) {
   const out = [];
   for (let i = 0; i < items.length; i += n) out.push(...(await Promise.all(items.slice(i, i + n).map(fn))));
@@ -118,12 +118,12 @@ async function api(path, opts = {}) {
   try {
     json = await res.json();
   } catch {
-    /* sin cuerpo */
+    /* sem corpo */
   }
   return { status: res.status(), json };
 }
 
-const created = []; // citas y bloqueos de esta corrida, para cancelarlos al final
+const created = []; // agendamentos e bloqueios desta execução, para cancelá-los no fim
 let sql = null;
 let testBookingId = null;
 
@@ -194,7 +194,7 @@ async function main() {
   ok("hay una conversación con quien agendar", Boolean(conv));
   if (!conv) return;
 
-  // Día de las citas: el primer día hábil con huecos a partir de pasado mañana.
+  // Dia dos agendamentos: o primeiro dia útil com horários a partir de depois de amanhã.
   const avail = (await api("/api/calendar/availability")).json?.slots ?? [];
   const hoy = dayIn(Date.now());
   const dias = [...new Set(avail.map((s) => s.dayIso))].filter((d) => d >= addDays(hoy, 2));
@@ -225,10 +225,10 @@ async function main() {
   if (comida.status === 201) created.push(comida.json.booking.id);
   ok("un bloqueo creado por la API", comida.status === 201, `status=${comida.status}`);
 
-  // Una cita del Laboratorio (is_test) a la misma hora que la primera: así la
-  // crea el runner del Laboratorio, que no pasa por la API del operador.
-  // `scheduled_at` es `timestamp` SIN zona y guarda UTC: va como texto ISO; un
-  // Date lo mandaría como timestamptz y la sesión lo pasaría a la hora local.
+  // Um agendamento do Laboratório (is_test) no mesmo horário que o primeiro: assim
+  // quem o cria é o runner do Laboratório, que não passa pela API do operador.
+  // `scheduled_at` é `timestamp` SEM fuso e guarda UTC: vai como texto ISO; um
+  // Date o enviaria como timestamptz e a sessão o converteria para a hora local.
   if (process.env.DATABASE_URL && citas[0]) {
     sql = postgres(process.env.DATABASE_URL, { max: 1, onnotice: () => {} });
     const [{ organization_id: org }] = await sql`select organization_id from booking where id = ${citas[0].id}`;
@@ -269,8 +269,8 @@ async function main() {
   ok("92 días sí caben", (await api(`/api/bookings?from=${D}&to=${addDays(D, 91)}`)).status === 200);
 
   console.log("\n== 215: fallo 4 — un rango trae todas sus citas, no las últimas 200 ==");
-  // Limpieza de una corrida anterior que no terminó: el índice único no deja
-  // dos bloqueos activos en el mismo instante.
+  // Limpeza de uma execução anterior que não terminou: o índice único não deixa
+  // dois bloqueios ativos no mesmo instante.
   const junio = await api("/api/bookings?from=2026-06-01&to=2026-06-30");
   const viejos = (junio.json?.bookings ?? []).filter((b) => b.notes === TOPE_NOTA && b.status === "agendada");
   await enLotes(viejos, (b) => api(`/api/bookings/${b.id}`, { method: "PATCH", body: { action: "cancel" } }));
@@ -307,8 +307,8 @@ async function main() {
 
   console.log("\n== 215: el calendario en el navegador (Tokio) con el negocio en CDMX ==");
   const page = await ctx.newPage();
-  // `availabilityOk`: las que terminaron. En `next dev` React monta los
-  // efectos dos veces (StrictMode) y la primera petición se aborta.
+  // `availabilityOk`: as que terminaram. No `next dev` o React monta os
+  // efeitos duas vezes (StrictMode) e a primeira requisição é abortada.
   const conteo = { availability: 0, availabilityOk: 0, rango: 0 };
   page.on("requestfinished", (r) => {
     if (r.url().includes("/api/calendar/availability")) conteo.availabilityOk++;
@@ -324,7 +324,7 @@ async function main() {
   ok("la semana pinta la cita", await until(async () => (await evento10.count()) === 1, 45000), `count=${await evento10.count()}`);
   ok("la URL dice vista y fecha", page.url().includes(`vista=semana&fecha=${D}`), page.url());
 
-  // La cita queda a la altura de SU hora del negocio, no de la de Tokio.
+  // O agendamento fica na altura do SEU horário do negócio, não na do Tóquio.
   const col = page.locator(`[data-day="${D}"]`);
   const [boxCol, boxEv] = [await col.boundingBox(), await evento10.first().boundingBox()];
   const [h, m] = s10.time.split(":").map(Number);
@@ -408,7 +408,7 @@ async function main() {
   }, 20000);
   ok(`la cita se movió al ${diaNuevo} ${horaNueva}`, movida, `start=${startNuevo}`);
   ok("el panel muestra la hora nueva", await until(async () => (await panel.textContent())?.includes(`${horaNueva} –`), 10000));
-  // Si el día nuevo no se ve en la semana, el calendario salta a él.
+  // Se o dia novo não aparece na semana, o calendário pula até ele.
   const fechaEsperada = diaNuevo <= addDays(mondayOf(D), 6) ? D : diaNuevo;
   ok("…y el calendario muestra ese día", await until(async () => page.url().includes(`fecha=${fechaEsperada}`), 5000), page.url());
   await page.keyboard.press("Escape");
@@ -500,7 +500,7 @@ try {
   failures++;
   console.log(`  FAIL excepción: ${err?.stack ?? err}`);
 } finally {
-  // Deja la agenda como estaba: lo creado se cancela y la cita de prueba se va.
+  // Deixa a agenda como estava: o criado é cancelado e o agendamento de teste sai.
   await Promise.all(created.map((id) => api(`/api/bookings/${id}`, { method: "PATCH", body: { action: "cancel" } })));
   if (sql && testBookingId) await sql`delete from booking where id = ${testBookingId}`;
   await sql?.end();

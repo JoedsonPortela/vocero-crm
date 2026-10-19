@@ -50,13 +50,13 @@ export function ContactPanel({
   onClose,
 }: {
   conversation: ConversationDto;
-  /** Aumenta con cada evento SSE relevante: dispara un refetch en vivo. */
+  /** Aumenta a cada evento SSE relevante: dispara uma nova busca ao vivo. */
   refreshKey?: number;
   onPatchConversation: (patch: {
     aiEnabled?: boolean;
     reactivate?: boolean;
   }) => Promise<void>;
-  /** 026 — Ausente = quien mira no puede eliminar: no se le ofrece. */
+  /** 026 — Ausente = quem olha não pode excluir: não é oferecido. */
   onDeleteConversation?: (alsoContact: boolean) => Promise<string | null>;
   onClose: () => void;
 }) {
@@ -68,26 +68,26 @@ export function ContactPanel({
   const [stages, setStages] = useState<StageDto[]>([]);
   const [currentStageId, setCurrentStageId] = useState<string | null>(null);
   const [leadId, setLeadId] = useState<string | null>(null);
-  // 018: de qué anuncio llegó; null si escribió por su cuenta.
+  // 018: de qual anúncio veio; null se escreveu por conta própria.
   const [anuncio, setAnuncio] = useState<AnuncioDto | null>(null);
-  // Quién responde (agente incluido, cerebro externo o los dos): sin esto, el
-  // toggle "Respondiendo" mentiría cuando el agente aún no se ha
-  // configurado/encendido, y pediría la clave de IA aunque conteste Nea.
+  // Quem responde (agente incluído, cérebro externo ou os dois): sem isso, o
+  // toggle "Respondendo" mentiria quando o agente ainda não foi
+  // configurado/ligado, e pediria a chave de IA mesmo que a Nea respondesse.
   const [brain, setBrain] = useState<BrainStatusDto | null>(null);
 
   const contactId = conversation.contact.id;
 
   const aiConfigured = brain?.embedded.configured ?? false;
   const agentReady = brain?.embedded.answering ?? false;
-  // Hasta donde se sabe, contesta: activo y, si hay /health, en línea.
+  // Até onde se sabe, responde: ativo e, se houver /health, online.
   const externalActive = brain ? externalAnswering(brain) : false;
-  // El control es la FUENTE DE VERDAD de la conversación: el agente in-process
-  // y cualquier cerebro externo conectado por /api/bot/* respetan este flag,
-  // así que el toggle opera siempre — `agentReady` solo matiza el texto.
+  // O controle é a FONTE DA VERDADE da conversa: o agente in-process
+  // e qualquer cérebro externo conectado por /api/bot/* respeita esta flag,
+  // então o toggle opera sempre — `agentReady` só matiza o texto.
   const aiActive = conversation.aiEnabled && !conversation.handoffAt;
 
-  // Aparte del resto: consultar el /health del cerebro externo puede tardar
-  // hasta 2 s, y eso no debe demorar la etapa ni la ficha.
+  // À parte do resto: consultar o /health do cérebro externo pode demorar
+  // até 2 s, e isso não deve atrasar a etapa nem a ficha.
   const loadBrain = useCallback(async () => {
     const b = await fetch("/api/agent/brain-status")
       .then((r) => (r.ok ? r.json() : null))
@@ -95,7 +95,7 @@ export function ContactPanel({
     if (b) setBrain(b);
   }, []);
 
-  // Carga inicial (incluye notas): se re-ejecuta al cambiar de contacto.
+  // Carga inicial (inclui notas): é reexecutada ao trocar de contato.
   const refetch = useCallback(async () => {
     void loadBrain();
     const [detail, stagesRes] = await Promise.all([
@@ -113,41 +113,41 @@ export function ContactPanel({
     setNotesLoaded(true);
   }, [contactId, loadBrain]);
 
-  // Refetch en vivo (etapa/lead + quién responde) SIN tocar las notas, para
-  // no pisar lo que el operador esté escribiendo. Lo dispara el SSE.
+  // Nova busca ao vivo (etapa/lead + quem responde) SEM tocar nas notas, para
+  // não atropelar o que o operador estiver escrevendo. Quem dispara é o SSE.
   const refreshLive = useCallback(async () => {
     void loadBrain();
     const detail = await fetch(`/api/contacts/${contactId}`)
       .then((r) => (r.ok ? r.json() : null))
       .catch(() => null);
     if (detail) {
-      // La ficha SÍ se refresca en vivo: el agente la va llenando mientras la
-      // conversación ocurre, y verla aparecer sola es justo para lo que sirve.
-      // No pisa una edición a medias — el borrador vive dentro del panel.
+      // A ficha SIM é atualizada ao vivo: o agente a vai preenchendo enquanto a
+      // conversa acontece, e vê-la aparecer sozinha é exatamente para isso que serve.
+      // Não atropela uma edição em andamento — o rascunho fica dentro do painel.
       setFicha(detail.contact?.ficha ?? {});
       setCurrentStageId(detail.stage?.id ?? null);
       setLeadId(detail.lead?.id ?? null);
-      // La imagen del creativo se copia después de que entra el mensaje: este
-      // refetch en vivo es lo que la hace aparecer sin recargar.
+      // A imagem do criativo é copiada depois que a mensagem entra: esta
+      // nova busca ao vivo é o que a faz aparecer sem recarregar.
       setAnuncio(detail.anuncio ?? null);
     }
   }, [contactId, loadBrain]);
 
   useEffect(() => {
     setNotesLoaded(false);
-    // Al cambiar de contacto no puede asomarse el anuncio del anterior.
+    // Ao trocar de contato não pode aparecer o anúncio do anterior.
     setAnuncio(null);
     void refetch();
   }, [refetch]);
 
   useEffect(() => {
-    if (!notesLoaded) return; // la carga inicial ya trae el estado fresco
+    if (!notesLoaded) return; // a carga inicial já traz o estado atualizado
     void refreshLive();
   }, [refreshKey, notesLoaded, refreshLive]);
 
   async function moveToStage(stageId: string) {
     if (!leadId || stageId === currentStageId) return;
-    setCurrentStageId(stageId); // optimista
+    setCurrentStageId(stageId); // otimista
     await fetch(`/api/pipeline/leads/${leadId}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
@@ -156,7 +156,7 @@ export function ContactPanel({
     void refreshLive();
   }
 
-  /** Manda SOLO lo que cambió: el servidor hace merge (ver `server/bot/ficha`). */
+  /** Envia SOMENTE o que mudou: o servidor faz merge (ver `server/bot/ficha`). */
   async function saveFicha(patch: Record<string, FichaValue | null>) {
     setFicha((prev) => {
       const next = { ...prev };
@@ -164,7 +164,7 @@ export function ContactPanel({
         if (v === null) delete next[k];
         else next[k] = v;
       }
-      return next; // optimista: el refetch de abajo confirma
+      return next; // otimista: a nova busca abaixo confirma
     });
     await fetch(`/api/contacts/${contactId}`, {
       method: "PATCH",
@@ -188,8 +188,8 @@ export function ContactPanel({
 
   return (
     <div className="flex h-full flex-col">
-      {/* Por debajo de xl el panel flota (bg-popover, ver InboxClient): su
-          cabecera va del mismo tono para no dejar una franja más oscura. */}
+      {/* Abaixo de xl o painel flutua (bg-popover, ver InboxClient): seu
+          cabeçalho segue o mesmo tom para não deixar uma faixa mais escura. */}
       <header className="sticky top-0 flex items-center justify-between border-b bg-background px-4 py-3 max-xl:bg-popover">
         <h3 className="kicker text-text-2">{t("inbox.details")}</h3>
         <button
@@ -335,7 +335,7 @@ export function ContactPanel({
           )}
         </section>
 
-        {/* Stepper de etapa */}
+        {/* Seletor de etapa */}
         {stages.length > 0 && leadId && (
           <section className="border-b p-4">
             <p className="kicker mb-3">{t("inbox.pipelineStage")}</p>
@@ -381,8 +381,8 @@ export function ContactPanel({
           </section>
         )}
 
-        {/* Ficha: lo que se SABE del lead. Va antes de Notas —lo que alguien
-            OPINA— porque es lo que se consulta a mitad de una conversación. */}
+        {/* Ficha: o que se SABE do lead. Vem antes de Notas —o que alguém
+            OPINA— porque é o que se consulta no meio de uma conversa. */}
         <FichaPanel ficha={ficha} onSave={saveFicha} />
 
         {/* Notas */}
@@ -406,8 +406,8 @@ export function ContactPanel({
           </Button>
         </section>
 
-        {/* 026 — Al fondo y sin color de alarma: está a la mano de quien la
-            busca, no en el camino de quien solo vino a leer la ficha. */}
+        {/* 026 — No fundo e sem cor de alarme: fica à mão de quem a procura,
+            não no caminho de quem só veio ler a ficha. */}
         {onDeleteConversation && (
           <section className="p-4">
             <button

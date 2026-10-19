@@ -32,25 +32,25 @@ import { bookSlot, offerSlots } from "@/server/agenda/agent";
 import { getOffers, mapaDeHuecosParaModelo } from "@/server/agenda/offers";
 
 /**
- * Turno del agente (FR-021..FR-025).
+ * Turno do agente (FR-021..FR-025).
  *
- * Coalesce + lock in-process por conversación: ráfagas de mensajes → UNA
- * respuesta; nunca dos turnos simultáneos; lo que llega durante un turno
- * re-encola exactamente un turno más. Suficiente para el monolito de una
- * instancia (sin colas externas — Constitución II).
+ * Coalesce + lock em processo por conversa: rajadas de mensagens viram UMA
+ * resposta; nunca dois turnos simultâneos; o que chega durante um turno
+ * reenfileira exatamente mais um turno. Suficiente para o monólito de uma
+ * instância (sem filas externas — Constituição II).
  *
- * 025 — La entrada lleva además qué entrantes DEBE el siguiente turno. Lo que
- * el cliente escribe mientras el modelo piensa queda, por hora, antes de la
- * respuesta que sale de ese turno; sin esa cuenta el turno siguiente lee una
- * conversación que termina en su propia respuesta. Es la misma memoria que el
- * despacho guarda en `dispatch.message_ids`, aquí en proceso, como `pending`.
+ * 025 — A entrada também traz quais mensagens o próximo turno DEVE atender. O que
+ * o cliente escreve enquanto o modelo pensa fica, por hora, antes da
+ * resposta que sai desse turno; sem essa conta, o turno seguinte lê uma
+ * conversa que termina na própria resposta. É a mesma memória que o
+ * despacho guarda em `dispatch.message_ids`, aqui em processo, como `pending`.
  */
 
 type CoalesceEntry = {
   timer: ReturnType<typeof setTimeout> | null;
   running: boolean;
   pending: boolean;
-  /** Entrantes anotados para el siguiente turno. */
+  /** Mensagens anotadas para o próximo turno. */
   debidos: Set<string>;
 };
 
@@ -66,8 +66,8 @@ function coalesceMap(): Map<string, CoalesceEntry> {
 }
 
 /**
- * Punto de entrada con debounce (mensajes entrantes reales). `messageId` es
- * el entrante que lo provoca.
+ * Ponto de entrada com debounce (mensagens recebidas reais). `messageId` é
+ * a mensagem que o provoca.
  */
 export function scheduleAgentTurn(
   conversationId: string,
@@ -84,7 +84,7 @@ export function scheduleAgentTurn(
   entry.debidos.add(messageId);
 
   if (entry.running) {
-    entry.pending = true; // se re-encola al terminar el turno actual
+    entry.pending = true; // se reenfileira ao terminar o turno atual
     return;
   }
   if (entry.timer) clearTimeout(entry.timer);
@@ -100,8 +100,8 @@ async function executeTurn(conversationId: string): Promise<void> {
   const entry = map.get(conversationId);
   if (!entry || entry.running) return;
   entry.running = true;
-  // Lo anotado hasta aquí es de ESTE turno. Lo que entre desde ahora cae en
-  // un conjunto nuevo: es lo que, al terminar, puede seguir debiéndose.
+  // O que foi anotado até aqui é deste turno. O que entrar a partir de agora cai
+  // num conjunto novo: é o que, ao terminar, pode continuar pendente.
   const deEsteTurno = [...entry.debidos];
   entry.debidos = new Set();
   let leido: TurnoLeido | undefined;
@@ -111,11 +111,11 @@ async function executeTurn(conversationId: string): Promise<void> {
     console.error("[agente] turno falló:", err);
   } finally {
     entry.running = false;
-    // Si el turno no llegó a leer (falló, o se calló antes de abrir el
-    // historial), lo que traía se sigue debiendo.
+    // Se o turno não chegou a ler (falhou ou parou antes de abrir o
+    // histórico), o que ele trazia continua pendente.
     if (!leido) for (const id of deEsteTurno) entry.debidos.add(id);
-    // Y si leyó, lo que entró mientras tanto y alcanzó a ver ya está
-    // atendido: repetir el turno sería contestarle dos veces.
+    // E se leu, o que entrou nesse meio-tempo e chegou a ver já está
+    // atendido: repetir o turno seria responder duas vezes.
     const quedan = quedanDebidos(entry.debidos, leido?.vistos);
     entry.debidos = new Set(quedan);
     const repetir = entry.pending && quedan.length > 0;
@@ -128,16 +128,16 @@ async function executeTurn(conversationId: string): Promise<void> {
   }
 }
 
-/** Lo que el turno alcanzó a leer. Ausente si no llegó a abrir el historial. */
+/** O que o turno chegou a ler. Ausente se não chegou a abrir o histórico. */
 export type TurnoLeido = { vistos: string[] };
 
 /**
- * Ejecuta UN turno del agente ahora (el Laboratorio lo llama directo, con
- * debounce 0 y sin pasar por el coalesce).
+ * Executa UM turno do agente agora (o Laboratório chama direto, com
+ * debounce 0 e sem passar pelo coalesce).
  *
- * 025 — `debidos` son los entrantes que este turno tiene que atender; solo los
- * pasa el coalesce. Devuelve qué entrantes leyó: quien lo llamó lo compara con
- * lo que entró mientras el modelo pensaba, que el turno no pudo ver.
+ * 025 — `debidos` são as mensagens que este turno precisa atender; só elas
+ * passam pelo coalesce. Retorna quais mensagens leu: quem chamou compara
+ * com o que entrou enquanto o modelo pensava, que o turno não pôde ver.
  */
 export async function runAgentTurn(
   conversationId: string,
@@ -153,14 +153,14 @@ export async function runAgentTurn(
   if (!conversation) return;
   const organizationId = conversation.organizationId;
 
-  // ¿Esta organización tiene IA? Lo guardado en Ajustes → IA, o si no, el
-  // entorno. Sin proveedor, o con la llave pausada por el proveedor, el
-  // mensaje se queda en la bandeja para que lo atienda una persona — y el
-  // dueño ve el motivo en el banner y en Ajustes → IA. Va ANTES de cualquier
-  // efecto (traspasos por ventana o por frase): sin IA no hay turno.
+  // Esta organização tem IA? O salvo em Configurações → IA ou, se não, o
+  // ambiente. Sem provedor, ou com a chave pausada pelo provedor, a
+  // mensagem fica na caixa de entrada para ser atendida por uma pessoa — e o
+  // dono vê o motivo no banner e em Configurações → IA. Vem ANTES de qualquer
+  // efeito (transferências por janela ou por frase): sem IA não há turno.
   if (!(await isAiConfiguredFor(organizationId))) return;
 
-  // Condiciones de silencio: handoff activo o IA apagada en la conversación.
+  // Condições de silêncio: handoff ativo ou IA desligada na conversa.
   if (conversation.handoffAt || !conversation.aiEnabled) return;
 
   const profileRows = await db
@@ -170,8 +170,8 @@ export async function runAgentTurn(
     .limit(1);
   const profile = profileRows[0];
   if (!profile) return;
-  // El toggle global aplica a conversaciones reales; el Laboratorio evalúa el
-  // comportamiento configurado aunque el agente aún no esté encendido.
+  // O interruptor global vale para conversas reais; o Laboratório avalia o
+  // comportamento configurado mesmo que o agente ainda não esteja ligado.
   if (!conversation.isTest && !profile.enabled) return;
 
   const recientes = await db
@@ -181,8 +181,8 @@ export async function runAgentTurn(
     .orderBy(desc(schema.message.createdAt))
     .limit(20);
   recientes.reverse();
-  // Por id y no solo «los últimos 20»: un mensaje debido que ya no quepa en
-  // esa ventana seguiría debiéndose después de cada turno.
+  // Por id e não só «as últimas 20»: uma mensagem pendente que já não caiba nessa
+  // janela continuaria pendente depois de cada turno.
   const debidos = opciones.debidos?.length
     ? await db
         .select()
@@ -207,14 +207,14 @@ export async function runAgentTurn(
     vistos: history.filter((m) => m.direction === "in").map((m) => m.id),
   };
 
-  // Una persona contestó desde la bandeja antes de que este turno arrancara:
-  // lo que lo provocó ya está atendido. Solo en el camino del coalesce (el
-  // que trae debidos); el Laboratorio no tiene quien conteste a mano.
+  // Uma pessoa respondeu pela caixa de entrada antes de este turno começar:
+  // o que o provocou já está atendido. Só no caminho do coalesce (o que traz
+  // os pendentes); o Laboratório não tem quem responda à mão.
   if (opciones.debidos && !vigentes.length && atendidoPorPersona(recientes)) {
     return leido;
   }
 
-  // Ventana cerrada: el agente JAMÁS envía texto libre → handoff 'ventana'.
+  // Janela fechada: o agente JAMAIS envia texto livre → handoff 'ventana'.
   if (
     !conversation.isTest &&
     !isWindowOpen(
@@ -227,9 +227,9 @@ export async function runAgentTurn(
     return leido;
   }
 
-  // Patrón de respaldo ANTES del LLM (FR-022). Avisa y traspasa, en el mismo
-  // orden que el camino del modelo (`farewell` y luego handoff): callar ante
-  // quien pide una persona se lee como que el bot dejó de contestar.
+  // Padrão de reserva ANTES do LLM (FR-022). Avisa e transfere, na mesma
+  // ordem do caminho do modelo (`farewell` e depois handoff): calar diante de
+  // quem pede uma pessoa se lê como se o bot tivesse deixado de responder.
   if (lastInbound.text && matchesHandoffIntent(lastInbound.text)) {
     await acknowledgeHandoff(conversation);
     await applyHandoff(conversationId, organizationId, "cliente");
@@ -250,24 +250,24 @@ export async function runAgentTurn(
   const agenda = agendaEnabled();
 
   /**
-   * 015 — Los huecos vigentes, con su instante exacto.
+   * 015 — Os horários vigentes, com seu instante exato.
    *
-   * `book_slot` exige el `startUtc` y `findOffered` compara por epoch, sin
-   * tolerancia. Pero al modelo solo le llegaban el prompt y el historial de
-   * TEXTO, donde están las etiquetas que leyó el cliente —«lun 7 sep, 11:00»—
-   * sin año, sin zona y sin la fecha de hoy. Con eso, acertar el instante era
-   * cuestión de suerte: el rechazo caía siempre en `slot_not_offered`, cuyo
-   * texto es fijo, y la conversación se quedaba en bucle repitiendo la lista.
+   * `book_slot` exige o `startUtc` e `findOffered` compara por epoch, sem
+   * tolerância. Mas ao modelo só chegavam o prompt e o histórico de
+   * TEXTO, onde estão os rótulos que o cliente leu — «seg 7 set, 11:00» —
+   * sem ano, sem fuso e sem a data de hoje. Com isso, acertar o instante era
+   * questão de sorte: a recusa caía sempre em `slot_not_offered`, cujo
+   * texto é fixo, e a conversa ficava em loop repetindo a lista.
    *
-   * Es un agujero de INTEGRACIÓN: las pruebas de contrato pasan porque
-   * inyectan el ISO correcto, que es justo lo que el modelo no tenía.
+   * É um furo de INTEGRAÇÃO: os testes de contrato passam porque
+   * injetam o ISO correto, que é justamente o que o modelo não tinha.
    *
-   * Sin oferta vigente no se añade nada, así que el modelo sigue obligado a
-   * ofrecer antes de reservar. Se entrega el catálogo COMPLETO, no solo los
-   * tres que se enseñaron: si el cliente pide otro día, ese hueco ya estaba
-   * registrado como ofrecido y ahora el modelo también lo conoce.
+   * Sem oferta vigente nada é acrescentado, então o modelo continua obrigado a
+   * ofertar antes de reservar. Entrega-se o catálogo COMPLETO, não só os
+   * três que foram mostrados: se o cliente pedir outro dia, esse horário já
+   * estava registrado como ofertado e agora o modelo também o conhece.
    *
-   * Reportado por @Diony7004 en #50, con el diagnóstico ya hecho.
+   * Reportado por @Diony7004 em #50, com o diagnóstico já feito.
    */
   const ofertas = agenda ? await getOffers(organizationId, conversationId) : [];
   const mapaDeHuecos = mapaDeHuecosParaModelo(ofertas);
@@ -284,13 +284,13 @@ export async function runAgentTurn(
         content: m.text!,
       })),
     /**
-     * Va AL FINAL, después del historial: es el estado de AHORA, y ponerlo
-     * antes lo dejaría enterrado bajo la conversación en cuanto esta crezca.
+     * É colocado NO FINAL, depois do histórico: é o estado de AGORA, e pô-lo
+     * antes o deixaria enterrado sob a conversa assim que esta crescesse.
      */
     ...(mapaDeHuecos
       ? [{ role: "system" as const, content: mapaDeHuecos }]
       : []),
-    // 029 — Lo último que lee el modelo: contestar con el JSON de la acción.
+    // 029 — O último que o modelo lê: responder com o JSON da ação.
     { role: "system", content: TURN_FORMAT_REMINDER },
   ];
 
@@ -299,7 +299,7 @@ export async function runAgentTurn(
   });
   if (!result.ok) {
     if (result.error === "not_configured") return leido;
-    // Fallo persistente del proveedor o salida imposible → escalar (FR-022).
+    // Falha persistente do provedor ou saída impossível → escalar (FR-022).
     console.error(`[agente] fallo del proveedor (raw): ${result.detail}`);
     await applyHandoff(conversationId, organizationId, "error");
     return leido;
@@ -307,8 +307,8 @@ export async function runAgentTurn(
 
   let action: AgentActionType = result.data;
 
-  // 015 — Agenda. Un fallo del motor degrada el turno (el agente responde sin
-  // agendar), nunca lo tumba: quedarse callado es peor que no agendar.
+  // 015 — Agenda. Uma falha do motor degrada o turno (o agente responde sem
+  // agendar), nunca o derruba: ficar calado é pior do que não agendar.
   if (action.action === "offer_slots" || action.action === "book_slot") {
     if (!agenda) {
       action = degradeAction(action);
@@ -383,7 +383,7 @@ export async function runAgentTurn(
 
 type Conversation = typeof schema.conversation.$inferSelect;
 
-/** Entrega la respuesta: envío real o persistencia sandbox (is_test). */
+/** Entrega a resposta: envio real ou persistência sandbox (is_test). */
 async function deliverReply(
   conversation: Conversation,
   text: string
@@ -404,9 +404,9 @@ async function deliverReply(
       await applyHandoff(conversation.id, conversation.organizationId, "ventana");
       return;
     }
-    // 022 — El canal ya no admite más mensajes hasta que el cliente escriba
-    // (el tope de TikTok). No se traspasa: dejaría la IA en pausa para siempre
-    // por algo que se arregla solo con el siguiente mensaje del cliente.
+    // 022 — O canal não aceita mais mensagens até o cliente escrever
+    // (o limite do TikTok). Não se transfere: deixaria a IA pausada para sempre
+    // por algo que se resolve sozinho com a próxima mensagem do cliente.
     if (err instanceof SendError && err.code === "message_limit") {
       console.warn(
         `[agente] ${conversation.id}: ${err.message}. No se envía y la IA sigue activa.`
@@ -418,19 +418,19 @@ async function deliverReply(
 }
 
 /**
- * FR-022 — El acuse del patrón de respaldo, antes de traspasar.
+ * FR-022 — O aviso do padrão de reserva, antes de transferir.
  *
- * Sale por `deliverReply`, el mismo camino que el `farewell` del modelo, así
- * que hereda sus garantías: una conversación del Laboratorio lo persiste sin
- * tocar la API, y con la ventana de 24 h cerrada no sale texto libre (el turno
- * ya traspasó por `ventana` antes de llegar aquí, y el emisor lo rechazaría
- * igual). Tampoco se repite si el turno vuelve a correr: el traspaso deja
- * `handoffAt` puesto y el turno siguiente se calla en la primera comprobación,
- * igual que tras el `farewell`.
+ * Sai por `deliverReply`, o mesmo caminho do `farewell` do modelo, de modo
+ * que herda suas garantias: uma conversa do Laboratório a persiste sem
+ * tocar a API, e com a janela de 24 h fechada não sai texto livre (o turno
+ * já transferiu por `ventana` antes de chegar aqui, e o emissor a rejeitaria
+ * do mesmo jeito). Também não se repete se o turno voltar a rodar: a transferência deixa
+ * `handoffAt` preenchido e o turno seguinte se cala na primeira verificação,
+ * igual ao que acontece após o `farewell`.
  *
- * Lo único que cambia respecto a ese camino: si el envío falla, el traspaso
- * se aplica IGUAL. Quien pidió una persona tiene que llegar a una aunque el
- * aviso no haya salido; dejarlo con la IA encendida sería peor que el silencio.
+ * A única mudança em relação a esse caminho: se o envio falhar, a transferência
+ * se aplica MESMO ASSIM. Quem pediu uma pessoa precisa chegar a uma, mesmo que o
+ * aviso não tenha saído; deixá-lo com a IA ligada seria pior que o silêncio.
  */
 async function acknowledgeHandoff(conversation: Conversation): Promise<void> {
   try {
@@ -443,7 +443,7 @@ async function acknowledgeHandoff(conversation: Conversation): Promise<void> {
   }
 }
 
-/** Mensaje saliente del sandbox: se persiste, JAMÁS toca la API (FR-031). */
+/** Mensagem de saída do sandbox: é persistida, JAMAIS toca a API (FR-031). */
 async function persistTestOutbound(
   conversation: Conversation,
   text: string
@@ -506,18 +506,18 @@ async function moveLeadToStage(
   const leadId = rows[0]?.id;
   if (!leadId) return;
 
-  // Por la puerta única: el agente mueve tarjetas igual que el dueño, y su
-  // movimiento tiene que quedar en la bitácora o el embudo mentirá sobre
-  // quién hizo avanzar cada lead.
+  // Pela porta única: o agente move cartões como o dono, e esse movimento
+  // precisa ficar registrado, senão o funil mentiria sobre
+  // quem fez avançar cada lead.
   await moveLeadThroughHistory({
     organizationId,
     leadId,
     toStageId: stageId,
     source: "bot",
     extra: { lastActivityAt: new Date() },
-    // El agente no clasifica pérdidas: si su etapa destino resultara ser la
-    // perdida, la puerta lo rechaza y el lead se queda donde está — mejor eso
-    // que un motivo inventado.
+    // O agente não classifica perdas: se a etapa de destino dele acabar sendo a
+    // perdida, a porta o rejeita e o lead fica onde está — melhor isso
+    // do que um motivo inventado.
   });
 }
 

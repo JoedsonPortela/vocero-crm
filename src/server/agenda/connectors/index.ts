@@ -20,16 +20,16 @@ import {
 } from "@/server/agenda/connectors/google-credentials";
 
 /**
- * 015 — El catálogo de conectores y la ÚNICA puerta por la que el motor habla
- * con un proveedor.
+ * 015 — O catálogo de conectores e a ÚNICA porta pela qual o motor fala
+ * com um provedor.
  *
- * El servicio de citas no conoce credenciales ni proveedores: pide "entrega
- * esta reunión" y aquí se resuelve con qué y con qué llaves. Por eso agregar un
- * conector en un fork no toca ni una línea del motor: se escribe su adaptador,
- * su tabla de credenciales y una rama de este `switch`.
+ * O serviço de agendamentos não conhece credenciais nem provedores: pede "entrega
+ * esta reunião" e aqui se resolve com quê e com quais chaves. Por isso adicionar um
+ * conector num fork não toca nem uma linha do motor: escreve-se o seu adaptador,
+ * a sua tabela de credenciais e um ramo deste `switch`.
  */
 
-/** Un conector con sus credenciales ya resueltas: el genérico queda borrado. */
+/** Um conector com as suas credenciais já resolvidas: o genérico fica apagado. */
 export type BoundConnector = {
   id: ConnectorId;
   createMeeting(req: MeetingRequest): Promise<MeetingResult>;
@@ -39,7 +39,7 @@ export type BoundConnector = {
   ): Promise<void>;
   deleteMeeting(externalId: string): Promise<void>;
   testConnection(): Promise<TestConnectionResult>;
-  /** Solo si el conector la implementa (enlaces asíncronos). */
+  /** Só se o conector a implementar (links assíncronos). */
   refreshMeeting?: (externalId: string) => Promise<MeetingResult>;
 };
 
@@ -59,12 +59,12 @@ function bind<C>(conn: AgendaConnector<C>, creds: C): BoundConnector {
 }
 
 /**
- * Resuelve el conector pedido con las credenciales de esta organización.
+ * Resolve o conector pedido com as credenciais desta organização.
  *
- * Lanza `ConnectorError` si el conector no está disponible o le faltan
- * credenciales. El motor traduce esa excepción a "cita creada con enlace
- * pendiente", que es honesto — en vez de entregar en silencio el enlace de
- * otro conector.
+ * Lança `ConnectorError` se o conector não estiver disponível ou faltarem
+ * credenciais. O motor traduz essa exceção para "agendamento criado com link
+ * pendente", que é honesto — em vez de entregar em silêncio o link de
+ * outro conector.
  */
 export async function bindConnector(
   organizationId: string,
@@ -100,13 +100,13 @@ export async function bindConnector(
 }
 
 /**
- * Marca la credencial del conector como rota tras un error de autenticación,
- * para que Ajustes muestre la tarjeta de reconexión. `enlace-fijo` no tiene
- * credenciales que marcar.
+ * Marca a credencial do conector como quebrada após um erro de autenticação,
+ * para que Configurações mostre o cartão de reconexão. `enlace-fijo` não tem
+ * credenciais para marcar.
  *
- * Es lo que evita el fallo silencioso del fork, donde el estado `error` existe
- * como enum y nadie lo escribe: el dueño se entera de que su conexión murió
- * por el cliente que no recibió su enlace.
+ * É o que evita a falha silenciosa do fork, onde o estado `error` existe
+ * como enum e ninguém o escreve: o dono descobre que sua conexão morreu
+ * pelo cliente que não recebeu seu link.
  */
 export async function markConnectorAuthError(
   organizationId: string,

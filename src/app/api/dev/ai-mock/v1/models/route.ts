@@ -3,7 +3,7 @@ import { aiMockAuthFailure, aiMockModels } from "@/server/dev/ai-mock";
 
 export const dynamic = "force-dynamic";
 
-/** `GET /v1/models` del ai-mock, con la misma forma que OpenRouter/OpenAI. */
+/** `GET /v1/models` do ai-mock, com a mesma forma da OpenRouter/OpenAI. */
 export async function GET(req: Request) {
   const guard = mockGuard();
   if (guard) return guard;

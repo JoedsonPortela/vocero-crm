@@ -22,15 +22,15 @@ import {
 } from "@/lib/version";
 
 /**
- * Un renglón del menú, como el `side-item` del mockup de la landing: texto
- * semibold, esquinas de 9px y, activo, lavado del acento con tinta azul.
- * Exportado para la vista previa de Configuración → Marca, que pinta la barra.
+ * Uma linha do menu, como o `side-item` do mockup da landing: texto
+ * semibold, cantos de 9px e, ativo, um véu do acento com tinta azul.
+ * Exportado para a pré-visualização de Configuração → Marca, que pinta a barra.
  */
 export function navItemClass(active: boolean) {
   return cn(
     "flex items-center gap-[10px] rounded-sm px-2.5 py-2.5 text-[13.5px] font-semibold transition-colors lg:py-2",
-    // Acento sólido: dentro de `.nav-dark` es el calculado para fondo oscuro,
-    // así que contrasta con la barra (≥ 3.5:1) sea cual sea el white-label.
+    // Acento sólido: dentro de `.nav-dark` é o calculado para fundo escuro,
+    // então contrasta com a barra (≥ 3.5:1) seja qual for o white-label.
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
     active
       ? "bg-brand-tint text-brand-text"
@@ -54,20 +54,20 @@ export function AppNav({
   role: string;
   theme: ThemePreference;
   /**
-   * Commit resuelto en el servidor. Gana al de build porque puede venir de la
-   * plataforma cuando quien construyó no lo pasó como build-arg — y en ese
-   * caso llega con `verified: false`, y la insignia lo dice.
+   * Commit resolvido no servidor. Tem prioridade sobre o de build porque pode vir da
+   * plataforma quando quem construiu não o passou como build-arg — e, nesse
+   * caso, chega com `verified: false`, e a insígnia informa isso.
    */
   commit?: ResolvedCommit;
-  /** 028 — La etiqueta bajo el logo; la decide el servidor por los canales. */
+  /** 028 — O rótulo sob o logo; quem decide é o servidor, pelos canais. */
   kicker?: string;
   /**
-   * 015 — ¿hay agenda en esta instancia? Viene del servidor por prop y no se
-   * deduce de los datos: una instancia con la agenda encendida pero sin citas
-   * todavía debe ver la entrada igual.
+   * 015 — Há agenda nesta instância? Vem do servidor por prop e não é
+   * deduzido dos dados: uma instância com a agenda ligada mas ainda sem reuniões
+   * deve ver a entrada mesmo assim.
    */
   agenda?: boolean;
-  /** Solo aplica por debajo de `lg`: en escritorio el lateral es fijo. */
+  /** Só se aplica abaixo de `lg`: no desktop a lateral é fixa. */
   open?: boolean;
   onClose?: () => void;
 }) {
@@ -94,8 +94,8 @@ export function AppNav({
   });
 
   const version = commit ?? { commit: BUILD_COMMIT, verified: BUILD_COMMIT !== "" };
-  // #87 — Qué hay en el menú y en qué grupo lo decide `appNavGroups`; aquí
-  // solo se pinta.
+  // #87 — O que há no menu e em qual grupo ele fica é decidido por `appNavGroups`; aqui
+  // apenas é desenhado.
   const groups = appNavGroups({ agenda, role });
 
   function renderItem(item: NavItem) {
@@ -124,25 +124,25 @@ export function AppNav({
 
   return (
     <aside
-      // Móvil: cajón que se desliza desde la izquierda (siempre montado, así
-      // la transición corre en ambos sentidos). Escritorio: columna fija.
-      // `visibility` va en la transición a propósito: al cerrar mantiene el
-      // cajón visible mientras se desliza y recién entonces lo oculta, que es
-      // lo que lo saca del orden de tabulación en móvil.
+      // Mobile: gaveta que desliza pela esquerda (sempre montada, assim
+      // a transição roda nos dois sentidos). Desktop: coluna fixa.
+      // `visibility` fica na transição de propósito: ao fechar mantém o
+      // painel visível enquanto desliza e só então o oculta, o que é
+      // o que o tira da ordem de tabulação no mobile.
       className={cn(
-        // `text-foreground` explícito: sin él, el texto sin color propio (el
-        // nombre del usuario, el nombre white-label en BrandLogo) hereda el
-        // color YA CALCULADO en <body> con el tema de la página, no el de
-        // `.nav-dark` — y un texto oscuro sobre este fondo oscuro se pierde.
+        // `text-foreground` explícito: sem ele, o texto sem cor própria (o
+        // nome do usuário, o nome white-label no BrandLogo) herda a
+        // cor JÁ CALCULADA no <body> com o tema da página, e não a de
+        // `.nav-dark` — e um texto escuro sobre este fundo escuro se perde.
         "nav-dark fixed inset-y-0 left-0 z-50 flex w-[17rem] shrink-0 flex-col overflow-y-auto border-r bg-subtle px-3 pb-3.5 pt-4 text-foreground transition-[transform,visibility] duration-200",
         "lg:static lg:visible lg:z-auto lg:w-56 lg:translate-x-0 lg:overflow-visible lg:transition-none",
         open ? "visible translate-x-0 shadow-pop" : "invisible -translate-x-full"
       )}
     >
-      {/* Marca: el logo de Vocero o, white-label, la inicial y el nombre */}
+      {/* Marca: o logo do Vocero ou, white-label, a inicial e o nome */}
       <div className="mb-5 flex items-start gap-1.5 px-2 pt-0.5">
-        {/* En móvil el cajón necesita su propio cierre: el velo no siempre es
-            alcanzable con el pulgar. */}
+        {/* No mobile a gaveta precisa do seu próprio fechamento: o véu nem sempre
+            é alcançável com o polegar. */}
         <button
           onClick={onClose}
           aria-label={t("shell.closeMenu")}
@@ -156,9 +156,9 @@ export function AppNav({
         </div>
       </div>
 
-      {/* Grupos con encabezado pequeño, sin letras ni colapsables: se leen
-          de arriba abajo como una lista de lo que hay. Un grupo sin título
-          (Resultados) es una entrada suelta separada por el espacio. */}
+      {/* Grupos com cabeçalho pequeno, sem letras nem recolhíveis: são lidos
+          de cima para baixo como uma lista do que existe. Um grupo sem título
+          (Resultados) é uma entrada avulsa separada pelo espaço. */}
       <nav className="flex flex-col gap-4" aria-label={t("shell.sections")}>
         {groups.map((group, i) => (
           <div key={group.title ?? i} className="flex flex-col gap-0.5">
@@ -174,7 +174,7 @@ export function AppNav({
 
       <div className="flex-1" />
 
-      {/* Ajustes va abajo, solo: no es trabajo del día. */}
+      {/* Ajustes fica embaixo, sozinho: não é trabalho do dia. */}
       {renderItem(SETTINGS_ITEM)}
 
       <div className="mt-1 flex items-center gap-2.5 rounded-sm px-2.5 py-2 hover:bg-accent">
@@ -202,19 +202,19 @@ export function AppNav({
         </button>
       </div>
 
-      {/* Qué versión está corriendo. Discreta pero siempre visible: la duda
-          "¿ya se desplegó?" aparece justo cuando algo no funciona, y mandar a
-          alguien a comparar commits en el servidor significa que no lo hará. */}
-      {/* `text-2` y no `text-3`: a 10.5px, el gris más claro no pasa AA contra
-          el fondo de la barra. Discreta sí, ilegible no. */}
-      {/* El nombre sale de la marca, no de una constante: esto es white-label,
-          y una instancia rebautizada que dice "Vocero" en el tooltip delata el
-          producto de debajo justo donde el operador la mira todos los días. */}
-      {/* Un commit que no salió del build lo dice (#50): presentarlo igual
-          que uno verificado es la insignia mintiendo justo cuando alguien la
-          consulta para saber qué código corre. El aviso es el ícono (color de
-          advertencia: basta 3:1 para un gráfico) y el texto va en `text-2`,
-          que pasa AA sobre la barra en cualquier tema. */}
+      {/* Qual versão está rodando. Discreta mas sempre visível: a dúvida
+          "já foi implantada?" aparece justo quando algo não funciona, e mandar
+          alguém comparar commits no servidor significa que ela não fará isso. */}
+      {/* `text-2` e não `text-3`: a 10.5px, o cinza mais claro não passa AA contra
+          o fundo da barra. Discreta sim, ilegível não. */}
+      {/* O nome sai da marca, não de uma constante: isto é white-label,
+          e uma instância renomeada que diz "Vocero" no tooltip denuncia o
+          produto de baixo justo onde o operador olha todo dia. */}
+      {/* Um commit que não saiu do build avisa isso (#50): apresentá-lo igual
+          a um verificado é o selo mentindo justo quando alguém o
+          consulta para saber qual código roda. O aviso é o ícone (cor de
+          alerta: basta 3:1 para um gráfico) e o texto fica em `text-2`,
+          que passa AA sobre a barra em qualquer tema. */}
       <p
         className="mt-2 px-2.5 font-mono text-[10.5px] tracking-[0.06em] text-text-2"
         title={versionTitle(branding.name, version)}

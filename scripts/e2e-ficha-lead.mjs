@@ -1,11 +1,11 @@
 /**
- * Self-test E2E de comportamiento — ficha del lead
- * (guion tests/e2e/us1-inbox.md, sección "ficha").
+ * Self-test E2E de comportamento — ficha do lead
+ * (roteiro tests/e2e/us1-inbox.md, seção "ficha").
  *
- * Lo que se prueba de verdad es la CONVIVENCIA: el agente va llenando la ficha
- * mientras el dueño la corrige. Con reemplazo en vez de merge, el último en
- * guardar le borra el trabajo al otro y nadie se entera hasta que falta un
- * dato en una llamada.
+ * O que se prova de verdade é a CONVIVÊNCIA: o agente vai preenchendo a ficha
+ * enquanto o dono a corrige. Com substituição em vez de merge, quem salvar por
+ * último apaga o trabalho do outro e ninguém percebe até faltar um dado numa
+ * ligação.
  *
  * Uso: node --env-file=.env scripts/e2e-ficha-lead.mjs
  */
@@ -45,7 +45,7 @@ async function api(path, opts = {}) {
   return { res, json };
 }
 
-/** Llamada del cerebro externo: va con la API key, sin sesión. */
+/** Chamada do cérebro externo: vai com a API key, sem sessão. */
 const bot = (path, body) =>
   fetch(`${BASE}${path}`, {
     method: "PUT",
@@ -79,7 +79,7 @@ await api("/api/settings/whatsapp", {
   body: JSON.stringify({ wabaId: "WABA-FI", phoneNumberId: PN, token: "tok-fi" }),
 });
 
-// Un entrante crea contacto + conversación, que es lo que el bot necesita.
+// Uma entrada cria contato + conversa, que é o que o bot precisa.
 const phone = `52155000${Math.floor(1000 + Math.random() * 8999)}`;
 await api("/api/dev/wa-mock/inbound", {
   method: "POST",
@@ -129,7 +129,7 @@ ok(
 );
 
 console.log("\n== Nadie le pisa el trabajo al otro ==");
-// El agente sigue conversando y descubre algo nuevo mientras el dueño edita.
+// O agente segue conversando e descobre algo novo enquanto o dono edita.
 await bot("/api/bot/ficha", {
   conversationId: conv.id,
   ficha: { urgencia: "esta semana" },
@@ -178,10 +178,10 @@ const ajeno = await api("/api/contacts/ct_inexistente_999", {
   method: "PATCH",
   body: JSON.stringify({ ficha: { x: "y" } }),
 });
-// Ojo con lo que este check NO prueba: un id inexistente da 404 aunque la
-// query no filtre por organización. El aislamiento entre inquilinos lo cuida
-// `tests/unit/ficha-guard.test.ts`, que sí se pone rojo si alguien quita el
-// `scoped` de la puerta.
+// Atenção ao que este check NÃO prova: um id inexistente dá 404 mesmo que a
+// query não filtre por organização. O isolamento entre inquilinos é cuidado por
+// `tests/unit/ficha-guard.test.ts`, que sim fica vermelho se alguém tirar o
+// `scoped` da porta.
 ok(
   "un contacto que no existe → 404, no una escritura a ciegas",
   ajeno.res.status === 404,

@@ -24,9 +24,9 @@ import {
 import type { AiCredentialSecret } from "@/server/ai/credentials";
 
 /**
- * #85 — Ajustes → IA. Las reglas puras: con quién habla el adaptador (la fila
- * manda, el entorno es respaldo), qué hace cada código del proveedor con el
- * estado, y qué acepta el `PUT`.
+ * #85 — Ajustes → IA. As regras puras: com quem fala o adaptador (a linha
+ * manda, o ambiente é respaldo), o que cada código do provedor faz com o
+ * estado, e o que aceita o `PUT`.
  */
 
 const FILA: AiCredentialSecret = {
@@ -80,7 +80,7 @@ describe("resolución: la fila manda, el entorno es respaldo", () => {
       expect(r.provider.source).toBe("org");
       expect(r.provider.token).toBe(FILA.token);
       expect(r.provider.model).toBe("org/modelo");
-      // Un solo modelo en la UI: el juez usa el mismo.
+      // Um só modelo na UI: o juiz usa o mesmo.
       expect(r.provider.judgeModel).toBe("org/modelo");
     }
   });

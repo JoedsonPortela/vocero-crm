@@ -1,19 +1,19 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 /**
- * 021 — El contrato del despacho: lo que el CRM le manda a un cerebro externo
- * cuando un cliente escribe. Ver
- * `specs/021-despacho-estandar/contracts/despacho.md`. Este módulo define la
- * FORMA del evento y la firma; no habla con nadie ni toca la base.
+ * 021 — O contrato do despacho: o que o CRM envia a um cérebro externo
+ * quando um cliente escreve. Ver
+ * `specs/021-despacho-estandar/contracts/despacho.md`. Este módulo define a
+ * FORMA do evento e a assinatura; não fala com ninguém nem toca o banco.
  *
- * La regla que lo sostiene: el cerebro recibe un evento NORMALIZADO. No sabe
- * si el mensaje vino de Meta o de Zernio y no tiene credenciales de canal, así
- * que agregar un canal no toca a los cerebros y agregar un cerebro no toca a
- * los canales.
+ * A regra que o sustenta: o cérebro recebe um evento NORMALIZADO. Não sabe
+ * se a mensagem veio da Meta ou da Zernio e não tem credenciais de canal, de modo
+ * que adicionar um canal não toca os cérebros e adicionar um cérebro não toca
+ * os canais.
  *
- * Es la misma forma que el despacho de Vocero Cloud (su
- * `src/server/brains/contract.ts`), para que un mismo cerebro sirva a las dos
- * ediciones. La única diferencia está en `mediaId`, y se explica abajo.
+ * É a mesma forma do despacho do Vocero Cloud (seu
+ * `src/server/brains/contract.ts`), para que um mesmo cérebro sirva às duas
+ * edições. A única diferença está em `mediaId`, e se explica abaixo.
  */
 
 export type CanalDelEvento = "whatsapp" | "instagram" | "messenger" | "tiktok";
@@ -24,14 +24,14 @@ export type MensajeDelEvento = {
   type: string;
   text: string | null;
   /**
-   * El id que acepta `GET /api/bot/media/{mediaId}` (el de Graph), no el id
-   * interno del adjunto. En cloud es al revés porque allá la vuelta es
-   * `/api/brains/media`; aquí la vuelta es `/api/bot/*` y no cambia.
+   * O id que aceita `GET /api/bot/media/{mediaId}` (o do Graph), não o id
+   * interno do anexo. Na cloud é o contrário, porque lá a volta é
+   * `/api/brains/media`; aqui a volta é `/api/bot/*` e não muda.
    */
   mediaId: string | null;
-  /** Solo con adjunto. */
+  /** Só com anexo. */
   mimeType?: string | null;
-  /** Solo con adjunto. */
+  /** Só com anexo. */
   caption?: string | null;
 };
 
@@ -55,7 +55,7 @@ export type EventoDespacho = {
   lastMessageAt: string;
 };
 
-/** Lo que hace falta saber de un mensaje para meterlo al evento. */
+/** O que é preciso saber de uma mensagem para colocá-la no evento. */
 export type MensajeParaEvento = {
   id: string;
   createdAt: Date;
@@ -69,10 +69,10 @@ export type MensajeParaEvento = {
 };
 
 /**
- * Arma el evento. Pura, y es la ÚNICA que lo arma: el orden de las claves es
- * contrato —se firma el JSON tal como sale de aquí— y
- * `tests/unit/despacho-contrato.test.ts` fija un cuerpo y su firma byte a
- * byte. La prueba gemela vive en el repo del cerebro.
+ * Monta o evento. Pura, e é a ÚNICA que o monta: a ordem das chaves é
+ * contrato —assina-se o JSON exatamente como sai daqui— e
+ * `tests/unit/despacho-contrato.test.ts` fixa um corpo e sua assinatura byte a
+ * byte. A prova gêmea vive no repositório do cérebro.
  */
 export function armarEvento(datos: {
   dispatchId: string;
@@ -121,23 +121,23 @@ function mensajeDelEvento(m: MensajeParaEvento): MensajeDelEvento {
     text: m.text,
     mediaId: m.media?.waMediaId ?? null,
   };
-  // Sin algo que descargar, `mimeType` y `caption` no dicen nada: una
-  // ubicación o una tarjeta de contacto no tienen media id.
+  // Sem algo para baixar, `mimeType` e `caption` não dizem nada: uma
+  // localização ou um cartão de contato não têm media id.
   if (!m.media?.waMediaId) return base;
   return { ...base, mimeType: m.media.mimeType, caption: m.media.caption };
 }
 
 /**
- * 026 — Quien administra el negocio eliminó una conversación: el cerebro tiene
- * que olvidarla.
+ * 026 — Quem administra o negócio apagou uma conversa: o cérebro tem
+ * que esquecê-la.
  *
- * Viaja a la MISMA URL y con la MISMA firma que un despacho. Se distingue por
- * `type`, que un despacho no lleva: quien no conozca este evento ve un cuerpo
- * sin `messages` y lo rechaza, que es inofensivo — no se reintenta.
+ * Vai para a MESMA URL e com a MESMA assinatura de um despacho. Distingue-se por
+ * `type`, que um despacho não traz: quem não conhecer este evento vê um corpo
+ * sem `messages` e o rejeita, o que é inofensivo — não é reintentado.
  *
- * No lleva el contenido de lo borrado, solo con qué encontrarlo. `identity` va
- * porque un cerebro suele indexar su memoria por persona, no por el id de
- * conversación del CRM.
+ * Não leva o conteúdo do apagado, só com o que encontrá-lo. `identity` vai
+ * porque um cérebro costuma indexar sua memória por pessoa, não pelo id de
+ * conversa do CRM.
  */
 export type EventoOlvido = {
   type: "conversation.deleted";
@@ -151,10 +151,10 @@ export type EventoOlvido = {
 export const TIPO_OLVIDO = "conversation.deleted" as const;
 
 /**
- * El orden de las claves es contrato: se firma el JSON tal como sale de aquí.
- * Es el mismo cuerpo que manda Vocero Cloud, y la prueba gemela de `nea-agent`
- * (`tests/test_olvido.py`) lo tiene copiado byte a byte, igual que
- * `tests/unit/olvido-contrato.test.ts` aquí.
+ * A ordem das chaves é contrato: assina-se o JSON exatamente como sai daqui.
+ * É o mesmo corpo que envia o Vocero Cloud, e a prova gêmea de `nea-agent`
+ * (`tests/test_olvido.py`) o tem copiado byte a byte, igual a
+ * `tests/unit/olvido-contrato.test.ts` aqui.
  */
 export function construirEventoOlvido(datos: {
   eventId: string;
@@ -182,14 +182,14 @@ export function construirEventoOlvido(datos: {
 export const CABECERA_FIRMA = "x-vocero-signature";
 export const CABECERA_DISPATCH = "x-vocero-dispatch-id";
 export const CABECERA_ORG = "x-vocero-organization";
-/** Para los eventos que no son un turno: hoy, `conversation.deleted` (026). */
+/** Para os eventos que não são um turno: hoje, `conversation.deleted` (026). */
 export const CABECERA_EVENTO = "x-vocero-event";
 
 /**
- * Firma del cuerpo CRUDO, con prefijo `sha256=`.
+ * Assinatura do corpo CRU, com prefixo `sha256=`.
  *
- * El prefijo es contrato: el webhook de Zernio NO lo lleva y el nuestro SÍ. La
- * asimetría es del proveedor, no nuestra.
+ * O prefixo é contrato: o webhook da Zernio NÃO o leva e o nosso SIM. A
+ * assimetria é do provedor, não nossa.
  */
 export function firmarCuerpo(cuerpoCrudo: string, secreto: string): string {
   const hex = createHmac("sha256", secreto)
@@ -199,9 +199,9 @@ export function firmarCuerpo(cuerpoCrudo: string, secreto: string): string {
 }
 
 /**
- * Verificación en tiempo constante. El CRM no verifica sus propios despachos:
- * existe para que el cerebro de prueba del arnés y las pruebas comprueben la
- * firma con la misma regla que debe usar un cerebro real.
+ * Verificação em tempo constante. O CRM não verifica os seus próprios despachos:
+ * existe para que o cérebro de teste do arnês e os testes comprovem a
+ * assinatura com a mesma regra que um cérebro real deve usar.
  */
 export function firmaValida(
   cuerpoCrudo: string,
@@ -216,12 +216,12 @@ export function firmaValida(
 }
 
 /**
- * Cómo se clasifica lo que respondió el cerebro.
+ * Como se classifica o que o cérebro respondeu.
  *
- * Un 4xx (salvo 429) NO se reintenta: si el otro lado considera inválido el
- * cuerpo, mandárselo tres veces solo retrasa la caída a humano, que es lo
- * único que va a atender esa conversación. Un 3xx cae aquí también: no se
- * siguen redirecciones.
+ * Um 4xx (exceto 429) NÃO é reintentado: se o outro lado considera inválido o
+ * corpo, enviá-lo três vezes só atrasa a queda para um humano, que é o
+ * único que vai atender essa conversa. Um 3xx cai aqui também: não se
+ * seguem redirecionamentos.
  */
 export type ResultadoEntrega =
   | { ok: true }

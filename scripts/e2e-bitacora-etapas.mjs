@@ -1,14 +1,14 @@
 /**
- * Self-test E2E de comportamiento — bitácora de movimientos de etapa
- * (guion tests/e2e/us2-pipeline.md, sección "bitácora").
+ * Self-test E2E de comportamento — diário de movimentações de etapa
+ * (roteiro tests/e2e/us2-pipeline.md, seção "bitácora").
  *
- * Conduce la app por HTTP y verifica la tabla `lead_stage_event` directo en la
- * base: todavía no hay endpoint que la exponga (llega con la analítica), y lo
- * que este PR promete es justamente que NINGÚN camino mueva un lead sin dejar
- * su renglón.
+ * Conduz a app por HTTP e verifica a tabela `lead_stage_event` direto no
+ * banco: ainda não há endpoint que a exponha (chega com a analítica), e o
+ * que este PR promete é justamente que NENHUM caminho mova um lead sem deixar
+ * sua linha.
  *
  * Uso: node --env-file=.env scripts/e2e-bitacora-etapas.mjs
- * Requiere: app corriendo (pnpm dev) con WA_MOCK_ENABLED=true y BD migrada.
+ * Requer: app rodando (pnpm dev) com WA_MOCK_ENABLED=true e BD migrada.
  */
 import postgres from "postgres";
 
@@ -56,7 +56,7 @@ async function api(path, opts = {}) {
   return { res, json };
 }
 
-// TimeZone UTC: invariante de tiempo del proyecto (ver src/lib/db/index.ts).
+// TimeZone UTC: invariante de tempo do projeto (ver src/lib/db/index.ts).
 const sql = postgres(process.env.DATABASE_URL, {
   max: 1,
   onnotice: () => {},

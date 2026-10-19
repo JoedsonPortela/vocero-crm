@@ -1,12 +1,12 @@
 /**
- * Self-test E2E de comportamiento — icono de la pestaña y logo de la barra
- * (guion tests/e2e/us-diseno-atlas.md, secciones "icono" y "logo").
+ * Self-test E2E de comportamento — ícone da aba e logo da barra lateral
+ * (roteiro tests/e2e/us-diseno-atlas.md, seções "ícone" e "logo").
  *
- * Dos cosas se prueban aquí sobre todo: que TODA instancia tenga icono sin
- * configurar nada, y que no se pueda colar un documento haciéndolo pasar por
- * imagen — esto se sirve desde el mismo dominio que la app. Y una tercera:
- * que el logo que sube el dueño se vea donde se ve la marca (barra lateral,
- * login), no solo en la pestaña.
+ * Duas coisas são provadas aqui sobretudo: que TODA instância tenha ícone sem
+ * configurar nada, e que não se consiga passar um documento como imagem —
+ * isto é servido pelo mesmo domínio do app. E uma terceira:
+ * que o logo que o proprietário envia apareça onde a marca aparece (barra lateral,
+ * login), não só na aba.
  *
  * Uso: node --env-file=.env scripts/e2e-favicon.mjs
  */
@@ -45,20 +45,20 @@ const json = (path, opts = {}) =>
   });
 
 /**
- * El HTML que pinta el servidor. La marca viaja en SSR (sin parpadeo), así
- * que lo que dibujan la barra lateral y el login ya está en la respuesta.
+ * O HTML que o servidor renderiza. A marca vai no SSR (sem piscar), então o que
+ * a barra lateral e o login desenham já está na resposta.
  */
 const paginaDe = async (path, { sesion = true } = {}) =>
   (sesion ? await api(path) : await fetch(`${BASE}${path}`)).text();
 
 /**
- * El mosaico de la marca dibujando un archivo: `<img src=…>`. La pestaña usa
- * la misma URL pero en `<link href=…>`, así que no cuenta aquí.
+ * O mosaico da marca desenhando um arquivo: `<img src=…>`. A aba usa
+ * a mesma URL mas em `<link href=…>`, então não conta aqui.
  */
 const LOGO_EN_MOSAICO = /<img[^>]*src="\/api\/branding\/favicon\?v=([^"&]+)"/;
 const versionEnMosaico = (html) => LOGO_EN_MOSAICO.exec(html)?.[1] ?? null;
 
-/** PNG de 1×1 real: sirve para probar el camino feliz de la carga. */
+/** PNG de 1×1 real: serve para testar o caminho feliz do carregamento. */
 const PNG_1X1 = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
   "base64"
@@ -79,7 +79,7 @@ if (!su.ok) {
 }
 ok("registro o login del propietario", su.ok);
 
-// Se parte de una marca conocida.
+// Parte-se de uma marca conhecida.
 await json("/api/settings/branding", {
   method: "PUT",
   body: JSON.stringify({ name: "Acme", accent: "#3f6b66", currency: "MXN" }),
@@ -102,7 +102,7 @@ ok(
     res.headers.get("x-content-type-options") === "nosniff"
 );
 
-// Sin sesión: el login también tiene pestaña.
+// Sem sessão: o login também tem aba.
 const sinSesion = await fetch(`${BASE}/api/branding/favicon`);
 ok("se sirve sin sesión", sinSesion.status === 200);
 
@@ -131,8 +131,8 @@ ok(
 );
 
 console.log("\n== El logo subido se ve también donde se ve la marca ==");
-// Antes solo cambiaba la pestaña: la barra lateral y el login seguían con la
-// inicial, y quien subía su logo no lo veía por ningún lado.
+// Antes só mudava a aba: a barra lateral e o login continuavam com a
+// inicial, e quem enviava seu logo não o via em lugar nenhum.
 const v1 = `u${subidaJson?.favicon?.version}`;
 let pagina = await paginaDe("/inbox");
 ok(
@@ -150,7 +150,7 @@ ok(
 console.log("\n== No se cuela un documento disfrazado de imagen ==");
 const htmlComoPng = await api("/api/settings/branding/favicon", {
   method: "PUT",
-  headers: { "content-type": "image/png" }, // MIENTE
+  headers: { "content-type": "image/png" }, // MENTE
   body: Buffer.from("<html><script>alert(1)</script></html>", "utf8"),
 });
 ok(
@@ -207,8 +207,8 @@ ok(
 );
 
 console.log("\n== Quitar y volver a subir NO repite la URL ==");
-// El caso que importa: si la versión reiniciara, `?v=u1` sería la misma URL
-// que la del logo anterior y el navegador seguiría enseñando el viejo.
+// O caso que importa: se a versão reiniciasse, `?v=u1` seria a mesma URL
+// que a do logo anterior e o navegador continuaria mostrando o antigo.
 await new Promise((r) => setTimeout(r, 5));
 const otra = await api("/api/settings/branding/favicon", {
   method: "PUT",
@@ -222,7 +222,7 @@ ok(
   `${subidaJson?.favicon?.version} → ${otraJson?.favicon?.version}`
 );
 
-// Y la marca que sirve el layout cambia de verdad.
+// E a marca que o layout serve muda de verdade.
 const marca = await (await json("/api/settings/branding")).json();
 ok(
   "la marca expone el icono nuevo",

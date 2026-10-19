@@ -15,17 +15,17 @@ const importSchema = z.object({
     )
     .min(1)
     .max(IMPORT_MAX_ROWS),
-  /** El agente no les responde: los atiende el dueño. */
+  /** O agente não responde a eles: quem atende é o dono. */
   aiPaused: z.boolean().optional(),
 });
 
 /**
- * Importación de contactos en lote (CSV leído en el navegador).
+ * Importação de contatos em lote (CSV lido no navegador).
  *
- * El navegador ya validó para enseñar la vista previa, pero aquí se valida
- * otra vez con la MISMA función: lo que llega por la red no es de fiar, y un
- * teléfono sin código de país crearía un contacto que nunca casa con quien
- * escriba después.
+ * O navegador já validou para mostrar a prévia, mas aqui se valida
+ * de novo com a MESMA função: o que chega pela rede não é confiável, e um
+ * telefone sem código de país criaria um contato que nunca bate com quem
+ * escrever depois.
  */
 export const POST = withAuth(async (session, req: Request) => {
   const body = await parseBody(req, importSchema);

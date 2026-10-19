@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { requireSession, UnauthorizedError, type SessionContext } from "@/lib/auth/session";
 
-/** Respuesta de error estándar de la API interna (contrato api.md). */
+/** Resposta de erro padrão da API interna (contrato api.md). */
 export function apiError(
   status: number,
   code: string,
@@ -11,8 +11,8 @@ export function apiError(
 }
 
 /**
- * Envuelve un route handler autenticado: resuelve la sesión (401 si no hay),
- * captura errores no controlados (500 sin stack) y deja pasar Response.
+ * Envolve um route handler autenticado: resolve a sessão (401 se não houver),
+ * captura erros não controlados (500 sem stack) e deixa passar a Response.
  */
 export function withAuth<Args extends unknown[]>(
   handler: (session: SessionContext, ...args: Args) => Promise<Response>
@@ -36,7 +36,7 @@ export function withAuth<Args extends unknown[]>(
   };
 }
 
-/** Parsea el body JSON con un esquema Zod; inválido → Response 422. */
+/** Faz o parse do body JSON com um esquema Zod; inválido → Response 422. */
 export async function parseBody<T>(
   req: Request,
   schema: z.ZodType<T>

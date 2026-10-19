@@ -1,7 +1,7 @@
 /**
- * Migraciones al ARRANQUE del contenedor (no en pre-deploy: el pre-deploy de
- * plataformas como Coolify corre en el contenedor viejo). Se bundlea con
- * esbuild dentro de la imagen y corre antes de `node server.js`.
+ * Migrações na INICIALIZAÇÃO do contêiner (não no pre-deploy: o pre-deploy de
+ * plataformas como o Coolify roda no contêiner antigo). É empacotado com
+ * esbuild dentro da imagem e roda antes de `node server.js`.
  */
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -21,7 +21,7 @@ const migrationsFolder =
 
 const maxAttempts = 15;
 for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-  // TimeZone UTC: invariante de tiempo del proyecto (ver src/lib/db/index.ts).
+  // TimeZone UTC: invariante de tempo do projeto (ver src/lib/db/index.ts).
   const sql = postgres(url, {
     max: 1,
     onnotice: () => {},

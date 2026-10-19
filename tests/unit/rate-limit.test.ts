@@ -69,10 +69,10 @@ describe("el mapa de llaves no crece para siempre", () => {
     const opts = { windowMs: 60_000, max: 30 };
     const t0 = 1_000_000;
     for (let i = 0; i < 10_000; i++) checkRateLimit(`ip:${i}`, opts, t0);
-    // Aún dentro de la ventana: nada se barre.
+    // Ainda dentro da janela: nada é varrido.
     checkRateLimit("ip:viva", opts, t0 + 10);
     expect(rateLimitKeys()).toBe(10_001);
-    // Pasada la ventana: solo queda la llave nueva.
+    // Passada a janela: só resta a chave nova.
     checkRateLimit("ip:nueva", opts, t0 + 10 + opts.windowMs + 1);
     expect(rateLimitKeys()).toBe(1);
   });

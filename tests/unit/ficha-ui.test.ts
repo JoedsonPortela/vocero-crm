@@ -35,9 +35,9 @@ describe("fichaValueText", () => {
 
 describe("parseFichaValue", () => {
   it("editar NO cambia el tipo del dato", () => {
-    // Del otro lado hay un bot que puede estar comparando; convertir en
-    // silencio un número a texto es de los cambios que solo se descubren
-    // cuando algo ya falló.
+    // Do outro lado há um bot que pode estar comparando; converter em
+    // silêncio um número em texto é uma das mudanças que só se descobrem
+    // quando algo já falhou.
     expect(parseFichaValue("60000", 50000)).toBe(60000);
     expect(parseFichaValue("No", true)).toBe(false);
     expect(parseFichaValue("sí", false)).toBe(true);

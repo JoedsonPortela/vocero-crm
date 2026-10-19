@@ -1,12 +1,12 @@
 import { normalizeMx } from "@/lib/meta/client";
 
 /**
- * Importación de contactos desde un CSV: la parte PURA.
+ * Importação de contatos a partir de um CSV: a parte PURA.
  *
- * La usan los dos lados: el diálogo, para enseñar qué se va a importar antes
- * de mandar nada, y el endpoint, que vuelve a validar porque no confía en lo
- * que diga el navegador. Con una sola copia, lo que el dueño ve en la vista
- * previa es exactamente lo que el servidor acepta.
+ * Usada pelos dois lados: o diálogo, para mostrar o que será importado antes
+ * de enviar nada, e o endpoint, que valida de novo porque não confia no que
+ * diz o navegador. Com uma única cópia, o que o dono vê na pré-visualização
+ * é exatamente o que o servidor aceita.
  */
 
 export const IMPORT_MAX_ROWS = 2000;
@@ -14,7 +14,7 @@ export const IMPORT_MAX_ROWS = 2000;
 export type ImportRow = { name: string; phone: string };
 
 export type ImportProblem = {
-  /** Renglón del archivo, contando el encabezado como 1. */
+  /** Linha do arquivo, contando o cabeçalho como 1. */
   line: number;
   name: string;
   reason: "sin_telefono" | "sin_codigo_pais" | "telefono_invalido" | "repetido";
@@ -28,9 +28,9 @@ export const PROBLEM_LABELS: Record<ImportProblem["reason"], string> = {
 };
 
 /**
- * CSV a tabla. Soporta comillas, comillas dobles escapadas, saltos de línea
- * dentro de un campo, y `;` o tabulador como separador (Excel en español
- * exporta con `;`).
+ * CSV para tabela. Suporta aspas, aspas duplas escapadas, quebras de linha
+ * dentro de um campo, e `;` ou tabulação como separador (o Excel em espanhol
+ * exporta com `;`).
  */
 export function parseCsv(text: string): string[][] {
   const src = text.replace(/^﻿/, "");
@@ -84,9 +84,9 @@ const NAME_HEADERS = ["nombre", "name", "contacto", "first name", "firstname"];
 const SURNAME_HEADERS = ["apellido", "apellidos", "last name", "lastname"];
 
 /**
- * Qué columna es cuál, por el encabezado. Devuelve null si no hay columna de
- * teléfono: sin ella no hay nada que importar, y adivinarla por el contenido
- * acabaría importando una columna de montos como teléfonos.
+ * Qual coluna é qual, pelo cabeçalho. Devolve null se não houver coluna de
+ * telefone: sem ela não há nada a importar, e adivinhá-la pelo conteúdo
+ * acabaria importando uma coluna de valores como telefones.
  */
 export function detectColumns(
   header: string[]
@@ -105,11 +105,11 @@ export function detectColumns(
 }
 
 /**
- * Teléfono a identidad de WhatsApp, o el motivo por el que no sirve.
+ * Telefone para identidade do WhatsApp, ou o motivo pelo qual não serve.
  *
- * Exige código de país igual que el alta manual: diez dígitos son un número
- * local en varios países, y asumir uno produciría un contacto que jamás casa
- * con quien escriba después.
+ * Exige código do país igual ao cadastro manual: dez dígitos são um número
+ * local em vários países, e presumir um produziria um contato que jamais casa
+ * com quem escrever depois.
  */
 export function normalizeImportPhone(
   raw: string
@@ -121,7 +121,7 @@ export function normalizeImportPhone(
   return { ok: true, phone: normalizeMx(digits) };
 }
 
-/** Filas crudas a filas importables + lo que se quedó fuera y por qué. */
+/** Linhas cruas para linhas importáveis + o que ficou de fora e por quê. */
 export function prepareImport(rows: { name: string; phone: string }[]): {
   valid: ImportRow[];
   problems: ImportProblem[];
@@ -142,14 +142,14 @@ export function prepareImport(rows: { name: string; phone: string }[]): {
       return;
     }
     seen.add(res.phone);
-    // Sin nombre se importa igual, con el teléfono como nombre: es lo mismo
-    // que hace la ingesta cuando alguien escribe sin nombre de perfil.
+    // Sem nome importa igual, com o telefone como nome: é o mesmo
+    // que faz a ingestão quando alguém escreve sem nome de perfil.
     valid.push({ name: name || res.phone, phone: res.phone });
   });
   return { valid, problems };
 }
 
-/** Del texto del archivo a filas listas, o el motivo por el que no se pudo leer. */
+/** Do texto do arquivo para linhas prontas, ou o motivo pelo qual não pôde ser lido. */
 export function readImportFile(
   text: string
 ):

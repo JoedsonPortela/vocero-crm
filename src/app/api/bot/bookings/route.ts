@@ -11,16 +11,16 @@ import { bookingErrorResponse, bookingPayload } from "@/server/agenda/http";
 export const dynamic = "force-dynamic";
 
 /**
- * 015 — Reservar y mover citas, para quien conduce la conversación.
+ * 015 — Reservar e mover citas, para quem conduz a conversa.
  *
- * CONTRATO: crear responde **201**, mover responde **200**. No es purismo: en
- * un sistema real un cliente que validaba `status === 200` dejó a TODOS los
- * leads sin poder agendar durante horas, y los mocks no lo detectaron porque
- * respondían 200. Si escribes un cliente, acepta 2xx.
+ * CONTRATO: criar responde **201**, mover responde **200**. Não é purismo: em
+ * um sistema real, um cliente que validava `status === 200` deixou TODOS os
+ * leads sem poder agendar por horas, e os mocks não detectaram isso porque
+ * respondiam 200. Se você escrever um cliente, aceite 2xx.
  *
- * Y el sobre del error va ANIDADO (`{"error":{"code":…}}`) con `slots` como
- * hermano: un mock con la forma plana escondió el camino de re-oferta durante
- * semanas en ese mismo sistema.
+ * E o envelope do erro vem ANINHADO (`{"error":{"code":…}}`) com `slots` como
+ * irmão: um mock com a forma plana escondeu o caminho de nova oferta por
+ * semanas nesse mesmo sistema.
  */
 
 const createSchema = z.object({
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
       startUtc: body.data.startUtc,
       notes: body.data.notes ?? null,
       source: "ai",
-      // La regla innegociable: el agente solo reserva lo que ya ofreció.
+      // A regra inegociável: o agente só reserva o que já ofereceu.
       requireOffer: true,
     });
     return Response.json(bookingPayload(result), { status: 201 });
@@ -70,15 +70,15 @@ export async function PATCH(req: Request) {
       conversationId: body.data.conversationId,
       startUtc: body.data.startUtc,
     });
-    // 200 y no 201: mover una cita no crea un recurso nuevo.
+    // 200 e não 201: mover uma cita não cria um recurso novo.
     return Response.json(bookingPayload(result));
   } catch (err) {
     return bookingErrorResponse(err);
   }
 }
 
-/* Cancelar NO existe por esta superficie a propósito: esa decisión es del
- * dueño del negocio, no del agente. El camino es el handoff. */
+/* Cancelar NÃO existe por esta superfície de propósito: essa decisão é do
+ * dono do negócio, não do agente. O caminho é o handoff. */
 
 type Gate = { organizationId: string } | { response: Response };
 

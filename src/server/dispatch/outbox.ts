@@ -5,42 +5,42 @@ import { getEnv } from "@/lib/env";
 import { publish } from "@/server/events/bus";
 
 /**
- * 021 — El outbox del despachador.
+ * 021 — A caixa de saída do despachante.
  *
- * Hace cumplir «bandeja primero, cerebro después»: el mensaje ya está en
- * `message` antes de que exista una fila aquí. Si el despacho falla, el
- * mensaje sigue en la bandeja; si el proceso muere, el lease expira y el
- * siguiente barrido la retoma.
+ * Faz cumprir «caixa de entrada primeiro, cérebro depois»: a mensagem já está em
+ * `message` antes de existir uma linha aqui. Se o despacho falhar, a
+ * mensagem segue na caixa de entrada; se o processo morrer, o lease expira e o
+ * próximo varrimento a retoma.
  *
- * El agrupado de ráfagas NO se implementa con temporizadores: lo hace el
- * índice único parcial `dispatch_conversation_vivo_uq`, que permite como
- * máximo UN despacho vivo por conversación. Encolar cinco mensajes seguidos
- * hace un INSERT y cuatro UPDATE de la ventana. La garantía la da Postgres,
- * así que sobrevive a que alguien reescriba el worker.
+ * O agrupamento de rajadas NÃO é implementado com temporizadores: quem faz isso é o
+ * índice único parcial `dispatch_conversation_vivo_uq`, que permite no
+ * máximo UM despacho vivo por conversa. Enfileirar cinco mensagens seguidas
+ * faz um INSERT e quatro UPDATE da janela. A garantia é dada pelo Postgres,
+ * então sobrevive a alguém reescrever o worker.
  *
- * Puerto de `src/server/dispatch/outbox.ts` de Vocero Cloud.
+ * Adaptação de `src/server/dispatch/outbox.ts` do Vocero Cloud.
  */
 
 /**
- * Cuánto se espera desde el último mensaje antes de despachar.
+ * Quanto se espera desde a última mensagem antes de despachar.
  *
- * Es la MISMA variable que usa el agente incluido (`AGENT_COALESCE_MS`), y a
- * propósito: la pregunta que responde es idéntica —cuánto esperar a que
- * alguien termine de escribir su ráfaga— y los dos caminos nunca están vivos a
- * la vez. Dos nombres para un solo concepto solo servirían para que alguien
- * bajara uno y se preguntara por qué no pasa nada.
+ * É a MESMA variável usada pelo agente incluído (`AGENT_COALESCE_MS`), e de
+ * propósito: a pergunta que ela responde é idêntica —quanto esperar até que
+ * alguém termine de escrever sua rajada— e os dois caminhos nunca estão vivos ao
+ * mesmo tempo. Dois nomes para um só conceito serviriam apenas para que alguém
+ * baixasse um e se perguntasse por que nada acontece.
  */
 export function ventanaCoalesceMs(): number {
   return getEnv().AGENT_COALESCE_MS;
 }
 
-/** Cuánto tiempo un worker se reserva una fila antes de que otro pueda tomarla. */
+/** Quanto tempo um worker reserva uma linha antes que outro possa pegá-la. */
 export const LEASE_MS = 180_000;
 export const MAX_INTENTOS = 3;
-/** Espera tras el intento 1 y tras el 2. El tercero ya no reintenta. */
+/** Espera após a tentativa 1 e após a 2. A terceira já não tenta de novo. */
 export const BACKOFF_MS = [1000, 4000];
 
-/** Pura: la espera base antes del siguiente intento. */
+/** Pura: a espera base antes da próxima tentativa. */
 export function esperaDeReintento(intentosHechos: number): number {
   const i = Math.min(Math.max(intentosHechos, 1), BACKOFF_MS.length) - 1;
   return BACKOFF_MS[i] ?? 1000;
@@ -49,16 +49,16 @@ export function esperaDeReintento(intentosHechos: number): number {
 export type FilaDespacho = typeof schema.dispatch.$inferSelect;
 
 /**
- * Encola (o extiende) el despacho de una conversación.
+ * Enfileira (ou estende) o despacho de uma conversa.
  *
- * Idempotente por construcción: si ya hay uno pendiente, empuja su ventana en
- * vez de crear otro. Devuelve CUÁNDO vence esa ventana, para que quien encola
- * despierte al worker en ese instante en vez de esperar a su siguiente
- * barrido.
+ * Idempotente por construção: se já houver um pendente, empurra sua janela em
+ * vez de criar outro. Devolve QUANDO vence essa janela, para que quem enfileira
+ * desperte o worker nesse instante em vez de esperar pelo seu próximo
+ * varrimento.
  *
- * 025 — `messageIds` son los entrantes que provocan esta llamada. Se anotan en
- * la fila viva —también si va EN VUELO— porque son lo que ese despacho le debe
- * al cerebro: la ráfaga sola no alcanza a decirlo (ver `rafagaDe`).
+ * 025 — `messageIds` são as mensagens recebidas que provocam esta chamada. São anotadas na
+ * linha viva —também se estiver EM VOO— porque são o que esse despacho deve
+ * ao cérebro: a rajada sozinha não consegue dizê-lo (ver `rafagaDe`).
  */
 export async function encolarDespacho(params: {
   organizationId: string;
@@ -70,16 +70,16 @@ export async function encolarDespacho(params: {
   const ahora = params.ahora ?? new Date();
   const notBefore = new Date(ahora.getTime() + ventanaCoalesceMs());
   const messageIds = [...new Set(params.messageIds ?? [])];
-  // Se concatena en SQL y no leyendo-y-escribiendo: dos mensajes que llegan a
-  // la vez no pueden pisarse la lista el uno al otro.
+  // Concatena-se no SQL e não lendo-e-escrevendo: duas mensagens que chegam ao
+  // mesmo tempo não podem sobrescrever a lista uma da outra.
   const anotados: { messageIds?: SQL } = messageIds.length
     ? {
         messageIds: sql`coalesce(${schema.dispatch.messageIds}, '[]'::jsonb) || ${JSON.stringify(messageIds)}::jsonb`,
       }
     : {};
 
-  // Casi siempre una vuelta. Se repite solo si la fila viva cambió bajo los
-  // pies: otro mensaje ganó el índice único, o el worker la tomó justo ahora.
+  // Quase sempre uma volta. Repete-se só se a linha viva mudou sob os
+  // pés: outra mensagem ganhou o índice único, ou o worker a pegou agora mesmo.
   for (let vuelta = 0; ; vuelta++) {
     const [vivo] = await db
       .select()
@@ -93,20 +93,20 @@ export async function encolarDespacho(params: {
       .limit(1);
 
     if (vivo) {
-      // En vuelo no se toca `not_before`: el cerebro ya tiene el evento, sin
-      // este mensaje, y adelantar la ventana no lo haría llegar antes. Queda
-      // anotado en la fila, y el worker, al entregarla, ve que lo sigue
-      // debiendo y encola otro despacho.
+      // Em voo não se toca em `not_before`: o cérebro já tem o evento, sem
+      // esta mensagem, e adiantar a janela não a faria chegar antes. Fica
+      // anotado na linha, e o worker, ao entregá-la, vê que ainda continua
+      // devendo e enfileira outro despacho.
       const enVuelo = vivo.status === "en_vuelo";
       if (enVuelo && !messageIds.length) {
         return { id: vivo.id, notBefore: vivo.notBefore };
       }
       /**
-       * Solo si SIGUE vivo.
+       * Só se AINDA estiver vivo.
        *
-       * Entre el SELECT de arriba y este UPDATE el worker pudo terminarlo. Lo
-       * anotado en una fila ya entregada no lo vuelve a leer nadie: ese
-       * mensaje se quedaría sin despacho. Si ya no está vivo, abre su fila.
+       * Entre o SELECT de cima e este UPDATE o worker pode ter terminado-o. O
+       * anotado em uma linha já entregue não é relido por ninguém: essa
+       * mensagem ficaria sem despacho. Se já não estiver vivo, abre a sua linha.
        */
       const [tocado] = await db
         .update(schema.dispatch)
@@ -139,9 +139,9 @@ export async function encolarDespacho(params: {
       });
       return { id, notBefore };
     } catch (err) {
-      // Dos mensajes de la misma conversación entraron a la vez y el otro ganó
-      // el índice único. Su fila cubre a este mensaje, pero no lo tiene
-      // anotado: se vuelve a empezar para anotarlo en ella.
+      // Duas mensagens da mesma conversa entraram ao mesmo tempo e a outra ganhou
+      // o índice único. A linha dela cobre esta mensagem, mas não a tem
+      // anotada: recomeça-se para anotá-la nela.
       if (!esViolacionDeUnicidad(err)) throw err;
       if (vuelta >= 2 || !messageIds.length) return { id, notBefore };
     }
@@ -149,10 +149,10 @@ export async function encolarDespacho(params: {
 }
 
 /**
- * 025 — Los ids anotados en la fila AHORA, no los que traía cuando se reclamó.
+ * 025 — Os ids anotados na linha AGORA, não os que ela trazia quando foi reclamada.
  *
- * Mientras el despacho iba en vuelo pudieron anotarse más: son justo los que
- * el evento no llevó.
+ * Enquanto o despacho ia em voo, podem ter sido anotados mais: são justamente os que
+ * o evento não levou.
  */
 export async function mensajesAnotados(fila: FilaDespacho): Promise<string[]> {
   const [row] = await getDb()
@@ -176,11 +176,11 @@ function esViolacionDeUnicidad(err: unknown): boolean {
 }
 
 /**
- * Toma hasta `limite` despachos cuya ventana ya venció.
+ * Pega até `limite` despachos cuja janela já venceu.
  *
- * El lease es lo que permite que varios procesos (o el mismo tras reiniciar)
- * no se pisen: se marca `en_vuelo` con `leased_until`, y una fila cuyo lease
- * expiró vuelve a estar disponible aunque siga marcada en vuelo.
+ * O lease é o que permite que vários processos (ou o mesmo após reiniciar)
+ * não se atropelem: marca-se `en_vuelo` com `leased_until`, e uma linha cujo lease
+ * expirou volta a ficar disponível mesmo que continue marcada em voo.
  */
 export async function tomarPendientes(
   limite = 10,
@@ -196,7 +196,7 @@ export async function tomarPendientes(
           eq(schema.dispatch.status, "pendiente"),
           lte(schema.dispatch.notBefore, ahora)
         ),
-        // Lease vencido: el worker que la tomó murió a mitad.
+        // Lease vencido: o worker que a pegou morreu no meio.
         and(
           eq(schema.dispatch.status, "en_vuelo"),
           lte(schema.dispatch.leasedUntil, ahora)
@@ -209,14 +209,14 @@ export async function tomarPendientes(
   const tomados: FilaDespacho[] = [];
   for (const fila of candidatos) {
     /**
-     * La reclamación es este UPDATE, no el SELECT de arriba, y se condiciona
-     * al estado y al contador de intentos.
+     * A reclamação é este UPDATE, não o SELECT de cima, e se condiciona
+     * ao estado e ao contador de tentativas.
      *
-     * Comparar el timestamp parecía un candado más fino, pero es frágil de una
-     * forma silenciosa: Postgres guarda microsegundos y el `Date` de JS solo
-     * milisegundos, así que el valor releído puede no ser idéntico al
-     * almacenado y el UPDATE no casa nunca. El contador entero distingue a dos
-     * dueños aunque ambos vean la fila en vuelo.
+     * Comparar o timestamp parecia um trinco mais fino, mas é frágil de uma
+     * forma silenciosa: o Postgres guarda microssegundos e o `Date` do JS só
+     * milissegundos, então o valor relido pode não ser idêntico ao
+     * armazenado e o UPDATE nunca casa. O contador inteiro distingue dois
+     * donos mesmo que ambos vejam a linha em voo.
      */
     const res = await db
       .update(schema.dispatch)
@@ -242,7 +242,7 @@ export async function tomarPendientes(
   return tomados;
 }
 
-/** La fila sigue siendo de quien la tomó. */
+/** A linha continua sendo de quem a pegou. */
 function propietario(fila: FilaDespacho) {
   return and(
     eq(schema.dispatch.id, fila.id),
@@ -275,8 +275,8 @@ export async function marcarEntregado(fila: FilaDespacho): Promise<boolean> {
 }
 
 /**
- * Reprograma un intento más, o caduca si ya no quedan.
- * Devuelve `true` si caducó (quien llama pasa la conversación a un humano).
+ * Reprograma mais uma tentativa, ou expira se não restarem.
+ * Devolve `true` se expirou (quem chama passa a conversa para um humano).
  */
 export async function reintentarOCaducar(
   fila: FilaDespacho,
@@ -286,8 +286,8 @@ export async function reintentarOCaducar(
   if (fila.attempts >= MAX_INTENTOS) return caducarAHumano(fila, detalle);
 
   const base = esperaDeReintento(fila.attempts);
-  // Variación: sin ella, N despachos que fallaron a la vez reintentan a la
-  // vez y vuelven a tumbar al cerebro que apenas se levantaba.
+  // Variação: sem ela, N despachos que falharam ao mesmo tempo tentam de novo ao
+  // mesmo tempo e derrubam de novo o cérebro que mal se levantava.
   const espera = base + Math.floor(Math.random() * base * 0.3);
   await getDb()
     .update(schema.dispatch)
@@ -302,7 +302,7 @@ export async function reintentarOCaducar(
   return false;
 }
 
-/** Caduca sin más intentos. `true` si la fila era nuestra y quedó caducada. */
+/** Expira sem mais tentativas. `true` se a linha era nossa e ficou expirada. */
 export async function caducarAHumano(
   fila: FilaDespacho,
   detalle: string
@@ -321,11 +321,11 @@ export async function caducarAHumano(
 }
 
 /**
- * El turno ya no debe existir: se pausó la IA durante la ventana, alguien
- * contestó a mano, o la conversación ya no está.
+ * O turno não deve mais existir: a IA foi pausada durante a janela, alguém
+ * respondeu à mão, ou a conversa já não existe.
  *
- * No es un fallo del cerebro ni necesita aviso. Por eso no pasa por
- * `caducarAHumano`, que cuenta como caída y pausa la conversación.
+ * Não é uma falha do cérebro nem precisa de aviso. Por isso não passa por
+ * `caducarAHumano`, que conta como queda e pausa a conversa.
  */
 export async function descartarDespacho(
   fila: FilaDespacho,
@@ -343,12 +343,12 @@ export async function descartarDespacho(
 }
 
 /**
- * El cerebro no pudo recibir el turno: la conversación pasa a un humano.
+ * O cérebro não conseguiu receber o turno: a conversa passa para um humano.
  *
- * Es el traspaso que ya existe —el mismo que deja `POST /api/bot/handoff` y el
- * mismo motivo (`error`) que usa un cerebro cuando no puede contestar—, y
- * publica el mismo evento, así que la bandeja lo ve en vivo. Solo escribe en
- * la transición: no pisa la hora ni el motivo de un traspaso anterior.
+ * É a transferência que já existe — a mesma que deixa `POST /api/bot/handoff` e o
+ * mesmo motivo (`error`) que um cérebro usa quando não consegue responder —, e
+ * publica o mesmo evento, então a caixa de entrada o vê ao vivo. Só escreve na
+ * transição: não sobrescreve a hora nem o motivo de uma transferência anterior.
  */
 export async function pasarAHumano(
   organizationId: string,

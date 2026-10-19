@@ -1,17 +1,17 @@
 /**
- * 018 — Cómo se nombra el origen en pantalla. Sin dependencias de servidor: lo
- * usan la lista, el panel, el cajón del trato y la fuente del contacto.
+ * 018 — Como a origem é nomeada na tela. Sem dependências de servidor: a
+ * usam a lista, o painel, a gaveta do negócio e a fonte do contato.
  *
- * Meta marca `source_type: "post"` cuando el clic vino de una publicación y no
- * de un anuncio. Llamarlo "anuncio" haría pasar por pagado algo que no lo fue.
+ * A Meta marca `source_type: "post"` quando o clique veio de uma publicação e não
+ * de um anúncio. Chamá-lo de "anúncio" faria passar por pago algo que não foi.
  */
 export function etiquetaDeOrigen(sourceType: string | null | undefined): string {
   return sourceType === "post" ? "Publicación" : "Anuncio";
 }
 
 /**
- * ¿Cuenta como fuente "anuncio"? Una publicación se enseña en la bandeja igual,
- * pero no se suma a los anuncios en la fuente del prospecto.
+ * Conta como origem "anúncio"? Uma publicação é mostrada na bandeja igual,
+ * mas não é somada aos anúncios na origem do prospect.
  */
 export function cuentaComoAnuncio(
   anuncio: { sourceType: string | null } | null | undefined
@@ -19,7 +19,7 @@ export function cuentaComoAnuncio(
   return !!anuncio && anuncio.sourceType !== "post";
 }
 
-/** Titular a enseñar cuando Meta no mandó ninguno. */
+/** Título a mostrar quando a Meta não enviou nenhum. */
 export function titularDeOrigen(
   headline: string | null | undefined,
   sourceType: string | null | undefined

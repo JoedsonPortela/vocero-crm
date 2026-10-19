@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-/** Gestión de etapas: renombrar, reordenar, agregar, eliminar (con reasignación). */
+/** Gestão de etapas: renomear, reordenar, adicionar, excluir (com reatribuição). */
 export function StageManager({
   stages,
   onClose,

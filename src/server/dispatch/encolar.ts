@@ -4,13 +4,13 @@ import { encolarDespacho } from "@/server/dispatch/outbox";
 import { iniciarWorker, programarTanda } from "@/server/dispatch/worker";
 
 /**
- * 021 — El enganche de la ingesta: un mensaje entrante real ya está en la
- * bandeja y hay un cerebro configurado, así que su turno se ENCOLA en vez de
- * pensarse aquí.
+ * 021 — O gancho da ingestão: uma mensagem recebida real já está na
+ * caixa de entrada e há um cérebro configurado, então seu turno é ENFILEIRADO em vez de
+ * pensado aqui.
  *
- * Nunca lanza. Corre al final de la ingesta, dentro del `after()` del webhook:
- * una excepción aquí no puede costarle a ese payload los mensajes que vengan
- * detrás. Lo que no se encoló sigue en la bandeja.
+ * Nunca lança. Roda no fim da ingestão, dentro do `after()` do webhook:
+ * uma exceção aqui não pode custar a esse payload as mensagens que vierem
+ * depois. O que não foi enfileirado segue na caixa de entrada.
  */
 export async function despacharAlCerebro(
   conversationId: string,
@@ -34,22 +34,22 @@ export async function despacharAlCerebro(
       .limit(1);
     if (!conv) return;
 
-    // Pausada por una persona o traspasada por el agente: no se despacha. Es
-    // la misma bandera que respeta `/api/bot/messages`, y aquí la respeta
-    // cualquier cerebro sin tener que acordarse. El Laboratorio no pasa por la
-    // ingesta, pero una conversación de prueba no sale del CRM por ningún
-    // camino.
+    // Pausada por uma pessoa ou transferida pelo agente: não se despacha. É
+    // a mesma bandeira que respeita `/api/bot/messages`, e aqui a respeita
+    // qualquer cérebro sem precisar lembrar. O Laboratório não passa pela
+    // ingestão, mas uma conversa de teste não sai do CRM por nenhum
+    // caminho.
     if (!conv.aiEnabled || conv.handoffAt || conv.isTest) return;
 
-    // 025 — El despacho anota qué entrante lo provoca: es lo que le debe al
-    // cerebro, aunque después la conversación tenga una respuesta.
+    // 025 — O despacho anota qual mensagem recebida o provoca: é o que ele deve
+    // ao cérebro, mesmo que depois a conversa tenha uma resposta.
     const { notBefore } = await encolarDespacho({
       organizationId,
       conversationId,
       messageIds: [messageId],
     });
     iniciarWorker();
-    // Que despierte justo cuando la ventana venza, no en su siguiente barrido.
+    // Que desperte justo quando a janela vencer, não no seu próximo varrimento.
     programarTanda(notBefore);
   } catch (err) {
     console.error("[despacho] no se pudo encolar el turno:", err);

@@ -6,14 +6,14 @@ import {
 } from "@/server/agenda/offers";
 
 /**
- * 015 / issue #50 — Los huecos que el modelo puede usar de verdad.
+ * 015 / issue #50 — Os horários livres que o modelo pode usar de fato.
  *
- * `book_slot` exige el `startUtc` y `findOffered` compara por epoch exacto,
- * sin tolerancia. Al modelo solo le llegaban el prompt y el historial de
- * TEXTO, donde están las etiquetas que leyó el cliente —«lun 7 sep, 11:00»—
- * sin año, sin zona y sin la fecha de hoy. Acertar el instante era cuestión de
- * suerte, el rechazo caía siempre en `slot_not_offered`, y la conversación se
- * quedaba en bucle repitiendo la misma lista.
+ * `book_slot` exige o `startUtc` e `findOffered` compara por epoch exato,
+ * sem tolerância. Ao modelo só chegavam o prompt e o histórico de
+ * TEXTO, onde estão os rótulos que o cliente leu —«lun 7 sep, 11:00»—
+ * sem ano, sem fuso e sem a data de hoje. Acertar o instante era questão de
+ * sorte, a recusa caía sempre em `slot_not_offered`, e a conversa ficava
+ * em loop repetindo a mesma lista.
  */
 
 const OFERTAS = [
@@ -33,17 +33,17 @@ describe("mapaDeHuecosParaModelo", () => {
   });
 
   /**
-   * Sin esto, el modelo podría inventarse una reserva antes de haber ofrecido
-   * nada — y el motor la rechazaría, volviendo al bucle por otro camino.
+   * Sem isso, o modelo poderia inventar uma reserva antes de ter ofertado
+   * nada — e o motor a rejeitaria, voltando ao loop por outro caminho.
    */
   it("sin oferta vigente no hay bloque: hay que ofrecer antes de reservar", () => {
     expect(mapaDeHuecosParaModelo([])).toBeNull();
   });
 
   /**
-   * La invariante que cierra el círculo: lo que el mapa enseña tiene que ser
-   * exactamente lo que `findOffered` acepta. Si el formato del ISO cambiara en
-   * un lado y no en el otro, volveríamos al mismo bucle sin que nada avisara.
+   * A invariante que fecha o círculo: o que o mapa mostra tem que ser
+   * exatamente o que `findOffered` aceita. Se o formato do ISO mudasse de
+   * um lado e não do outro, voltaríamos ao mesmo loop sem que nada avisasse.
    */
   it("todo instante del mapa es aceptado por findOffered", () => {
     const mapa = mapaDeHuecosParaModelo(OFERTAS)!;

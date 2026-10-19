@@ -1,15 +1,15 @@
 /**
- * Self-test E2E de comportamiento — sincronización de plantillas (guion
- * tests/e2e/us6-templates.md, sección "modo agencia").
+ * Self-test E2E de comportamento — sincronização de modelos (roteiro
+ * tests/e2e/us6-templates.md, seção "modo agencia").
  *
- * Reproduce un fallo visto en producción: Meta aprobó una plantilla y la
- * reclasificó de UTILITY a MARKETING, pero el CRM la seguía mostrando
- * "Pendiente de Meta" porque el webhook
- * `message_template_status_update` se entrega al callback A NIVEL APP (que en
- * modo agencia no es el de esta instancia). El único camino es el pull.
+ * Reproduz uma falha vista em produção: a Meta aprovou um modelo e o
+ * reclassificou de UTILITY para MARKETING, mas o CRM continuava mostrando
+ * "Pendiente de Meta" porque o webhook
+ * `message_template_status_update` é entregue ao callback EM NÍVEL DE APP (que no
+ * modo agência não é o desta instância). O único caminho é o pull.
  *
  * Uso: node --env-file=.env scripts/e2e-templates-sync.mjs
- * Requiere: app corriendo (pnpm dev) con WA_MOCK_ENABLED=true y BD migrada.
+ * Requer: app rodando (pnpm dev) com WA_MOCK_ENABLED=true e BD migrada.
  */
 
 const BASE = process.env.APP_BASE_URL ?? "http://localhost:3000";
@@ -58,7 +58,7 @@ async function findTemplate(name) {
   return (json?.templates ?? []).find((t) => t.name === name);
 }
 
-/** Mueve SOLO el panel simulado de Meta: sin webhook, como en modo agencia. */
+/** Move SÓ o painel simulado da Meta: sem webhook, como no modo agência. */
 function metaApproves(name, category) {
   return api("/api/dev/wa-mock/template-status", {
     method: "POST",

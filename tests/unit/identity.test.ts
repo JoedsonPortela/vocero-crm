@@ -3,7 +3,7 @@ import { normalizeMx } from "@/lib/meta/client";
 import { BSUID_PREFIX, resolveIdentity } from "@/server/inbox/identity";
 import type { WebhookMessage, WebhookValue } from "@/server/inbox/webhook";
 
-/** Feature 003: identidad resiliente de contacto (BSUID). */
+/** Feature 003: identidade resiliente de contato (BSUID). */
 
 function msg(partial: Partial<WebhookMessage>): WebhookMessage {
   return { id: "wamid.test.1", timestamp: "1752800000", type: "text", ...partial };
@@ -49,7 +49,7 @@ describe("resolveIdentity: teléfono presente", () => {
       { wa_id: "5215550001234", user_id: "bsu_777", profile: { name: "Kevin" } },
     ]);
     expect(r!.waUserId).toBe("bsu_777");
-    expect(r!.identity).toBe("525550001234"); // el teléfono manda si existe
+    expect(r!.identity).toBe("525550001234"); // o telefone manda se existir
   });
 });
 
@@ -80,8 +80,8 @@ describe("resolveIdentity: sin wa_id (mundo BSUID)", () => {
 
   it("el nombre de perfil no cae al identificador crudo", () => {
     const r = resolveIdentity(msg({ from_user_id: "bsu_123" }), []);
-    // Sin perfil: profileName null — el fallback de display se decide al crear
-    // el contacto (nunca el BSUID crudo).
+    // Sem perfil: profileName null — o fallback de exibição é decidido ao criar
+    // o contato (nunca o BSUID cru).
     expect(r!.profileName).toBeNull();
   });
 });

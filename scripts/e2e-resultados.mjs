@@ -1,25 +1,25 @@
 /**
- * Self-test E2E de comportamiento — pantalla RESULTADOS (spec 019,
+ * Self-test E2E de comportamento — tela RESULTADOS (spec 019,
  * tests/e2e/us-resultados.md).
  *
- * Siembra por los caminos REALES —el webhook (wa-mock) con y sin `referral`,
- * la API del pipeline, el agente in-process contra el ai-mock, un envío que
- * Meta rechaza, una corrida del Laboratorio— y compara lo que devuelve cada
- * bloque de `/api/analytics/*` contra lo sembrado.
+ * Semeia pelos caminhos REAIS —o webhook (wa-mock) com e sem `referral`,
+ * a API do pipeline, o agente in-process contra o ai-mock, um envio que
+ * a Meta rejeita, uma execução do Laboratório— e compara o que devolve cada
+ * bloco de `/api/analytics/*` com o que foi semeado.
  *
- * La instancia puede traer datos de otros guiones: se compara la DIFERENCIA
- * entre una foto antes de sembrar y otra después, no los totales. Las filas
- * por anuncio sí son exactas, porque sus `source_id` son de esta corrida.
+ * A instância pode trazer dados de outros roteiros: compara-se a DIFERENÇA
+ * entre uma foto antes de semear e outra depois, não os totais. As linhas
+ * por anúncio são exatas, porque seus `source_id` são desta execução.
  *
- * La base se toca directo (como en e2e-bitacora-etapas) solo para lo que el
- * webhook no puede fabricar: mover fechas al pasado (un lead en silencio, una
- * ventana por cerrarse, un prospecto del periodo anterior) y, con la bandera
- * AGENDA, citas con cada desenlace.
+ * O banco é tocado direto (como em e2e-bitacora-etapas) só para o que o
+ * webhook não consegue fabricar: mover datas para o passado (um lead em silêncio, uma
+ * janela prestes a fechar, um prospect do período anterior) e, com a flag
+ * AGENDA, agendamentos com cada desfecho.
  *
  * Uso: pnpm test:e2e:resultados  (= node --env-file=.env scripts/e2e-resultados.mjs)
- * Requiere: app viva con los mocks (WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL →
- * wa-mock, OPENROUTER_BASE_URL → ai-mock), BOT_API_KEY y la BD migrada. Corre
- * con AGENDA apagada o encendida: lo lee del mismo entorno que la app.
+ * Requer: app ativa com os mocks (WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL →
+ * wa-mock, OPENROUTER_BASE_URL → ai-mock), BOT_API_KEY e a BD migrada. Roda
+ * com AGENDA desligada ou ligada: lê do mesmo ambiente que o app.
  */
 import postgres from "postgres";
 
@@ -48,7 +48,7 @@ async function api(path, opts = {}) {
     ...opts,
     headers: {
       "content-type": "application/json",
-      // Better Auth valida Origin (CSRF) en los endpoints de auth.
+      // O Better Auth valida Origin (CSRF) nos endpoints de auth.
       origin: BASE,
       ...(cookie ? { cookie } : {}),
       ...(opts.headers ?? {}),
@@ -65,14 +65,14 @@ async function api(path, opts = {}) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/** Espera a que algo OCURRA, en vez de dormir un rato y confiar. */
+/** Espera até que algo ACONTEÇA, em vez de dormir um pouco e confiar. */
 async function hasta(cond, ms = 30000, paso = 400) {
   const fin = Date.now() + ms;
   for (;;) {
     try {
       if (await cond()) return true;
     } catch {
-      /* reintenta */
+      /* tenta de novo */
     }
     if (Date.now() > fin) return false;
     await sleep(paso);
@@ -87,7 +87,7 @@ let origenMock = BASE;
 try {
   origenMock = new URL(process.env.META_GRAPH_BASE_URL).origin;
 } catch {
-  /* sin META_GRAPH_BASE_URL: el propio BASE */
+  /* sem META_GRAPH_BASE_URL: o próprio BASE */
 }
 const referral = ({ id, titular, tipo = "ad", imagen = true }) => ({
   source_url: `https://fb.me/resultados-${RUN}-${id}`,
@@ -128,7 +128,7 @@ async function conversacionDe(n) {
   return hallada;
 }
 
-/** Las cuatro secciones, sobre el MISMO rango. */
+/** As quatro seções, sobre o MESMO intervalo. */
 async function foto(q) {
   const [sales, ads, bot, hygiene] = await Promise.all(
     ["sales", "ads", "bot", "hygiene"].map(async (b) =>
@@ -170,7 +170,7 @@ async function main() {
   ok("conexión WhatsApp guardada (vía wa-mock)", conn.res.ok, JSON.stringify(conn.json));
   await api("/api/dev/wa-mock/outbox", { method: "DELETE" });
 
-  // El agente tiene que contestar; al final se deja como estaba.
+  // O agente tem que responder; no final deixa-se como estava.
   const perfil = (await api("/api/agent/profile")).json?.profile;
   const agenteEstaba = perfil?.enabled ?? false;
   const encendido = await api("/api/agent/profile", {
@@ -187,8 +187,8 @@ async function main() {
   const perdida = board?.stages?.find((s) => s.kind === "lost");
   ok("el tablero tiene etapas abiertas, ganada y perdida", abiertas.length > 0 && !!ganada && !!perdida);
 
-  // El rango de todas las fotos: el de por defecto (30 días hasta hoy, en la
-  // zona del negocio), fijado para que antes y después midan lo mismo.
+  // O intervalo de todas as fotos: o padrão (30 dias até hoje, no
+  // fuso do negócio), fixado para que antes e depois meçam o mesmo.
   const porDefecto = (await api("/api/analytics/sales")).json?.period;
   ok(
     "sin rango, Resultados mira los últimos 30 días en la zona del negocio",
@@ -219,9 +219,9 @@ async function main() {
   const antes = await foto(q);
 
   console.log("\n== 2 · Siembra por el webhook, el pipeline y el agente ==");
-  // 1-3: anuncio R1 (con creativo) · 4: anuncio R2 · 5: una PUBLICACIÓN ·
-  // 6: pide un humano · 7-8: orgánicos · 9: alta manual como «referido» que
-  // luego escribe · 10: orgánico que se lleva al periodo anterior.
+  // 1-3: anúncio R1 (com criativo) · 4: anúncio R2 · 5: uma PUBLICAÇÃO ·
+  // 6: pede um humano · 7-8: orgânicos · 9: cadastro manual como «referido» que
+  // depois escreve · 10: orgânico que passa para o período anterior.
   const siembra = [
     [1, "Hola, vi su anuncio del diagnóstico", R1],
     [2, "Hola, vi su anuncio, ¿cuánto cuesta?", R1],
@@ -229,8 +229,8 @@ async function main() {
     [4, "Hola, vengo del otro anuncio", R2],
     [5, "Hola, vi su publicación", P1],
     [6, "quiero hablar con un humano", null],
-    // Sin "horario", "cita" ni "reserva": el ai-mock los contesta ofreciendo
-    // huecos, y sin AGENDA eso es un error del proveedor (y un escalamiento).
+    // Sem "horario", "cita" nem "reserva": o ai-mock responde oferecendo
+    // horários, e sem AGENDA isso é um erro do provedor (e uma escalada).
     [7, "Hola, ¿tienen servicio a domicilio?", null],
     [8, "Hola, ¿hacen envíos a Puebla?", null],
   ];
@@ -253,9 +253,9 @@ async function main() {
     siembra.filter(([n]) => !conv[n]).map(([n]) => n).join(",")
   );
 
-  // El modelo contesta a todos menos al que pidió un humano: a ése lo agarra
-  // el patrón de respaldo antes del modelo, le avisa que lo comunica con una
-  // persona y lo escala.
+  // O modelo responde a todos menos a quem pediu um humano: a esse pega o
+  // padrão de contingência antes do modelo, avisa que vai transferir para uma
+  // pessoa e escala.
   const contestadas = await hasta(async () => {
     for (const [n] of siembra) {
       if (n === 6) continue;
@@ -282,15 +282,15 @@ async function main() {
     JSON.stringify(aviso.map((m) => m.text))
   );
 
-  // El creativo de R1 se copia en segundo plano: la fila por anuncio lo trae
-  // cuando la copia terminó.
+  // O criativo do R1 é copiado em segundo plano: a linha por anúncio o traz
+  // quando a cópia terminou.
   const conImagen = await hasta(async () => {
     const d = (await api(`/api/contacts/${conv[1]?.contact.id}`)).json;
     return !!d?.anuncio?.imageAssetId;
   });
   ok("el creativo del anuncio R1 quedó copiado", conImagen);
 
-  // Movimientos por la API del pipeline (la misma puerta que el tablero).
+  // Movimentações pela API do pipeline (a mesma porta que o painel).
   const leads = (await api("/api/pipeline/board")).json?.leads ?? [];
   const leadDe = (n) => leads.find((l) => l.contact.id === conv[n]?.contact.id);
   const mover = async (n, body) => {
@@ -299,24 +299,24 @@ async function main() {
       body: JSON.stringify(body),
     });
     if (!r.res.ok) ok(`mover el lead ${n}`, false, `status=${r.res.status} ${JSON.stringify(r.json)}`);
-    // Dos movimientos del mismo lead en el mismo milisegundo no se ordenan.
+    // Duas movimentações do mesmo lead no mesmo milissegundo não se ordenam.
     await sleep(30);
     return r;
   };
   await mover(1, { amountCents: 12_000_00, currency: "MXN" });
   await mover(1, { stageId: ganada.id });
   await mover(2, { stageId: perdida.id, lossReason: "precio" });
-  // Ganado, sacado y vuelto a ganar: UN trato, su monto una vez.
+  // Ganhado, tirado e ganho de novo: UM negócio, seu valor uma vez.
   await mover(4, { amountCents: 5_000_00, currency: "MXN" });
   await mover(4, { stageId: ganada.id });
   await mover(4, { stageId: abiertas[0].id });
   await mover(4, { stageId: ganada.id });
-  // Ganado y devuelto al embudo: no es venta.
+  // Ganhado e devolvido ao funil: não é venda.
   await mover(7, { stageId: ganada.id });
   await mover(7, { stageId: abiertas.at(-1).id });
   await mover(8, { amountCents: 3_000_00, currency: "MXN" });
 
-  // Un envío que Meta rechaza (mismo camino que e2e-send-failure).
+  // Um envio que a Meta rejeita (mesmo caminho que e2e-send-failure).
   await api("/api/dev/wa-mock/outbox", { method: "DELETE" });
   const envio = await api(`/api/conversations/${conv[7]?.id}/messages`, {
     method: "POST",
@@ -340,7 +340,7 @@ async function main() {
     return msgs.some((m) => m.status === "failed");
   });
 
-  // Una ficha, para que la cobertura sea medible.
+  // Uma ficha, para que a cobertura seja mensurável.
   if (BOT_KEY) {
     await api("/api/bot/ficha", {
       method: "PUT",
@@ -349,22 +349,22 @@ async function main() {
     });
   }
 
-  // Lo que el webhook no puede fabricar: fechas en el pasado.
+  // O que o webhook não consegue fabricar: datas no passado.
   const ct = (n) => conv[n]?.contact.id;
-  // 8 · en silencio: el cliente no escribe desde hace ocho días.
+  // 8 · em silêncio: o cliente não escreve há oito dias.
   await sql`update conversation set last_inbound_at = now() at time zone 'utc' - interval '8 days'
             where contact_id = ${ct(8)} and is_test = false`;
-  // 5 · ventana por cerrarse: escribió hace 21 h y nadie le contestó después.
+  // 5 · janela prestes a fechar: escreveu há 21 h e ninguém respondeu depois.
   await sql`update conversation set last_inbound_at = now() at time zone 'utc' - interval '21 hours',
             last_message_at = now() at time zone 'utc' - interval '21 hours'
             where contact_id = ${ct(5)} and is_test = false`;
-  // 10 · entró en el periodo ANTERIOR.
+  // 10 · entrou no período ANTERIOR.
   await sql`update lead set created_at = created_at - interval '32 days' where contact_id = ${ct(10)}`;
   await sql`update lead_stage_event set occurred_at = occurred_at - interval '32 days' where contact_id = ${ct(10)}`;
   await sql`update conversation set created_at = created_at - interval '32 days' where contact_id = ${ct(10)} and is_test = false`;
   await sql`update contact set created_at = created_at - interval '32 days' where id = ${ct(10)}`;
 
-  // Con agenda: una cita de cada desenlace + una de prueba que no cuenta.
+  // Com agenda: um agendamento de cada desfecho + um de teste que não conta.
   if (AGENDA) {
     const org = (await sql`select organization_id from contact where id = ${ct(1)}`)[0]?.organization_id;
     const citas = [
@@ -374,8 +374,8 @@ async function main() {
       ["agendada", 4, false],
       ["realizada", 5, true],
     ];
-    // Minutos propios de esta corrida: el índice anti doble-booking no deja dos
-    // citas activas en el mismo instante, y otra corrida pudo usar esa hora.
+    // Minutos próprios desta execução: o índice anti-duplo-agendamento não deixa dois
+    // agendamentos ativos no mesmo instante, e outra execução pode ter usado essa hora.
     const minutos = Number(RUN) % 50;
     for (const [status, horas, isTest] of citas) {
       await sql`insert into booking (id, organization_id, kind, status, source, contact_id, scheduled_at, duration_minutes, is_test)
@@ -436,7 +436,7 @@ async function main() {
     d((f) => ref(f).conversations) === 1 && d((f) => ref(f).leads) === 1, JSON.stringify(ref(despues)));
   ok("«llegaron por un anuncio» cuenta 4 de 9 conversaciones nuevas",
     d((f) => f.ads.adShare.sample) === 9, JSON.stringify(despues.ads.adShare));
-  // Por las LLAVES, no por el texto: un id aleatorio puede contener "cac".
+  // Pelas CHAVES, não pelo texto: um id aleatório pode conter "cac".
   const llaves = (o) =>
     o && typeof o === "object"
       ? Object.entries(o).flatMap(([k, v]) => [k, ...llaves(v)])
@@ -469,8 +469,8 @@ async function main() {
   ok("conversaciones nuevas: +9", d((f) => f.bot.conversations) === 9, `Δ=${d((f) => f.bot.conversations)}`);
   ok("«contestó el agente» se mide sobre las 9 con mensaje del cliente",
     d((f) => f.bot.aiReplyRate.sample) === 9, JSON.stringify(despues.bot.aiReplyRate));
-  // El aviso del traspaso es un saliente con origen IA: la escalada también
-  // tuvo respuesta del agente, y a los segundos.
+  // O aviso da transferência é uma saída com origem IA: a escalada também
+  // teve resposta do agente, e em segundos.
   ok("primera respuesta: +9 medidas (también la escalada: su aviso del traspaso)",
     d((f) => f.bot.firstResponseSample) === 9 && despues.bot.firstResponseSeconds !== null,
     `Δ=${d((f) => f.bot.firstResponseSample)} mediana=${despues.bot.firstResponseSeconds}`);
@@ -510,8 +510,8 @@ async function main() {
     JSON.stringify(ventana));
 
   console.log("\n== 7 · El Laboratorio no existe para Resultados ==");
-  // Un lead para un contacto cuya ÚNICA conversación es de prueba (el
-  // Laboratorio no los crea, pero si un camino lo hiciera no debe contar).
+  // Um lead para um contato cuja ÚNICA conversa é de teste (o
+  // Laboratório não as cria, mas se algum caminho o fizesse não deve contar).
   let corrida = await api("/api/lab/runs", { method: "POST" });
   if (corrida.res.status === 409 && corrida.json?.error?.code === "run_in_progress") {
     await sleep(15000);

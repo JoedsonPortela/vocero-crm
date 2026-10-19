@@ -8,12 +8,12 @@ import { botBlock } from "@/server/analytics/bot";
 import { BotSection } from "@/components/results/bot-section";
 
 /**
- * 019 — Con la bandera AGENDA apagada no hay citas en Resultados (spec 019,
- * D4): ni se consultan, ni viajan en la API, ni se pintan.
+ * 019 — Com a flag AGENDA desligada não há agendamentos em Resultados (spec 019,
+ * D4): nem se consultam, nem viajam na API, nem se pintam.
  *
- * La base es falsa y anota contra qué tabla corre cada consulta: así se prueba
- * que sin agenda la tabla `booking` ni siquiera se toca, no solo que el
- * resultado salga vacío.
+ * A base é falsa e anota contra qual tabela roda cada consulta: assim se prova
+ * que sem agenda a tabela `booking` nem sequer é tocada, não só que o
+ * resultado sai vazio.
  */
 
 const db = vi.hoisted(() => ({ tablas: [] as unknown[] }));
@@ -56,7 +56,7 @@ describe("botBlock y la bandera AGENDA", () => {
     const b = await botBlock("org_1", periodo, false);
     expect(b.sessions).toBeNull();
     expect(db.tablas).not.toContain(schema.booking);
-    // Lo demás del agente sigue ahí.
+    // O resto do agente segue ali.
     expect(b.conversations).toBe(0);
     expect(b.empty).toBe(true);
   });

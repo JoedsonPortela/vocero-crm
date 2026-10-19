@@ -1,4 +1,4 @@
-/** Utilidades de presentación de la bandeja. */
+/** Utilitários de apresentação da bandeja. */
 
 export function formatTime(iso: string | null): string {
   if (!iso) return "";
@@ -14,7 +14,7 @@ export function formatTime(iso: string | null): string {
   return d.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
 }
 
-/** 024 — Lo mismo, para plazos de días: «5 días», «1 día 3h», «7h 20m». */
+/** 024 — O mesmo, para prazos em dias: «5 días», «1 día 3h», «7h 20m». */
 export function formatRemainingLong(ms: number): string {
   const totalH = Math.floor(ms / 3_600_000);
   const d = Math.floor(totalH / 24);
@@ -46,7 +46,7 @@ export function mediaLabel(type: string): string {
   return MEDIA_LABELS[type] ?? "Contenido";
 }
 
-/** 008 — Tamaño humano de un adjunto. */
+/** 008 — Tamanho legível de um anexo. */
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
@@ -54,7 +54,7 @@ export function formatBytes(bytes: number): string {
 }
 
 /**
- * 028 — Los canales en una frase: «WhatsApp», «WhatsApp o Instagram»,
+ * 028 — Os canais numa frase: «WhatsApp», «WhatsApp o Instagram»,
  * «WhatsApp, Instagram o Messenger».
  */
 export function channelList(labels: readonly string[]): string {
@@ -62,7 +62,7 @@ export function channelList(labels: readonly string[]): string {
   return `${labels.slice(0, -1).join(", ")} o ${labels[labels.length - 1]}`;
 }
 
-/** 028 — El texto de la bandeja vacía, con los canales encendidos. */
+/** 028 — O texto da bandeja vazia, com os canais ligados. */
 export function emptyInboxDescription(labels: readonly string[]): string {
   if (labels.length <= 1) {
     return "Cuando alguien escriba a tu número de WhatsApp, su conversación aparecerá aquí en tiempo real.";

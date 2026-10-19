@@ -9,8 +9,8 @@ export type ConnectionCheck =
   | { ok: false; code: "invalid_token" | "meta_unavailable" | "meta_error"; message: string };
 
 /**
- * Valida token↔número contra la Graph API SIN persistir nada (FR-040):
- * un GET del número con el token debe devolver su display_phone_number.
+ * Valida token↔número contra a Graph API SEM persistir nada (FR-040):
+ * um GET do número com o token deve devolver seu display_phone_number.
  */
 export async function testConnection(
   phoneNumberId: string,
@@ -60,7 +60,7 @@ export async function testConnection(
   }
 }
 
-/** Respuesta de `GET {WABA}/subscribed_apps`: una entrada por app suscrita. */
+/** Resposta de `GET {WABA}/subscribed_apps`: uma entrada por app inscrita. */
 type SubscribedApps = {
   data?: {
     whatsapp_business_api_data?: { id?: string; name?: string; link?: string };
@@ -68,14 +68,14 @@ type SubscribedApps = {
   }[];
 };
 
-/** Respuesta de `GET {phone}?fields=webhook_configuration`. */
+/** Resposta de `GET {phone}?fields=webhook_configuration`. */
 type WebhookConfiguration = {
   webhook_configuration?: {
-    /** Override vigente a nivel del número. */
+    /** Override vigente em nível do número. */
     phone_number?: string;
-    /** Override vigente a nivel de la WABA. */
+    /** Override vigente em nível da WABA. */
     waba?: string;
-    /** La callback URL del panel de la app. */
+    /** A callback URL do painel do app. */
     application?: string;
   };
 };
@@ -84,22 +84,22 @@ export type WebhookRegistration =
   | {
       ok: true;
       /**
-       * Meta no reporta callback URL a nivel app. Los campos (`messages`) se
-       * suscriben por app, en su panel —la API de suscripciones de app no
-       * admite WhatsApp—, y el override solo redirige lo que la app recibe.
-       * Una app sin webhook propio es la sospechosa si no llega nada.
+       * A Meta não informa callback URL em nível de app. Os campos (`messages`) são
+       * inscritos por app, no seu painel —a API de inscrições de app não
+       * admite WhatsApp—, e o override só redireciona o que o app recebe.
+       * Um app sem webhook próprio é o suspeito se não chegar nada.
        */
       appWithoutWebhook: boolean;
     }
   | {
       ok: true;
       /**
-       * La WABA ya enruta sus webhooks a otro sitio (un cerebro externo que
-       * recibe de Meta y conversa por `/api/bot/*`, o el backend de una
-       * agencia). Se respeta: no se registra el del número, que ganaría.
+       * A WABA já roteia seus webhooks para outro lugar (um cérebro externo que
+       * recebe da Meta e conversa por `/api/bot/*`, ou o backend de uma
+       * agência). Respeita-se: não se registra o do número, que ganharia.
        */
       skipped: "waba_override";
-      /** Solo el host: la ruta de un override suele llevar un secreto. */
+      /** Só o host: a rota de um override costuma levar um segredo. */
       host: string;
     }
   | {
@@ -109,25 +109,25 @@ export type WebhookRegistration =
     };
 
 /**
- * Registra en Meta el webhook de esta instancia para el número conectado,
- * para que nadie tenga que pegarlo a mano en el panel de la app.
+ * Registra na Meta o webhook desta instância para o número conectado,
+ * para que ninguém precise colá-lo à mão no painel do app.
  *
- * Tres pasos, por la API de Graph y con el token del propio negocio:
+ * Três passos, pela API do Graph e com o token do próprio negócio:
  *
- *   1. `GET /{waba}/subscribed_apps`: si alguna app ya enruta la WABA a un
- *      override AJENO, aquí termina (`skipped`): el override del número tiene
- *      prioridad sobre el de la WABA y dejaría sordo a quien lo puso. Y si un
- *      guardado anterior había dejado el nuestro en el número, se quita.
- *      Sin override, `POST /{waba}/subscribed_apps` sin cuerpo: Meta lo
- *      exige antes de cualquier override. Con uno nuestro (el de una agencia
- *      hacia esta misma instancia), no se re-suscribe: ese POST lo borraría.
- *   2. `POST /{phone}` con `webhook_configuration`: override a nivel NÚMERO.
- *      Meta verifica la URL en ese momento (handshake con el verify token).
- *   3. `GET /{phone}?fields=webhook_configuration`: confirma que quedó.
+ *   1. `GET /{waba}/subscribed_apps`: se alguma app já roteia a WABA para um
+ *      override ALHEIO, aqui termina (`skipped`): o override do número tem
+ *      prioridade sobre o da WABA e deixaria surdo quem o colocou. E se um
+ *      salvamento anterior tiver deixado o nosso no número, ele é removido.
+ *      Sem override, `POST /{waba}/subscribed_apps` sem corpo: a Meta o
+ *      exige antes de qualquer override. Com um nosso (o de uma agência
+ *      apontando para esta mesma instância), não se re-inscreve: esse POST o apagaria.
+ *   2. `POST /{phone}` com `webhook_configuration`: override em nível NÚMERO.
+ *      A Meta verifica a URL nesse momento (handshake com o verify token).
+ *   3. `GET /{phone}?fields=webhook_configuration`: confirma que ficou.
  *
- * Por qué en el número y no en la WABA: el del número sobrevive a cualquier
- * `subscribed_apps` sin cuerpo y es el que Meta mira primero. Jamás lanza por
- * una respuesta de Meta: guardar la conexión no puede fallar por esto.
+ * Por que no número e não na WABA: o do número sobrevive a qualquer
+ * `subscribed_apps` sem corpo e é o que a Meta olha primeiro. Jamais lança por
+ * uma resposta da Meta: salvar a conexão não pode falhar por isto.
  */
 export async function registerWebhookForNumber(opts: {
   wabaId: string;
@@ -191,16 +191,16 @@ export async function registerWebhookForNumber(opts: {
 }
 
 /**
- * Quita el override del número al desconectar, si es el de esta instancia.
+ * Remove o override do número ao desconectar, se for o desta instância.
  *
- * Sin esto, el número seguiría mandando sus mensajes aquí después de
- * soltarlo: el override del número gana a cualquier otro webhook, así que el
- * dueño configuraría el suyo en el panel de Meta y no le llegaría nada.
+ * Sem isto, o número continuaria enviando suas mensagens para cá depois de
+ * soltá-lo: o override do número ganha de qualquer outro webhook, então o
+ * dono configuraria o seu no painel da Meta e não receberia nada.
  *
- * Se compara por la RUTA (`/api/webhooks/wa/<verify token>`), no por la URL
- * entera: el dominio pudo cambiar desde que se guardó. Y solo se toca si es
- * nuestro — un override ajeno no es asunto del CRM. Best-effort: desconectar
- * no puede fallar porque Meta no conteste.
+ * Compara-se pela ROTA (`/api/webhooks/wa/<verify token>`), não pela URL
+ * inteira: o domínio pode ter mudado desde que foi salvo. E só se toca se for
+ * nosso — um override alheio não é assunto do CRM. Best-effort: desconectar
+ * não pode falhar porque a Meta não responde.
  */
 export async function unregisterWebhookForNumber(opts: {
   phoneNumberId: string;
@@ -229,17 +229,17 @@ export async function unregisterWebhookForNumber(opts: {
 }
 
 /**
- * El override de callback vigente en la WABA, si alguna app suscrita lo tiene.
+ * O override de callback vigente na WABA, se alguma app inscrita o tiver.
  *
- * Un `POST {WABA}/subscribed_apps` sin cuerpo no es inocuo: es justo como Meta
- * documenta BORRAR el callback alterno de la WABA ("Delete WABA alternate
- * callback"). Si la WABA ya enruta a un override (el backend de una agencia,
- * o un cerebro externo que recibe los webhooks directo de Meta), re-suscribir
- * en cada "Guardar" —o al rotar el token— lo desconectaba en silencio. Por eso
- * se consulta antes de tocar nada.
+ * Um `POST {WABA}/subscribed_apps` sem corpo não é inócuo: é justamente como a Meta
+ * documenta APAGAR o callback alternativo da WABA ("Delete WABA alternate
+ * callback"). Se a WABA já roteia para um override (o backend de uma agência,
+ * ou um cérebro externo que recebe os webhooks direto da Meta), re-inscrever
+ * a cada "Salvar" —ou ao rotacionar o token— o desconectaria em silêncio. Por isso
+ * consulta-se antes de tocar em nada.
  *
- * `null` = ninguna app tiene override; `undefined` = no se pudo consultar (se
- * suscribe como siempre, best-effort).
+ * `null` = nenhuma app tem override; `undefined` = não foi possível consultar (inscreve-se
+ * como sempre, best-effort).
  */
 async function wabaOverride(
   wabaId: string,
@@ -282,8 +282,8 @@ function registrationError(err: unknown, context: string): WebhookRegistration {
       message: `${context}: Meta no está disponible en este momento; intenta de nuevo.`,
     };
   }
-  // 200 y 10 son los de permisos: el token puede enviar mensajes pero no
-  // administrar la cuenta (falta whatsapp_business_management).
+  // 200 e 10 são de permissões: o token pode enviar mensagens mas não
+  // administrar a conta (falta whatsapp_business_management).
   if (err.code === 200 || err.code === 10 || err.status === 403) {
     return {
       ok: false,

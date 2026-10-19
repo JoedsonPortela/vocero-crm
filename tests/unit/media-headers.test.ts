@@ -9,8 +9,8 @@ import {
 } from "@/server/whatsapp/media-headers";
 
 /**
- * #78 — Un adjunto es contenido ajeno servido desde el origen del CRM. Estas
- * pruebas fijan QUÉ se previsualiza y con qué cabeceras se sirve TODO.
+ * #78 — Um anexo é conteúdo alheio servido a partir da origem do CRM. Estes
+ * testes fixam O QUE se pré-visualiza e com quais cabeçalhos se serve TUDO.
  */
 
 describe("isPreviewable (lista cerrada)", () => {

@@ -2,23 +2,23 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { MetaApiError } from "@/lib/meta/client";
 
 /**
- * 017 — Transporte de Zernio, compartido por los canales que lo usan.
+ * 017 — Transporte da Zernio, compartilhado pelos canais que o usam.
  *
- * Zernio es una API unificada: UNA cuenta y UNA llave entregan los mensajes de
- * todas las plataformas conectadas (Instagram, Facebook/Messenger, X…) por el
- * mismo webhook, y se responde por el mismo endpoint de conversaciones. Lo que
- * distingue el canal es `account.platform`, y lo que enruta a la organización
- * es `account.id`.
+ * A Zernio é uma API unificada: UMA conta e UMA chave entregam as mensagens de
+ * todas as plataformas conectadas (Instagram, Facebook/Messenger, X…) pelo
+ * mesmo webhook, e responde-se pelo mesmo endpoint de conversas. O que
+ * distingue o canal é `account.platform`, e o que roteia para a organização
+ * é `account.id`.
  *
- * Esto vive aparte de cada canal a propósito: la verificación de la firma es
- * un control de seguridad, y dos implementaciones del mismo control son dos
- * sitios donde equivocarse. El canal decide QUÉ plataforma acepta; este módulo
- * resuelve CÓMO se habla con Zernio.
+ * Isto vive separado de cada canal de propósito: a verificação da assinatura é
+ * um controle de segurança, e duas implementações do mesmo controle são dois
+ * lugares onde errar. O canal decide QUAL plataforma aceita; este módulo
+ * resolve COMO se fala com a Zernio.
  */
 
 export const ZERNIO_BASE = process.env.ZERNIO_BASE_URL ?? "https://zernio.com/api/v1";
 
-/** Cabeceras con las que Zernio firma sus entregas (la segunda es heredada). */
+/** Cabeçalhos com os quais a Zernio assina suas entregas (o segundo é herdado). */
 const SIGNATURE_HEADERS = ["x-zernio-signature", "x-late-signature"] as const;
 
 export function zernioSignatureFrom(headers: Headers): string | null {
@@ -30,9 +30,9 @@ export function zernioSignatureFrom(headers: Headers): string | null {
 }
 
 /**
- * Firma de Zernio: HMAC-SHA256 en hex del cuerpo CRUDO, con el secreto de esa
- * cuenta. Sin secreto configurado la capa queda desactivada y protege solo el
- * segmento secreto de la URL — mismo trato que da el webhook de WhatsApp a
+ * Assinatura da Zernio: HMAC-SHA256 em hex do corpo CRU, com o segredo dessa
+ * conta. Sem segredo configurado a camada fica desativada e protege só o
+ * segmento secreto da URL — mesmo tratamento que o webhook do WhatsApp dá a
  * `META_APP_SECRET`.
  */
 export function isValidZernioSignature(
@@ -50,10 +50,10 @@ export function isValidZernioSignature(
 }
 
 /**
- * 023 — Firma válida contra CUALQUIERA de los secretos. Un webhook de Zernio
- * firma con un solo secreto y sirve a todos los canales de esa llave; el CRM
- * guarda uno por canal, y si al capturarlos no quedaron iguales, un canal
- * rechazaba todo con 401. Sin secretos la capa queda desactivada, igual que
+ * 023 — Assinatura válida contra QUALQUER um dos segredos. Um webhook da Zernio
+ * assina com um só segredo e atende todos os canais dessa chave; o CRM
+ * guarda um por canal, e se ao capturá-los não ficaram iguais, um canal
+ * rejeitava tudo com 401. Sem segredos a camada fica desativada, igual a
  * `isValidZernioSignature`.
  */
 export function isValidZernioSignatureAny(
@@ -65,75 +65,75 @@ export function isValidZernioSignatureAny(
   return secrets.some((s) => isValidZernioSignature(rawBody, signature, s));
 }
 
-/** El evento de Zernio, en lo que a Vocero le importa. */
+/** O evento da Zernio, no que interessa ao Vocero. */
 export type ZernioEvent = {
   id?: string;
   event?: string;
   message?: {
     /**
-     * Id de Zernio, NO el de la plataforma (ese viene en
-     * `platformMessageId`). Es el que dedupe: se mantiene entre reentregas
-     * del mismo mensaje, que es justo lo que hay que colapsar.
+     * Id da Zernio, NÃO o da plataforma (esse vem em
+     * `platformMessageId`). É o que deduplica: mantém-se entre reentregas
+     * da mesma mensagem, que é justamente o que precisa ser colapsado.
      */
     id?: string;
     platformMessageId?: string;
     /**
-     * Identificador OPACO del hilo. La propia API dice «format not to be
-     * assumed»: su endpoint de respuesta lo acepta verbatim, ya venga del
-     * listado o de aquí. No se parsea ni se compara con el de la plataforma.
+     * Identificador OPACO da conversa. A própria API diz «format not to be
+     * assumed»: seu endpoint de resposta o aceita tal como vier, seja da
+     * listagem ou daqui. Não se analisa nem se compara com o da plataforma.
      */
     conversationId?: string;
-    /** 022: la plataforma también viene en el mensaje, no solo en la cuenta. */
+    /** 022: a plataforma também vem na mensagem, não só na conta. */
     platform?: string;
     direction?: string;
     text?: string | null;
-    /** Cuándo lo mandó la persona, ISO-8601. Ver `zernioSentAtSeconds`. */
+    /** Quando a pessoa a enviou, ISO-8601. Ver `zernioSentAtSeconds`. */
     sentAt?: string;
     attachments?: { type?: string; url?: string }[];
     sender?: { id?: string; name?: string | null; username?: string | null };
   };
-  /** 022: el hilo también viene aparte; su `id` es el `conversationId`. */
+  /** 022: a conversa também vem à parte; seu `id` é o `conversationId`. */
   conversation?: { id?: string };
   /**
-   * 023: `profileId` es el del perfil que agrupa las cuentas. Sirve para
-   * corregir una conexión guardada con ese id en vez del de la cuenta.
+   * 023: `profileId` é o do perfil que agrupa as contas. Serve para
+   * corrigir uma conexão guardada com esse id em vez do da conta.
    */
   account?: { id?: string; accountId?: string; platform?: string; profileId?: string };
 };
 
 /**
- * Hora del mensaje en segundos, la que trae el evento y no la de llegada.
+ * Hora da mensagem em segundos, a que vem no evento e não a de chegada.
  *
- * Importa porque `lastInboundAt` es lo que abre la ventana de 24 h: sellar con
- * la hora de ingesta haría que una reentrega tardía —Zernio reintenta con
- * backoff de hasta 24 h, y su panel permite reenviar a mano— pareciera un
- * mensaje recién llegado, y el CRM ofrecería escribir libre por una ventana
- * que en realidad ya se cerró. El envío lo rechazaría la plataforma, y el
- * operador no tendría forma de entender por qué.
+ * Importa porque `lastInboundAt` é o que abre a janela de 24 h: carimbar com
+ * a hora de ingestão faria com que uma reentrega atrasada —a Zernio tenta de novo com
+ * backoff de até 24 h, e seu painel permite reenviar à mão— parecesse uma
+ * mensagem recém-chegada, e o CRM ofereceria escrever livremente por uma janela
+ * que na verdade já fechou. O envio seria rejeitado pela plataforma, e o
+ * operador não teria como entender por quê.
  *
- * Sin `sentAt` utilizable se cae a la hora actual: es lo que había antes y
- * nunca es peor.
+ * Sem `sentAt` utilizável cai-se na hora atual: é o que havia antes e
+ * nunca é pior.
  */
 export function zernioSentAtSeconds(sentAt: string | undefined): string {
   const ms = sentAt ? Date.parse(sentAt) : NaN;
   return String(Math.floor((Number.isFinite(ms) ? ms : Date.now()) / 1000));
 }
 
-/** Lee el cuerpo crudo como evento de Zernio; null si no lo es. */
+/** Lê o corpo cru como evento da Zernio; null se não for. */
 export function parseZernioEvent(rawBody: string): ZernioEvent | null {
   try {
     const parsed = JSON.parse(rawBody) as unknown;
     if (!parsed || typeof parsed !== "object") return null;
     const evt = parsed as ZernioEvent;
-    // Un payload de Meta trae `object`; uno de Zernio trae `account`. Sin
-    // `account` no hay a quién enrutar, así que no es un evento utilizable.
+    // Um payload da Meta traz `object`; um da Zernio traz `account`. Sem
+    // `account` não há a quem rotear, então não é um evento utilizável.
     return evt.account ? evt : null;
   } catch {
     return null;
   }
 }
 
-/** `true` si el cuerpo es un webhook de Meta (y por tanto NO de Zernio). */
+/** `true` se o corpo for um webhook da Meta (e, portanto, NÃO da Zernio). */
 export function looksLikeMetaPayload(payload: unknown, object: string): boolean {
   return (
     typeof payload === "object" &&
@@ -145,18 +145,18 @@ export function looksLikeMetaPayload(payload: unknown, object: string): boolean 
 export type ZernioSendResult = { platformMessageId: string };
 
 /**
- * Responde en una conversación de Zernio.
+ * Responde numa conversa da Zernio.
  *
- * `accountId` va en el cuerpo aunque la conversación ya lo implique (lo exige
- * la API). `Idempotency-Key` evita que un reintento mande el mensaje dos
- * veces: la llave natural es el id que Vocero ya generó para ese envío.
+ * `accountId` vai no corpo mesmo que a conversa já o implique (a API o exige).
+ * `Idempotency-Key` evita que uma nova tentativa envie a mensagem duas
+ * vezes: a chave natural é o id que o Vocero já gerou para esse envio.
  */
 export async function sendZernioMessage(input: {
   token: string;
   accountId: string | null;
   conversationId: string | null;
   text: string;
-  /** Fuera de la ventana de 24 h, la única etiqueta admitida. */
+  /** Fora da janela de 24 h, a única etiqueta admitida. */
   humanAgentTag?: boolean;
   idempotencyKey?: string;
 }): Promise<ZernioSendResult> {
@@ -188,9 +188,9 @@ export async function sendZernioMessage(input: {
     }
   );
 
-  // La API responde `{ success, data: { messageId } }`. Las otras dos formas
-  // son las que se leían antes de la 022 y se conservan por si acaso; sin
-  // ninguna, un id propio para que el mensaje no se quede sin referencia.
+  // A API responde `{ success, data: { messageId } }`. As outras duas formas
+  // são as que se liam antes da 022 e são mantidas por via das dúvidas; sem
+  // nenhuma, um id próprio para que a mensagem não fique sem referência.
   const id =
     (res as { data?: { messageId?: string } }).data?.messageId ??
     (res as { message?: { id?: string }; id?: string }).message?.id ??
@@ -199,21 +199,21 @@ export async function sendZernioMessage(input: {
   return { platformMessageId: String(id) };
 }
 
-/** Comprueba que la llave sirve (se usa antes de guardar una conexión). */
+/** Verifica que a chave serve (usado antes de salvar uma conexão). */
 export async function verifyZernioToken(token: string): Promise<void> {
   await zernioFetch("/inbox/conversations?limit=1", { token });
 }
 
 /**
- * Traduce los fallos de Zernio al MetaApiError que el resto del CRM ya sabe
- * interpretar — incluido `isAuthError`, que distingue una llave muerta de un
- * hipo transitorio y costó un incidente aprender.
+ * Traduz as falhas da Zernio para o MetaApiError que o resto do CRM já sabe
+ * interpretar — incluindo `isAuthError`, que distingue uma chave morta de um
+ * soluço transitório, e que custou um incidente aprender.
  */
 export async function zernioFetch(
   path: string,
   opts: {
     method?: "GET" | "POST" | "PUT";
-    /** 023: corta la espera; sin él, la del runtime. */
+    /** 023: encurta a espera; sem ele, a do runtime. */
     timeoutMs?: number;
     token: string;
     body?: unknown;
@@ -244,7 +244,7 @@ export async function zernioFetch(
   try {
     json = text ? JSON.parse(text) : null;
   } catch {
-    // respuesta no-JSON: se conserva el texto crudo en los detalles
+    // resposta não-JSON: guarda-se o texto bruto nos detalhes
   }
 
   if (!res.ok) {

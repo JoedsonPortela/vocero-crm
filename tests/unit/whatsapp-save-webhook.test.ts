@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * Las rutas de la conexión (issue #84), con todo lo de abajo falso:
+ * As rotas da conexão (issue #84), com tudo o que está abaixo falso:
  *
- *   - `PUT /api/settings/whatsapp` guarda y registra la URL FIJA de esta
- *     instancia en el número; si Meta dice que no, la conexión queda guardada
- *     y la respuesta lo cuenta en `webhook`.
- *   - `DELETE /api/settings/whatsapp` quita el override ANTES de borrar el
- *     token (sin él no se podría) y no toca nada más.
- *   - `POST /api/settings/webhook` reintenta con la conexión guardada: 409 sin
- *     conexión, 422/503 con el motivo de Meta, 200 con el resultado.
+ *   - `PUT /api/settings/whatsapp` salva e registra a URL FIXA desta
+ *     instância no número; se a Meta disser que não, a conexão fica salva
+ *     e a resposta conta isso em `webhook`.
+ *   - `DELETE /api/settings/whatsapp` remove o override ANTES de apagar o
+ *     token (sem ele não seria possível) e não toca em mais nada.
+ *   - `POST /api/settings/webhook` tenta de novo com a conexão salva: 409 sem
+ *     conexão, 422/503 com o motivo da Meta, 200 com o resultado.
  */
 
 const env = vi.hoisted(() => ({

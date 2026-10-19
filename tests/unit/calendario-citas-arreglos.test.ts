@@ -10,9 +10,9 @@ import {
 } from "@/lib/time/calendar";
 
 /**
- * 215 (raíz) — Los cuatro fallos que tenía la pantalla de Citas antes del
- * calendario, fijados para que no vuelvan. El cuarto (el tope de 200) se
- * prueba contra la consulta y la ruta en `bookings-rango-api.test.ts`.
+ * 215 (raiz) — Os quatro defeitos que tinha a tela de Agendamentos antes do
+ * calendário, fixados para que não voltem. O quarto (o teto de 200) se
+ * testa contra a consulta e a rota em `bookings-rango-api.test.ts`.
  */
 
 describe("fallo 1 · bloquear usa la hora del NEGOCIO, no la del navegador", () => {
@@ -50,7 +50,7 @@ describe("fallo 1 · bloquear usa la hora del NEGOCIO, no la del navegador", () 
 
 describe("fallo 2 · reprogramar ofrece TODA la ventana, por día", () => {
   const day = (i: number) => `2026-09-${String(21 + i).padStart(2, "0")}`;
-  // 5 días × 16 huecos de 30 min = 80: antes la pantalla mostraba 12.
+  // 5 dias × 16 horários de 30 min = 80: antes a tela mostrava 12.
   const slots: DaySlot[] = Array.from({ length: 5 }, (_, d) =>
     Array.from({ length: 16 }, (_, h) => {
       const minutes = 9 * 60 + h * 30;
@@ -114,9 +114,9 @@ describe("fallo 3 · un evento SSE ya no recalcula la disponibilidad", () => {
   it("la pantalla solo pide disponibilidad desde «Reprogramar»", () => {
     const dir = path.resolve(import.meta.dirname, "../../src/components/bookings");
     const read = (f: string) => readFileSync(path.join(dir, f), "utf8");
-    // El cliente del calendario (lo que corre en cada evento SSE) no la pide…
+    // O cliente do calendário (o que roda em cada evento SSE) não a pede…
     expect(read("bookings-client.tsx")).not.toContain("/api/calendar/availability");
-    // …y el panel de la cita la pide una sola vez, al montar «Mover a».
+    // …e o painel do agendamento a pede uma só vez, ao montar «Mover a».
     const drawer = read("booking-drawer.tsx");
     expect(drawer.match(/\/api\/calendar\/availability/g)).toHaveLength(1);
     expect(drawer).toContain("function Reschedule(");

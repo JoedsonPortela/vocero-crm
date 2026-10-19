@@ -28,13 +28,13 @@ export const GET = withAuth(async (session, _req: Request, ctx: Params) => {
     getContactStage(session.organizationId, id),
     anuncioDelContacto(session.organizationId, id),
   ]);
-  // 018 — Sin imagen todavía: se reintenta en segundo plano y llega por SSE.
+  // 018 — Sem imagem ainda: tenta de novo em segundo plano e chega via SSE.
   if (anuncio && !anuncio.imageAssetId) {
     repararImagenSiFalta(session.organizationId, id);
   }
   return Response.json({
     contact: serializeContact(contact, null, null, cuentaComoAnuncio(anuncio)),
-    // 018 — de qué anuncio llegó, o null si escribió por su cuenta.
+    // 018 — de qual anúncio chegou, ou null se escreveu por conta própria.
     anuncio,
     stage: stageRow
       ? {
@@ -51,14 +51,14 @@ export const GET = withAuth(async (session, _req: Request, ctx: Params) => {
 const patchSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
   notes: z.string().max(4000).nullable().optional(),
-  /** 027 — El agente no le responde a esta persona; se lleva a su conversación. */
+  /** 027 — O agente não responde a esta pessoa; ela é levada para a conversa dela. */
   aiPaused: z.boolean().optional(),
   archived: z.boolean().optional(),
   /**
-   * Parche de la ficha: solo las claves que cambian. `null` borra una clave.
-   * No es un reemplazo — el agente sigue escribiendo mientras el dueño
-   * corrige, y mandar la ficha entera haría que el último en guardar le
-   * borrara lo recién descubierto al otro.
+   * Patch da ficha: só as chaves que mudam. `null` apaga uma chave.
+   * Não é uma substituição — o agente continua escrevendo enquanto o dono
+   * corrige, e mandar a ficha inteira faria com que o último a salvar
+   * apagasse o que o outro acabou de descobrir.
    */
   ficha: z.record(z.unknown()).optional(),
 });
@@ -68,9 +68,9 @@ export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
   const body = await parseBody(req, patchSchema);
   if (!body.ok) return body.response;
 
-  // La ficha va por su propia puerta —la MISMA que usa el cerebro externo en
-  // `PUT /api/bot/ficha`— para heredar el merge y las cotas. Escribirla aquí
-  // con un `set` plano sería un segundo camino con otras reglas.
+  // A ficha passa pela sua própria porta — a MESMA que usa o cérebro externo em
+  // `PUT /api/bot/ficha` — para herdar o merge e os limites. Gravá-la aqui
+  // com um `set` simples seria um segundo caminho com outras regras.
   if (body.data.ficha !== undefined) {
     const res = await upsertFicha({
       organizationId: session.organizationId,
@@ -83,7 +83,7 @@ export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
   const set: Record<string, unknown> = { updatedAt: new Date() };
   if (body.data.name !== undefined) {
     set.name = body.data.name;
-    // Lo escribio una persona: a partir de aqui WhatsApp ya no lo pisa (#51).
+    // Foi escrito por uma pessoa: a partir daqui o WhatsApp não o sobrescreve mais (#51).
     set.nameSource = "manual";
   }
   if (body.data.notes !== undefined) set.notes = body.data.notes;
@@ -105,8 +105,8 @@ export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
     )
     .returning();
   if (!updated[0]) return apiError(404, "not_found", "Contacto no encontrado");
-  // 027: la pausa se lleva a la conversación que ya exista; sin esto no
-  // tendría efecto hasta que naciera otra.
+  // 027: a pausa é levada para a conversa que já exista; sem isso não
+  // teria efeito até que nascesse outra.
   if (body.data.aiPaused !== undefined) {
     await pauseConversations(session.organizationId, [id], body.data.aiPaused);
   }

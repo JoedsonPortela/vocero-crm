@@ -1,9 +1,9 @@
 import { getEnv } from "@/lib/env";
 
 /**
- * Cliente propio de la Graph API de Meta (WhatsApp Cloud API).
- * Única frontera de salida hacia Meta (Constitución II): todo request pasa
- * por graphRequest. En self-test, META_GRAPH_BASE_URL apunta al wa-mock.
+ * Cliente próprio da Graph API da Meta (WhatsApp Cloud API).
+ * Única fronteira de saída para a Meta (Constituição II): todo request passa
+ * por graphRequest. No self-test, META_GRAPH_BASE_URL aponta para o wa-mock.
  */
 
 export class MetaApiError extends Error {
@@ -25,10 +25,10 @@ export class MetaApiError extends Error {
   }
 
   /**
-   * Token vencido/revocado → la conexión requiere re-autenticación.
-   * Meta etiqueta como "OAuthException" también errores transitorios 5xx
-   * (ej. código 2 "service temporarily unavailable"), así que el type por sí
-   * solo NO basta: solo 401 o código 190, y jamás con status ≥ 500.
+   * Token vencido/revogado → a conexão exige nova autenticação.
+   * A Meta rotula como "OAuthException" também erros transitórios 5xx
+   * (ex. código 2 "service temporarily unavailable"), então o type sozinho
+   * NÃO basta: só 401 ou código 190, e jamais com status ≥ 500.
    */
   get isAuthError(): boolean {
     if (this.status >= 500) return false;
@@ -70,7 +70,7 @@ export async function graphRequest<T>(
   try {
     json = text ? JSON.parse(text) : null;
   } catch {
-    // respuesta no-JSON: se conserva el texto crudo en details
+    // resposta não-JSON: o texto cru é guardado em details
   }
 
   if (!res.ok) {
@@ -87,13 +87,13 @@ export async function graphRequest<T>(
 }
 
 /**
- * Normaliza un número al formato canónico. Números móviles de México llegan
- * de Meta como `521` + 10 dígitos (13 en total); enviar con ese `1` extra
- * produce el error 131030 — se usa `52` + 10 dígitos.
+ * Normaliza um número para o formato canônico. Números móveis do México chegam
+ * da Meta como `521` + 10 dígitos (13 no total); enviar com esse `1` extra
+ * produz o erro 131030 — usa-se `52` + 10 dígitos.
  *
- * Desde la identidad resiliente (003) esta normalización es SIMÉTRICA: se
- * aplica también al escribir la identidad del contacto en la ingesta
- * (`wa_identity`), para que `521...` y `52...` resuelvan al mismo contacto.
+ * Desde a identidade resiliente (003) esta normalização é SIMÉTRICA: aplica-se
+ * também ao gravar a identidade do contato na ingestão
+ * (`wa_identity`), para que `521...` e `52...` resolvam para o mesmo contato.
  */
 export function normalizeMx(phone: string): string {
   if (/^521\d{10}$/.test(phone)) {
@@ -103,35 +103,35 @@ export function normalizeMx(phone: string): string {
 }
 
 /**
- * Troncales que WhatsApp REPORTA pero que no se usan para ENVIAR, y que la
- * identidad deja intactos a propósito.
+ * Troncos que o WhatsApp REPORTA mas que não são usados para ENVIAR, e que a
+ * identidade deixa intactos de propósito.
  *
- * A diferencia de México, aquí la normalización NO puede ser simétrica: si la
- * ingesta reescribiera la identidad, dejaría de coincidir con el `wa_id` que
- * Meta manda en cada webhook —y con el que un cerebro externo consulta el
- * gateway—, así que el contacto se partiría en dos. Se normaliza solo el
- * número que viaja por el cable.
+ * Diferentemente do México, aqui a normalização NÃO pode ser simétrica: se a
+ * ingestão reescrevesse a identidade, deixaria de coincidir com o `wa_id` que
+ * a Meta manda em cada webhook — e com o que um cérebro externo consulta no
+ * gateway —, então o contato se partiria em dois. Normaliza-se só o
+ * número que trafega pelo cabo.
  *
- * Para agregar un país: una línea aquí y su caso en
+ * Para adicionar um país: uma linha aqui e o seu caso em
  * `tests/unit/meta-client.test.ts`.
  */
 const SEND_ONLY_TRUNKS = [
-  // Argentina: Meta reporta `549` + 10 dígitos; se envía sin el 9 (issue #35).
+  // Argentina: a Meta reporta `549` + 10 dígitos; envia-se sem o 9 (issue #35).
   { reported: "549", dialable: "54", nationalDigits: 10 },
 ] as const;
 
 /**
- * El número tal como hay que mandárselo a Meta.
+ * O número como deve ser enviado à Meta.
  *
- * Es lo que la identidad ya canoniza, MÁS los troncales que solo estorban al
- * enviar. Ojo con el alcance real del problema que arregla: el `131030`
- * ("Recipient phone number not in allowed list") viene de la lista de
- * destinatarios de prueba, que solo existe MIENTRAS el negocio no está
- * verificado. Ya en producción no hay lista y Meta acepta las dos formas —
- * normaliza internamente y responde el `wa_id` con el troncal puesto. O sea:
- * esto desatasca la puesta en marcha, que es justo cuando una agencia está
- * probando la instancia y el mensaje de error la manda a revisar una lista de
- * permitidos que está bien.
+ * É o que a identidade já canoniza, MAIS os troncos que só atrapalham ao
+ * enviar. Cuidado com o alcance real do problema que corrige: o `131030`
+ * ("Recipient phone number not in allowed list") vem da lista de
+ * destinatários de teste, que só existe ENQUANTO o negócio não está
+ * verificado. Já em produção não há lista e a Meta aceita as duas formas —
+ * normaliza internamente e responde o `wa_id` com o tronco colocado. Ou seja:
+ * isto destrava a colocação em funcionamento, que é justamente quando uma agência está
+ * testando a instância e a mensagem de erro a manda revisar uma lista de
+ * permitidos que está correta.
  */
 export function normalizeRecipient(phone: string): string {
   const canonical = normalizeMx(phone);

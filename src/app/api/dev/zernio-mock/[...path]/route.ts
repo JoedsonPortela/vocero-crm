@@ -11,13 +11,13 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * 017 — Zernio de mentira para el self-test. Tras `mockGuard()`: 404
- * incondicional en producción, indistinguible de una ruta inexistente.
+ * 017 — Zernio de mentira para o self-test. Atrás de `mockGuard()`: 404
+ * incondicional em produção, indistinguível de uma rota inexistente.
  *
- * Imita lo único que Vocero usa de esa API —listar conversaciones, responder
- * en una y, desde la 023, las cuentas y los webhooks— y expone `_sent`,
- * `_state`, `_accounts`, `_webhooks`, `_down` y `_reset` para que el arnés
- * prepare el escenario y afirme sobre lo que pasó.
+ * Imita apenas o que o Vocero usa dessa API — listar conversas, responder
+ * em uma e, desde a 023, as contas e os webhooks — e expõe `_sent`,
+ * `_state`, `_accounts`, `_webhooks`, `_down` e `_reset` para que o arnês
+ * prepare o cenário e afirme sobre o que aconteceu.
  */
 
 type Ctx = { params: Promise<{ path: string[] }> };
@@ -33,7 +33,7 @@ function unavailable(): Response {
   return Response.json({ error: { message: "Service unavailable" } }, { status: 503 });
 }
 
-/** Aplica al webhook solo los campos que llegaron, como hace la API real. */
+/** Aplica ao webhook só os campos que chegaram, como faz a API real. */
 function webhookFrom(
   body: Record<string, unknown>,
   base: ZernioMockWebhook
@@ -70,16 +70,16 @@ export async function GET(req: Request, ctx: Ctx) {
   state.hits[route] = (state.hits[route] ?? 0) + 1;
   if (state.down.includes(route)) return unavailable();
 
-  // 023 — GET /accounts: valida la llave y dice qué cuentas tiene.
+  // 023 — GET /accounts: valida a chave e informa quais contas ela tem.
   if (route === "accounts") {
     return Response.json({ accounts: state.accounts, hasAnalyticsAccess: false });
   }
-  // 023 — GET /webhooks/settings: los webhooks de la llave, con su secreto.
+  // 023 — GET /webhooks/settings: os webhooks da chave, com o seu segredo.
   if (route === "webhooks/settings") {
     return Response.json({ webhooks: state.webhooks });
   }
 
-  // GET /inbox/conversations → lo que usa la validación de la llave.
+  // GET /inbox/conversations → o que a validação da chave usa.
   if (route === "inbox/conversations") {
     return Response.json({ data: [], hasMore: false });
   }
@@ -96,7 +96,7 @@ export async function POST(req: Request, ctx: Ctx) {
     resetZernioMock();
     return Response.json({ ok: true });
   }
-  // 023 — preparar el escenario desde el arnés.
+  // 023 — preparar o cenário a partir do arnês.
   if (route === "_accounts" || route === "_webhooks" || route === "_down") {
     const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
     const state = zernioMockState();
@@ -112,7 +112,7 @@ export async function POST(req: Request, ctx: Ctx) {
   if (zernioTokenIsBad(req.headers.get("authorization"))) return unauthorized();
   if (zernioMockState().down.includes(route)) return unavailable();
 
-  // 023 — POST /webhooks/settings: crear.
+  // 023 — POST /webhooks/settings: criar.
   if (route === "webhooks/settings") {
     const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
     const state = zernioMockState();
@@ -157,7 +157,7 @@ export async function POST(req: Request, ctx: Ctx) {
   return Response.json({});
 }
 
-/** 023 — PUT /webhooks/settings: actualizar el webhook `webhookId`. */
+/** 023 — PUT /webhooks/settings: atualizar o webhook `webhookId`. */
 export async function PUT(req: Request, ctx: Ctx) {
   const denied = mockGuard();
   if (denied) return denied;

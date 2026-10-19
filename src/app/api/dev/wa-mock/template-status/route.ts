@@ -15,13 +15,13 @@ const bodySchema = z.object({
   language: z.string().min(1),
   event: z.enum(["APPROVED", "REJECTED"]),
   reason: z.string().optional(),
-  /** Meta reclasifica al aprobar (UTILITY → MARKETING). Solo lado "Meta". */
+  /** A Meta reclassifica ao aprovar (UTILITY → MARKETING). Só lado "Meta". */
   category: z.string().optional(),
   /**
-   * `false` = mueve solo el panel simulado de Meta, sin entregar el webhook.
-   * Reproduce el modo agencia real, donde `message_template_status_update` va
-   * al callback a nivel app y esta instancia jamás lo ve: el único camino es
-   * el pull de `POST /api/templates/sync`.
+   * `false` = move só o painel simulado da Meta, sem entregar o webhook.
+   * Reproduz o modo agência real, em que `message_template_status_update` vai
+   * ao callback no nível do app e esta instância nunca o vê: o único caminho é
+   * o pull de `POST /api/templates/sync`.
    */
   notify: z.boolean().optional(),
 });
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   const body = await parseBody(req, bodySchema);
   if (!body.ok) return body.response;
 
-  // Mantener coherente el estado del "panel de Meta" simulado (para el sync).
+  // Manter coerente o estado do "painel da Meta" simulado (para o sync).
   const state = getWaMockState();
   const tpl = state.templates.find(
     (t) => t.name === body.data.name && t.language === body.data.language

@@ -1,30 +1,30 @@
 import { addDaysISO, tzOffsetMinutes, WEEKDAYS, zonedWallClockToUtc, type Interval, type WeekdayKey } from "@/lib/time/slots";
 
 /**
- * 215 — Aritmética del calendario de Citas: qué días se ven en cada vista, cómo
- * se llama ese rango y en qué hora de pared cae cada cita.
+ * 215 — Aritmética do calendário de Agendamentos: quais dias são vistos em cada visão, como
+ * se chama esse intervalo e em qual hora de parede cai cada agendamento.
  *
- * Dos reglas, las mismas de `slots.ts`:
- * 1. Las FECHAS (`AAAA-MM-DD`) son de calendario, sin zona: se suman en UTC y
- *    no tropiezan con el horario de verano.
- * 2. Los INSTANTES se pintan en la zona del NEGOCIO, no en la del navegador:
- *    es la hora en la que la IA ofreció el hueco y la que recibió el cliente.
+ * Duas regras, as mesmas de `slots.ts`:
+ * 1. As DATAS (`AAAA-MM-DD`) são de calendário, sem fuso: somam-se em UTC e
+ *    não tropeçam no horário de verão.
+ * 2. Os INSTANTES são desenhados no fuso do NEGÓCIO, não no do navegador:
+ *    é a hora em que a IA ofereceu o horário e a que o cliente recebeu.
  *
- * Sin `Intl.formatRange` para las etiquetas: su salida cambia entre la ICU de
- * Node y la de cada navegador ("sep" / "sept", guiones distintos), y una
- * etiqueta que no se puede fijar en una prueba acaba diciendo otra cosa.
+ * Sem `Intl.formatRange` para os rótulos: a sua saída muda entre a ICU do
+ * Node e a de cada navegador ("sep" / "sept", traços diferentes), e um
+ * rótulo que não pode ser fixado num teste acaba dizendo outra coisa.
  */
 
 export type CalendarView = "dia" | "semana" | "mes" | "lista";
 
 export const CALENDAR_VIEWS: readonly CalendarView[] = ["dia", "semana", "mes", "lista"];
 
-/** Días que abarca la Lista si nadie eligió otro rango. */
+/** Dias que a Lista abrange se ninguém escolheu outro intervalo. */
 export const LIST_DEFAULT_DAYS = 30;
 
 /**
- * Rango máximo que acepta `GET /api/bookings`: un trimestre. La vista de mes
- * pide 42 días; la Lista, lo que la persona elija hasta este tope.
+ * Intervalo máximo que aceita `GET /api/bookings`: um trimestre. A visão de mês
+ * pede 42 dias; a Lista, o que a pessoa escolher até este teto.
  */
 export const MAX_RANGE_DAYS = 92;
 
@@ -39,7 +39,7 @@ const MONTHS = [
 const MONTHS_SHORT = [
   "ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic",
 ];
-/** De lunes a domingo, como `WEEKDAYS` y como el horario de Ajustes → Agenda. */
+/** De segunda a domingo, como `WEEKDAYS` e como o horário de Ajustes → Agenda. */
 const WEEKDAYS_LONG = [
   "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo",
 ];
@@ -50,8 +50,8 @@ export function isCalendarView(v: unknown): v is CalendarView {
 }
 
 /**
- * ¿Es una fecha de calendario que existe? `Date.parse("2026-02-31")` la acepta
- * y la convierte en 3 de marzo; aquí se exige que la fecha vuelva igual.
+ * É uma data de calendário que existe? `Date.parse("2026-02-31")` a aceita
+ * e a converte em 3 de março; aqui se exige que a data volte igual.
  */
 export function isIsoDate(v: unknown): v is string {
   if (typeof v !== "string" || !ISO_DATE.test(v)) return false;
@@ -64,14 +64,14 @@ function parts(iso: string): { y: number; m: number; d: number } {
   return { y, m, d };
 }
 
-/** Días entre dos fechas de calendario (`to - from`). */
+/** Dias entre duas datas de calendário (`to - from`). */
 export function daysBetween(fromISO: string, toISO: string): number {
   return Math.round(
     (Date.parse(`${toISO}T00:00:00Z`) - Date.parse(`${fromISO}T00:00:00Z`)) / 86_400_000
   );
 }
 
-/** 0 = lunes … 6 = domingo. */
+/** 0 = segunda … 6 = domingo. */
 export function weekdayIndex(iso: string): number {
   return (new Date(`${iso}T00:00:00Z`).getUTCDay() + 6) % 7;
 }
@@ -80,7 +80,7 @@ export function weekdayKeyOfDate(iso: string): WeekdayKey {
   return WEEKDAYS[weekdayIndex(iso)]!;
 }
 
-/** El lunes de la semana de esa fecha. */
+/** A segunda-feira da semana dessa data. */
 export function startOfWeek(iso: string): string {
   return addDaysISO(iso, -weekdayIndex(iso));
 }
@@ -89,7 +89,7 @@ export function startOfMonth(iso: string): string {
   return `${iso.slice(0, 7)}-01`;
 }
 
-/** Primer día del mes `n` meses antes o después. */
+/** Primeiro dia do mês `n` meses antes ou depois. */
 export function addMonths(iso: string, n: number): string {
   const { y, m } = parts(iso);
   const d = new Date(Date.UTC(y, m - 1 + n, 1));
@@ -101,8 +101,8 @@ function endOfMonth(iso: string): string {
 }
 
 /**
- * Los días que se ven. La semana va de lunes a domingo; el mes, de la semana
- * que contiene el día 1 a la que contiene el último (4 a 6 filas, como Google).
+ * Os dias que se veem. A semana vai de segunda a domingo; o mês, da semana
+ * que contém o dia 1 à que contém o último (4 a 6 linhas, como no Google).
  */
 export function visibleRange(
   view: CalendarView,
@@ -129,8 +129,8 @@ export function visibleRange(
 }
 
 /**
- * El fin de la Lista, dentro de lo que la API acepta: nunca antes del inicio
- * ni más allá de `MAX_RANGE_DAYS`.
+ * O fim da Lista, dentro do que a API aceita: nunca antes do início
+ * nem além de `MAX_RANGE_DAYS`.
  */
 export function clampListTo(from: string, to?: string | null): string {
   if (!isIsoDate(to)) return addDaysISO(from, LIST_DEFAULT_DAYS - 1);
@@ -140,13 +140,13 @@ export function clampListTo(from: string, to?: string | null): string {
   return to;
 }
 
-/** Cada fecha del rango, inclusive. */
+/** Cada data do intervalo, inclusive. */
 export function datesOf(range: DateRange): string[] {
   const n = daysBetween(range.from, range.to);
   return Array.from({ length: Math.max(0, n + 1) }, (_, i) => addDaysISO(range.from, i));
 }
 
-/** Filas de 7 días de la vista de mes. */
+/** Linhas de 7 dias da visão de mês. */
 export function monthWeeks(anchor: string): string[][] {
   const days = datesOf(visibleRange("mes", anchor));
   const weeks: string[][] = [];
@@ -155,8 +155,8 @@ export function monthWeeks(anchor: string): string[][] {
 }
 
 /**
- * A dónde lleva «‹ ›». En la Lista se desplaza su propio largo, así que
- * también devuelve el fin nuevo.
+ * Para onde leva o «‹ ›». Na Lista desloca-se pelo seu próprio tamanho, então
+ * também devolve o novo fim.
  */
 export function shiftRange(
   view: CalendarView,
@@ -186,7 +186,7 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-/** "18 de sep de 2026", con el año solo si se pide. */
+/** "18 de sep de 2026", com o ano só se for pedido. */
 function shortDate(iso: string, withYear: boolean, withMonth = true): string {
   const { y, m, d } = parts(iso);
   const month = withMonth ? ` de ${MONTHS_SHORT[m - 1]}` : "";
@@ -195,7 +195,7 @@ function shortDate(iso: string, withYear: boolean, withMonth = true): string {
 
 /**
  * «14 – 20 de sep de 2026» · «28 de sep – 4 de oct de 2026» ·
- * «29 de dic de 2025 – 4 de ene de 2026»: lo mismo que escribe Google.
+ * «29 de dic de 2025 – 4 de ene de 2026»: o mesmo que o Google escreve.
  */
 export function spanLabel(range: DateRange): string {
   if (range.from === range.to) return shortDate(range.from, true);
@@ -206,7 +206,7 @@ export function spanLabel(range: DateRange): string {
   return `${a.d} – ${shortDate(range.to, true)}`;
 }
 
-/** Lo que dice la barra: el día, la semana, el mes o el rango de la Lista. */
+/** O que diz a barra: o dia, a semana, o mês ou o intervalo da Lista. */
 export function rangeLabel(view: CalendarView, anchor: string, listTo?: string | null): string {
   switch (view) {
     case "dia":
@@ -228,7 +228,7 @@ export function longDayLabel(iso: string): string {
   return `${WEEKDAYS_LONG[weekdayIndex(iso)]}, ${d} de ${MONTHS[m - 1]}`;
 }
 
-/** Encabezado de columna: "vie" y 18. */
+/** Cabeçalho de coluna: "vie" e 18. */
 export function dayHeading(iso: string): { weekday: string; day: number; month: string } {
   const { m, d } = parts(iso);
   return { weekday: WEEKDAYS_SHORT[weekdayIndex(iso)]!, day: d, month: MONTHS_SHORT[m - 1]! };
@@ -238,7 +238,7 @@ export function weekdayShortNames(): readonly string[] {
   return WEEKDAYS_SHORT;
 }
 
-/* ------------------------------------------------------------------ zona */
+/* ------------------------------------------------------------------ fuso */
 
 const WALL_CLOCK = new Map<string, Intl.DateTimeFormat>();
 
@@ -259,14 +259,14 @@ function wallClockFormat(tz: string): Intl.DateTimeFormat {
   return f;
 }
 
-/** Día y minuto del día (0–1439) de un instante, en la zona dada. */
+/** Dia e minuto do dia (0–1439) de um instante, no fuso dado. */
 export function wallClock(instant: Date | string, tz: string): { day: string; minutes: number } {
   const date = typeof instant === "string" ? new Date(instant) : instant;
   const map: Record<string, string> = {};
   for (const p of wallClockFormat(tz).formatToParts(date)) map[p.type] = p.value;
   return {
     day: `${map.year}-${map.month}-${map.day}`,
-    // Algunos motores devuelven "24" a medianoche aun con h23.
+    // Alguns motores devolvem "24" à meia-noite mesmo com h23.
     minutes: (Number(map.hour) % 24) * 60 + Number(map.minute),
   };
 }
@@ -279,18 +279,18 @@ export function hhmm(minutes: number): string {
 
 export type DaySegment = {
   day: string;
-  /** Minuto del día en que empieza el tramo (0–1439). */
+  /** Minuto do dia em que começa o trecho (0–1439). */
   startMin: number;
-  /** Minuto en que termina (1–1440). */
+  /** Minuto em que termina (1–1440). */
   endMin: number;
-  /** El tramo sigue de un día anterior / continúa al siguiente. */
+  /** O trecho continua de um dia anterior / segue para o seguinte. */
   continuesBefore: boolean;
   continuesAfter: boolean;
 };
 
 /**
- * Los tramos de una cita en la rejilla: uno por día. Una cita que cruza la
- * medianoche se parte en dos, como en Google, en vez de salirse de la columna.
+ * Os trechos de um agendamento na grade: um por dia. Um agendamento que cruza a
+ * meia-noite é partido em dois, como no Google, em vez de sair da coluna.
  */
 export function bookingSegments(
   startUtc: string,
@@ -304,8 +304,8 @@ export function bookingSegments(
   const end = wallClock(new Date(startMs + duration * 60_000), tz);
 
   if (end.day === start.day) {
-    // En el retroceso del horario de verano la hora de pared del fin puede
-    // quedar ANTES del inicio; se pinta con su duración real.
+    // No recuo do horário de verão a hora de parede do fim pode
+    // ficar ANTES do início; é desenhado com a sua duração real.
     const endMin =
       end.minutes > start.minutes ? end.minutes : Math.min(1440, start.minutes + duration);
     return [
@@ -316,7 +316,7 @@ export function bookingSegments(
   const out: DaySegment[] = [
     { day: start.day, startMin: start.minutes, endMin: 1440, continuesBefore: false, continuesAfter: true },
   ];
-  // Tope defensivo: una cita no dura semanas.
+  // Limite defensivo: um agendamento não dura semanas.
   for (let day = addDaysISO(start.day, 1), i = 0; day < end.day && i < 7; day = addDaysISO(day, 1), i++) {
     out.push({ day, startMin: 0, endMin: 1440, continuesBefore: true, continuesAfter: true });
   }
@@ -329,8 +329,8 @@ export function bookingSegments(
 }
 
 /**
- * Reparte el ancho entre lo que se solapa. Cada grupo de citas que se tocan
- * entre sí comparte columnas; la cita va en la primera columna libre.
+ * Divide a largura entre o que se sobrepõe. Cada grupo de agendamentos que se tocam
+ * entre si compartilha colunas; o agendamento vai na primeira coluna livre.
  */
 export function layoutOverlaps<T extends { startMin: number; endMin: number }>(
   items: T[]
@@ -366,7 +366,7 @@ export function layoutOverlaps<T extends { startMin: number; endMin: number }>(
   return out;
 }
 
-/** Tramos hábiles de ese día según el horario semanal, en minutos. */
+/** Trechos úteis desse dia conforme o horário semanal, em minutos. */
 export function workingBands(
   weeklyHours: Partial<Record<WeekdayKey, Interval[]>>,
   iso: string
@@ -381,7 +381,7 @@ export function workingBands(
     .sort((a, b) => a.startMin - b.startMin);
 }
 
-/** Lo que NO es hábil ese día: se sombrea. Un día cerrado es entero. */
+/** O que NÃO é útil nesse dia: é sombreado. Um dia fechado é inteiro. */
 export function offHoursBands(
   weeklyHours: Partial<Record<WeekdayKey, Interval[]>>,
   iso: string
@@ -396,10 +396,10 @@ export function offHoursBands(
   return out;
 }
 
-/** "GMT-6", "GMT+5:30", "GMT": el desfase de la zona del negocio ahora. */
+/** "GMT-6", "GMT+5:30", "GMT": a defasagem do fuso do negócio agora. */
 export function tzOffsetLabel(tz: string, at: Date = new Date()): string {
-  // `tzOffsetMinutes` compara contra un instante sin milisegundos: con el
-  // reloj real sale "-359.99…" y la esquina decía "GMT-6:0.0103…".
+  // `tzOffsetMinutes` compara com um instante sem milissegundos: com o
+  // relógio real sai "-359.99…" e o canto dizia "GMT-6:0.0103…".
   const offset = Math.round(tzOffsetMinutes(at, tz));
   if (offset === 0) return "GMT";
   const sign = offset > 0 ? "+" : "-";
@@ -416,8 +416,8 @@ export type RangeQuery =
   | { ok: false; message: string };
 
 /**
- * `?from=&to=` de `GET /api/bookings`. Ausentes los dos, la lista de siempre;
- * uno solo, una fecha que no existe, al revés o más de `MAX_RANGE_DAYS`, 422.
+ * `?from=&to=` de `GET /api/bookings`. Ausentes os dois, a lista de sempre;
+ * apenas um, uma data que não existe, invertida ou mais de `MAX_RANGE_DAYS`, 422.
  */
 export function parseRangeQuery(from: string | null, to: string | null): RangeQuery {
   if (!from && !to) return { ok: true, range: null };
@@ -435,15 +435,15 @@ export function parseRangeQuery(from: string | null, to: string | null): RangeQu
   return { ok: true, range: { from, to } };
 }
 
-/* ------------------------------------------------ bloqueo y reprogramación */
+/* ------------------------------------------------ bloqueio e reagendamento */
 
 /**
- * El instante UTC de un bloqueo pedido como día + hora DEL NEGOCIO.
+ * O instante UTC de um bloqueio pedido como dia + hora DO NEGÓCIO.
  *
- * Antes la pantalla hacía `new Date(valorDeDatetimeLocal)`, que lee la hora en
- * la zona del NAVEGADOR: un dueño de viaje (o un colaborador en otra zona)
- * bloqueaba las 15:00 de su reloj, no las del negocio. Aquí la zona es
- * explícita y el navegador no opina. `null` si el día o la hora no existen.
+ * Antes a tela fazia `new Date(valorDeDatetimeLocal)`, que lê a hora no
+ * fuso do NAVEGADOR: um dono em viagem (ou um colaborador em outro fuso)
+ * bloqueava as 15:00 do seu relógio, não as do negócio. Aqui o fuso é
+ * explícito e o navegador não opina. `null` se o dia ou a hora não existirem.
  */
 export function blockStartUtc(day: string, time: string, tz: string): string | null {
   if (!isIsoDate(day)) return null;
@@ -454,8 +454,8 @@ export function blockStartUtc(day: string, time: string, tz: string): string | n
 export type DaySlot = { startUtc: string; dayIso: string; time: string };
 
 /**
- * Los huecos libres agrupados por día, en orden y SIN recortar: reprogramar
- * ofrece toda la ventana del negocio (antes, los 12 primeros).
+ * Os horários livres agrupados por dia, em ordem e SEM cortar: reagendar
+ * oferece toda a janela do negócio (antes, os 12 primeiros).
  */
 export function groupSlotsByDay<T extends DaySlot>(slots: readonly T[]): [string, T[]][] {
   const map = new Map<string, T[]>();
@@ -468,9 +468,9 @@ export function groupSlotsByDay<T extends DaySlot>(slots: readonly T[]): [string
 }
 
 /**
- * Qué se pinta en el calendario. Las canceladas y las citas del Laboratorio
- * (`isTest`) se ocultan por defecto: una cancelada ya no ocupa el hueco y una
- * de prueba nunca lo ocupó (el motor no la cuenta como ocupación).
+ * O que é desenhado no calendário. As canceladas e os agendamentos do Laboratório
+ * (`isTest`) ficam ocultos por padrão: uma cancelada já não ocupa o horário e
+ * um de teste nunca o ocupou (o motor não o conta como ocupação).
  */
 export function calendarVisible<T extends { status: string; isTest: boolean }>(
   bookings: readonly T[],
@@ -482,8 +482,8 @@ export function calendarVisible<T extends { status: string; isTest: boolean }>(
 }
 
 /**
- * Junta una ráfaga de avisos en UNA llamada: la IA que agenda emite varios
- * eventos seguidos y cada uno pedía otra vez todo.
+ * Junta uma rajada de avisos em UMA chamada: a IA que agenda emite vários
+ * eventos seguidos e cada um pedia tudo de novo.
  */
 export function coalesce(fn: () => void, ms: number): { trigger: () => void; cancel: () => void } {
   let timer: ReturnType<typeof setTimeout> | undefined;

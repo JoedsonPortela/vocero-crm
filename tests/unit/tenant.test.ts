@@ -5,10 +5,10 @@ import { scoped } from "@/lib/db/tenant";
 import { schema } from "@/lib/db";
 
 /**
- * FR-085: ninguna query de dominio sin ámbito de tenant. El helper `scoped`
- * es la única vía de WHERE en el código de dominio; aquí se verifica su
- * contrato. El aislamiento vivo se ejercita en el E2E (una sola org por
- * instancia + queries siempre scoped).
+ * FR-085: nenhuma query de domínio sem escopo de tenant. O helper `scoped`
+ * é a única via de WHERE no código de domínio; aqui se verifica seu
+ * contrato. O isolamento vivo é exercitado no E2E (uma só org por
+ * instância + queries sempre scoped).
  */
 describe("scoped (aislamiento por organización)", () => {
   it("organizationId vacío lanza — imposible una query sin tenant", () => {
@@ -30,7 +30,7 @@ describe("scoped (aislamiento por organización)", () => {
       undefined // condiciones opcionales se filtran
     );
     expect(condition).toBeDefined();
-    // el SQL generado contiene ambas columnas unidas por AND
+    // o SQL gerado contém ambas as colunas unidas por AND
     const query = new PgDialect().sqlToQuery(condition);
     expect(query.sql).toContain("organization_id");
     expect(query.sql).toContain("phone");

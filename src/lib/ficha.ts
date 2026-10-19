@@ -1,15 +1,15 @@
 import type { FichaDto, FichaValue } from "./types";
 
 /**
- * Presentación de la ficha del lead.
+ * Apresentação da ficha do lead.
  *
- * Las claves las inventa quien califica —un bot, o el dueño escribiendo—, así
- * que llegan como `dolor_principal`, `dolorPrincipal` o `dolor-principal`. Aquí
- * se leen bonito SIN tocar lo guardado: renombrar la clave rompería al agente,
- * que la busca por su nombre exacto.
+ * As chaves são inventadas por quem qualifica — um bot, ou o dono digitando —,
+ * então chegam como `dolor_principal`, `dolorPrincipal` ou `dolor-principal`. Aqui
+ * são lidas de forma bonita SEM tocar no que está salvo: renomear a chave quebraria o agente,
+ * que a busca pelo nome exato.
  */
 
-/** `dolor_principal` → `Dolor principal`. No modifica el dato, solo cómo se ve. */
+/** `dolor_principal` → `Dolor principal`. Não modifica o dado, só como ele aparece. */
 export function fichaLabel(key: string): string {
   const palabras = key
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
@@ -20,7 +20,7 @@ export function fichaLabel(key: string): string {
   return palabras.charAt(0).toUpperCase() + palabras.slice(1);
 }
 
-/** Cómo se muestra un valor. Los booleanos en Sí/No: nadie califica en `true`. */
+/** Como um valor é mostrado. Os booleanos em Sim/Não: ninguém qualifica com `true`. */
 export function fichaValueText(value: FichaValue): string {
   if (typeof value === "boolean") return value ? "Sí" : "No";
   if (typeof value === "number") return String(value);
@@ -31,13 +31,13 @@ const SI = new Set(["si", "sí", "true", "1"]);
 const NO = new Set(["no", "false", "0"]);
 
 /**
- * Lo que el dueño teclea, de vuelta a un valor guardable.
+ * O que o dono digita, de volta a um valor gravável.
  *
- * Regla: **editar no cambia el tipo del dato** salvo que lo escrito ya no sea
- * de ese tipo. Si el agente guardó `presupuesto: 50000` (número) y el dueño
- * corrige a "60000", se guarda 60000 y no "60000" — porque del otro lado hay
- * un bot que puede estar comparando, y convertir en silencio un número a texto
- * es de esos cambios que solo se descubren cuando algo ya falló.
+ * Regra: **editar não muda o tipo do dado** a menos que o que foi escrito já não seja
+ * desse tipo. Se o agente salvou `presupuesto: 50000` (número) e o dono
+ * corrige para "60000", salva-se 60000 e não "60000" — porque do outro lado há
+ * um bot que pode estar comparando, e converter em silêncio um número em texto
+ * é daquelas mudanças que só se descobrem quando algo já falhou.
  */
 export function parseFichaValue(
   text: string,
@@ -57,7 +57,7 @@ export function parseFichaValue(
   return t;
 }
 
-/** Claves ordenadas para que la ficha no baile de posición entre recargas. */
+/** Chaves ordenadas para que a ficha não mude de posição entre recarregamentos. */
 export function fichaEntries(ficha: FichaDto): [string, FichaValue][] {
   return Object.entries(ficha).sort(([a], [b]) => a.localeCompare(b, "es"));
 }

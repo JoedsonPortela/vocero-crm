@@ -18,8 +18,8 @@ import {
 } from "@/server/ai/credentials";
 
 /**
- * Ajustes → IA: lo que valida y lo que devuelve `/api/settings/ai`. Fuera del
- * `route.ts` para poder probarlo sin sesión.
+ * Configurações → IA: o que valida e o que retorna `/api/settings/ai`. Fora do
+ * `route.ts` para poder testá-lo sem sessão.
  */
 
 const baseUrlSchema = z
@@ -31,19 +31,19 @@ const baseUrlSchema = z
   });
 
 /**
- * El mínimo de la llave es laxo a propósito: el formato lo decide el proveedor
- * y cambia sin avisar. Quien manda sobre si sirve es el proveedor al usarla
- * («Probar conexión»).
+ * O mínimo da chave é flexível de propósito: o formato é decidido pelo provedor
+ * e muda sem aviso. Quem decide se ela funciona é o provedor, ao usá-la
+ * («Testar conexão»).
  */
 const tokenSchema = z.string().trim().min(8).max(4096);
 
 const modelSchema = z.string().trim().min(1).max(200);
 
 const conProveedor = {
-  // Sin `.default()`: con él, `parseBody` infiere el tipo de ENTRADA (con
-  // `undefined`) y el handler pierde el tipado. La UI siempre lo manda.
+  // Sem `.default()`: com ele, `parseBody` infere o tipo de ENTRADA (com
+  // `undefined`) e o handler perde a tipagem. A UI sempre o envia.
   provider: z.enum(AI_PROVIDERS),
-  /** Obligatoria con «Outro compatível com OpenAI»; con OpenRouter se ignora. */
+  /** Obrigatória com «Outro compatível com OpenAI»; com OpenRouter é ignorada. */
   baseUrl: baseUrlSchema.optional(),
 };
 
@@ -60,7 +60,7 @@ function exigeBaseUrl(
   }
 }
 
-/** `PUT /api/settings/ai`: sin `token` solo cambia proveedor/modelo. */
+/** `PUT /api/settings/ai`: sem `token` altera só provedor/modelo. */
 export const aiSettingsPutSchema = z
   .object({
     ...conProveedor,
@@ -69,7 +69,7 @@ export const aiSettingsPutSchema = z
   })
   .superRefine(exigeBaseUrl);
 
-/** `POST /api/settings/ai/test`: sin `token` se prueba la llave guardada. */
+/** `POST /api/settings/ai/test`: sem `token` testa a chave salva. */
 export const aiProbeSchema = z
   .object({
     ...conProveedor,
@@ -78,7 +78,7 @@ export const aiProbeSchema = z
   })
   .superRefine(exigeBaseUrl);
 
-/** `POST /api/settings/ai/models`: sin `token` se usa la llave guardada. */
+/** `POST /api/settings/ai/models`: sem `token` usa a chave salva. */
 export const aiModelsSchema = z
   .object({
     ...conProveedor,
@@ -86,21 +86,21 @@ export const aiModelsSchema = z
   })
   .superRefine(exigeBaseUrl);
 
-/** La base URL que de verdad se usa: la del preset, o la escrita. */
+/** A base URL que de fato é usada: a do preset, ou a digitada. */
 export function baseUrlEfectiva(
   provider: AiProviderId,
   baseUrl: string | undefined
 ): string {
   const preset = AI_PROVIDER_PRESETS[provider].baseUrl;
   if (preset) return preset;
-  // El esquema ya exigió la base URL para este preset; el fallback solo
-  // calma al tipado.
+  // O esquema já exigiu a base URL para este preset; o fallback só
+  // tranquiliza a tipagem.
   return (baseUrl ?? "").trim().replace(/\/+$/, "");
 }
 
 /**
- * La llave con la que probar o listar: la escrita, o la guardada. `null` si
- * no hay ninguna de las dos.
+ * A chave com que testar ou listar: a digitada, ou a salva. `null` se
+ * não houver nenhuma das duas.
  */
 export async function llaveParaProbar(
   organizationId: string,
@@ -122,11 +122,11 @@ export type AiSettingsView = {
     desde: string | null;
     actualizado: string;
   } | null;
-  /** Lo que resuelve el adaptador ahora mismo (fila, y si no, entorno). */
+  /** O que o adaptador resolve agora mesmo (linha e, se não houver, ambiente). */
   activa: boolean;
   origen: "org" | "env" | null;
   mensaje: string | null;
-  /** Las variables `OPENROUTER_*`, si están: el respaldo. */
+  /** As variáveis `OPENROUTER_*`, se existirem: o fallback. */
   respaldoEntorno: { baseUrl: string; modelo: string; tokenLast4: string } | null;
 };
 
@@ -156,7 +156,7 @@ export async function vistaAjustesIa(
   return armarVista(cred, estado);
 }
 
-/** Pura, para las pruebas. */
+/** Pura, para os testes. */
 export function armarVista(
   cred: AiCredentialPublic | null,
   estado: EstadoIa

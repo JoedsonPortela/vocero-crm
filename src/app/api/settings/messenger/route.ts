@@ -16,7 +16,7 @@ import { resolveZernioAccount } from "@/server/zernio/guardar";
 
 export const dynamic = "force-dynamic";
 
-/** 017 — Estado de la conexión de Messenger (el token nunca sale entero). */
+/** 017 — Estado da conexão do Messenger (o token nunca sai inteiro). */
 export const GET = withAuth(async (session) => {
   if (!isChannelEnabled("messenger")) return channelDisabledResponse();
   const creds = await getMessengerCredentialsByOrg(session.organizationId);
@@ -42,9 +42,9 @@ const putSchema = z.object({
 });
 
 /**
- * Guarda la conexión validando ANTES contra la plataforma, igual que el wizard
- * de WhatsApp: un token que no sirve no llega a la base. Solo el propietario
- * de la organización puede hacerlo.
+ * Salva a conexão validando ANTES na plataforma, igual ao wizard
+ * do WhatsApp: um token que não funciona não chega ao banco. Só o proprietário
+ * da organização pode fazê-lo.
  */
 export const PUT = withAuth(async (session, req: Request) => {
   if (!isChannelEnabled("messenger")) return channelDisabledResponse();
@@ -53,8 +53,8 @@ export const PUT = withAuth(async (session, req: Request) => {
   }
   const body = await parseBody(req, putSchema);
   if (!body.ok) return body.response;
-  // `.default()` deja el tipo opcional aunque Zod siempre lo rellene: se fija
-  // aquí para que el resto del handler trabaje con un valor cerrado.
+  // `.default()` deixa o tipo opcional mesmo com o Zod sempre preenchendo: fixa-se
+  // aqui para que o resto do handler trabalhe com um valor fechado.
   const data = { ...body.data, source: body.data.source ?? "meta" };
 
   if (data.source === "meta" && !data.pageId) {
@@ -66,16 +66,16 @@ export const PUT = withAuth(async (session, req: Request) => {
   }
 
   const previa = await getMessengerCredentialsByOrg(session.organizationId);
-  // Sin secreto nuevo se conserva el que había: reconectar no debe apagar la
-  // verificación de firma.
+  // Sem segredo novo, mantém-se o que havia: reconectar não deve desligar a
+  // verificação de assinatura.
   const webhookSecret =
     data.webhookSecret ??
     (previa?.source === data.source ? previa.webhookSecret : null) ??
     null;
 
   if (data.source === "zernio") {
-    // 023: la cuenta se resuelve contra Zernio, no se guarda a ciegas. De ahí
-    // salen también la página y su nombre.
+    // 023: a conta é resolvida na Zernio, não é salva às cegas. Dela
+    // saem também a página e o seu nome.
     const cuenta = await resolveZernioAccount(data.token, data.accountRef, "messenger");
     if (!cuenta.ok) return cuenta.response;
     const pageName = zernioAccountName(cuenta.account);
@@ -126,10 +126,10 @@ type VerifyInput = Omit<z.infer<typeof putSchema>, "source"> & {
   source: "zernio" | "meta";
 };
 
-/** Fuente Meta. */
+/** Fonte Meta. */
 async function verify(data: VerifyInput): Promise<Check> {
-  // Meta: el token debe ser de ESA página. Un token de otra guardaría
-  // credenciales que reciben webhooks de una y contestan por otra.
+  // Meta: o token deve ser DESTA página. Um token de outra salvaria
+  // credenciais que recebem webhooks de uma e respondem por outra.
   try {
     const res = await graphRequest<{ id?: string; name?: string }>(
       `${data.pageId}?fields=id,name`,

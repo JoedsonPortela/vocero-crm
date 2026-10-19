@@ -13,20 +13,20 @@ export const dynamic = "force-dynamic";
 
 const bodySchema = z.object({
   conversationId: z.string().min(1),
-  // 022: el tope de aquí es el del canal que más admite; el de cada canal
-  // lo comprueba el envío y sale como el mismo 422 `invalid_body` de siempre.
+  // 022: o teto daqui é o do canal que mais admite; o de cada canal
+  // é verificado pelo envio e sai como o mesmo 422 `invalid_body` de sempre.
   text: z.string().min(1).max(MAX_TEXT_CHARS_ANY_CHANNEL, TEXT_TOO_LONG_ANY_CHANNEL),
 });
 
 /**
- * Envío del cerebro externo A TRAVÉS del CRM: el token de WhatsApp nunca sale
- * de aquí. Usa el mismo camino que el composer de la bandeja (`sendText`), así
- * que el mensaje queda en el hilo marcado como IA, respeta la ventana de 24 h
- * y hereda el guard de sandbox del Laboratorio.
+ * Envio do cérebro externo ATRAVÉS do CRM: o token do WhatsApp nunca sai
+ * daqui. Usa o mesmo caminho do composer da bandeja (`sendText`), assim
+ * a mensagem fica no fio marcada como IA, respeita a janela de 24 h
+ * e herda a guarda de sandbox do Laboratório.
  *
- * 409 tipados: ai_paused (un humano tomó la conversación) · window_closed ·
- * sandbox_violation · message_limit (022: el canal no admite más mensajes
- * hasta que el cliente escriba; hoy, el tope de TikTok).
+ * 409 tipados: ai_paused (um humano assumiu a conversa) · window_closed ·
+ * sandbox_violation · message_limit (022: o canal não admite mais mensagens
+ * até o cliente escrever; hoje, o teto do TikTok).
  */
 export async function POST(req: Request) {
   const denied = requireBotKey(req);
@@ -40,9 +40,9 @@ export async function POST(req: Request) {
   const body = await parseBody(req, bodySchema);
   if (!body.ok) return body.response;
 
-  // Gate de handoff: el bot JAMÁS habla sobre una conversación pausada. Se
-  // relee aquí porque entre que el bot pidió el contexto y armó su respuesta
-  // (segundos de un LLM) el dueño pudo haber tomado la conversación.
+  // Trava de handoff: o bot JAMAIS fala sobre uma conversa pausada. Relê-se
+  // aqui porque, entre o bot pedir o contexto e montar a resposta
+  // (segundos de um LLM), o dono pode ter assumido a conversa.
   const db = getDb();
   const convs = await db
     .select({
@@ -82,8 +82,8 @@ export async function POST(req: Request) {
       if (err.code === "message_limit") {
         return apiError(409, "message_limit", err.message);
       }
-      // Un texto de más de 4,096 caracteres por WhatsApp ya daba 422
-      // `invalid_body` (lo cortaba el esquema): se conserva el código.
+      // Um texto com mais de 4.096 caracteres no WhatsApp já dava 422
+      // `invalid_body` (o esquema cortava): o código é mantido.
       if (err.code === "text_too_long") {
         return apiError(422, "invalid_body", err.message);
       }

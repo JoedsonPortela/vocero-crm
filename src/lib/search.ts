@@ -1,11 +1,11 @@
 /**
- * Coincidencia de búsqueda tolerante, compartida por Bandeja y Contactos.
+ * Correspondência de busca tolerante, compartilhada por Bandeja e Contatos.
  *
- * Dos reglas nacidas de uso real:
- * 1. Sin acentos ni mayúsculas — "jose" encuentra a "José".
- * 2. El teléfono se compara por DÍGITOS: la UI lo pinta "+52 555 000 1234" y
- *    la BD lo guarda "525550001234", así que teclear el número tal como se ve
- *    (o pegarlo con espacios/guiones/paréntesis) no encontraba nada.
+ * Duas regras nascidas do uso real:
+ * 1. Sem acentos nem maiúsculas — "jose" encontra "José".
+ * 2. O telefone é comparado por DÍGITOS: a UI o desenha "+52 555 000 1234" e
+ *    o BD o guarda "525550001234", então digitar o número como aparece
+ *    (ou colá-lo com espaços/traços/parênteses) não encontrava nada.
  */
 
 const DIACRITICS = /[̀-ͯ]/g;
@@ -19,8 +19,8 @@ export function digitsOnly(value: string): string {
 }
 
 /**
- * Mínimo de dígitos para tratar la consulta como teléfono: un "1" suelto
- * emparejaría con medio directorio.
+ * Mínimo de dígitos para tratar a consulta como telefone: um "1" solto
+ * casaria com metade do diretório.
  */
 const MIN_PHONE_DIGITS = 3;
 

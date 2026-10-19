@@ -1,14 +1,14 @@
 /**
- * CLI de `pnpm init-env`: crea `.env` desde `.env.example` con los secretos
- * generados (crypto.randomBytes) y DOMAIN=localhost, para que
- * `docker compose up -d` arranque sin editar nada. Nunca pisa un `.env`
- * existente. Los valores generados no se imprimen.
+ * CLI do `pnpm init-env`: cria o `.env` a partir do `.env.example` com os segredos
+ * gerados (crypto.randomBytes) e DOMAIN=localhost, para que o
+ * `docker compose up -d` suba sem editar nada. Nunca sobrescreve um `.env`
+ * existente. Os valores gerados não são impressos.
  *
  *   pnpm init-env                                  # DOMAIN=localhost
- *   pnpm init-env --domain crm.tudominio.com       # tu dominio (y APP_BASE_URL)
+ *   pnpm init-env --domain crm.seudominio.com      # seu domínio (e APP_BASE_URL)
  *
- * Se bundlea con esbuild (alias @ → ./src), igual que seed:demo. La lógica
- * vive en src/server/doctor/init-env.ts.
+ * É empacotado com esbuild (alias @ → ./src), igual ao seed:demo. A lógica
+ * fica em src/server/doctor/init-env.ts.
  */
 import path from "node:path";
 import { DEFAULT_DOMAIN, runInitEnv } from "@/server/doctor/init-env";

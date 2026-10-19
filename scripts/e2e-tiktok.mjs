@@ -1,22 +1,22 @@
 /**
- * Self-test E2E de comportamiento — 022: canal de TikTok (por Zernio).
+ * Self-test E2E de comportamento — 022: canal do TikTok (pelo Zernio).
  *
- * Conduce la app real con los mocks: conecta la cuenta, mete mensajes por el
- * webhook como lo haría Zernio (firmados), deja que el agente incluido
- * conteste, responde desde la bandeja y empuja los límites que TikTok impone
- * —diez mensajes desde el último entrante, 48 horas, 6,000 caracteres—,
- * comprobando cada paso por las mismas superficies que usa el operador.
+ * Conduz o app real com os mocks: conecta a conta, envia mensagens pelo
+ * webhook como faria o Zernio (assinadas), deixa o agente incluído
+ * responder, responde a partir da bandeja e testa os limites que o TikTok impõe
+ * —dez mensagens desde o último recebido, 48 horas, 6.000 caracteres—,
+ * verificando cada passo pelas mesmas superfícies que o operador usa.
  *
  * Uso:
- *   1) app corriendo (`next dev`) sobre una base migrada, SIN
- *      BRAIN_DISPATCH_URL, con CHANNELS que incluya `tiktok` (y, para el
- *      reparto por plataforma, `instagram`), WA_MOCK_ENABLED=true,
- *      ZERNIO_BASE_URL → zernio-mock, OPENROUTER_BASE_URL → ai-mock con
- *      OPENROUTER_API_TOKEN y OPENROUTER_MODEL, BOT_API_KEY y
- *      AGENT_COALESCE_MS corta (1500).
+ *   1) app rodando (`next dev`) sobre um banco migrado, SEM
+ *      BRAIN_DISPATCH_URL, com CHANNELS que inclua `tiktok` (e, para o
+ *      repasse por plataforma, `instagram`), WA_MOCK_ENABLED=true,
+ *      ZERNIO_BASE_URL → zernio-mock, OPENROUTER_BASE_URL → ai-mock com
+ *      OPENROUTER_API_TOKEN e OPENROUTER_MODEL, BOT_API_KEY e
+ *      AGENT_COALESCE_MS curto (1500).
  *   2) node --env-file=.env scripts/e2e-tiktok.mjs
  *
- * Sale con código 1 si algún check falla. Guion: tests/e2e/us-tiktok.md.
+ * Sai com código 1 se alguma verificação falhar. Roteiro: tests/e2e/us-tiktok.md.
  */
 import { createHmac } from "node:crypto";
 
@@ -28,7 +28,7 @@ const CHANNELS = (process.env.CHANNELS ?? "").split(",").map((c) => c.trim());
 const ACCOUNT = "zernio-tiktok-001";
 const SECRET = "secreto-del-webhook-de-zernio";
 const RUN = Date.now().toString(36);
-/** Marca de esta corrida: el arnés se puede repetir sobre la misma base. */
+/** Marca desta execução: o harness pode ser repetido sobre o mesmo banco. */
 const MARCA = `#${RUN}`;
 const HORA = 60 * 60 * 1000;
 
@@ -69,7 +69,7 @@ const bot = (path, opts = {}) =>
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/** Espera a que algo OCURRA, en vez de dormir un rato y confiar. */
+/** Espera até que algo ACONTEÇA, em vez de dormir um pouco e confiar. */
 async function hasta(cond, ms = 15000, paso = 200) {
   const fin = Date.now() + ms;
   for (;;) {
@@ -81,11 +81,11 @@ async function hasta(cond, ms = 15000, paso = 200) {
 }
 
 // ---------------------------------------------------------------------------
-// Zernio de mentira: lo que entrega y lo que recibió
+// Zernio de mentira: o que entrega e o que recebeu
 // ---------------------------------------------------------------------------
 
 let nEvento = 0;
-/** Un `message.received` con la forma de la documentación de Zernio. */
+/** Um `message.received` com o formato da documentação do Zernio. */
 function evento({ sender, nombre, usuario, text, hilo, sentAt, over = {}, mensaje = {} }) {
   nEvento++;
   return {
@@ -109,7 +109,7 @@ function evento({ sender, nombre, usuario, text, hilo, sentAt, over = {}, mensaj
   };
 }
 
-/** Entrega un evento al webhook, firmado como lo firma Zernio. */
+/** Entrega um evento ao webhook, assinado como o Zernio assina. */
 async function entregar(payload, { ruta = "tiktok", token = VERIFY_TOKEN, firma } = {}) {
   const cuerpo = typeof payload === "string" ? payload : JSON.stringify(payload);
   const res = await fetch(`${BASE}/api/webhooks/${ruta}/${token}`, {
@@ -134,10 +134,10 @@ async function conversaciones() {
   return (await api("/api/conversations")).json?.conversations ?? [];
 }
 
-// La ingesta corre tras responder el webhook y sella `lastInboundAt` al final:
-// se espera a la conversación YA con su último entrante, que es de lo que
-// depende la ventana. Sin eso, en un servidor frío el check de las 30 horas
-// leía la conversación a medio ingerir.
+// A ingestão roda depois de responder o webhook e grava `lastInboundAt` no final:
+// aguarda-se a conversa JÁ com sua última mensagem recebida, que é do que
+// depende a janela. Sem isso, num servidor frio a checagem das 30 horas
+// lia a conversa com a ingestão pela metade.
 const convDe = (nombre) =>
   hasta(async () =>
     (await conversaciones()).find((c) => c.contact.name === nombre && c.lastInboundAt !== null)
@@ -153,7 +153,7 @@ const aMano = (convId, text) =>
     body: JSON.stringify({ text }),
   });
 
-/** La respuesta del agente incluido a ese texto del cliente. */
+/** A resposta do agente incluído a esse texto do cliente. */
 const respuestaDelAgente = (convId, textoDelCliente) =>
   hasta(
     async () =>
@@ -193,7 +193,7 @@ async function main() {
   }
   ok("registro o login del operador", su.res.ok, JSON.stringify(su.json));
   await api("/api/dev/zernio-mock/_reset", { method: "POST" });
-  // 023: la cuenta se resuelve contra las de la llave; el simulador las sirve.
+  // 023: a conta é resolvida pelas da chave; o simulador as serve.
   await api("/api/dev/zernio-mock/_accounts", {
     method: "POST",
     body: JSON.stringify({
@@ -231,7 +231,7 @@ async function main() {
 }
 
 // ---------------------------------------------------------------------------
-// Historia 4 — Conectar
+// História 4 — Conectar
 // ---------------------------------------------------------------------------
 
 async function conectar() {
@@ -296,7 +296,7 @@ async function conectar() {
 }
 
 // ---------------------------------------------------------------------------
-// Historias 1 y 2 — Recibir y responder
+// Histórias 1 e 2 — Receber e responder
 // ---------------------------------------------------------------------------
 
 async function recibirYContestar() {
@@ -386,12 +386,12 @@ async function recibirYContestar() {
 }
 
 // ---------------------------------------------------------------------------
-// Historia 3 — Los límites de TikTok
+// História 3 — Os limites do TikTok
 // ---------------------------------------------------------------------------
 
 async function limites({ conv, hilo, sender, nombre }) {
   console.log("\n== AC10: diez mensajes desde el último entrante, y el undécimo no sale ==");
-  // Ya salieron dos: la respuesta del agente y la del operador.
+  // Já saíram duas: a resposta do agente e a do operador.
   let aceptados = 0;
   for (let i = 3; i <= 10; i++) {
     const r = await aMano(conv.id, `mensaje ${i} de 10 ${MARCA}`);
@@ -430,7 +430,7 @@ async function limites({ conv, hilo, sender, nombre }) {
   }
 
   console.log("\n== AC9: un texto de más de 6,000 caracteres no sale ==");
-  // Con el tope alcanzado no se puede probar aquí: va tras el siguiente entrante.
+  // Com o limite atingido não dá para testar aqui: vai depois da próxima mensagem recebida.
 
   console.log("\n== AC11: cuando el cliente vuelve a escribir, la cuenta empieza de nuevo ==");
   const otra = `¿y cuánto tarda? ${MARCA}`;
@@ -521,7 +521,7 @@ async function ventana() {
 }
 
 // ---------------------------------------------------------------------------
-// Historia 1 — Lo que se descarta
+// História 1 — O que se descarta
 // ---------------------------------------------------------------------------
 
 async function descartes() {
@@ -529,8 +529,8 @@ async function descartes() {
   const total = (await conversaciones()).length;
   const base = { sender: `tt-x-${RUN}`, nombre: `No Debe Entrar ${MARCA}`, text: `x ${MARCA}`, hilo: `zconv-x-${RUN}` };
 
-  // Otra cuenta: su secreto no es el nuestro, así que ni siquiera se conoce
-  // con qué validar; se acepta la entrega y se descarta al enrutar.
+  // Outra conta: seu segredo não é o nosso, então nem se conhece
+  // com o que validar; aceita-se a entrega e descarta-se ao rotear.
   const deOtraCuenta = evento({
     ...base,
     over: { account: { id: `otra-cuenta-${RUN}`, accountId: `otra-cuenta-${RUN}`, platform: "tiktok" } },

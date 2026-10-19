@@ -4,9 +4,9 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
 
 /**
- * 008 — Si MEDIA_DIR no es escribible, el arranque lo dice con claridad (y qué
- * hacer) en vez de dejar que el primer síntoma sea un 500 al subir el logo o
- * un adjunto perdido. Y jamás tumba el arranque.
+ * 008 — Se MEDIA_DIR não for gravável, o arranque diz isso com clareza (e o que
+ * fazer) em vez de deixar que o primeiro sintoma seja um 500 ao enviar o logo ou
+ * um anexo perdido. E jamais derruba o arranque.
  */
 
 const { getEnv } = vi.hoisted(() => ({ getEnv: vi.fn() }));
@@ -22,7 +22,7 @@ let error: MockInstance<typeof console.error>;
 beforeEach(async () => {
   tmp = await mkdtemp(path.join(os.tmpdir(), "vocero-media-"));
   error = vi.spyOn(console, "error").mockImplementation(() => {});
-  // El sondeo se cachea (#82): cada caso arranca sin resultado anterior.
+  // A sondagem é guardada em cache (#82): cada caso começa sem resultado anterior.
   resetMediaDirCache();
 });
 
@@ -40,11 +40,11 @@ describe("checkMediaDir (arranque)", () => {
 
     expect(error).not.toHaveBeenCalled();
     expect((await stat(dir)).isDirectory()).toBe(true);
-    expect(await readdir(dir)).toEqual([]); // el archivo de prueba se borró
+    expect(await readdir(dir)).toEqual([]); // o arquivo de teste foi apagado
   });
 
   it("no escribible: avisa qué pasa y qué hacer, sin lanzar", async () => {
-    // Un archivo donde debería ir un directorio: mkdir falla en todo SO.
+    // Um arquivo onde deveria ir um diretório: mkdir falha em todo SO.
     const archivo = path.join(tmp, "no-soy-directorio");
     await writeFile(archivo, "x");
     getEnv.mockReturnValue({ MEDIA_DIR: path.join(archivo, "media") });

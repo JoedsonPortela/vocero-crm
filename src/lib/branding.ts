@@ -1,9 +1,9 @@
 import { DEFAULT_CURRENCY, isCurrency, type Currency } from "@/lib/money";
 
 /**
- * White-label: nombre del CRM, acento y moneda por organización.
- * Presets sobrios del sistema Atlas; para un color personalizado se derivan
- * hover/soft/tint/text y la tinta encima (blanca o casi negra) pasa AA.
+ * White-label: nome do CRM, acento e moeda por organização.
+ * Predefinições sóbrias do sistema Atlas; para uma cor personalizada são derivados
+ * hover/soft/tint/text e a tinta por cima (branca ou quase preta) passa AA.
  */
 
 export type AccentSet = {
@@ -12,51 +12,51 @@ export type AccentSet = {
   soft: string;
   tint: string;
   text: string;
-  /** Tinta legible ENCIMA del acento (botones, badges). */
+  /** Tinta legível POR CIMA do acento (botões, badges). */
   fg: string;
 };
 
-/** El acento se deriva distinto según el tema activo. */
+/** O acento é derivado de forma diferente conforme o tema ativo. */
 export type ThemeMode = "light" | "dark";
 
 /**
- * Icono subido. Solo el tipo y una versión: el binario vive en el volumen de
- * medios, porque `organization.metadata` se lee en CADA render de página y
- * meter ahí un archivo en base64 haría pagar ese peso en todas.
+ * Ícone enviado. Somente o tipo e uma versão: o binário fica no volume de
+ * mídia, porque `organization.metadata` é lido em CADA renderização de página e
+ * colocar ali um arquivo em base64 faria pagar esse peso em todas.
  */
 export type BrandingFavicon = {
   mime: string;
   /**
-   * Marca de tiempo de la carga. Es lo que hace que el navegador suelte el
-   * icono anterior. No es un contador a propósito: al quitar el icono no queda
-   * dónde recordar por cuál íbamos, y reiniciar en 1 repetiría una URL ya
-   * cacheada con OTRO logo dentro.
+   * Carimbo de tempo do carregamento. É o que faz o navegador soltar o
+   * ícone anterior. Não é um contador de propósito: ao remover o ícone não fica
+   * onde lembrar qual estava em uso, e reiniciar em 1 repetiria uma URL já
+   * armazenada em cache com OUTRO logo dentro.
    */
   version: number;
 };
 
 export type Branding = {
   name: string;
-  accent: string; // hex del acento base elegido
-  /** Moneda del negocio: la única que el tablero suma. */
+  accent: string; // hex do acento base escolhido
+  /** Moeda do negócio: a única que o painel soma. */
   currency: Currency;
-  /** `null` = se dibuja con la inicial sobre el acento (ver `lib/favicon`). */
+  /** `null` = é desenhado com a inicial sobre o acento (ver `lib/favicon`). */
   favicon: BrandingFavicon | null;
 };
 
 export const DEFAULT_BRANDING: Branding = {
   name: "Vocero",
-  // El azul eléctrico de vocerocrm.com: la instancia recién instalada se ve
-  // igual que la landing. Una agencia lo cambia en Configuración → Marca.
+  // O azul elétrico do vocerocrm.com: a instância recém-instalada aparece
+  // igual à landing. Uma agência a muda em Configuração → Marca.
   accent: "#0d5bff",
   currency: DEFAULT_CURRENCY,
   favicon: null,
 };
 
 /**
- * Presets. El primero es la marca Vocero (valores exactos de la landing); los
- * demás son los tonos sobrios del handoff Atlas, que siguen disponibles para
- * quien quiera un CRM más discreto.
+ * Predefinições. A primeira é a marca Vocero (valores exatos da landing); as
+ * demais são os tons sóbrios do handoff Atlas, que continuam disponíveis para
+ * quem quiser um CRM mais discreto.
  */
 export const ACCENT_PRESETS: Record<string, { label: string; set: AccentSet }> = {
   "#0d5bff": {
@@ -101,7 +101,7 @@ function rgbToHex({ r, g, b }: Rgb): string {
   return `#${c(r)}${c(g)}${c(b)}`;
 }
 
-/** Mezcla `color` hacia `target` en proporción t (0..1). */
+/** Mistura `color` em direção a `target` na proporção t (0..1). */
 function mix(color: Rgb, target: Rgb, t: number): Rgb {
   return {
     r: color.r + (target.r - color.r) * t,
@@ -113,7 +113,7 @@ function mix(color: Rgb, target: Rgb, t: number): Rgb {
 const WHITE: Rgb = { r: 255, g: 255, b: 255 };
 const BLACK: Rgb = { r: 0, g: 0, b: 0 };
 
-/** Luminancia relativa (WCAG). */
+/** Luminância relativa (WCAG). */
 function luminance({ r, g, b }: Rgb): number {
   const f = (v: number) => {
     const s = v / 255;
@@ -122,7 +122,7 @@ function luminance({ r, g, b }: Rgb): number {
   return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
 }
 
-/** Contraste WCAG entre dos colores. */
+/** Contraste WCAG entre duas cores. */
 function contrast(a: Rgb, b: Rgb): number {
   const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [
     number,
@@ -131,46 +131,46 @@ function contrast(a: Rgb, b: Rgb): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-/** Fondo de referencia del tema oscuro (debe seguir a `--bg` de globals.css). */
+/** Fundo de referência do tema escuro (deve seguir `--bg` de globals.css). */
 const DARK_BG: Rgb = { r: 0x1c, g: 0x26, b: 0x3c };
 
 /**
- * Fondo de referencia de la barra lateral (debe seguir a `--bg` de `.nav-dark`).
- * La barra es azul marino fijo en los dos temas, así que su acento se calcula
- * contra ella y no contra la página: si siguiera a DARK_BG, cambiar el tema
- * oscuro repintaría también la barra del tema claro.
+ * Fundo de referência da barra lateral (deve seguir `--bg` de `.nav-dark`).
+ * A barra é azul-marinho fixo nos dois temas, então o seu acento é calculado
+ * contra ela e não contra a página: se seguisse DARK_BG, trocar o tema
+ * escuro repintaria também a barra do tema claro.
  */
 const NAV_BG: Rgb = { r: 0x0b, g: 0x13, b: 0x27 };
 
-/** Tinta ENCIMA del acento: blanco solo si pasa AA (4.5:1), si no, casi negro. */
+/** Tinta POR CIMA do acento: branco só se passar AA (4.5:1), senão, quase preto. */
 const INK_ON_LIGHT = "#0f1419";
 const INK: Rgb = hexToRgb(INK_ON_LIGHT);
 function inkOn(base: Rgb): string {
   return contrast(base, WHITE) >= 4.5 ? "#ffffff" : INK_ON_LIGHT;
 }
 /**
- * ¿Alguna de las dos tintas pasa AA? En los tonos medios (blanco entre 4.1 y
- * 4.5:1) ninguna llega, así que el relleno se sigue moviendo: se aclara en
- * oscuro (hasta que la tinta casi negra pase) y se oscurece en claro.
+ * Alguma das duas tintas passa AA? Nos tons médios (branco entre 4.1 e
+ * 4.5:1) nenhuma chega, então o preenchimento continua sendo ajustado: clareia
+ * no escuro (até a tinta quase preta passar) e escurece no claro.
  */
 function inkPasses(base: Rgb): boolean {
   return contrast(base, WHITE) >= 4.5 || contrast(base, INK) >= 4.5;
 }
 
 /**
- * Receta de un acento sobre fondo oscuro. `minContrast` es el del relleno
- * contra el fondo (botón, barra de selección: 3:1 basta para lo que no es
- * texto; el acento como TEXTO usa `text`, ver --accent-ink); `soft`/`tint`
- * son cuánto se hunden hacia el fondo, y `text` cuánto se aclara la tinta,
- * que además se sube hasta 4.5:1 sobre el tint.
+ * Receita de um acento sobre fundo escuro. `minContrast` é o do preenchimento
+ * contra o fundo (botão, barra de seleção: 3:1 basta para o que não é
+ * texto; o acento como TEXTO usa `text`, ver --accent-ink); `soft`/`tint`
+ * são o quanto afundam em direção ao fundo, e `text` o quanto a tinta é clareada,
+ * que além disso é elevada até 4.5:1 sobre o tint.
  */
 type DarkRecipe = { bg: Rgb; minContrast: number; soft: number; tint: number; text: number };
 
-// Página oscura: con 3:1 el azul Vocero conserva la tinta blanca (4.5:1); el
-// tint más denso (0.78) hace que la fila seleccionada se vea sin leer el color
-// del texto (≥ 1.25:1 contra el fondo).
+// Página escura: com 3:1 o azul Vocero mantém a tinta branca (4.5:1); o
+// tint mais denso (0.78) faz a linha selecionada aparecer sem ilegibilidade da cor
+// do texto (≥ 1.25:1 contra o fundo).
 const PAGE_DARK: DarkRecipe = { bg: DARK_BG, minContrast: 3, soft: 0.64, tint: 0.78, text: 0.34 };
-// Barra lateral: la receta de siempre, para que se vea igual que antes.
+// Barra lateral: a receita de sempre, para que apareça igual a antes.
 const NAV_DARK: DarkRecipe = { bg: NAV_BG, minContrast: 3.5, soft: 0.72, tint: 0.88, text: 0.28 };
 
 function darkAccentSet(accentHex: string, r: DarkRecipe): AccentSet {
@@ -199,16 +199,16 @@ function darkAccentSet(accentHex: string, r: DarkRecipe): AccentSet {
 }
 
 /**
- * Set completo para cualquier acento, según el tema.
+ * Conjunto completo para qualquer acento, conforme o tema.
  *
- * Claro: preset exacto si existe; si no se deriva mezclando hacia blanco, y un
- * base demasiado claro se oscurece hasta contraste ≥ 3:1 con el fondo blanco.
- * La tinta encima es blanca solo si pasa AA; en un acento claro (un verde, un
- * amarillo) va casi negra.
+ * Claro: predefinição exata se existir; senão é derivado misturando em direção ao branco, e uma base
+ * clara demais é escurecida até contraste ≥ 3:1 com o fundo branco.
+ * A tinta por cima é branca só se passar AA; em um acento claro (um verde, um
+ * amarelo) fica quase preta.
  *
- * Oscuro: los presets NO aplican — un acento pensado para fondo blanco se
- * hunde en el fondo oscuro. Se aclara hasta despegarse del fondo y las
- * variantes soft/tint se mezclan hacia el fondo oscuro, no hacia blanco.
+ * Escuro: as predefinições NÃO se aplicam — um acento pensado para fundo branco
+ * afunda no fundo escuro. É clareado até se destacar do fundo e as
+ * variantes soft/tint são misturadas em direção ao fundo escuro, não ao branco.
  */
 export function resolveAccentSet(
   accentHex: string,
@@ -221,7 +221,7 @@ export function resolveAccentSet(
   if (!isValidHex(accentHex)) return ACCENT_PRESETS[DEFAULT_BRANDING.accent]!.set;
 
   let base = hexToRgb(accentHex.toLowerCase());
-  // contraste con blanco = (1.05) / (L + 0.05); exigir ≥ 3
+  // contraste com branco = (1.05) / (L + 0.05); exigir ≥ 3
   while (1.05 / (luminance(base) + 0.05) < 3 && luminance(base) > 0.005) {
     base = mix(base, BLACK, 0.12);
   }
@@ -238,7 +238,7 @@ export function resolveAccentSet(
   };
 }
 
-/** El acento de la barra lateral azul marino (`.nav-dark`), en cualquier tema. */
+/** O acento da barra lateral azul-marinho (`.nav-dark`), em qualquer tema. */
 export function resolveNavAccentSet(accentHex: string): AccentSet {
   return darkAccentSet(accentHex, NAV_DARK);
 }
@@ -248,20 +248,20 @@ function accentBlock(selector: string, s: AccentSet): string {
 }
 
 /**
- * CSS de variables para inyectar en el <head> (SSR, sin flash). Emite los DOS
- * temas aunque el servidor ya sepa cuál está activo: el botón de tema cambia
- * `data-theme` en el cliente sin recargar, así que el CSS del otro tema tiene
- * que estar presente desde el primer pintado.
+ * CSS de variáveis para injetar no <head> (SSR, sem flash). Emite os DOIS
+ * temas mesmo que o servidor já saiba qual está ativo: o botão de tema troca
+ * `data-theme` no cliente sem recarregar, então o CSS do outro tema tem
+ * que estar presente desde a primeira pintura.
  *
- * El selector va duplicado (`:root:root`) a propósito: así gana en
- * especificidad a los bloques de globals.css sin depender del orden de carga.
+ * O seletor é duplicado (`:root:root`) de propósito: assim ganha em
+ * especificidade dos blocos de globals.css sem depender da ordem de carregamento.
  *
- * El tercer bloque (`.nav-dark`) es el sidebar: azul marino sin importar
- * `data-theme`, así que su acento se calcula SIEMPRE contra su propio fondo
- * (`NAV_BG`, ver `resolveNavAccentSet`), no con el que esté activo en el resto
- * de la página. Al declararse directamente sobre el `<aside>` (no sobre
- * `:root`), gana para ese elemento y sus hijos sin competir en especificidad
- * con los otros dos bloques, que solo tocan `<html>`.
+ * O terceiro bloco (`.nav-dark`) é a sidebar: azul-marinho sem importar
+ * `data-theme`, então o seu acento é SEMPRE calculado contra o seu próprio fundo
+ * (`NAV_BG`, ver `resolveNavAccentSet`), e não com o que esteja ativo no resto
+ * da página. Por ser declarado diretamente sobre o `<aside>` (não sobre
+ * `:root`), vence para esse elemento e seus filhos sem competir em especificidade
+ * com os outros dois blocos, que só tocam `<html>`.
  */
 export function accentCssVariables(accentHex: string): string {
   return (
@@ -283,8 +283,8 @@ export function normalizeBranding(input: Partial<Branding> | null): Branding {
   const currency = isCurrency(input?.currency)
     ? input.currency
     : DEFAULT_BRANDING.currency;
-  // El icono no se toca desde el formulario de marca: se sube y se quita por
-  // su propia ruta. Un PUT de nombre/color no debe borrarlo de rebote.
+  // O ícone não é tocado pelo formulário de marca: é enviado e removido pela
+  // sua própria rota. Um PUT de nome/cor não deve apagá-lo por reflexo.
   const f = input?.favicon;
   const favicon =
     f && typeof f.mime === "string" && Number.isFinite(f.version)

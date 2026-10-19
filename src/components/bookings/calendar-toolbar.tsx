@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /**
- * 215 — La barra del calendario, como la de Google Calendar: Hoy, ‹ ›, el
- * rango que se está viendo (tocarlo abre un selector para saltar a cualquier
- * fecha) y el cambio de vista. En la Lista, el rango se elige con Desde–Hasta,
- * como la lista de reuniones de Zoom.
+ * 215 — A barra do calendário, como a do Google Calendar: Hoje, ‹ ›, o
+ * intervalo que está sendo visto (tocá-lo abre um seletor para pular para qualquer
+ * data) e a troca de visão. Na Lista, o intervalo é escolhido com Desde–Hasta,
+ * como a lista de reuniões do Zoom.
  */
 
 const VIEW_LABEL: Record<CalendarView, string> = {
@@ -116,8 +116,8 @@ export function CalendarToolbar({
             {label}
             <ChevronDown className="h-4 w-4 text-text-3" />
           </button>
-          {/* El selector nativo, anclado bajo la etiqueta: el del sistema es el
-              que mejor funciona en el celular. */}
+          {/* O seletor nativo, ancorado sob o rótulo: o do sistema é o
+              que funciona melhor no celular. */}
           <input
             ref={picker}
             type="date"

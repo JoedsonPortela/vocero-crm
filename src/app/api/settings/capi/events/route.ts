@@ -8,18 +8,18 @@ import { listConversionActivity } from "@/server/attribution/conversions";
 export const dynamic = "force-dynamic";
 
 /**
- * 016 — Actividad reciente de conversiones (solo lectura).
+ * 016 — Atividade recente de conversões (somente leitura).
  *
- * Responde la única pregunta que importa cuando uno duda de esto: "¿le está
- * llegando algo a Meta y, si no, por qué?". Sin acciones: este endpoint jamás
- * escribe.
+ * Responde à única pergunta que importa quando se duvida disso: "está chegando
+ * algo à Meta e, se não, por quê?". Sem ações: este endpoint jamais
+ * escreve.
  */
 export const GET = withAuth(async (session, req: Request) => {
   if (!atribucionEnabled()) return atribucionDisabledResponse();
   const raw = new URL(req.url).searchParams.get("limit");
   const parsed = raw ? Number.parseInt(raw, 10) : NaN;
-  // Un límite fuera de rango se recorta, no falla: es un panel, no un contrato
-  // de paginación.
+  // Um limite fora da faixa é ajustado, não falha: é um painel, não um contrato
+  // de paginação.
   const limit = Number.isFinite(parsed) ? parsed : undefined;
   const events = await listConversionActivity(session.organizationId, limit);
   return Response.json({ events });

@@ -5,19 +5,19 @@ import { decryptSecret, encryptSecret } from "@/lib/crypto";
 import { columnasDelSecreto, secretoDeLaFila } from "@/server/zernio/secreto-guardado";
 
 /**
- * 022 — Credenciales del canal de TikTok.
+ * 022 — Credenciais do canal do TikTok.
  *
- * Una sola fuente: la API unificada de Zernio (su llave, y el enrutado por
- * `accountRef`). Mismo contrato que las de los demás canales: la llave viaja
- * descifrada solo en memoria y nunca sale en una respuesta de la API — hacia
- * fuera se expone su cola.
+ * Uma única fonte: a API unificada da Zernio (sua chave, e o roteamento por
+ * `accountRef`). Mesmo contrato das dos demais canais: a chave viaja
+ * descriptografada só na memória e nunca sai numa resposta da API — para fora
+ * expõe-se só a sua cauda.
  */
 
 export type TiktokCredentials = {
   id: string;
   organizationId: string;
   source: "zernio";
-  /** `accountId` de la cuenta de TikTok en Zernio. */
+  /** `accountId` da conta do TikTok na Zernio. */
   accountRef: string;
   username: string | null;
   webhookSecret: string | null;
@@ -55,7 +55,7 @@ export async function getTiktokCredentialsByOrg(
   return rows[0] ? toCredentials(rows[0]) : null;
 }
 
-/** Enrutado del webhook de Zernio: el evento trae `account.id`. */
+/** Roteamento do webhook da Zernio: o evento traz `account.id`. */
 export async function getTiktokCredentialsByAccountRef(
   accountRef: string
 ): Promise<TiktokCredentials | null> {
@@ -103,7 +103,7 @@ export async function saveTiktokCredentials(input: {
     .values({ id: newId("credentials"), ...values });
 }
 
-/** La llave murió: se pausan los envíos y la UI pide reconectar. */
+/** A chave morreu: os envios são pausados e a UI pede para reconectar. */
 export async function markTiktokReconnectRequired(
   organizationId: string
 ): Promise<void> {

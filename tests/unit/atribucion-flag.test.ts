@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { parseAtribucionFlag } from "@/server/attribution/flag";
 
 /**
- * 016 — La bandera de la atribución. El caso que importa es el DEFAULT: una
- * instancia que no la pidió no debe acabar guardando identificadores de clic
- * de Meta ni mandándole eventos por un despiste de configuración.
+ * 016 — A flag da atribuição. O caso que importa é o DEFAULT: uma
+ * instância que não a pediu não deve acabar guardando identificadores de clique
+ * da Meta nem mandando eventos por um descuido de configuração.
  */
 
 describe("parseAtribucionFlag", () => {
@@ -33,7 +33,7 @@ describe("parseAtribucionFlag", () => {
     expect(parseAtribucionFlag("false")).toBe(false);
     expect(parseAtribucionFlag("0")).toBe(false);
     expect(parseAtribucionFlag("no")).toBe(false);
-    // Un typo no enciende nada: apagada es el estado seguro.
+    // Um erro de digitação não liga nada: desligada é o estado seguro.
     expect(parseAtribucionFlag("onn")).toBe(false);
   });
 });

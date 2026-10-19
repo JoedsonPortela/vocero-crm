@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 /**
- * 026 — Confirmación de borrado. Es irreversible, así que dice con todas sus
- * letras qué se va y qué se queda — y lo dice distinto según la casilla,
- * porque «también el contacto» cambia los números de Resultados y eso no se
- * adivina.
+ * 026 — Confirmação de exclusão. É irreversível, então diz com todas as letras
+ * o que sai e o que fica — e diz diferente conforme a caixa marcada,
+ * porque «também o contato» muda os números de Resultados e isso não se
+ * adivinha.
  */
 export function DeleteConversationDialog({
   contactName,
@@ -17,15 +17,15 @@ export function DeleteConversationDialog({
 }: {
   contactName: string;
   onCancel: () => void;
-  /** Devuelve el mensaje de error, o null si se eliminó. */
+  /** Devolve a mensagem de erro, ou null se foi excluído. */
   onConfirm: (alsoContact: boolean) => Promise<string | null>;
 }) {
   const [alsoContact, setAlsoContact] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Escape cancela, como en cualquier diálogo. Enter NO confirma: borrar para
-  // siempre no puede salir de una tecla suelta.
+  // Escape cancela, como em qualquer diálogo. Enter NÃO confirma: excluir para
+  // nunca pode acontecer com uma tecla solta.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !busy) onCancel();
@@ -38,7 +38,7 @@ export function DeleteConversationDialog({
     setBusy(true);
     setError(null);
     const problema = await onConfirm(alsoContact);
-    // Si salió bien, quien abrió el diálogo ya lo cerró: no hay estado que tocar.
+    // Se deu certo, quem abriu o diálogo já o fechou: não há estado a tocar.
     if (problema) {
       setError(problema);
       setBusy(false);

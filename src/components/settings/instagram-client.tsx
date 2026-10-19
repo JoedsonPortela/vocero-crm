@@ -19,13 +19,13 @@ import { ZernioConnect } from "@/components/settings/zernio-connect";
 import { cn } from "@/lib/utils";
 
 /**
- * 023 — Conexión del canal de Instagram: la pantalla que faltaba.
+ * 023 — Conexão do canal do Instagram: a tela que faltava.
  *
- * `PUT /api/settings/instagram` y el webhook existen desde la 014, pero el
- * canal solo se podía conectar llamando a la API a mano. Gemela de la de
- * Messenger y con las mismas reglas: se prueba contra la plataforma ANTES de
- * guardar, el token se cifra, hacia fuera solo se enseña su cola, y la
- * pantalla solo existe si el canal está encendido con `CHANNELS` (ADR-001).
+ * `PUT /api/settings/instagram` e o webhook existem desde a 014, mas o
+ * canal só podia ser conectado chamando a API manualmente. Gêmea da do
+ * Messenger e com as mesmas regras: é testada na plataforma ANTES de
+ * salvar, o token é cifrado, para fora só se mostra a sua cauda, e a
+ * tela só existe se o canal estiver ligado com `CHANNELS` (ADR-001).
  */
 
 type Source = "zernio" | "meta";
@@ -128,7 +128,7 @@ export function InstagramClient() {
       setCopied(what);
       setTimeout(() => setCopied(null), 1500);
     } catch {
-      // sin portapapeles (contexto no seguro): el texto sigue visible
+      // sem área de transferência (contexto não seguro): o texto continua visível
     }
   }
 

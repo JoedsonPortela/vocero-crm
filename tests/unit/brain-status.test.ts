@@ -25,10 +25,10 @@ import {
 } from "@/server/bot/status";
 
 /**
- * «Quién responde a tus clientes». Lo que se protege: que el dueño sepa si
- * contesta el agente incluido, su cerebro externo (Nea), los dos (el cliente
- * recibe dos respuestas) o nadie — y que preguntarle a Nea jamás cuelgue la
- * pantalla ni filtre la URL con sus secretos.
+ * «Quién responde a tus clientes». O que se protege: que o dono saiba se
+ * responde o agente incluído, seu cérebro externo (Nea), os dois (o cliente
+ * recebe duas respostas) ou ninguém — e que perguntar à Nea jamais trave a
+ * tela nem vaze a URL com seus segredos.
  */
 
 const NOW = new Date("2026-09-21T18:00:00.000Z");
@@ -144,7 +144,7 @@ describe("computeBrainStatus — los casos que ve el dueño", () => {
 
   it("nadie: sin agente incluido y sin llave → sin_cerebro", () => {
     expect(status({}).warning).toBe("sin_cerebro");
-    // Apagado a propósito con token: tampoco contesta nadie.
+    // Desligado de propósito com token: também não responde ninguém.
     expect(status({ aiConfigured: true }).warning).toBe("sin_cerebro");
   });
 
@@ -222,13 +222,13 @@ describe("textos compartidos", () => {
     const sano = status({ botKeyConfigured: true, lastSeenAt: HACE_3_MIN, health: EN_LINEA });
     expect(externalAnswering(sano)).toBe(true);
     expect(externalDown(sano)).toBe(false);
-    // Llamó hace 3 min pero su /health no contesta: sigue «activo» para el
-    // aviso de doble respuesta, pero no se le dice al dueño que responde.
+    // Chamou há 3 min, mas seu /health não responde: segue «activo» para o
+    // aviso de dupla resposta, mas não se diz ao dono que responde.
     const caido = status({ botKeyConfigured: true, lastSeenAt: HACE_3_MIN, health: CAIDA });
     expect(caido.external.active).toBe(true);
     expect(externalAnswering(caido)).toBe(false);
     expect(externalDown(caido)).toBe(true);
-    // Sin BRAIN_HEALTH_URL manda la llamada reciente.
+    // Sem BRAIN_HEALTH_URL vale a chamada recente.
     const sinHealth = status({ botKeyConfigured: true, lastSeenAt: HACE_3_MIN });
     expect(externalAnswering(sinHealth)).toBe(true);
     expect(externalDown(sinHealth)).toBe(false);
@@ -293,7 +293,7 @@ describe("la última llamada del cerebro externo (requireBotKey)", () => {
 });
 
 // ---------------------------------------------------------------------------
-// El /health, contra un servidor HTTP de verdad
+// O /health, contra um servidor HTTP de verdade
 // ---------------------------------------------------------------------------
 
 let server: Server;
@@ -344,9 +344,9 @@ beforeAll(async () => {
         hitsDestino++;
         return json(res, 200, NEA);
       case "/cuelga":
-        return; // nunca contesta
+        return; // nunca responde
       case "/grande": {
-        res.writeHead(200, { "content-type": "application/json" }); // sin content-length
+        res.writeHead(200, { "content-type": "application/json" }); // sem content-length
         res.write(`{"ok":true,"relleno":"`);
         res.write("x".repeat(100 * 1024));
         return res.end(`"}`);
@@ -496,12 +496,12 @@ describe("fetchBrainHealth", () => {
       `http://usuario:s3cr3t-pass@127.0.0.1:${port}/eco?token=tok-secreto`
     );
     expect(h.reachable).toBe(true);
-    // Las credenciales viajan como Basic (fetch rechaza una URL que las trae)…
+    // As credenciais viajam como Basic (fetch rejeita uma URL que as traz)…
     expect(ultimaEco.authorization).toBe(
       `Basic ${Buffer.from("usuario:s3cr3t-pass").toString("base64")}`
     );
     expect(ultimaEco.url).toBe("/eco?token=tok-secreto");
-    // …y de la URL solo vuelve el host.
+    // …e da URL só volta o host.
     expect(h.host).toBe(`127.0.0.1:${port}`);
     const dump = JSON.stringify(h);
     for (const secreto of ["s3cr3t", "usuario", "tok-secreto", "token", "/eco"]) {

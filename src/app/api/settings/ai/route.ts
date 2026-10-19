@@ -13,10 +13,10 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * Ajustes → IA: el proveedor, el modelo y la llave de ESTA organización
- * (issue #85). La llave nunca sale de aquí: la respuesta lleva sus últimos 4,
- * el estado y, si el entorno trae `OPENROUTER_*`, el respaldo que aplica
- * mientras no haya nada guardado.
+ * Ajustes → IA: o provedor, o modelo e a chave desta organização
+ * (issue #85). A chave nunca sai daqui: a resposta traz os seus últimos 4,
+ * o estado e, se o ambiente trouxer `OPENROUTER_*`, o fallback que é aplicado
+ * enquanto não houver nada salvo.
  */
 
 export const GET = withAuth(async (session) => {

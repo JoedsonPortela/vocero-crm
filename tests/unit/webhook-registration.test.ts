@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * Registro automático del webhook en Meta (issue #84): la URL que se registra,
- * el verify token del handshake, la confirmación, los errores de Meta
- * traducidos a un código y un motivo —sin lanzar jamás: guardar la conexión
- * no puede fallar por esto— y la baja del override al desconectar.
+ * Registro automático do webhook na Meta (issue #84): a URL que se registra,
+ * o verify token do handshake, a confirmação, os erros da Meta
+ * traduzidos para um código e um motivo —sem lançar jamais: salvar a conexão
+ * não pode falhar por isso— e a remoção do override ao desconectar.
  *
- * Aquí se habla con el cliente real (`graphRequest`) sobre un `fetch` falso,
- * para ver también la URL completa y el Bearer que salen por el cable.
+ * Aqui se fala com o cliente real (`graphRequest`) sobre um `fetch` falso,
+ * para ver também a URL completa e o Bearer que saem pelo cabo.
  */
 
 const env = vi.hoisted(() => ({
@@ -92,14 +92,14 @@ describe("registro automático del webhook en Meta", () => {
       method: "GET",
       auth: "Bearer EAAG-token",
     });
-    // 1 · Suscripción sin cuerpo, como la documenta Meta.
+    // 1 · Assinatura sem corpo, como a Meta documenta.
     expect(call(1)).toMatchObject({
       url: "https://graph.facebook.com/v25.0/111/subscribed_apps",
       method: "POST",
       body: undefined,
     });
-    // 2 · Override del número, con el verify token que comprueba la ruta del
-    // webhook en el handshake.
+    // 2 · Override do número, com o verify token que confere a rota do
+    // webhook no handshake.
     expect(call(2)).toMatchObject({
       url: "https://graph.facebook.com/v25.0/222",
       method: "POST",
@@ -110,7 +110,7 @@ describe("registro automático del webhook en Meta", () => {
         },
       },
     });
-    // 3 · Confirmación.
+    // 3 · Confirmação.
     expect(call(3)).toMatchObject({
       url: "https://graph.facebook.com/v25.0/222?fields=webhook_configuration",
       method: "GET",

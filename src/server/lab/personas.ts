@@ -1,14 +1,14 @@
 /**
- * Las 6 personas GUIONADAS del Laboratorio (FR-030). El cliente simulado no
- * usa LLM: son secuencias fijas — determinismo total del lado del cliente.
- * El agente que responde es el REAL (mismo pipeline de US3).
+ * As 6 personas ROTEIRIZADAS do Laboratório (FR-030). O cliente simulado não
+ * usa LLM: são sequências fixas — determinismo total do lado do cliente.
+ * O agente que responde é o REAL (mesmo pipeline do US3).
  */
 
 export type Persona = {
   key: string;
   label: string;
   description: string;
-  /** Teléfono sintético estable (jamás un número real). */
+  /** Telefone sintético estável (jamais um número real). */
   phone: string;
   contactName: string;
   script: string[];

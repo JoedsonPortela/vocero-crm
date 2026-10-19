@@ -7,27 +7,27 @@ import {
 import { zernioSentAtSeconds, type ZernioEvent } from "@/server/zernio";
 
 /**
- * 014 — Adaptadores de entrada del canal de Instagram.
+ * 014 — Adaptadores de entrada do canal do Instagram.
  *
- * Dos fuentes con formatos que no se parecen en nada: Zernio manda un evento
- * plano y Meta manda `entry[].messaging[]` al estilo Messenger. Cada una se
- * normaliza aquí y de ahí en adelante corre el MISMO núcleo de ingesta que ya
- * resuelve contacto, conversación, idempotencia y bus de eventos.
+ * Duas fontes com formatos que não se parecem em nada: a Zernio envia um evento
+ * plano e a Meta envia `entry[].messaging[]` no estilo Messenger. Cada uma é
+ * normalizada aqui e, dali em diante, roda o MESMO núcleo de ingestão que já
+ * resolve contato, conversa, idempotência e barramento de eventos.
  */
 
 /**
- * 017: la verificación de la firma vive en `server/zernio` porque la comparten
- * todos los canales que entran por esa API. Se re-exporta para no tocar a
- * quien ya la importaba de aquí.
+ * 017: a verificação da assinatura vive em `server/zernio`, porque a compartilham
+ * todos os canais que entram por essa API. Re-exporta-se para não tocar em
+ * quem já a importava daqui.
  */
 export { isValidZernioSignature } from "@/server/zernio";
 
 export async function processZernioEvent(payload: unknown): Promise<void> {
   const evt = payload as ZernioEvent;
 
-  // El mismo webhook trae WhatsApp, Facebook y X si esas cuentas estan
-  // conectadas: sin este filtro acabariamos ingiriendo otra plataforma como
-  // si fueran DMs de Instagram.
+  // O mesmo webhook traz WhatsApp, Facebook e X se essas contas estiverem
+  // conectadas: sem este filtro acabaríamos ingerindo outra plataforma como
+  // se fossem DMs do Instagram.
   if (evt.account?.platform !== "instagram") return;
   if (evt.event !== "message.received") return;
   if (evt.message?.direction && evt.message.direction !== "incoming") return;
@@ -44,9 +44,9 @@ export async function processZernioEvent(payload: unknown): Promise<void> {
     return;
   }
   if (creds.source !== "zernio") {
-    // Defensa en profundidad: esta instancia no habla con Zernio, asi que un
-    // payload con su forma no puede ser legitimo aunque llegue por la URL
-    // correcta. Sin esto, la unica barrera de la forma ajena es la URL.
+    // Defesa em profundidade: esta instância não fala com a Zernio, então um
+    // payload com o seu formato não pode ser legítimo mesmo que chegue pela URL
+    // correta. Sem isto, a única barreira contra formato alheio é a URL.
     console.warn(
       `[ig] payload de Zernio en una instancia configurada como '${creds.source}': descartado`
     );
@@ -60,8 +60,8 @@ export async function processZernioEvent(payload: unknown): Promise<void> {
   }
 
   const text = evt.message?.text ?? null;
-  // Id de Zernio, no el de la plataforma (el payload trae los dos): es el
-  // que se mantiene entre reentregas, que es lo que hay que colapsar.
+  // Id da Zernio, não o da plataforma (o payload traz os dois): é o
+  // que se mantém entre reentregas, que é o que precisa ser colapsado.
   const zernioMessageId = evt.message?.id;
   if (!zernioMessageId) {
     console.warn(`[ig] evento ${evt.id ?? "?"} sin id de mensaje: descartado`);
@@ -81,8 +81,8 @@ export async function processZernioEvent(payload: unknown): Promise<void> {
           ? `@${evt.message.sender.username}`
           : null),
     },
-    // Prefijado para que no colisione jamas con un id de WhatsApp en el
-    // indice unico de mensajes.
+    // Prefixado para que jamais colida com um id de WhatsApp no
+    // índice único de mensagens.
     waMessageId: `ig_${zernioMessageId}`,
     type: "text",
     text,
@@ -128,9 +128,9 @@ export async function processMetaInstagramPayload(
       continue;
     }
     if (creds.source !== "meta") {
-      // Idem: sin app propia de Meta, un payload con su forma no puede venir
-      // de Meta. Cierra la inyeccion en instancias que solo usan Zernio, donde
-      // META_APP_SECRET no existe y la firma no se puede verificar.
+      // Idem: sem app própria da Meta, um payload com seu formato não pode vir
+      // da Meta. Fecha a injeção em instâncias que só usam a Zernio, onde
+      // META_APP_SECRET não existe e a assinatura não pode ser verificada.
       console.warn(
         `[ig] payload de Meta en una instancia configurada como '${creds.source}': descartado`
       );
@@ -138,8 +138,8 @@ export async function processMetaInstagramPayload(
     }
 
     for (const m of entry.messaging ?? []) {
-      // Los echos son mensajes que el dueno mando desde la app de Instagram.
-      // Fuera del alcance del 014: se ignoran sin ruido.
+      // Os echos são mensagens que o dono enviou pelo aplicativo do Instagram.
+      // Fora do escopo do 014: são ignoradas sem ruído.
       if (m.message?.is_echo) continue;
 
       const igsid = m.sender?.id;
@@ -154,8 +154,8 @@ export async function processMetaInstagramPayload(
           channel: "instagram",
           phone: null,
           waUserId: null,
-          // Meta no manda nombre ni usuario en el webhook: queda el respaldo
-          // hasta que alguien edite el contacto.
+          // A Meta não envia nome nem usuário no webhook: fica o fallback
+          // até que alguém edite o contato.
           profileName: null,
         },
         waMessageId: `ig_${mid}`,

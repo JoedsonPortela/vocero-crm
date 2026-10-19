@@ -1,11 +1,11 @@
 import type { AgendaConnector, MeetingResult } from "@/server/agenda/connectors/types";
 
 /**
- * 015 — El conector soberano: la sala de siempre.
+ * 015 — O conector soberano: a sala de sempre.
  *
- * No habla con nadie. Es el default y la razón de que encender la agenda no
- * exija credenciales de terceros — y, en términos constitucionales, el "camino
- * sin dependencia externa" que hace admisibles a los demás (Principio II,
+ * Não fala com ninguém. É o padrão e a razão de ligar a agenda não
+ * exigir credenciais de terceiros — e, em termos constitucionais, o "caminho
+ * sem dependência externa" que torna admissíveis os demais (Princípio II,
  * 1.4.0).
  */
 
@@ -16,12 +16,12 @@ export const enlaceFijoConnector: AgendaConnector<EnlaceFijoCreds> = {
   requiresCredentials: false,
 
   async createMeeting(creds): Promise<MeetingResult> {
-    // Sin sala configurada la cita se crea igual, sin link: nadie debe
-    // prometerle al cliente un enlace que no existe.
+    // Sem sala configurada o agendamento é criado mesmo assim, sem link: ninguém deve
+    // prometer ao cliente um link que não existe.
     return { externalId: null, joinUrl: creds.meetingLink };
   },
 
-  // La sala fija no se mueve ni se borra: es la misma todos los días.
+  // A sala fixa não se move nem se apaga: é a mesma todos os dias.
   async updateMeeting() {},
   async deleteMeeting() {},
 

@@ -10,13 +10,13 @@ import { zernioSignatureFrom } from "@/server/zernio";
 import { isAuthenticZernioDelivery, processZernioPayload } from "@/server/zernio/dispatch";
 
 /**
- * 014 — Webhook público del canal de Instagram.
+ * 014 — Webhook público do canal do Instagram.
  *
- * Mismo patrón de dos capas que el de WhatsApp: el segmento [webhookToken]
- * debe coincidir (si no → 404 sin efectos), y encima la firma cuando la
- * fuente la provee. Acepta las dos fuentes por la misma URL porque sus
- * payloads son inconfundibles: Meta manda `object: "instagram"`, Zernio manda
- * un evento plano con `account`.
+ * Mesmo padrão de duas camadas do WhatsApp: o segmento [webhookToken]
+ * deve coincidir (senão → 404 sem efeitos), e por cima a assinatura quando a
+ * fonte a fornece. Aceita as duas fontes pela mesma URL porque os seus
+ * payloads são inconfundíveis: a Meta envia `object: "instagram"`, a Zernio envia
+ * um evento plano com `account`.
  */
 export const dynamic = "force-dynamic";
 
@@ -30,7 +30,7 @@ export async function GET(req: Request, { params }: Params) {
     return new Response(null, { status: 404 });
   }
 
-  // Handshake de Meta (Zernio no lo hace, pero responderlo no estorba).
+  // Handshake da Meta (a Zernio não o faz, mas responder não atrapalha).
   const url = new URL(req.url);
   const mode = url.searchParams.get("hub.mode");
   const token = url.searchParams.get("hub.verify_token");
@@ -56,7 +56,7 @@ export async function POST(req: Request, { params }: Params) {
   try {
     payload = JSON.parse(rawBody);
   } catch {
-    // Cuerpo ilegible: 200 igualmente para que la fuente no reintente en vano.
+    // Corpo ilegível: 200 mesmo assim, para que a fonte não tente de novo em vão.
     return Response.json({ received: true });
   }
 
@@ -66,28 +66,28 @@ export async function POST(req: Request, { params }: Params) {
     (payload as { object?: string }).object === "instagram";
 
   if (isMeta) {
-    // Meta firma cada entrega con el App Secret, igual que en WhatsApp. Sin
-    // esta capa, quien conozca la URL secreta puede inyectar DMs falsos: el
-    // agente los contestaria enviando un DM REAL desde la cuenta del cliente
-    // al destinatario que el atacante elija.
+    // A Meta assina cada entrega com o App Secret, igual ao WhatsApp. Sem
+    // esta camada, quem conhecer a URL secreta pode injetar DMs falsas: o
+    // agente responderia enviando um DM REAL pela conta do cliente
+    // ao destinatário que o atacante escolher.
     if (!isValidSignature(rawBody, req.headers.get("x-hub-signature-256"), env.META_APP_SECRET)) {
       return new Response(null, { status: 401 });
     }
   } else {
-    // Zernio: la firma se valida contra los secretos de la organización dueña
-    // de ESTA cuenta, que hay que resolver leyendo el cuerpo primero (023).
+    // Zernio: a assinatura é validada contra os segredos da organização dona
+    // desta conta, que precisa ser resolvida lendo o corpo primeiro (023).
     if (!(await isAuthenticZernioDelivery(rawBody, zernioSignatureFrom(req.headers)))) {
       return new Response(null, { status: 401 });
     }
   }
 
-  // Zernio corta a los 5 segundos y reintenta: se acusa recibo YA y se procesa
-  // fuera de la ruta.
+  // A Zernio corta em 5 segundos e tenta de novo: confirma-se o recebimento AGORA e processa-se
+  // fora da rota.
   after(async () => {
     try {
-      // Un evento de Zernio se reparte por plataforma: esa API entrega TODAS
-      // las cuentas de la llave por un solo webhook, asi que esta URL tambien
-      // puede traer mensajes de la pagina de Facebook.
+      // Um evento da Zernio é distribuído por plataforma: essa API entrega TODAS
+      // as contas da chave por um único webhook, então esta URL também
+      // pode trazer mensagens da página do Facebook.
       if (isMeta) {
         await processMetaInstagramPayload(payload);
       } else {

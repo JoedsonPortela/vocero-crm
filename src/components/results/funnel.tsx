@@ -4,10 +4,10 @@ import type { FunnelStepDto } from "@/lib/analytics";
 import { Rate } from "./section";
 
 /**
- * 019 — Embudo de cohorte: de los prospectos que ENTRARON en el periodo,
- * cuántos llegaron a cada etapa. Barras horizontales en vez del trapecio
- * clásico: con etapas de nombre largo el trapecio deja de leerse, y lo que el
- * dueño busca aquí es dónde cae el escalón, no la silueta.
+ * 019 — Funil de coorte: de quantos prospects que ENTRARAM no período,
+ * quantos chegaram a cada etapa. Barras horizontais em vez do trapézio
+ * clássico: com etapas de nome longo o trapézio deixa de ser lido, e o que o
+ * dono procura aqui é onde cai o degrau, não a silhueta.
  */
 export function Funnel({ steps }: { steps: FunnelStepDto[] }) {
   const max = Math.max(1, ...steps.map((s) => s.reached));

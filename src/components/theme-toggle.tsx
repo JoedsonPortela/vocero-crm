@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 const ICONS = { light: Sun, dark: Moon } as const;
 
-/** Botón que alterna Claro ⇄ Oscuro y persiste la elección en cookie. */
+/** Botão que alterna Claro ⇄ Escuro e persiste a escolha em cookie. */
 export function ThemeToggle({
   initial,
   className,

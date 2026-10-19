@@ -4,9 +4,9 @@ import { aiMockCompletion } from "@/server/dev/ai-mock";
 import { agentActionSchema } from "@/server/ai/actions";
 
 /**
- * 029 — El agente no se queda callado ante un saludo. Lo que el modelo hace
- * con el prompt se mide contra el modelo real en `scripts/eval-silencios.mjs`;
- * aquí se fija que el prompt diga lo que esa medición necesita.
+ * 029 — O agente não fica calado diante de uma saudação. O que o modelo faz
+ * com o prompt se mede contra o modelo real em `scripts/eval-silencios.mjs`;
+ * aqui se fixa que o prompt diz o que essa medição precisa.
  */
 
 type Profile = Parameters<typeof buildAgentSystemPrompt>[0]["profile"];

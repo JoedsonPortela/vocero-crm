@@ -5,13 +5,13 @@ import { cn } from "@/lib/utils";
 import type { RateDto } from "@/lib/analytics";
 
 /**
- * 019 — Contenedor de cada bloque de Resultados. Cada sección carga por su
- * cuenta: una lenta no retrasa a las demás y una rota no deja la pantalla en
- * blanco.
+ * 019 — Contêiner de cada bloco de Resultados. Cada seção carrega por conta
+ * própria: uma lenta não atrasa as demais e uma quebrada não deixa a tela em
+ * branco.
  *
- * Al cambiar el rango, lo anterior se queda a la vista atenuado hasta que
- * llega lo nuevo: vaciar la sección en cada cambio la haría saltar y
- * parpadear justo mientras el dueño compara.
+ * Ao mudar o intervalo, o anterior fica à vista atenuado até que
+ * chegue o novo: esvaziar a seção a cada mudança faria ela pular e
+ * piscar justamente enquanto o dono compara.
  */
 export function Section({
   title,
@@ -29,7 +29,7 @@ export function Section({
   hint?: string;
   loading: boolean;
   error?: string | null;
-  /** Hay datos que pintar (aunque estén recargándose). */
+  /** Há dados para desenhar (mesmo que estejam sendo recarregados). */
   hasData: boolean;
   empty?: boolean;
   emptyText?: string;
@@ -73,8 +73,8 @@ export function Section({
 }
 
 /**
- * Una tasa NUNCA se muestra sola: siempre con el número que la sostiene, y
- * marcada cuando la muestra es chica.
+ * Uma taxa NUNCA é mostrada sozinha: sempre com o número que a sustenta, e
+ * marcada quando a amostra é pequena.
  */
 export function Rate({
   rate,
@@ -101,7 +101,7 @@ export function Rate({
   );
 }
 
-/** Subtítulo de un bloque dentro de una sección. */
+/** Subtítulo de um bloco dentro de uma seção. */
 export function Subhead({ children }: { children: ReactNode }) {
   return <h4 className="mb-2 text-[13px] font-semibold text-text-2">{children}</h4>;
 }

@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 const schema = z
   .object({
     phoneNumberId: z.string().min(1),
-    /** Teléfono; omítelo (con fromUserId) para simular un inbound BSUID (003). */
+    /** Telefone; omita-o (com fromUserId) para simular um inbound BSUID (003). */
     from: z.string().min(5).optional(),
     fromUserId: z.string().min(3).optional(),
     name: z.string().optional(),
@@ -20,19 +20,19 @@ const schema = z
     text: z.string().optional(),
     waMessageId: z.string().optional(),
     timestamp: z.number().optional(),
-    // 008 — adjuntos simulados
+    // 008 — anexos simulados
     mediaId: z.string().optional(),
     mimeType: z.string().optional(),
     caption: z.string().optional(),
     filename: z.string().optional(),
     location: z.record(z.unknown()).optional(),
-    // 016 — anuncio de origen simulado (referral)
+    // 016 — anúncio de origem simulado (referral)
     ctwaClid: z.string().optional(),
     adHeadline: z.string().optional(),
     adSourceId: z.string().optional(),
-    // 018 — o el `referral` entero, con la forma de Meta (image_url incluida)
+    // 018 — ou o `referral` inteiro, com a forma da Meta (image_url incluída)
     referral: z.record(z.unknown()).optional(),
-    // #78 — respuestas de botón, con la forma de Meta (type "button" e "interactive")
+    // #78 — respostas de botão, com a forma da Meta (type "button" e "interactive")
     button: z
       .object({ text: z.string(), payload: z.string().optional() })
       .optional(),

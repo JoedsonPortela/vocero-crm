@@ -4,7 +4,7 @@ import { mergeFicha, normalizeFicha } from "@/server/bot/ficha";
 import { toHandoffReason } from "@/server/bot/handoff";
 import { resetRateLimit } from "@/lib/rate-limit";
 
-/** La puerta de toda la superficie `/api/bot/*`. */
+/** A porta de toda a superfície `/api/bot/*`. */
 
 const KEY = "clave-de-servicio-larga-0123456789abcdef";
 
@@ -51,9 +51,9 @@ describe("requireBotKey", () => {
 });
 
 /**
- * R11 — El límite ya no es un DoS de regalo. Antes: un cubo global contado
- * ANTES de autenticar, así que 600 requests anónimos por minuto dejaban al
- * cerebro en 429 y a los clientes sin respuesta.
+ * R11 — O limite já não é um DoS de presente. Antes: um balde global contado
+ * ANTES de autenticar, então 600 requisições anônimas por minuto deixavam o
+ * cérebro em 429 e os clientes sem resposta.
  */
 describe("requireBotKey: límites (autentica primero, cuenta después)", () => {
   const MALA = "clave-equivocada-del-mismo-largo-0000000";
@@ -61,7 +61,7 @@ describe("requireBotKey: límites (autentica primero, cuenta después)", () => {
   function desde(ip: string, key?: string): Request {
     return new Request("http://localhost/api/bot/context", {
       headers: {
-        // Primer salto = el cliente; el resto lo agregan los proxies.
+        // Primeiro salto = o cliente; o resto é acrescentado pelos proxies.
         "x-forwarded-for": `${ip}, 10.0.0.2`,
         ...(key ? { "x-api-key": key } : {}),
       },
@@ -82,7 +82,7 @@ describe("requireBotKey: límites (autentica primero, cuenta después)", () => {
     }
     expect(vistos).toEqual({ 401: BOT_AUTH_FAILURES.max, 429: 700 - BOT_AUTH_FAILURES.max });
     expect(requireBotKey(desde("198.51.100.7", KEY))).toBeNull();
-    // Ni aunque comparta IP con quien inunda (mismo proxy, o "local").
+    // Nem se compartilha IP com quem inunda (mesmo proxy, ou "local").
     expect(requireBotKey(desde("203.0.113.9", KEY))).toBeNull();
   });
 
@@ -99,7 +99,7 @@ describe("requireBotKey: límites (autentica primero, cuenta después)", () => {
       expect(requireBotKey(desde("198.51.100.7", KEY))).toBeNull();
     }
     expect(requireBotKey(desde("198.51.100.7", KEY))?.status).toBe(429);
-    // Y los fallidos no se cuentan contra él: su respuesta sigue siendo 401.
+    // E as falhas não contam contra ele: sua resposta segue sendo 401.
     expect(requireBotKey(desde("192.0.2.1"))?.status).toBe(401);
   });
 });

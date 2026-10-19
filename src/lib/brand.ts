@@ -1,37 +1,37 @@
 /**
- * La marca Vocero — la misma de vocerocrm.com.
+ * A marca Vocero — a mesma de vocerocrm.com.
  *
- * Vive aquí, sin React, porque la usan dos mundos: los componentes (el trazo
- * del panel lateral y del login) y el servidor (el favicon generado que se
- * sirve como texto). Tener el dibujo en un solo sitio es lo que garantiza que
- * la pestaña y la barra lateral enseñen la MISMA "v".
+ * Vive aqui, sem React, porque a usam dois mundos: os componentes (o traço
+ * do painel lateral e do login) e o servidor (o favicon gerado que é
+ * servido como texto). Ter o desenho em um só lugar é o que garante que
+ * a aba e a barra lateral mostrem o MESMO "v".
  *
- * El trazo es una "v" caligráfica fluida con remate cian. El cuerpo se pinta
- * con `currentColor` (así hereda el acento white-label); el remate es una
- * constante de marca y NO se recalcula con el acento: es lo que la hace
- * reconocible.
+ * O traço é um "v" caligráfico fluido com remate ciano. O corpo é pintado
+ * com `currentColor` (assim herda o acento white-label); o remate é uma
+ * constante da marca e NÃO é recalculado com o acento: é o que a torna
+ * reconhecível.
  */
 
-/** Cuerpo de la "v": se pinta con el color del contexto. */
+/** Corpo do "v": é pintado com a cor do contexto. */
 export const BRAND_MARK_BODY =
   "M4 5c2 8 5 14.5 7.8 14.7 2.3.2 3.7-4.1 4.7-8.2";
 
-/** Remate corto, siempre cian. */
+/** Remate curto, sempre ciano. */
 export const BRAND_MARK_TAIL = "M16.5 11.5c.8-3 2-5.5 4-6.1";
 
 export const BRAND_MARK_STROKE = 3.4;
 
-/** Cian sobre fondos claros (texto azul al lado). */
+/** Ciano sobre fundos claros (texto azul ao lado). */
 export const BRAND_CYAN = "#00c6f5";
 
-/** Cian sobre el mosaico azul: un punto más claro para que no se hunda. */
+/** Ciano sobre o mosaico azul: um ponto mais claro para não afundar. */
 export const BRAND_CYAN_ON_TILE = "#3fdcff";
 
 /**
- * ¿Esta instancia se llama Vocero? Solo entonces se dibuja el logo: una
- * agencia que rebautizó el CRM para su cliente no debe ver la "v" de otro
- * producto en su barra lateral ni en su pestaña. El nombre por defecto es
- * "Vocero", así que una instancia sin configurar la ve de inmediato.
+ * Esta instância se chama Vocero? Só então o logo é desenhado: uma
+ * agência que renomeou o CRM para o seu cliente não deve ver o "v" de outro
+ * produto na sua barra lateral nem na sua aba. O nome padrão é
+ * "Vocero", então uma instância não configurada o vê de imediato.
  */
 export function isVoceroName(name: string): boolean {
   return name.trim().toLowerCase() === "vocero";

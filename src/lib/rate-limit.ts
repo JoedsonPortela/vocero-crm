@@ -1,13 +1,13 @@
 /**
- * Limitación de tasa in-process por clave (IP) con ventana deslizante
- * (FR-062). Suficiente para el monolito de una instancia; sin Redis
- * (Constitución II).
+ * Limitação de taxa in-process por chave (IP) com janela deslizante
+ * (FR-062). Suficiente para o monolito de uma instância; sem Redis
+ * (Constituição II).
  */
 
 type Bucket = {
-  /** timestamps (ms) de los intentos */
+  /** timestamps (ms) das tentativas */
   hits: number[];
-  /** la ventana con la que se llenó: el barrido la necesita */
+  /** a janela com a qual foi preenchido: a varredura precisa dela */
   windowMs: number;
 };
 
@@ -23,10 +23,10 @@ function store(): Map<string, Bucket> {
 }
 
 /**
- * Las llaves son por IP en superficies públicas (login, `/api/bot/*`): quien
- * rote IPs —o falsee `x-forwarded-for` si la app queda sin proxy— estrena una
- * llave por request. Sin barrido, el mapa crecería para siempre; con él, la
- * memoria queda acotada por el tráfico de la última ventana.
+ * As chaves são por IP em superfícies públicas (login, `/api/bot/*`): quem
+ * troca de IP — ou falsifica `x-forwarded-for` se o app ficar sem proxy — estreia uma
+ * chave por request. Sem varredura, o mapa cresceria para sempre; com ela, a
+ * memória fica limitada pelo tráfego da última janela.
  */
 const SWEEP_AT = 10_000;
 let lastSweep = 0;
@@ -62,10 +62,10 @@ export function checkRateLimit(
 }
 
 /**
- * La IP del cliente para LIMITAR, jamás para autorizar: el primer salto de
- * `x-forwarded-for` (detrás de Traefik/Coolify o Caddy es el cliente real),
- * luego `x-real-ip`, y "local" sin proxy. Sin proxy delante, el cliente
- * puede falsearla: por eso solo decide a quién frenar.
+ * O IP do cliente para LIMITAR, jamais para autorizar: o primeiro salto de
+ * `x-forwarded-for` (atrás do Traefik/Coolify ou Caddy é o cliente real),
+ * depois `x-real-ip`, e "local" sem proxy. Sem proxy na frente, o cliente
+ * pode falsificá-lo: por isso só decide a quem frear.
  */
 export function clientIp(headers: Headers | null | undefined): string {
   return (
@@ -75,16 +75,16 @@ export function clientIp(headers: Headers | null | undefined): string {
   );
 }
 
-/** Solo para tests. */
+/** Somente para testes. */
 export function resetRateLimit(): void {
   store().clear();
   lastSweep = 0;
 }
 
-/** Solo para tests: cuántas llaves vivas guarda el limitador. */
+/** Somente para testes: quantas chaves vivas o limitador guarda. */
 export function rateLimitKeys(): number {
   return store().size;
 }
 
-/** 10 intentos / 10 minutos por IP en login y registro (FR-062). */
+/** 10 tentativas / 10 minutos por IP no login e no cadastro (FR-062). */
 export const AUTH_RATE_LIMIT = { windowMs: 10 * 60 * 1000, max: 10 };

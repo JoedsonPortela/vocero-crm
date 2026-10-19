@@ -21,8 +21,8 @@ import {
 import { ConnectorCredentials } from "@/components/settings/connector-credentials";
 
 /**
- * 015 — Ajustes → Agenda: cuándo atiende el negocio y cómo se entrega la
- * reunión.
+ * 015 — Ajustes → Agenda: quando o negócio atende e como a
+ * reunião é entregue.
  */
 
 type Interval = { start: string; end: string };
@@ -369,8 +369,8 @@ export function AgendaClient() {
         {error && <span className="text-sm text-destructive">{error}</span>}
       </div>
 
-      {/* Las credenciales se guardan por su cuenta, no con el botón de arriba:
-          se validan contra el proveedor antes de tocar la base. */}
+      {/* As credenciais são salvas por conta própria, não com o botão de cima:
+          são validadas contra o provedor antes de tocar no banco. */}
       {settings.connector !== "enlace-fijo" && (
         <ConnectorCredentials connector={settings.connector} />
       )}

@@ -19,10 +19,10 @@ import { cn } from "@/lib/utils";
 import { bookingTitle, bookingTone, canRetrySync, statusLabel, type Booking } from "./booking-look";
 
 /**
- * 215 — La cita, abierta, sin salir del calendario. Tiene TODO lo que tenía la
- * tarjeta de la lista de antes (acciones, enlace, notas y el reintento del
- * enlace): el calendario cambia cómo se ve la agenda, no lo que se puede hacer
- * con ella.
+ * 215 — O agendamento, aberto, sem sair do calendário. Tem TUDO o que tinha o
+ * cartão da lista antes (ações, link, notas e a nova tentativa do
+ * link): o calendário muda como a agenda se vê, não o que se pode fazer
+ * com ela.
  */
 
 export type ActResult = { ok: true } | { ok: false; message: string };
@@ -41,22 +41,22 @@ export function BookingDrawer({
   today: string;
   nowMs: number;
   onClose: () => void;
-  /** PATCH a la cita; devuelve el error del servidor si lo hay. */
+  /** PATCH no agendamento; devolve o erro do servidor, se houver. */
   onAct: (body: Record<string, unknown>) => Promise<ActResult>;
-  /** La cita se movió: el calendario salta a su día nuevo. */
+  /** O agendamento foi movido: o calendário pula para o novo dia. */
   onRescheduled: (startUtc: string) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rescheduling, setRescheduling] = useState(false);
 
-  // Otra cita, otro panel: ni el error ni el selector de horarios se heredan.
+  // Outro agendamento, outro painel: nem o erro nem o seletor de horários são herdados.
   useEffect(() => {
     setError(null);
     setRescheduling(false);
   }, [b.id]);
 
-  // Escape cierra: el mismo gesto que el cajón del Pipeline.
+  // Escape fecha: o mesmo gesto da gaveta do Pipeline.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -84,9 +84,9 @@ export function BookingDrawer({
 
   return (
     <>
-      {/* Velo solo en el celular, donde el panel tapa todo. En escritorio el
-          panel es lateral y NO modal, como el detalle de Google: tocar otra
-          cita del calendario cambia el panel sin cerrarlo primero. */}
+      {/* Véu só no celular, onde o painel cobre tudo. No desktop o
+          painel é lateral e NÃO modal, como o detalhe do Google: tocar em outro
+          agendamento do calendário troca o painel sem fechá-lo antes. */}
       <button
         aria-label={t("bookings.closeBooking")}
         tabIndex={-1}
@@ -112,7 +112,7 @@ export function BookingDrawer({
         </header>
 
         <div className="flex-1 overflow-y-auto">
-          {/* Qué y cuándo */}
+          {/* O quê e quando */}
           <section className="space-y-3 border-b p-4">
             <div className="flex items-start gap-3">
               <span aria-hidden className={cn("mt-1.5 h-3 w-3 shrink-0 rounded-full", tone.dot)} />
@@ -168,7 +168,7 @@ export function BookingDrawer({
             )}
           </section>
 
-          {/* Con quién y dónde (la nota de un bloqueo ya es su título) */}
+          {/* Com quem e onde (a nota de um bloqueio já é o seu título) */}
           {((b.contact && b.conversationId) || b.meetingLink || (b.notes && isSession)) && (
             <section className="space-y-2 border-b p-4">
               {b.contact && b.conversationId && (
@@ -203,9 +203,9 @@ export function BookingDrawer({
             </section>
           )}
 
-          {/* El proveedor falló al crear la reunión. La cita existe; lo único
-              que falta es el enlace, y se reintenta desde aquí — sin esto, un
-              hipo del proveedor sería una pérdida silenciosa. */}
+          {/* O provedor falhou ao criar a reunião. O agendamento existe; a única
+              coisa que falta é o link, e a nova tentativa é feita daqui — sem isso, uma
+              falha pontual do provedor seria uma perda silenciosa. */}
           {canRetrySync(b) && (
             <section className="border-b p-4">
               <div className="space-y-2 rounded-sm bg-subtle p-3">
@@ -255,8 +255,8 @@ export function BookingDrawer({
             >
               <CalendarClock className="h-3.5 w-3.5" /> Reprogramar
             </Button>
-            {/* Un bloqueo no se "realiza" ni tiene quien falte: solo se mueve
-                o se quita. */}
+            {/* Um bloqueio não é "realizado" nem tem alguém que falte: só é movido
+                ou removido. */}
             {isSession && (
               <>
                 <Button
@@ -294,11 +294,11 @@ export function BookingDrawer({
 }
 
 /**
- * Los huecos libres de TODA la ventana del negocio, por día. Antes eran los 12
- * primeros —con citas de 30 min, «hoy por la tarde o mañana temprano»—.
- * Se piden al abrir, no en cada refresco: antes cada evento SSE (cada cita que
- * agendaba la IA) recalculaba la disponibilidad de toda la ventana aunque
- * nadie estuviera reprogramando.
+ * Os horários livres de TODA a janela do negócio, por dia. Antes eram os 12
+ * primeiros —com agendamentos de 30 min, «hoje à tarde ou amanhã cedo»—.
+ * São pedidos ao abrir, não a cada atualização: antes cada evento SSE (cada agendamento que
+ * a IA marcava) recalculava a disponibilidade da janela inteira mesmo
+ * que ninguém estivesse reagendando.
  */
 function Reschedule({
   today,
@@ -316,7 +316,7 @@ function Reschedule({
   const [day, setDay] = useState<string | null>(null);
 
   useEffect(() => {
-    // Cerrar el panel (o cambiar de cita) cancela la consulta en vuelo.
+    // Fechar o painel (ou trocar de agendamento) cancela a consulta em andamento.
     const abort = new AbortController();
     let alive = true;
     void (async () => {

@@ -7,24 +7,24 @@ import {
 import type { AvailableSlot } from "@/server/agenda/availability";
 
 /**
- * 015 — Reparto de huecos entre días distintos.
+ * 015 — Distribuição de horários entre dias diferentes.
  *
- * Los N huecos más próximos casi siempre caen todos HOY, y entonces quien
- * conduce la conversación no tiene nada que ofrecer cuando el lead dice "¿y
- * el jueves?". Esto toma `perDay` por día hasta completar `limit`, de modo que
- * la oferta cubra varios días.
+ * Os N horários mais próximos quase sempre caem todos HOJE, e então quem
+ * conduz a conversa não tem nada para oferecer quando o lead diz "e
+ * na quinta?". Isto pega `perDay` por dia até completar `limit`, de modo que
+ * a oferta cubra vários dias.
  *
- * El catálogo reservable es MÁS ANCHO que el menú que se muestra: se ofrecen
- * (y se registran) hasta `limit`, aunque el agente enseñe tres. Guardar solo lo
- * enseñado dejaba al agente sin alternativas legítimas que aceptar.
+ * O catálogo reservável é MAIS AMPLO que o menu exibido: são oferecidos
+ * (e registrados) até `limit`, mesmo que o agente mostre três. Guardar só o
+ * mostrado deixava o agente sem alternativas legítimas para aceitar.
  */
 
 export type SpreadSlot = AvailableSlot & {
-  /** Día del slot en la zona del negocio (YYYY-MM-DD). */
+  /** Dia do slot no fuso do negócio (AAAA-MM-DD). */
   dayIso: string;
-  /** El día EN PALABRAS: "hoy miércoles 5 de agosto". */
+  /** O dia POR EXTENSO: "hoje quarta-feira 5 de agosto". */
   dayLabel: string;
-  /** Solo la hora: "10:00". */
+  /** Só a hora: "10:00". */
   time: string;
 };
 
@@ -44,8 +44,8 @@ export function spreadByDay(
     else byDay.set(dayIso, [slot]);
   }
 
-  // Los días ya vienen ordenados porque `slots` viene ordenado; el Map
-  // conserva el orden de inserción.
+  // Os dias já vêm ordenados porque `slots` vem ordenado; o Map
+  // mantém a ordem de inserção.
   const out: SpreadSlot[] = [];
   for (const [dayIso, daySlots] of byDay) {
     for (const slot of daySlots.slice(0, perDay)) {
@@ -62,22 +62,22 @@ export function spreadByDay(
 }
 
 /**
- * Qué se consultó de verdad, para que quien ofrece no invente «ese día no hay
- * agenda» ni «solo tengo en la mañana».
+ * O que foi consultado de fato, para que quem oferece não invente «nesse dia não há
+ * agenda» nem «só tenho de manhã».
  *
- * En la prueba de punta a punta con Nea (sep 2026) un cliente pidió «mañana en
- * la tarde» y el agente le ofreció 10:00, 10:30 y 11:00 diciendo que el martes
- * solo había mañana, con la agenda libre de 12:00 a 18:30. El reparto (tres
- * horas por día) no mentía; lo que faltaba era decir hasta dónde llegaba, y
- * poder preguntar por un día concreto: `date` se ignoraba.
+ * No teste de ponta a ponta com a Nea (set 2026), um cliente pediu «amanhã à
+ * tarde» e o agente lhe ofereceu 10:00, 10:30 e 11:00 dizendo que na terça
+ * só havia manhã, com a agenda livre das 12:00 às 18:30. A distribuição (três
+ * horas por dia) não mentia; o que faltava era dizer até onde ela chegava, e
+ * poder perguntar por um dia específico: `date` era ignorado.
  *
- * Portado de la edición Cloud (002b7bc, `armarHuecos`), sin cerebros ni
- * tenant, con la ventana `days` que solo existe aquí.
+ * Portado da edição Cloud (002b7bc, `armarHuecos`), sem cérebros nem
+ * tenant, com a janela `days` que só existe aqui.
  *
- * - `available`: hay huecos (con `date`, los de ese día).
- * - `closed`: ese día el negocio no abre.
- * - `full`: abre, pero no queda nada libre (o ya no da el aviso mínimo).
- * - `past` / `beyond_horizon`: fuera de lo que se puede agendar.
+ * - `available`: há horários (com `date`, os daquele dia).
+ * - `closed`: naquele dia o negócio não abre.
+ * - `full`: abre, mas não sobra nada livre (ou já não dá o aviso mínimo).
+ * - `past` / `beyond_horizon`: fora do que pode ser agendado.
  */
 export type EstadoDelDia =
   | "available"
@@ -87,47 +87,47 @@ export type EstadoDelDia =
   | "beyond_horizon";
 
 export type ConsultaDeHuecos = {
-  /** El día pedido, o null si es el reparto de siempre. */
+  /** O dia pedido, ou null se for a distribuição de sempre. */
   date: string | null;
-  /** Solo con `date`. */
+  /** Só com `date`. */
   status: EstadoDelDia | null;
   /**
-   * Último día REVISADO. Un día posterior que no aparece no se consultó — no
-   * es que no tenga agenda. Con `date`, es ese mismo día.
+   * Último dia REVISADO. Um dia posterior que não aparece não foi consultado — não
+   * é que não tenha agenda. Com `date`, é esse mesmo dia.
    */
   coveredUntil: string | null;
-  /** Último día que se puede agendar (hoy + `maxDaysAhead`). */
+  /** Último dia que pode ser agendado (hoje + `maxDaysAhead`). */
   horizonEnd: string;
-  /** En el reparto, cuántas horas por día como máximo. null con `date`. */
+  /** Na distribuição, quantas horas por dia no máximo. null com `date`. */
   perDay: number | null;
 };
 
-/** Cuántas horas de UN día se entregan, como mucho, al preguntar por ese día. */
+/** Quantas horas de UM dia são entregues, no máximo, ao perguntar por esse dia. */
 export const HUECOS_POR_FECHA = 24;
 
 /**
- * PURA: si un día trae más huecos que el tope, elige `tope` repartidos a lo
- * largo de TODO el día —el primero y el último incluidos— en vez de los
- * primeros. Cortar por el principio era justo el bug: todo caía en la mañana.
- * Por debajo del tope devuelve la lista tal cual.
+ * PURA: se um dia traz mais horários que o teto, escolhe `teto` distribuídos ao
+ * longo de TODO o dia — o primeiro e o último incluídos — em vez dos
+ * primeiros. Cortar pelo início era justamente o bug: tudo caía de manhã.
+ * Abaixo do teto devolve a lista como está.
  */
 export function aLoLargoDelDia<T>(slots: T[], tope: number): T[] {
   if (tope <= 0) return [];
   if (slots.length <= tope) return slots;
   if (tope === 1) return slots.slice(0, 1);
-  // paso > 1 porque slots.length > tope: los índices redondeados no se repiten.
+  // passo > 1 porque slots.length > teto: os índices arredondados não se repetem.
   const paso = (slots.length - 1) / (tope - 1);
   return Array.from({ length: tope }, (_, i) => slots[Math.round(i * paso)]!);
 }
 
 /**
- * PURA: los huecos a ofrecer y qué tanto cubren.
+ * PURA: os horários a oferecer e o quanto eles cobrem.
  *
- * `todos` son los libres del rango consultado (ordenados); `candidatosDelDia`,
- * cuántos turnos tiene ese día en el horario semanal, para distinguir cerrado
- * de lleno. Con `date`, `limit`/`perDay`/`days` no aplican: se devuelve el día
- * completo (hasta `HUECOS_POR_FECHA`, repartidos a lo largo del día). Sin BD
- * ni reloj: tests/unit/agenda-huecos-por-fecha.test.ts.
+ * `todos` são os livres do intervalo consultado (ordenados); `candidatosDelDia`,
+ * quantos turnos esse dia tem no horário semanal, para distinguir fechado
+ * de lotado. Com `date`, `limit`/`perDay`/`days` não se aplicam: devolve-se o dia
+ * inteiro (até `HUECOS_POR_FECHA`, distribuídos ao longo do dia). Sem BD
+ * nem relógio: tests/unit/agenda-huecos-por-fecha.test.ts.
  */
 export function armarHuecos(input: {
   todos: AvailableSlot[];
@@ -136,7 +136,7 @@ export function armarHuecos(input: {
   maxDaysAhead: number;
   limit: number;
   perDay: number;
-  /** Ventana del reparto en días, hoy incluido. Sin ella, todo el horizonte. */
+  /** Janela da distribuição em dias, hoje incluído. Sem ela, todo o horizonte. */
   days?: number;
   date?: string | null;
   candidatosDelDia?: number;
@@ -177,8 +177,8 @@ export function armarHuecos(input: {
     return { slots, query: { ...base, status, coveredUntil: date } };
   }
 
-  // La ventana se aplica ANTES del reparto: da los mismos huecos que repartir
-  // y luego recortar (los días van en orden), y así se sabe qué se revisó.
+  // A janela se aplica ANTES da distribuição: dá os mesmos horários que distribuir
+  // e depois recortar (os dias vêm em ordem), e assim se sabe o que foi revisado.
   const finDeVentana =
     input.days === undefined ? horizonEnd : addDaysISO(hoy, input.days - 1);
   const ventanaHasta = finDeVentana < horizonEnd ? finDeVentana : horizonEnd;
@@ -189,8 +189,8 @@ export function armarHuecos(input: {
     }),
     { timezone, limit: input.limit, perDay: input.perDay, now }
   );
-  // Si el reparto se llenó, lo que viene después del último día incluido no
-  // se revisó. Si no se llenó, se recorrió toda la ventana.
+  // Se a distribuição lotou, o que vem depois do último dia incluído não
+  // foi revisado. Se não lotou, percorreu-se toda a janela.
   const lleno = slots.length >= input.limit;
   const ultimo = slots[slots.length - 1]?.dayIso;
   return {
@@ -205,7 +205,7 @@ export function armarHuecos(input: {
   };
 }
 
-/** Los días (YYYY-MM-DD) que tienen algo que ofrecer. Los ausentes NO. */
+/** Os dias (AAAA-MM-DD) que têm algo para oferecer. Os ausentes NÃO. */
 export function daysWithAgenda(slots: SpreadSlot[]): string[] {
   return [...new Set(slots.map((s) => s.dayIso))];
 }

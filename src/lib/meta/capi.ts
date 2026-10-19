@@ -1,45 +1,45 @@
 import { graphRequest } from "@/lib/meta/client";
 
 /**
- * 016 — Conversions API de Meta, variante `business_messaging`.
+ * 016 — Conversions API da Meta, variante `business_messaging`.
  *
- * Frontera de salida única: el mismo `graphRequest` con el que el CRM manda
- * mensajes. No hay un segundo camino a internet, ni un cliente nuevo, ni una
- * dependencia nueva: es la misma Graph API del canal que ya usa la instancia.
+ * Fronteira de saída única: o mesmo `graphRequest` com o qual o CRM envia
+ * mensagens. Não há um segundo caminho para a internet, nem um cliente novo, nem uma
+ * dependência nova: é a mesma Graph API do canal que a instância já usa.
  *
- * Qué hace esto por el negocio: Meta sabe qué conversaciones EMPEZARON desde un
- * anuncio, pero no sabe cuáles sirvieron. Sin nadie que se lo diga, optimiza
- * hacia lo único que ve —que alguien abra el chat— y entrega el público más
- * barato de hacer escribir, que no es el que compra.
+ * O que isso faz pelo negócio: a Meta sabe quais conversas COMEÇARAM a partir de um
+ * anúncio, mas não sabe quais serviram. Sem alguém que lhe diga, ela otimiza
+ * para o único que vê — que alguém abra o chat — e entrega o público mais
+ * barato de fazer escrever, que não é o que compra.
  */
 
-/** Cómo se identifica el software que integró el evento. Constante del proyecto. */
+/** Como se identifica o software que integrou o evento. Constante do projeto. */
 const PARTNER_AGENT = "vocero-crm";
 
 export type BusinessMessagingEvent = {
   eventName: string;
-  /** Epoch en SEGUNDOS del momento de la conversión. */
+  /** Epoch em SEGUNDOS do momento da conversão. */
   eventTime: number;
   ctwaClid: string;
   wabaId: string;
   /**
-   * `custom_data` del evento. Importa más de lo que parece: es lo ÚNICO contra
-   * lo que una **conversión personalizada** de Meta puede escribir reglas. Ni
-   * `event_name` ni `action_source` son parámetros reglables, y estos eventos
-   * no llevan `event_source_url`, así que un evento sin `custom_data` no puede
-   * cumplir NINGUNA regla — y una conversión personalizada sin reglas
-   * cumplibles se queda en cero para siempre, sin decir por qué.
+   * `custom_data` do evento. Importa mais do que parece: é o ÚNICO contra
+   * o qual uma **conversão personalizada** da Meta pode escrever regras. Nem
+   * `event_name` nem `action_source` são parâmetros configuráveis, e estes eventos
+   * não levam `event_source_url`, então um evento sem `custom_data` não pode
+   * cumprir NENHUMA regra — e uma conversão personalizada sem regras
+   * cumpríveis fica em zero para sempre, sem dizer por quê.
    */
   customData?: Record<string, unknown>;
 };
 
 /**
- * Catálogo CERRADO de `event_name` que Meta acepta con
- * `action_source: "business_messaging"`. Cualquier otro nombre es un 400 opaco.
+ * Catálogo FECHADO de `event_name` que a Meta aceita com
+ * `action_source: "business_messaging"`. Qualquer outro nome é um 400 opaco.
  *
- * Vocero solo emite dos de ellos (`QualifiedLead` y `Purchase`); la lista
- * completa vive aquí para que un fork que agregue el suyo no descubra el
- * catálogo a golpes.
+ * O Vocero só emite dois deles (`QualifiedLead` e `Purchase`); a lista
+ * completa fica aqui para que um fork que adicione o seu não descubra o
+ * catálogo na marra.
  *
  * Doc: /docs/marketing-api/conversions-api/business-messaging
  */
@@ -70,14 +70,14 @@ export function isMetaBusinessMessagingEvent(
 }
 
 /**
- * Meta responde 200 aunque no haya contabilizado nada: `events_received` es el
- * único acuse real. Sin mirarlo, "enviado" solo significaría "no hubo un HTTP
- * de error", y un evento descartado en silencio se vería idéntico a uno bueno.
+ * A Meta responde 200 mesmo que não tenha contabilizado nada: `events_received` é o
+ * único aviso real. Sem olhar para ele, "enviado" só significaria "não houve um HTTP
+ * de erro", e um evento descartado em silêncio pareceria idêntico a um bom.
  */
 export type CapiAck = {
   eventsReceived: number;
   fbTraceId: string | null;
-  /** Respuesta cruda: cuando algo no cuadra, el `messages[]` de Meta dice más. */
+  /** Resposta crua: quando algo não bate, o `messages[]` da Meta diz mais. */
   raw: unknown;
 };
 
@@ -86,8 +86,8 @@ export async function sendBusinessMessagingEvent(input: {
   token: string;
   event: BusinessMessagingEvent;
 }): Promise<CapiAck> {
-  // Validar ANTES de armar el payload: un nombre fuera del catálogo se rechaza
-  // con un 400 opaco, así que se falla aquí y con el motivo escrito.
+  // Validar ANTES de montar o payload: um nome fora do catálogo é rejeitado
+  // com um 400 opaco, então falha-se aqui e com o motivo escrito.
   if (!isMetaBusinessMessagingEvent(input.event.eventName)) {
     throw new Error(
       `"${input.event.eventName}" no está en el catálogo de eventos ` +
@@ -106,8 +106,8 @@ export async function sendBusinessMessagingEvent(input: {
 
   const eventsReceived = res?.events_received ?? 0;
   if (eventsReceived < 1) {
-    // 200 con cero recibidos: Meta lo descartó. Se falla para que la fila quede
-    // `failed` con el motivo, en vez de un `sent` que miente.
+    // 200 com zero recebidos: a Meta descartou. Falha-se para que a linha fique
+    // `failed` com o motivo, em vez de um `sent` que mente.
     throw new Error(
       `Meta respondió 200 pero events_received=${eventsReceived} ` +
         `(evento descartado; fbtrace_id: ${res?.fbtrace_id ?? "n/d"})`
@@ -122,10 +122,10 @@ export async function sendBusinessMessagingEvent(input: {
 }
 
 /**
- * Arma el body de `POST {dataset}/events`. Separada y exportada para poder
- * fijar la FORMA del payload en un test: el modo de fallar de este endpoint es
- * un 200 con `events_received: 0`, donde un campo mal puesto se ve exactamente
- * igual que uno bien puesto.
+ * Monta o body de `POST {dataset}/events`. Separada e exportada para poder
+ * fixar a FORMA do payload em um teste: o modo de falhar deste endpoint é
+ * um 200 com `events_received: 0`, onde um campo mal colocado parece exatamente
+ * igual a um colocado corretamente.
  */
 export function buildEventPayload(
   event: BusinessMessagingEvent
@@ -135,16 +135,16 @@ export function buildEventPayload(
     event_time: event.eventTime,
     action_source: "business_messaging",
     messaging_channel: "whatsapp",
-    // Hacia Meta NO viaja teléfono, nombre ni texto del contacto: solo el
-    // identificador del clic y el de la cuenta de WhatsApp del negocio.
+    // Para a Meta NÃO vai telefone, nome nem texto do contato: só o
+    // identificador do clique e o da conta de WhatsApp do negócio.
     user_data: {
       ctwa_clid: event.ctwaClid,
       whatsapp_business_account_id: event.wabaId,
     },
   };
 
-  // Se omite si queda vacío: mandar `custom_data: {}` no aporta nada reglable y
-  // ensucia el payload que uno inspecciona cuando algo falla.
+  // É omitido se ficar vazio: enviar `custom_data: {}` não traz nada configurável e
+  // suja o payload que se inspeciona quando algo falha.
   if (event.customData && Object.keys(event.customData).length > 0) {
     data.custom_data = event.customData;
   }

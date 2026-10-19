@@ -14,18 +14,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
- * El icono de la pestaña.
+ * O ícone da aba.
  *
- * Se muestra SIEMPRE una vista previa: sin logo subido, la del icono generado
- * con la inicial y el acento. Así queda claro que la instancia ya tiene uno y
- * que subir algo es reemplazarlo, no estrenarlo.
+ * Uma pré-visualização é SEMPRE mostrada: sem logo enviado, a do ícone gerado
+ * com a inicial e o acento. Assim fica claro que a instância já tem um e
+ * que enviar algo é substituí-lo, não estreá-lo.
  */
 export function FaviconCard({ branding }: { branding: Branding }) {
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Cambia con cada carga para que la vista previa no se quede con la anterior.
+  // Muda a cada carga para que a pré-visualização não fique com a anterior.
   const [rev, setRev] = useState(0);
   const [actual, setActual] = useState(branding.favicon);
 
@@ -56,7 +56,7 @@ export function FaviconCard({ branding }: { branding: Branding }) {
     const data = (await res.json()) as { favicon: Branding["favicon"] };
     setActual(data.favicon);
     setRev((v) => v + 1);
-    router.refresh(); // el layout raíz vuelve a emitir el <link rel="icon">
+    router.refresh(); // o layout raiz volta a emitir o <link rel="icon">
   }
 
   async function quitar() {
@@ -85,9 +85,9 @@ export function FaviconCard({ branding }: { branding: Branding }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4">
-          {/* Sin next/image a propósito: es un archivo servido por una ruta
+          {/* Sem next/image de propósito: é um arquivo servido por uma rota
               própria, de 64 px e já otimizado. Passá-lo pelo otimizador
-              sería trabajo de servidor para no ahorrar nada. */}
+              seria trabalho de servidor sem ganho nenhum. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={src}
@@ -115,8 +115,8 @@ export function FaviconCard({ branding }: { branding: Branding }) {
           className="hidden"
           onChange={(e) => {
             const f = e.target.files?.[0];
-            // Se limpia el valor para que subir el MISMO archivo dos veces
-            // vuelva a disparar el evento.
+            // Limpa-se o valor para que enviar o MESMO arquivo duas vezes
+            // dispare o evento de novo.
             e.target.value = "";
             if (f) void subir(f);
           }}

@@ -2,22 +2,22 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { HANDOFF_BACKUP_ACK } from "@/server/ai/handoff";
 
 /**
- * FR-022 — Cuando el patrón de respaldo detecta que el cliente pide una
- * persona, el turno le AVISA antes de traspasar.
+ * FR-022 — Quando o padrão de contingência detecta que o cliente pede uma
+ * pessoa, o turno AVISA antes de transferir.
  *
- * Antes llamaba a `applyHandoff` y salía sin enviar nada: el traspaso ocurría
- * por dentro, pero del lado de WhatsApp quien había pedido un humano se
- * quedaba sin respuesta. El camino del modelo nunca tuvo ese hueco: se
- * despide con `farewell` y luego traspasa. Estas pruebas fijan que los dos
- * caminos salen por el MISMO emisor y en el mismo orden, y que el acuse
- * hereda sus garantías: sandbox, ventana y no repetirse.
+ * Antes chamava `applyHandoff` e saía sem enviar nada: a transferência acontecia
+ * por dentro, mas do lado do WhatsApp quem tinha pedido um humano ficava
+ * sem resposta. O caminho do modelo nunca teve essa lacuna: despede-se com
+ * `farewell` e depois transfere. Estes testes fixam que os dois caminhos saem pelo
+ * MESMO emissor e na mesma ordem, e que o aviso herda suas garantias: sandbox,
+ * janela e não se repetir.
  *
- * Lo encontró @fondeur27-09-73 en el PR #62, porque el Laboratorio marcaba en
- * rojo «pide un humano» con el escalado bien hecho: el juez solo ve mensajes,
- * y no había ninguno.
+ * Encontrou-o @fondeur27-09-73 no PR #62, porque o Laboratório marcava em
+ * vermelho «pede um humano» com a escalada bem feita: o juiz só vê mensagens,
+ * e não havia nenhuma.
  */
 
-/** Orden observable: qué se mandó y cuándo se traspasó. */
+/** Ordem observável: o que foi enviado e quando se transferiu. */
 const eventos: string[] = [];
 
 const sendText = vi.fn();
@@ -36,15 +36,15 @@ vi.mock("@/lib/meta/client", async (importOriginal) => {
 
 vi.mock("@/lib/ai", () => ({ chatJson }));
 
-// #85 — la resolución del proveedor mira primero la fila de Ajustes → IA. Sin
-// fila cae al entorno (`OPENROUTER_API_TOKEN`, abajo), sin tocar la cola de
-// selects de la BD simulada.
+// #85 — a resolução do provedor olha primeiro a linha de Ajustes → IA. Sem
+// linha cai no ambiente (`OPENROUTER_API_TOKEN`, abaixo), sem tocar a fila de
+// selects do BD simulado.
 vi.mock("@/server/ai/credentials", () => ({
   getAiCredentialPublic: async () => null,
   getAiCredentialSecret: async () => null,
 }));
 
-// BD simulada: cola de resultados de select + capturas de insert/update.
+// BD simulado: fila de resultados de select + capturas de insert/update.
 const selectQueue: unknown[][] = [];
 const inserts: Record<string, unknown>[] = [];
 const updates: Record<string, unknown>[] = [];
@@ -136,16 +136,16 @@ function historial(text: string) {
   return [{ id: "msg_1", direction: "in", text, createdAt: new Date() }];
 }
 
-/** Un turno donde el cliente escribe `text`: conversación, perfil, historial. */
+/** Um turno em que o cliente escreve `text`: conversa, perfil, histórico. */
 function turno(text: string, conv = conversacion()) {
   selectQueue.push([conv], [perfil], historial(text));
 }
 
 /**
- * El pipeline arrastra medio servidor (envío, canales, agenda). Importarlo
- * dentro de la primera prueba se comía su timeout de 5 s en una corrida
- * cargada, y la prueba que expiraba seguía corriendo en segundo plano y se
- * comía la cola de selects de la siguiente. Se carga UNA vez, con margen.
+ * O pipeline arrasta meio servidor (envio, canais, agenda). Importá-lo
+ * dentro do primeiro teste consumia seu timeout de 5 s numa execução
+ * carregada, e o teste que expirava seguia rodando em segundo plano e
+ * consumia a fila de selects do seguinte. Carrega-se UMA vez, com folga.
  */
 let runAgentTurn: (conversationId: string) => Promise<unknown>;
 let SendError: typeof import("@/server/inbox/send").SendError;
@@ -180,8 +180,8 @@ describe("acuse del patrón de respaldo antes de traspasar (FR-022)", () => {
     await correrTurno();
 
     expect(eventos).toEqual([`enviado:${HANDOFF_BACKUP_ACK}`, "handoff:cliente"]);
-    // Por el emisor de siempre: el mismo que usa el `farewell` del modelo,
-    // con su guard de sandbox y de ventana dentro.
+    // Pelo emissor de sempre: o mesmo que usa o `farewell` do modelo,
+    // com seu guard de sandbox e de janela dentro.
     expect(sendText).toHaveBeenCalledTimes(1);
     expect(sendText).toHaveBeenCalledWith({
       conversationId: "cv_1",
@@ -189,7 +189,7 @@ describe("acuse del patrón de respaldo antes de traspasar (FR-022)", () => {
       text: HANDOFF_BACKUP_ACK,
       aiGenerated: true,
     });
-    // El respaldo sigue cortando ANTES del modelo.
+    // O respaldo continua cortando ANTES do modelo.
     expect(chatJson).not.toHaveBeenCalled();
   });
 
@@ -205,7 +205,7 @@ describe("acuse del patrón de respaldo antes de traspasar (FR-022)", () => {
       aiGenerated: true,
       origin: "ai",
     });
-    // Y el juez del Laboratorio ya tiene qué leer antes del corte del guion.
+    // E o juiz do Laboratório já tem o que ler antes do corte do roteiro.
     expect(eventos).toEqual([`persistido:${HANDOFF_BACKUP_ACK}`, "handoff:cliente"]);
   });
 
@@ -235,12 +235,12 @@ describe("acuse del patrón de respaldo antes de traspasar (FR-022)", () => {
   });
 
   it("un turno que vuelve a correr tras el traspaso NO repite el acuse", async () => {
-    // Primer turno: acuse + traspaso.
+    // Primeiro turno: aviso + transferência.
     turno("quiero hablar con un humano");
     await correrTurno();
-    // Lo que llegue mientras tanto re-encola un turno; ese turno lee la
-    // conversación YA traspasada. El último entrante sigue siendo la misma
-    // frase, así que si el silencio no mandara, el acuse saldría dos veces.
+    // O que chegar nesse meio tempo re-enfileira um turno; esse turno lê a
+    // conversa JÁ transferida. A última mensagem recebida segue sendo a mesma
+    // frase, então se o silêncio não enviasse, o aviso sairia duas vezes.
     turno(
       "quiero hablar con un humano",
       conversacion({ handoffAt: new Date(), handoffReason: "cliente" })
@@ -252,7 +252,7 @@ describe("acuse del patrón de respaldo antes de traspasar (FR-022)", () => {
   });
 
   it("es el mismo emisor y el mismo orden que el `farewell` del camino del modelo", async () => {
-    // Un texto que el patrón NO atrapa: decide el modelo.
+    // Um texto que o padrão NÃO pega: decide o modelo.
     chatJson.mockResolvedValueOnce({
       ok: true,
       data: { action: "handoff", reason: "cliente", farewell: "Te paso con el equipo." },
@@ -279,9 +279,9 @@ describe("acuse del patrón de respaldo antes de traspasar (FR-022)", () => {
 });
 
 /**
- * 022 — El canal ya no admite más mensajes hasta que el cliente escriba (el
- * tope de TikTok). Si el agente topa con él, calla: un traspaso dejaría la IA
- * en pausa para siempre por algo que se arregla solo con el siguiente mensaje.
+ * 022 — O canal já não admite mais mensagens até que o cliente escreva (o
+ * teto do TikTok). Se o agente bate nele, fica calado: uma transferência deixaria a IA
+ * em pausa para sempre por algo que se resolve sozinho com a próxima mensagem.
  */
 describe("el tope de mensajes del canal no traspasa (022)", () => {
   beforeEach(() => {
@@ -299,7 +299,7 @@ describe("el tope de mensajes del canal no traspasa (022)", () => {
     sendText.mockRejectedValueOnce(
       new SendError("message_limit", "TikTok solo permite 10 mensajes")
     );
-    // conversación, perfil, historial, conocimiento, etapas
+    // conversa, perfil, histórico, conhecimento, etapas
     selectQueue.push(
       [conversacion({ channel: "tiktok" })],
       [perfil],

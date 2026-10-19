@@ -28,7 +28,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-/** Los tokens del acento, para sobreescribirlos SOLO dentro de una caja. */
+/** Os tokens do acento, para sobrescrevê-los SOMENTE dentro de uma caixa. */
 function accentVars(s: AccentSet): React.CSSProperties {
   return {
     "--accent": s.accent,
@@ -44,14 +44,14 @@ export function BrandingClient({
   favicon = null,
   kicker = "CRM · WhatsApp",
 }: {
-  /** 028 — La etiqueta bajo el logo, la misma que enseña el menú. */
+  /** 028 — O rótulo sob o logo, o mesmo que o menu exibe. */
   kicker?: string;
   /**
-   * Logo subido, solo para la vista previa: se sube y se quita en su propia
-   * tarjeta. Llega del servidor y no del fetch de abajo a propósito: esa
-   * tarjeta hace `router.refresh()` al subir o quitar, la página vuelve a
-   * pasar la prop y la vista previa cambia sin recargar. Leído una sola vez
-   * al montar, se quedaría con el logo de antes.
+   * Logo enviado, só para a pré-visualização: é enviado e removido no seu próprio
+   * cartão. Chega do servidor e não do fetch de baixo de propósito: esse
+   * cartão faz `router.refresh()` ao enviar ou remover, a página volta a
+   * passar a prop e a pré-visualização muda sem recarregar. Lido uma única vez
+   * ao montar, ficaria com o logo anterior.
    */
   favicon?: Branding["favicon"];
 }) {
@@ -80,9 +80,9 @@ export function BrandingClient({
   }, []);
 
   const isPreset = accent.toLowerCase() in ACCENT_PRESETS;
-  // La vista previa muestra el acento tal como se verá en el tema activo: los
-  // presets están pensados para fondo claro y en oscuro se aclaran. La barra
-  // lateral es azul marino en los dos temas y lleva su propio cálculo.
+  // A pré-visualização mostra o acento como vai aparecer no tema ativo: os
+  // presets são pensados para fundo claro e no escuro são clareados. A barra
+  // lateral é azul-marinho nos dois temas e tem seu próprio cálculo.
   const previewSet = resolveAccentSet(accent, mode);
   const navSet = resolveNavAccentSet(accent);
 
@@ -104,7 +104,7 @@ export function BrandingClient({
       return;
     }
     setSaved(true);
-    // Re-renderiza el árbol server (layout raíz inyecta el acento y el título)
+    // Re-renderiza a árvore do servidor (o layout raiz injeta o acento e o título)
     router.refresh();
   }
 
@@ -201,10 +201,10 @@ export function BrandingClient({
             </p>
           </div>
 
-          {/* Vista previa: el bicolor real en miniatura, con el color que se
-              está eligiendo (aún sin guardar). A la izquierda la barra, con la
-              misma clase (`nav-dark`) y el mismo renglón activo que la de
-              verdad; a la derecha la página en el tema activo, con su botón. */}
+          {/* Pré-visualização: o bicolor real em miniatura, com a cor que está
+              sendo escolhida (ainda sem salvar). À esquerda a barra, com a
+              mesma classe (`nav-dark`) e a mesma linha ativa da real;
+              à direita a página no tema ativo, com o seu botão. */}
           <div
             aria-label={t("settings.brandPreview")}
             className="flex flex-col overflow-hidden rounded-md border border-border-strong sm:flex-row"

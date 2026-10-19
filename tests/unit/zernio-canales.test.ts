@@ -206,7 +206,7 @@ describe("zernio · el webhook hacia esta instancia", () => {
   it("apunta aquí solo si su URL lleva el segmento secreto como tramo entero", () => {
     expect(pointsHere(w(), SEGMENTO)).toBe(true);
     expect(pointsHere(w({ url: "https://otro.com/api/webhooks/ig/otro-segmento" }), SEGMENTO)).toBe(false);
-    // Un segmento que solo es prefijo de otro no cuenta.
+    // Um segmento que só é prefixo de outro não conta.
     expect(pointsHere(w({ url: `${aqui}-mas` }), SEGMENTO)).toBe(false);
     expect(pointsHere(w({ url: "no es una url" }), SEGMENTO)).toBe(false);
     expect(pointsHere(w(), "")).toBe(false);
@@ -215,7 +215,7 @@ describe("zernio · el webhook hacia esta instancia", () => {
   it("cubre una cuenta si está activo, con el evento y con la cuenta dentro", () => {
     expect(coversAccount(w(), IG)).toBe(true);
     expect(coversAccount(w(), TT)).toBe(false);
-    expect(coversAccount(w({ accountIds: [] }), TT)).toBe(true); // sin límite
+    expect(coversAccount(w({ accountIds: [] }), TT)).toBe(true); // sem limite
     expect(coversAccount(w({ isActive: false }), IG)).toBe(false);
     expect(coversAccount(w({ events: ["post.published"] }), IG)).toBe(false);
   });
@@ -255,7 +255,7 @@ describe("zernio · qué cuentas lleva el webhook de una llave", () => {
   });
 
   it("dos llaves de la MISMA cuenta de Zernio: cada una deja el webhook con todas", () => {
-    // Se rotó la llave y solo se reconectó Instagram: las dos ven lo mismo.
+    // Trocou-se a chave e só se reconectou o Instagram: as duas veem o mesmo.
     const todas = new Set([IG, FB, TT]);
     expect(webhookAccountIds([ig, fb, tt], [ig], todas)).toEqual([IG, FB, TT]);
     expect(webhookAccountIds([ig, fb, tt], [fb, tt], todas)).toEqual([IG, FB, TT]);

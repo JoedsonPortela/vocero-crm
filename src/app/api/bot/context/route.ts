@@ -11,18 +11,18 @@ import { citasParaContexto } from "@/server/agenda/context";
 export const dynamic = "force-dynamic";
 
 /**
- * Contexto conversacional para un cerebro externo (solo lectura).
+ * Contexto conversacional para um cérebro externo (somente leitura).
  * GET /api/bot/context?identity=... | ?waIdentity=... | ?conversationId=...
  *
- * `identity` es el nombre neutro (hay contactos que no son de WhatsApp).
- * `waIdentity` se mantiene aceptado y presente en la respuesta porque es
- * contrato publicado: hay cerebros externos en produccion que dependen de el.
- * No tiene fecha de retiro.
+ * `identity` é o nome neutro (há contatos que não são do WhatsApp).
+ * `waIdentity` continua aceito e presente na resposta porque é
+ * contrato publicado: há cérebros externos em produção que dependem dele.
+ * Não tem data de retirada.
  *
- * NO devuelve el historial de mensajes: el bot lleva su propia memoria de la
- * conversación. Lo que aquí sale es lo que solo el CRM sabe — quién es la
- * persona, si un humano tomó el control y si la ventana de 24 h sigue abierta
- * (y, con la agenda encendida, qué citas tiene: `booking`).
+ * NÃO devolve o histórico de mensagens: o bot leva a sua própria memória da
+ * conversa. O que sai aqui é o que só o CRM sabe — quem é a
+ * pessoa, se um humano assumiu o controle e se a janela de 24 h ainda está aberta
+ * (e, com a agenda ligada, quais citas ela tem: `booking`).
  */
 export async function GET(req: Request) {
   const denied = requireBotKey(req);
@@ -64,12 +64,12 @@ export async function GET(req: Request) {
     contact = rows[0]?.contact;
     conversation = rows[0]?.conversation;
   } else if (waIdentity) {
-    // Exacta primero; si no, la reconciliación de la ingesta (R11): quien
-    // escribió con teléfono y ahora llega solo con BSUID es el mismo contacto.
+    // Exata primeiro; se não, a reconciliação da ingestão (R11): quem
+    // escreveu com telefone e agora chega só com BSUID é o mesmo contato.
     contact = await findContactByIdentity(organizationId, waIdentity);
     if (contact) {
-      // La conversación del Laboratorio jamás se resuelve por identidad: ese
-      // camino es para el bot de producción, que nunca debe hablarle a un
+      // A conversa do Laboratório nunca é resolvida por identidade: esse
+      // caminho é para o bot de produção, que jamais deve falar com um
       // cliente simulado.
       const convs = await db
         .select()
@@ -112,9 +112,9 @@ export async function GET(req: Request) {
     contact: {
       id: contact.id,
       name: contact.name,
-      /** Nombre neutro (014). Preferir este en clientes nuevos. */
+      /** Nome neutro (014). Prefira este em clientes novos. */
       identity: contact.waIdentity,
-      /** Alias heredado: sigue aqui para no romper bots ya desplegados. */
+      /** Alias herdado: continua aqui para não quebrar bots já implantados. */
       waIdentity: contact.waIdentity,
       channel: contact.channel,
       phone: contact.phone,
@@ -122,11 +122,11 @@ export async function GET(req: Request) {
     },
     conversation: {
       id: conversation.id,
-      // Una sola verdad para el bot: si hay handoff, la IA está apagada
-      // aunque el flag siga en true.
+      // Uma só verdade para o bot: se há handoff, a IA está desligada
+      // mesmo que a flag continue true.
       aiEnabled: conversation.aiEnabled && !conversation.handoffAt,
       handoffAt: conversation.handoffAt?.toISOString() ?? null,
-      // 022: la ventana es la del canal de la conversación.
+      // 022: a janela é a do canal da conversa.
       windowOpen: isWindowOpen(
         conversation.lastInboundAt,
         new Date(),
@@ -142,9 +142,9 @@ export async function GET(req: Request) {
       ? { id: leadRows[0].lead.id, stageName: leadRows[0].stage.name }
       : null,
     /**
-     * 015 — Las citas del contacto. FALTA con la agenda apagada (o si no se
-     * pudieron leer): un cerebro que no lo recibe no afirma nada sobre citas,
-     * y uno que no lo lee no cambia. Aditivo.
+     * 015 — As citas do contato. FALTA com a agenda desligada (ou se não
+     * puderem ser lidas): um cérebro que não o recebe não afirma nada sobre citas,
+     * e um que não o lê não muda. Aditivo.
      */
     ...(booking ? { booking } : {}),
   });

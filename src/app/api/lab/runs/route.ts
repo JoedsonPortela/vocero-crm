@@ -7,7 +7,7 @@ import { RunConflictError, startRun } from "@/server/lab/runner";
 
 export const dynamic = "force-dynamic";
 
-/** Historial de corridas con delta de score vs la anterior (FR-033). */
+/** Histórico de execuções com delta de score em relação à anterior (FR-033). */
 export const GET = withAuth(async (session) => {
   const db = getDb();
   const runs = await db

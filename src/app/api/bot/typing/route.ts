@@ -11,12 +11,12 @@ export const dynamic = "force-dynamic";
 const bodySchema = z.object({ conversationId: z.string().min(1) });
 
 /**
- * Indicador "escribiendo…" + marcar leído el último inbound.
+ * Indicador "digitando…" + marcar como lido o último inbound.
  * POST /api/bot/typing {conversationId}
  *
- * Best-effort por contrato: al bot JAMÁS le vale reintentar esto — si Meta
- * falla se responde 200 {ok:false} y la conversación sigue. El indicador
- * dura hasta ~25 s o hasta que llegue la respuesta real.
+ * Best-effort por contrato: o bot JAMAIS precisa tentar isto de novo — se a Meta
+ * falhar, responde-se 200 {ok:false} e a conversa segue. O indicador
+ * dura até ~25 s ou até chegar a resposta real.
  */
 export async function POST(req: Request) {
   const denied = requireBotKey(req);
@@ -43,12 +43,12 @@ export async function POST(req: Request) {
   const conv = convs[0];
   if (!conv) return apiError(404, "not_found", "Conversa não encontrada");
   if (conv.isTest) {
-    // Sandbox: jamás toca la API real (guardrail del Laboratorio).
+    // Sandbox: jamais toca a API real (guardrail do Laboratório).
     return Response.json({ ok: false, reason: "sandbox" });
   }
   if (!conv.aiEnabled || conv.handoffAt) {
-    // Handoff/IA pausada: un humano atiende — "escribiendo…" aquí sería
-    // mentirle al cliente. Se omite sin tocar Meta.
+    // Handoff/IA pausada: um humano atende — "digitando…" aqui seria
+    // mentir para o cliente. Omite-se sem tocar na Meta.
     return Response.json({ ok: false, reason: "ai_paused" });
   }
 

@@ -1,23 +1,23 @@
 /**
- * Dinero. Vive en `lib/` (no en `server/`) porque el tablero suma sus columnas
- * en el cliente y no puede arrastrar la BD al bundle.
+ * Dinheiro. Vive em `lib/` (não em `server/`) porque o painel soma as suas colunas
+ * no cliente e não pode arrastar o BD para o bundle.
  *
- * Todo en CENTAVOS ENTEROS, también en el cálculo: sumar pesos en coma flotante
- * da totales que el dueño no puede cuadrar contra sus propias tarjetas.
+ * Tudo em CENTAVOS INTEIROS, também no cálculo: somar pesos em ponto flutuante
+ * dá totais que o dono não consegue bater com os próprios cartões.
  *
- * La moneda NO está cableada. Cada instancia elige la suya en Ajustes → Marca,
- * y todas las funciones la reciben explícitamente: un default global escondido
- * haría que una instalación fuera de su país sumara mal sin avisar.
+ * A moeda NÃO está fixada. Cada instância escolhe a sua em Ajustes → Marca,
+ * e todas as funções a recebem explicitamente: um padrão global escondido
+ * faria uma instalação fora do seu país somar errado sem avisar.
  */
 
 /**
- * Monedas ISO-4217 que puede elegir un negocio, agrupadas para el selector.
+ * Moedas ISO-4217 que um negócio pode escolher, agrupadas para o seletor.
  *
- * Cubre México, Centro y Sudamérica, el Caribe hispano, EE. UU. y España, y
- * los países que los rodean, para que una instalación en otro país no tenga
- * que esperar a que alguien añada su moneda. Los países dolarizados (Ecuador,
- * El Salvador, Puerto Rico) usan USD, y Panamá puede elegir USD o balboa.
- * Añadir una es añadir un renglón: nada en la BD restringe el código.
+ * Cobre o México, a América Central e do Sul, o Caribe hispânico, os EUA e a Espanha, e
+ * os países que os cercam, para que uma instalação em outro país não tenha
+ * que esperar alguém acrescentar a sua moeda. Os países dolarizados (Equador,
+ * El Salvador, Porto Rico) usam USD, e o Panamá pode escolher USD ou balboa.
+ * Adicionar uma é acrescentar uma linha: nada no BD restringe o código.
  */
 export const CURRENCY_OPTIONS = [
   { code: "MXN", name: "Peso mexicano", where: "México", group: "latam" },
@@ -72,10 +72,10 @@ export function isCurrency(v: unknown): v is Currency {
 }
 
 /**
- * ¿Este monto entra en el total de su columna? Solo suma lo que está en la
- * moneda del negocio: convertir exigiría un tipo de cambio, y un CRM que
- * inventa tipos de cambio miente. Lo que queda fuera se CUENTA aparte para
- * poder decirlo en pantalla, en vez de desaparecerlo.
+ * Este valor entra no total da sua coluna? Só soma o que está na
+ * moeda do negócio: converter exigiria uma taxa de câmbio, e um CRM que
+ * inventa taxas de câmbio mente. O que fica de fora é CONTADO à parte para
+ * poder dizer isso na tela, em vez de fazê-lo desaparecer.
  */
 export function sumable(
   amount: { amountCents: number | null; currency: string | null },
@@ -85,7 +85,7 @@ export function sumable(
   return (amount.currency ?? businessCurrency) === businessCurrency;
 }
 
-/** Dinero para mostrar. Recibe centavos porque es como viaja y como se guarda. */
+/** Dinheiro para exibir. Recebe centavos porque é assim que trafega e como é guardado. */
 export function formatMoneyCents(
   cents: number | null | undefined,
   currency: string,
@@ -100,21 +100,21 @@ export function formatMoneyCents(
       maximumFractionDigits: 2,
     }).format(cents / 100);
   } catch {
-    // Moneda o locale que el runtime no conoce: mejor un número correcto sin
-    // símbolo que una pantalla rota.
+    // Moeda ou locale que o runtime não conhece: melhor um número correto sem
+    // símbolo do que uma tela quebrada.
     return `${(cents / 100).toFixed(2)} ${currency}`;
   }
 }
 
 /**
- * Texto libre del dueño → centavos. Acepta "12,500.50", "12500", "$12 500".
- * Devuelve `null` si no hay un número reconocible, para no guardar un 0 que
- * después se lea como "no vale nada".
+ * Texto livre do dono → centavos. Aceita "12,500.50", "12500", "$12 500".
+ * Devolve `null` se não houver um número reconhecível, para não guardar um 0 que
+ * depois seja lido como "não vale nada".
  */
 export function parseMoneyToCents(input: string): number | null {
   const limpio = input.replace(/[^\d.,-]/g, "").trim();
   if (!limpio) return null;
-  // El último separador manda como decimal; el resto son de millares.
+  // O último separador vale como decimal; o resto são de milhares.
   const ultimoPunto = limpio.lastIndexOf(".");
   const ultimaComa = limpio.lastIndexOf(",");
   const corte = Math.max(ultimoPunto, ultimaComa);

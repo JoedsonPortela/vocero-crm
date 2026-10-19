@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 /**
- * Validación central del entorno.
+ * Validação central do ambiente.
  *
- * Lazy + memoizada: se evalúa en el primer uso en runtime, nunca al importar.
- * Durante `next build` no hay secretos (la imagen se construye sin ellos), así
- * que en esa fase se aceptan placeholders — los valores reales llegan al boot.
+ * Lazy + memoizada: é avaliada no primeiro uso em runtime, nunca ao importar.
+ * Durante o `next build` não há segredos (a imagem é construída sem eles), então
+ * nessa fase são aceitos placeholders — os valores reais chegam no boot.
  */
 
 export const envSchema = z.object({
@@ -26,20 +26,20 @@ export const envSchema = z.object({
   OPENROUTER_BASE_URL: z.string().url().default("https://openrouter.ai/api"),
   OPENROUTER_MODEL: z.string().optional(),
   OPENROUTER_JUDGE_MODEL: z.string().optional(),
-  // 014/017: canales encendidos, separados por coma. WhatsApp siempre esta on.
-  // Ej.: CHANNELS=whatsapp,instagram,messenger. Sin ella, la instancia es solo
-  // WhatsApp y las superficies de los demas canales responden 404.
+  // 014/017: canais ligados, separados por vírgula. O WhatsApp está sempre ligado.
+  // Ex.: CHANNELS=whatsapp,instagram,messenger. Sem ela, a instância é só
+  // WhatsApp e as superfícies dos demais canais respondem 404.
   CHANNELS: z.string().optional(),
-  // 015: motor de agenda. Apagado por defecto — sin el, toda la superficie de
-  // agenda responde 404 y la UI no la menciona. Ej.: AGENDA=on
+  // 015: motor de agenda. Desligado por padrão — sem ele, toda a superfície de
+  // agenda responde 404 e a UI não a menciona. Ex.: AGENDA=on
   AGENDA: z.string().optional(),
-  // 016: atribucion de anuncios y reporte a la Conversions API de Meta.
-  // Apagada por defecto: sin ella no se captura de que anuncio vino una
-  // conversacion, no se le reporta nada a Meta y la superficie da 404.
-  // Ej.: ATRIBUCION=on
+  // 016: atribuição de anúncios e reporte à Conversions API da Meta.
+  // Desligada por padrão: sem ela não se captura de qual anúncio veio uma
+  // conversa, não se reporta nada à Meta e a superfície dá 404.
+  // Ex.: ATRIBUCION=on
   ATRIBUCION: z.string().optional(),
-  // 015: bases de los conectores. Solo se sobreescriben para apuntar a los
-  // mocks en el self-test; en producción se usan las reales.
+  // 015: bases dos conectores. Só são sobrescritas para apontar para os
+  // mocks no self-test; em produção usam-se as reais.
   ZOOM_BASE_URL: z.string().url().default("https://api.zoom.us/v2"),
   ZOOM_OAUTH_BASE_URL: z.string().url().default("https://zoom.us"),
   GOOGLE_CAL_BASE_URL: z
@@ -50,24 +50,24 @@ export const envSchema = z.object({
   ALLOW_SIGNUP: z.string().optional(),
   AGENT_COALESCE_MS: z.coerce.number().int().min(0).default(6000),
   WA_MOCK_ENABLED: z.string().optional(),
-  // API key de un cerebro externo que conduzca la conversación por /api/bot/*.
-  // Sin ella, toda esa superficie responde 401.
+  // API key de um cérebro externo que conduza a conversa por /api/bot/*.
+  // Sem ela, toda essa superfície responde 401.
   BOT_API_KEY: z.string().optional(),
-  // «Quién responde a tus clientes»: el /health del cerebro externo (Nea),
-  // consultado desde el servidor. Ej.: http://nea:8000/health (alias de la
-  // red de Coolify). Sin ella, la tarjeta del Agente no pregunta a nadie.
-  // No se valida aquí a propósito: es opcional y solo de diagnóstico, y con
-  // `.url()` un valor mal escrito tumbaba el CRM entero (el entorno no
-  // validaba y todo respondía 503). La tarjeta la marca como problema de
-  // configuración y lo demás sigue funcionando (server/bot/status.ts).
+  // «Quem responde aos seus clientes»: o /health do cérebro externo (Nea),
+  // consultado a partir do servidor. Ex.: http://nea:8000/health (alias da
+  // rede do Coolify). Sem ela, o cartão do Agente não consulta ninguém.
+  // Não é validado aqui de propósito: é opcional e só de diagnóstico, e com
+  // `.url()` um valor mal escrito derrubava o CRM inteiro (o ambiente não
+  // validava e tudo respondia 503). O cartão marca isso como problema de
+  // configuração e o resto continua funcionando (server/bot/status.ts).
   BRAIN_HEALTH_URL: z.string().optional(),
-  // 021: a dónde le despacha el CRM cada turno al cerebro externo. Ej.:
-  // http://nea:8000/vocero/dispatch. Con ella y `BOT_API_KEY`, el agente
-  // incluido deja de contestar: contesta el cerebro. Tampoco se valida aquí,
-  // por lo mismo que la de arriba: mal escrita, el despacho queda inactivo y
-  // la tarjeta lo dice (server/brains/config.ts).
+  // 021: para onde o CRM despacha cada turno ao cérebro externo. Ex.:
+  // http://nea:8000/vocero/dispatch. Com ela e `BOT_API_KEY`, o agente
+  // incluído deixa de responder: responde o cérebro. Também não é validado aqui,
+  // pelo mesmo motivo do de cima: mal escrita, o despacho fica inativo e
+  // o cartão informa isso (server/brains/config.ts).
   BRAIN_DISPATCH_URL: z.string().optional(),
-  // 008: volumen local de adjuntos (constitución II: sin S3/R2).
+  // 008: volume local de anexos (constituição II: sem S3/R2).
   MEDIA_DIR: z.string().default("./.dev-media"),
   NODE_ENV: z.string().default("development"),
 });
@@ -85,11 +85,11 @@ const BUILD_PLACEHOLDERS: Record<string, string> = {
 let cached: Env | null = null;
 
 /**
- * Valida un entorno contra el esquema SIN lanzar ni cachear. Es lo que usa
- * `getEnv()` y también `pnpm doctor` (scripts/doctor.ts): un solo esquema y
- * una sola regla para los strings vacíos, que cuentan como ausentes porque
- * los compose/paneles suelen inyectar VAR="" para opcionales y eso debe
- * activar los defaults.
+ * Valida um ambiente contra o esquema SEM lançar nem armazenar em cache. É o que usa
+ * `getEnv()` e também o `pnpm doctor` (scripts/doctor.ts): um só esquema e
+ * uma só regra para as strings vazias, que contam como ausentes porque
+ * os compose/painéis costumam injetar VAR="" para os opcionais e isso deve
+ * ativar os padrões.
  */
 export function safeParseEnv(source: Record<string, string | undefined>) {
   return envSchema.safeParse(stripEmpty(source));
@@ -123,7 +123,7 @@ function stripEmpty(env: Record<string, string | undefined>): Record<string, str
   return out;
 }
 
-/** true si el entorno de pruebas interno (mocks) está habilitado y NO es producción. */
+/** true se o ambiente de testes interno (mocks) está habilitado e NÃO é produção. */
 export function isMockEnabled(): boolean {
   return (
     process.env.WA_MOCK_ENABLED === "true" &&
@@ -132,10 +132,10 @@ export function isMockEnabled(): boolean {
 }
 
 /**
- * true si el ENTORNO trae proveedor de IA (`OPENROUTER_API_TOKEN` presente y
- * no vacío). Es solo el respaldo: lo que decide si una organización tiene IA
- * es `isAiConfiguredFor()` en `lib/ai/provider.ts`, que mira primero lo
- * guardado en Ajustes → IA.
+ * true se o AMBIENTE traz provedor de IA (`OPENROUTER_API_TOKEN` presente e
+ * não vazio). É só a reserva: o que decide se uma organização tem IA
+ * é `isAiConfiguredFor()` em `lib/ai/provider.ts`, que olha primeiro o
+ * salvo em Ajustes → IA.
  */
 export function isAiConfiguredByEnv(): boolean {
   const token = process.env.OPENROUTER_API_TOKEN;

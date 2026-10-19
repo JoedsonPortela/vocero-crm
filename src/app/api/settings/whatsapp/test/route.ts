@@ -9,7 +9,7 @@ const bodySchema = z.object({
   token: z.string().trim().min(1),
 });
 
-/** Prueba de conexión: valida token↔número, NO guarda (FR-040). */
+/** Teste de conexão: valida token↔número, NÃO salva (FR-040). */
 export const POST = withAuth(async (_session, req: Request) => {
   const body = await parseBody(req, bodySchema);
   if (!body.ok) return body.response;

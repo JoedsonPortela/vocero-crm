@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * 215 (raíz) — `GET /api/bookings?from=&to=` de punta a punta hasta la BD
- * (falsa): el rango se corta a la medianoche del NEGOCIO, pasa por `scoped()`,
- * ya no se queda en las últimas 200 (fallo 4), avisa si toca el tope de
- * seguridad, y SIN parámetros responde exactamente lo de siempre, que es lo
- * que lee el guion E2E de 015.
+ * 215 (raiz) — `GET /api/bookings?from=&to=` de ponta a ponta até o BD
+ * (falso): o intervalo corta na meia-noite do NEGÓCIO, passa por `scoped()`,
+ * não fica mais nas últimas 200 (falha 4), avisa se atinge o teto de
+ * segurança, e SEM parâmetros responde exatamente o de sempre, que é o que
+ * lê o roteiro E2E de 015.
  */
 
 const SETTINGS = {
@@ -42,7 +42,7 @@ vi.mock("@/server/agenda/settings", async (importOriginal) => {
   return { ...original, getSettings: async () => SETTINGS };
 });
 
-// El tenant y los límites del rango, legibles en la prueba.
+// O tenant e os limites do intervalo, legíveis no teste.
 vi.mock("@/lib/db/tenant", () => ({
   scoped: (_col: unknown, organizationId: string, ...conditions: unknown[]) => ({
     organizationId,
@@ -164,9 +164,9 @@ describe("GET /api/bookings?from=&to=: el rango del calendario", () => {
       conditions: { op: string; value: Date }[];
     };
     expect(where.organizationId).toBe("org_a");
-    // 00:00 del lunes 21 en CDMX = 06:00Z; se mira desde 24 h antes.
+    // 00:00 de segunda 21 em CDMX = 06:00Z; olha-se desde 24 h antes.
     expect(where.conditions[0]).toEqual({ op: "gte", value: new Date("2026-09-20T06:00:00.000Z") });
-    // Hasta la medianoche del lunes 28 en CDMX, exclusiva.
+    // Até a meia-noite de segunda 28 em CDMX, exclusiva.
     expect(where.conditions[1]).toEqual({ op: "lt", value: new Date("2026-09-28T06:00:00.000Z") });
     expect(call("orderBy")?.args).toEqual(["asc"]);
   });
@@ -192,9 +192,9 @@ describe("GET /api/bookings?from=&to=: el rango del calendario", () => {
 
   it("de lo que empezó el día anterior, solo lo que sigue ocupando el rango", async () => {
     state.rows = [
-      // Terminó el domingo 20 a las 23:00 de CDMX: no toca el lunes.
+      // Terminou domingo 20 às 23:00 de CDMX: não toca segunda.
       row("bk_ayer", "2026-09-21T04:00:00.000Z", 60),
-      // Bloqueo nocturno del domingo 22:00 a 02:00 del lunes: sí lo toca.
+      // Bloqueio noturno de domingo 22:00 às 02:00 de segunda: sim, toca.
       row("bk_nocturno", "2026-09-21T04:00:00.000Z", 240),
       row("bk_lunes", "2026-09-21T16:00:00.000Z"),
     ];

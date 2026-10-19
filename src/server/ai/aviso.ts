@@ -3,17 +3,17 @@ import { scoped } from "@/lib/db/tenant";
 import { estadoIaDe, mensajeDeEstado } from "@/lib/ai/provider";
 
 /**
- * ¿Hay que avisarle al dueño de que su agente no puede contestar?
- * (puerto de `aviso-ia` de Vocero Cloud, issue #85)
+ * Precisa avisar o dono de que o agente dele não consegue responder?
+ * (adaptação de `aviso-ia` do Vocero Cloud, issue #85)
  *
- * El caso que esto cierra: una organización con el agente encendido y sin
- * proveedor de IA (o con la llave rechazada). El mensaje entra, el turno no
- * tiene con qué pensar y la conversación se queda en la bandeja. Desde fuera
- * se ve exactamente igual que un bot roto — y el único sitio donde se
- * explicaba era un recuadro dentro del panel de UN contacto.
+ * O caso que isto fecha: uma organização com o agente ligado e sem
+ * provedor de IA (ou com a chave rejeitada). A mensagem entra, o turno não
+ * tem com que pensar e a conversa fica na caixa de entrada. De fora
+ * parece exatamente um bot quebrado — e o único lugar onde isso era
+ * explicado era um quadro dentro do painel de UM contato.
  *
- * Se exige que el agente esté ENCENDIDO: sin IA y con el agente apagado no
- * hay nada que avisar. Lo que se señala es la contradicción.
+ * Exige-se que o agente esteja LIGADO: sem IA e com o agente desligado
+ * não há nada a avisar. O que se aponta é a contradição.
  */
 export type AvisoIa = { mensaje: string; accion: string } | null;
 
@@ -34,8 +34,8 @@ export async function avisoIaDe(organizationId: string): Promise<AvisoIa> {
 
   return {
     mensaje,
-    // Sin configurar se va a pegar la llave; pausada, a revisar la conexión.
-    // Las dos acaban en la misma pantalla, y decirlo evita el «¿y dónde?».
+    // Sem configurar, vai colar a chave; pausada, para revisar a conexão.
+    // As duas terminam na mesma tela, e dizer isso evita o «e onde?».
     accion:
       estado.motivo === "sin_configurar"
         ? "Configurar la IA"

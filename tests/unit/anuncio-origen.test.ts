@@ -24,12 +24,12 @@ import {
 } from "@/lib/anuncios";
 
 /**
- * 018 — De qué anuncio llegó cada conversación.
+ * 018 — De qual anúncio chegou cada conversa.
  *
- * Lo que se prueba aquí es la única puerta por la que un payload externo llega
- * a una columna (la normalización), la única por la que ese payload hace que el
- * servidor descargue algo (la URL del creativo y la descarga), y lo que decide
- * la bandera ATRIBUCION: el identificador de clic, nada más.
+ * O que se prova aqui é a única porta pela qual um payload externo chega
+ * a uma coluna (a normalização), a única pela qual esse payload faz o
+ * servidor baixar algo (a URL do criativo e o download), e o que decide a
+ * flag ATRIBUCION: o identificador de clique, nada mais.
  */
 
 const REFERRAL_CTWA = {
@@ -114,7 +114,7 @@ describe("anuncioDeWhatsapp", () => {
     expect(a?.headline?.length).toBe(COTAS.titular);
     expect(a?.body?.length).toBe(COTAS.texto);
     expect(JSON.stringify(a?.raw).length).toBeLessThanOrEqual(COTAS.raw);
-    // Las claves que no conoce no llegan al raw.
+    // As chaves que ele não conhece não chegam ao raw.
     expect(a?.raw).not.toHaveProperty("campo_nuevo_de_meta");
   });
 });
@@ -133,7 +133,7 @@ describe("la bandera ATRIBUCION decide el identificador de clic, no el origen", 
     expect(a.ctwaClid).toBeNull();
     expect(a.raw).not.toHaveProperty("ctwa_clid");
     expect(JSON.stringify(a)).not.toContain(REFERRAL_CTWA.ctwa_clid);
-    // El resto del anuncio queda intacto: el origen se ve igual.
+    // O resto do anúncio fica intacto: a origem se vê igual.
     expect(a).toMatchObject({
       sourceId: anuncio.sourceId,
       headline: anuncio.headline,
@@ -209,12 +209,12 @@ describe("urlDeCreativoPermitida", () => {
 
   it("rechaza lo que convertiría la ingesta en un proxy", () => {
     for (const u of [
-      "http://scontent.xx.fbcdn.net/x.jpg", // sin TLS
-      "https://evilfbcdn.net/x.jpg", // no es subdominio
+      "http://scontent.xx.fbcdn.net/x.jpg", // sem TLS
+      "https://evilfbcdn.net/x.jpg", // não é subdomínio
       "https://fbcdn.net.atacante.com/x.jpg",
       "https://user:pass@scontent.xx.fbcdn.net/x.jpg",
       "https://scontent.xx.fbcdn.net@evil.example/x.jpg",
-      "https://scontent.xx.fbcdn.net:8443/x.jpg", // puerto que no es de Meta
+      "https://scontent.xx.fbcdn.net:8443/x.jpg", // porta que não é da Meta
       "https://127.0.0.1/x.jpg",
       "https://[::1]/x.jpg",
       "http://localhost:3000/api/dev/wa-mock/media-file/creativo-1",
@@ -248,7 +248,7 @@ describe("descargarCreativo", () => {
     vi.unstubAllGlobals();
   });
 
-  /** Cada llamada a fetch toma la siguiente respuesta (o función) de la lista. */
+  /** Cada chamada a fetch pega a próxima resposta (ou função) da lista. */
   function stubFetch(...respuestas: (Response | (() => Promise<Response>))[]) {
     const fetchMock = vi.fn(async () => {
       const r = respuestas.shift();
@@ -306,7 +306,7 @@ describe("descargarCreativo", () => {
     stubFetch(imagen(png, { "content-length": String(CREATIVO_MAX_BYTES + 1) }));
     expect(await descargarCreativo(META)).toEqual({ ok: false, falla: "permanente" });
 
-    // Sin content-length: se corta al pasar el tope, sin leer el resto.
+    // Sem content-length: corta-se ao passar o teto, sem ler o resto.
     let emitidos = 0;
     const infinito = new ReadableStream<Uint8Array>({
       pull(controller) {
@@ -363,9 +363,9 @@ describe("freno de la reparación", () => {
     expect(freno.intentar("org:ad1", t0)).toBe(true);
     expect(freno.intentar("org:ad1", t0 + 1)).toBe(false);
     expect(freno.intentar("org:ad1", t0 + REPARAR_CADA_MS - 1)).toBe(false);
-    // Otro anuncio no espera al primero.
+    // Outro anúncio não espera o primeiro.
     expect(freno.intentar("org:ad2", t0 + 1)).toBe(true);
-    // Pasada la ventana, se vuelve a intentar.
+    // Passada a janela, tenta-se de novo.
     expect(freno.intentar("org:ad1", t0 + REPARAR_CADA_MS)).toBe(true);
   });
 

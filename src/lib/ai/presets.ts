@@ -1,11 +1,11 @@
 /**
- * Catálogo del proveedor de IA (Ajustes → IA). Sin imports de servidor: lo
- * leen también los componentes de cliente.
+ * Catálogo do provedor de IA (Ajustes → IA). Sem imports de servidor: também o
+ * leem os componentes de cliente.
  *
- * Un preset es solo una ayuda para no escribir la `base_url` a mano. Lo que
- * identifica al proveedor en la base es la `base_url`: cualquier API
- * compatible con la de OpenAI sirve (OpenRouter, OpenAI, Groq, un vLLM
- * propio…), que es la única frontera con el LLM que admite la constitución.
+ * Um preset é só uma ajuda para não escrever a `base_url` à mão. O que
+ * identifica o provedor no banco é a `base_url`: qualquer API
+ * compatível com a da OpenAI serve (OpenRouter, OpenAI, Groq, um vLLM
+ * próprio…), que é a única fronteira com o LLM que a constituição admite.
  */
 
 export const OPENROUTER_BASE_URL = "https://openrouter.ai/api";
@@ -23,7 +23,7 @@ export type AiStatus = (typeof AI_STATUSES)[number];
 export type AiProviderPreset = {
   id: AiProviderId;
   label: string;
-  /** Fija en el preset; `null` = la escribe el dueño. */
+  /** Fixo no preset; `null` = quem escreve é o dono. */
   baseUrl: string | null;
   modelPlaceholder: string;
   tokenPlaceholder: string;
@@ -52,7 +52,7 @@ export const AI_STATUS_LABEL: Record<AiStatus, string> = {
   paused_no_credit: "Pausado: sin saldo",
 };
 
-/** A qué preset corresponde una base URL (la del entorno o una guardada). */
+/** A qual preset corresponde uma base URL (a do ambiente ou uma salva). */
 export function presetDeBaseUrl(baseUrl: string): AiProviderId {
   return apiRoot(baseUrl) === apiRoot(OPENROUTER_BASE_URL)
     ? "openrouter"
@@ -60,13 +60,13 @@ export function presetDeBaseUrl(baseUrl: string): AiProviderId {
 }
 
 /**
- * La raíz `/v1` de una API OpenAI-compatible.
+ * A raiz `/v1` de uma API compatível com OpenAI.
  *
- * La convención del repo es la base SIN `/v1` (`https://openrouter.ai/api`),
- * pero media internet publica la suya CON él (`https://api.groq.com/openai/v1`).
- * Se aceptan las dos: si ya termina en `/v1` no se duplica. Con la antigua
- * concatenación a ciegas, pegar la segunda daba `/v1/v1/chat/completions` y
- * un 404 que no explicaba nada.
+ * A convenção do repositório é a base SEM `/v1` (`https://openrouter.ai/api`),
+ * mas metade da internet publica a sua COM ele (`https://api.groq.com/openai/v1`).
+ * Aceitam-se as duas: se já termina em `/v1` não é duplicado. Com a antiga
+ * concatenação cega, colar a segunda dava `/v1/v1/chat/completions` e
+ * um 404 que não explicava nada.
  */
 export function apiRoot(baseUrl: string): string {
   const sinBarra = baseUrl.trim().replace(/\/+$/, "");
@@ -81,7 +81,7 @@ export function modelsUrl(baseUrl: string): string {
   return `${apiRoot(baseUrl)}/models`;
 }
 
-/** Los últimos 4 del token: lo único que viaja a la UI. */
+/** Os últimos 4 do token: o único que vai para a UI. */
 export function last4(token: string): string {
   return token.slice(-4);
 }

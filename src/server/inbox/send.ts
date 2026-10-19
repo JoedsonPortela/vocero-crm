@@ -53,21 +53,21 @@ import {
   validateOutgoing,
 } from "@/server/whatsapp/media";
 
-/** Error tipado del envío; `code` mapea a HTTP en la capa de API. */
+/** Erro tipado do envio; `code` mapeia para HTTP na camada de API. */
 export class SendError extends Error {
   code:
     | "sandbox_violation"
     | "not_connected"
     | "reconnect_required"
     | "window_closed"
-    /** 022: el canal no admite más mensajes hasta que el cliente escriba. */
+    /** 022: o canal não aceita mais mensagens até o cliente escrever. */
     | "message_limit"
-    /** 022: el texto no cabe en el canal de esa conversación. */
+    /** 022: o texto não cabe no canal dessa conversa. */
     | "text_too_long"
     | "meta_error"
     | "meta_unavailable"
     | "upload_failed";
-  /** 008: presente cuando el fallo ocurrió TRAS persistir el mensaje (failed). */
+  /** 008: presente quando a falha ocorreu DEPOIS de persistir a mensagem (failed). */
   messageId?: string;
 
   constructor(code: SendError["code"], message: string) {
@@ -81,35 +81,35 @@ type SendResult = { messageId: string };
 
 type SendTarget = {
   conversation: typeof schema.conversation.$inferSelect;
-  /** null cuando el destino no es WhatsApp (014). */
+  /** null quando o destino não é WhatsApp (014). */
   credentials: Credentials | null;
-  /** El destinatario en la forma que Meta espera: `to` o `recipient`. */
+  /** O destinatário na forma que a Meta espera: `to` ou `recipient`. */
   destinatario: Destinatario;
-  /** El identificador a secas, para lo que no arma un payload de Graph. */
+  /** O identificador puro, para o que não monta um payload do Graph. */
   recipient: string;
-  /** 014: presente solo en conversaciones de Instagram. */
+  /** 014: presente só em conversas do Instagram. */
   instagram?: InstagramCredentials;
-  /** 017: presente solo en conversaciones de Messenger. */
+  /** 017: presente só em conversas do Messenger. */
   messenger?: MessengerCredentials;
-  /** 022: presente solo en conversaciones de TikTok. */
+  /** 022: presente só em conversas do TikTok. */
   tiktok?: TiktokCredentials;
   /**
-   * 024: el envío sale con la etiqueta de agente humano. Lo decide el
-   * pre-vuelo (`assertReplyWindow`), no cada canal por su cuenta.
+   * 024: o envio sai com a etiqueta de agente humano. Quem decide isso é o
+   * pré-voo (`assertReplyWindow`), não cada canal por conta própria.
    */
   humanAgentTag?: boolean;
 };
 
 /**
- * 024 — La puerta de la ventana para los canales con extensión humana
- * (Instagram y Messenger). Devuelve si el envío lleva la etiqueta.
+ * 024 — A porta da janela para os canais com extensão humana
+ * (Instagram e Messenger). Devolve se o envio leva a etiqueta.
  *
- * - Dentro de la ventana normal escribe cualquiera.
- * - Después, y hasta el tope de la extensión, solo una persona, con la
- *   etiqueta. La IA no: Meta reserva esa etiqueta a agentes humanos.
- * - Pasado el tope (o sin ningún mensaje del cliente) no escribe nadie, y se
- *   dice aquí en vez de dejar que la plataforma rechace el envío con un error
- *   que el operador no entiende.
+ * - Dentro da janela normal escreve qualquer um.
+ * - Depois, e até o teto da extensão, só uma pessoa, com a
+ *   etiqueta. A IA não: a Meta reserva essa etiqueta a agentes humanos.
+ * - Passado o teto (ou sem nenhuma mensagem do cliente) ninguém escreve, e isso
+ *   é dito aqui em vez de deixar que a plataforma rejeite o envio com um erro
+ *   que o operador não entende.
  */
 function assertReplyWindow(
   conversation: SendTarget["conversation"],
@@ -126,14 +126,14 @@ function assertReplyWindow(
 }
 
 /**
- * Pre-flight común de todo envío por la conversación (008): existencia +
- * tenant, sandbox del Laboratorio (ASERCIÓN DURA, FR-031: jamás toca la API
- * real), ventana de 24 h, credenciales y destinatario.
+ * Pré-voo comum a todo envio pela conversa (008): existência +
+ * tenant, sandbox do Laboratório (ASSERÇÃO DURA, FR-031: jamais toca a API
+ * real), janela de 24 h, credenciais e destinatário.
  */
 async function prepareSend(
   conversationId: string,
   organizationId: string,
-  /** 024: quién escribe decide si puede usar la extensión humana. */
+  /** 024: quem escreve decide se pode usar a extensão humana. */
   aiGenerated: boolean = false
 ): Promise<SendTarget> {
   const db = getDb();
@@ -161,12 +161,12 @@ async function prepareSend(
     );
   }
 
-  // 014: Instagram tiene su propio transporte, su propia ventana y NO tiene
-  // plantillas. Se resuelve antes que las credenciales de WhatsApp para no
-  // exigirle a una instancia de solo-Instagram un numero conectado.
+  // 014: o Instagram tem seu próprio transporte, sua própria janela e NÃO tem
+  // templates. Resolve-se antes das credenciais do WhatsApp para não
+  // exigir de uma instância só-Instagram um número conectado.
   if (row.conversation.channel === "instagram") {
-    // Una conversacion de un canal apagado puede existir (se apago despues de
-    // recibirla): falla claro en vez de intentar un transporte que no aplica.
+    // Uma conversa de um canal desligado pode existir (foi desligado depois de
+    // recebê-la): falha claro em vez de tentar um transporte que não se aplica.
     if (!isChannelEnabled("instagram")) {
       throw new SendError(
         "not_connected",
@@ -194,16 +194,16 @@ async function prepareSend(
       humanAgentTag,
       conversation: row.conversation,
       credentials: null,
-      // Instagram no pasa por la Graph API de WhatsApp; el campo existe para
-      // cumplir el tipo y su camino de envío no lo mira.
+      // O Instagram não passa pela Graph API do WhatsApp; o campo existe para
+      // cumprir o tipo e seu caminho de envio não o olha.
       destinatario: { to: igRecipient },
       recipient: igRecipient,
       instagram: igCreds,
     };
   }
 
-  // 017: Messenger, mismo trato que Instagram: transporte propio, ventana
-  // propia (con etiqueta fuera de ella) y sin plantillas.
+  // 017: o Messenger, mesmo tratamento do Instagram: transporte próprio, janela
+  // própria (com etiqueta fora dela) e sem templates.
   if (row.conversation.channel === "messenger") {
     if (!isChannelEnabled("messenger")) {
       throw new SendError(
@@ -232,18 +232,18 @@ async function prepareSend(
       humanAgentTag,
       conversation: row.conversation,
       credentials: null,
-      // Messenger tampoco pasa por la Graph API de WhatsApp.
+      // O Messenger também não passa pela Graph API do WhatsApp.
       destinatario: { to: fbRecipient },
       recipient: fbRecipient,
       messenger: fbCreds,
     };
   }
 
-  // 022: TikTok. Transporte propio (Zernio) y los dos límites que ningún otro
-  // canal tiene: la ventana no se puede reabrir, y admite un número contado de
-  // mensajes desde el último entrante. Los dos se preguntan a las capacidades
-  // y se comprueban AQUÍ, antes de llamar a nadie: el envío que la plataforma
-  // rechazaría no sale, y falla con un motivo que el operador entiende.
+  // 022: TikTok. Transporte próprio (Zernio) e os dois limites que nenhum outro
+  // canal tem: a janela não se pode reabrir, e admite um número contado de
+  // mensagens desde a última mensagem recebida. Os dois se perguntam às capacidades
+  // e se verificam AQUI, antes de chamar ninguém: o envio que a plataforma
+  // rejeitaria não sai, e falha com um motivo que o operador entende.
   if (row.conversation.channel === "tiktok") {
     if (!isChannelEnabled("tiktok")) {
       throw new SendError(
@@ -283,16 +283,16 @@ async function prepareSend(
     return {
       conversation: row.conversation,
       credentials: null,
-      // TikTok tampoco pasa por la Graph API de WhatsApp.
+      // O TikTok também não passa pela Graph API do WhatsApp.
       destinatario: { to: ttRecipient },
       recipient: ttRecipient,
       tiktok: ttCreds,
     };
   }
 
-  // El nucleo no decide la politica: la consulta. WhatsApp exige plantilla
-  // fuera de ventana; Instagram etiqueta y sigue; otro canal podria no tener
-  // ventana en absoluto.
+  // O núcleo não decide a política: a consulta. O WhatsApp exige template
+  // fora da janela; o Instagram marca a etiqueta e segue; outro canal poderia não ter
+  // janela nenhuma.
   const caps = capabilitiesFor(row.conversation.channel);
   if (
     caps.windowMs !== null &&
@@ -317,12 +317,12 @@ async function prepareSend(
   }
 
   /**
-   * 003 — El destinatario, en el campo que Meta espera para cada forma.
+   * 003 — O destinatário, no campo que a Meta espera para cada forma.
    *
-   * Un teléfono va en `to`; un BSUID va en `recipient` con
-   * `recipient_type: "individual"`. Se mandaba el BSUID en `to` y Meta
-   * respondía 131026, que en la bandeja se lee como si el número del cliente
-   * no existiera.
+   * Um telefone vai em `to`; um BSUID vai em `recipient` com
+   * `recipient_type: "individual"`. Mandava-se o BSUID em `to` e a Meta
+   * respondia 131026, que na caixa de entrada se lê como se o número do cliente
+   * não existisse.
    */
   const destinatario = destinatarioMeta(
     row.contact.phone ? normalizeRecipient(row.contact.phone) : null,
@@ -350,11 +350,11 @@ async function persistOutbound(input: {
   type: string;
   text: string | null;
   /**
-   * 014: 'sent' existe porque no todos los canales confirman por webhook.
-   * WhatsApp entra como 'pending' y avanza con los `statuses` de Meta;
-   * Instagram no manda ese evento salvo que se suscriba aparte, asi que la
-   * aceptacion de la plataforma ES la confirmacion. Sin esto el mensaje se
-   * queda con el reloj puesto para siempre aunque ya se haya entregado.
+   * 014: 'sent' existe porque nem todos os canais confirmam por webhook.
+   * O WhatsApp entra como 'pending' e avança com os `statuses` da Meta;
+   * o Instagram não manda esse evento salvo que se inscreva à parte, então a
+   * aceitação da plataforma É a confirmação. Sem isto a mensagem fica
+   * com o relógio para sempre mesmo que já tenha sido entregue.
    */
   status: "pending" | "sent" | "failed";
   error?: string | null;
@@ -399,7 +399,7 @@ async function persistOutbound(input: {
   return message.id;
 }
 
-/** Envía un mensaje de texto libre por WhatsApp. */
+/** Envia uma mensagem de texto livre pelo WhatsApp. */
 export async function sendText(input: {
   conversationId: string;
   organizationId: string;
@@ -414,18 +414,18 @@ export async function sendText(input: {
   const { credentials } = target;
   const canal = target.conversation.channel;
 
-  // 024: la IA escribe con formato de WhatsApp (y a veces Markdown). En un
-  // canal que no lo dibuja se le quitan las marcas ANTES de medir, enviar y
-  // guardar: lo que queda en el hilo es lo que el cliente leyó. Lo que escribe
-  // una persona no se toca.
+  // 024: a IA escreve com formato de WhatsApp (e às vezes Markdown). Num
+  // canal que não o desenha tiram-se as marcas ANTES de medir, enviar e
+  // guardar: o que fica no fio é o que o cliente leu. O que escreve
+  // uma pessoa não se toca.
   const text =
     input.aiGenerated && capabilitiesFor(canal).textFormat === "plain"
       ? plainSocialText(input.text)
       : input.text;
 
-  // 022: el límite de longitud es del canal. WhatsApp y TikTok lo declaran en
-  // caracteres y se comprueba aquí, antes de llamar a nadie; Instagram y
-  // Messenger (en bytes) lo siguen comprobando en su propio camino.
+  // 022: o limite de tamanho é do canal. O WhatsApp e o TikTok o declaram em
+  // caracteres e se verifica aqui, antes de chamar ninguém; o Instagram e
+  // o Messenger (em bytes) o seguem verificando no seu próprio caminho.
   if (capabilitiesFor(canal).maxTextChars !== null && !textFits(canal, text)) {
     throw new SendError("text_too_long", textLimitMessage(canal));
   }
@@ -449,9 +449,9 @@ export async function sendText(input: {
     waMessageId,
     type: "text",
     text,
-    // Un canal sin acuses de entrega confirma al aceptar; uno con acuses
-    // avanza despues por webhook. Sin esta distincion el mensaje se queda
-    // con el reloj puesto para siempre.
+    // Um canal sem confirmações de entrega confirma ao aceitar; um com confirmações
+    // avança depois por webhook. Sem esta distinção a mensagem fica
+    // com o relógio para sempre.
     status: capabilitiesFor(target.conversation.channel).deliveryReceipts
       ? "pending"
       : "sent",
@@ -463,10 +463,10 @@ export async function sendText(input: {
 }
 
 /**
- * 008 — Envía un adjunto de archivo (imagen/video/audio/documento).
- * El archivo queda ANTES en el volumen local (fuente durable de la preview);
- * si Graph falla tras eso, el mensaje se persiste `failed` (visible en el
- * hilo, nunca se pierde en silencio) y el SendError lleva `messageId`.
+ * 008 — Envia um anexo de arquivo (imagem/vídeo/áudio/documento).
+ * O arquivo fica ANTES no volume local (fonte durável da prévia);
+ * se o Graph falhar depois disso, a mensagem é persistida como `failed` (visível no
+ * fio, nunca se perde em silêncio) e o SendError leva `messageId`.
  */
 export async function sendMediaMessage(input: {
   conversationId: string;
@@ -474,7 +474,7 @@ export async function sendMediaMessage(input: {
   file: { data: Buffer; mimeType: string; fileName?: string };
   caption?: string;
 }): Promise<SendResult> {
-  // Validación previa (FR-007): tipo y tamaño antes de tocar disco o red.
+  // Validação prévia (FR-007): tipo e tamanho antes de tocar o disco ou a rede.
   const kind = validateOutgoing(input.file.mimeType, input.file.data.byteLength);
 
   const target = await prepareSend(input.conversationId, input.organizationId);
@@ -546,7 +546,7 @@ export async function sendMediaMessage(input: {
     if (err instanceof SendError) {
       sendErr = err;
     } else if (err instanceof MetaApiError && err.isAuthError) {
-      // Mismo criterio que el texto: SOLO 401/código 190 (fix 2026-08-04).
+      // Mesmo critério do texto: SOMENTE 401/código 190 (correção de 2026-08-04).
       await markReconnectRequired(input.organizationId);
       sendErr = new SendError(
         "reconnect_required",
@@ -558,7 +558,7 @@ export async function sendMediaMessage(input: {
         "No se pudo subir el adjunto a WhatsApp"
       );
     }
-    // El contenido NO se pierde: mensaje failed con el asset ya en disco.
+    // O conteúdo NÃO se perde: mensagem failed com o asset já no disco.
     sendErr.messageId = await persistOutbound({
       organizationId: input.organizationId,
       conversationId: input.conversationId,
@@ -584,7 +584,7 @@ export type LocationInput = {
 
 export type ContactInput = { name: string; phone: string };
 
-/** 008 — Envía una ubicación o contactos (payload estructurado, sin archivo). */
+/** 008 — Envia uma localização ou contatos (payload estruturado, sem arquivo). */
 export async function sendStructured(
   input: {
     conversationId: string;
@@ -598,8 +598,8 @@ export async function sendStructured(
     input.conversationId,
     input.organizationId
   );
-  // Ubicaciones y contactos son mensajes de WhatsApp: en los demás canales no
-  // hay credenciales de WhatsApp que usar y Graph los rechazaría.
+  // Localizações e contatos são mensagens do WhatsApp: nos demais canais não
+  // há credenciais do WhatsApp para usar e o Graph os rejeitaria.
   if (!target.credentials) {
     throw new SendError(
       "meta_error",
@@ -651,7 +651,7 @@ export async function sendStructured(
   return { messageId };
 }
 
-/** Llama a Graph /messages y traduce errores de Meta a SendError. */
+/** Chama o Graph /messages e traduz os erros da Meta para SendError. */
 export async function callGraphSend(
   credentials: Credentials,
   payload: unknown
@@ -684,9 +684,9 @@ export async function callGraphSend(
 
 
 /**
- * 014 — Envío por el canal de Instagram. Traduce los fallos al mismo
- * vocabulario de SendError que ya usa WhatsApp, para que la bandeja no tenga
- * que aprender un idioma por plataforma.
+ * 014 — Envio pelo canal do Instagram. Traduz as falhas para o mesmo
+ * vocabulário de SendError que já usa o WhatsApp, para que a caixa de entrada não
+ * tenha que aprender um idioma por plataforma.
  */
 async function callInstagramSend(
   target: SendTarget,
@@ -702,9 +702,9 @@ async function callInstagramSend(
     );
   }
 
-  // Instagram no tiene plantillas: fuera de la ventana de 24 h la única vía
-  // es la etiqueta de agente humano (hasta 7 días). 024: quién puede usarla
-  // lo decidió ya el pre-vuelo.
+  // O Instagram não tem templates: fora da janela de 24 h a única via
+  // é a etiqueta de agente humano (até 7 dias). 024: quem pode usá-la
+  // já foi decidido pelo pré-voo.
   const humanAgentTag = target.humanAgentTag ?? false;
 
   try {
@@ -738,8 +738,8 @@ async function callInstagramSend(
 }
 
 /**
- * 017 — Envío por el canal de Messenger. Mismo vocabulario de SendError que
- * WhatsApp e Instagram: la bandeja no aprende un idioma por plataforma.
+ * 017 — Envio pelo canal do Messenger. Mesmo vocabulário de SendError que
+ * o WhatsApp e o Instagram: a caixa de entrada não aprende um idioma por plataforma.
  */
 async function callMessengerSend(
   target: SendTarget,
@@ -755,17 +755,17 @@ async function callMessengerSend(
     );
   }
 
-  // Messenger no tiene plantillas: fuera de la ventana de 24 h la única vía
-  // es la etiqueta de agente humano (hasta 7 días). 024: quién puede usarla
-  // lo decidió ya el pre-vuelo.
+  // O Messenger não tem templates: fora da janela de 24 h a única via
+  // é a etiqueta de agente humano (até 7 dias). 024: quem pode usá-la
+  // já foi decidido pelo pré-voo.
   const humanAgentTag = target.humanAgentTag ?? false;
 
   try {
     const res = await sendMessengerText({
       credentials: creds,
       recipient: target.recipient,
-      // Zernio responde dentro de SU conversación, no al PSID: sin esta
-      // referencia el envío no tiene a dónde ir.
+      // A Zernio responde dentro DA SUA conversa, não ao PSID: sem esta
+      // referência o envio não tem para onde ir.
       threadRef: target.conversation.channelThreadRef,
       text,
       humanAgentTag,
@@ -793,8 +793,8 @@ async function callMessengerSend(
 }
 
 /**
- * 022 — Envío por el canal de TikTok. Mismo vocabulario de SendError que los
- * demás canales. La ventana y el tope ya se comprobaron en `prepareSend`.
+ * 022 — Envio pelo canal do TikTok. Mesmo vocabulário de SendError dos
+ * demais canais. A janela e o teto já foram verificados em `prepareSend`.
  */
 async function callTiktokSend(target: SendTarget, text: string): Promise<string> {
   const creds = target.tiktok!;
@@ -802,8 +802,8 @@ async function callTiktokSend(target: SendTarget, text: string): Promise<string>
   try {
     const res = await sendTiktokText({
       credentials: creds,
-      // Zernio responde dentro de SU conversación: sin esta referencia el
-      // envío no tiene a dónde ir.
+      // A Zernio responde dentro DA SUA conversa: sem esta referência o
+      // envio não tem para onde ir.
       threadRef: target.conversation.channelThreadRef,
       text,
     });

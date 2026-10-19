@@ -13,10 +13,10 @@ const bodySchema = z.object({
 });
 
 /**
- * Reinicio de UNA conversación para la línea de pruebas del operador: IA
- * reactivada (sale del handoff) y lead de vuelta a la primera etapa. El
- * historial del inbox NO se borra: es auditoría. Lo invoca el cerebro externo
- * cuando un número de su allowlist manda `/reset`.
+ * Reinício de UMA conversa para a linha de testes do operador: IA
+ * reativada (sai do handoff) e lead de volta à primeira etapa. O
+ * histórico da inbox NÃO é apagado: é auditoria. Quem invoca é o cérebro externo
+ * quando um número da sua allowlist envia `/reset`.
  */
 export async function POST(req: Request) {
   const denied = requireBotKey(req);
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     })
     .where(eq(schema.conversation.id, conv.id));
 
-  // Etapa al inicio del funnel (best-effort: sin etapas no revienta el reset).
+  // Etapa no início do funil (best-effort: sem etapas o reset não quebra).
   try {
     const stages = await db
       .select()
@@ -75,9 +75,9 @@ export async function POST(req: Request) {
       )
       .limit(1);
     if (first && leadRows[0]) {
-      // Por la puerta única: devolver la conversación de pruebas al inicio
-      // también es un movimiento, y la bitácora tiene que poder explicar por
-      // qué un lead retrocedió de etapa.
+      // Pela porta única: devolver a conversa de testes ao início
+      // também é um movimento, e o histórico precisa poder explicar por
+      // que um lead retrocedeu de etapa.
       await moveLeadToStage({
         organizationId,
         leadId: leadRows[0].id,

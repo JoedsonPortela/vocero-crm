@@ -21,46 +21,46 @@ import {
 } from "@/server/dispatch/outbox";
 
 /**
- * 021 — El worker del despachador.
+ * 021 — O worker do despachante.
  *
- * Dentro del proceso, como el resto del trabajo de fondo del repo (sin colas
- * externas: constitución II). Lo que lo hace fiable no es el proceso sino el
- * outbox: si muere a mitad, el lease expira y el siguiente barrido lo retoma;
- * si el contenedor se reinicia, los pendientes siguen ahí y el arranque los
- * reanuda (`instrumentation-node.ts`).
+ * Dentro do processo, como o resto do trabalho de fundo do repositório (sem filas
+ * externas: constituição II). O que o torna confiável não é o processo, mas o
+ * outbox: se morrer no meio, o lease expira e o próximo varrimento o retoma;
+ * se o contêiner reiniciar, os pendentes continuam ali e a inicialização os
+ * retoma (`instrumentation-node.ts`).
  *
- * Puerto de `src/server/dispatch/worker.ts` de Vocero Cloud.
+ * Adaptação de `src/server/dispatch/worker.ts` do Vocero Cloud.
  */
 
 /**
- * El barrido de fondo. No es lo que dispara el caso normal —para eso está
- * `programarTanda`— sino la red: filas en espera tras un fallo, las que
- * encoló otro proceso y las que quedaron de antes de un reinicio.
+ * O varrimento de fundo. Não é o que dispara o caso normal — para isso existe
+ * `programarTanda` —, mas a rede: linhas em espera após uma falha, as que
+ * enfileirou outro processo e as que ficaram de antes de um reinício.
  */
 const INTERVALO_MS = 2000;
 const POR_TANDA = 10;
 /**
- * Margen sobre la hora de la cita. `tomarPendientes` filtra por
- * `not_before <= ahora`: despertar clavado en el borde puede llegar un
- * milisegundo antes, no ver la fila y dejársela al barrido.
+ * Margem sobre a hora agendada. `tomarPendientes` filtra por
+ * `not_before <= agora`: acordar grudado na borda pode chegar um
+ * milissegundo antes, não ver a linha e deixá-la para o varrimento.
  */
 const MARGEN_MS = 50;
-/** Cada cuánto se renueva el lease mientras se espera al cerebro. */
+/** De quanto em quanto tempo se renova o lease enquanto se espera pelo cérebro. */
 const LATIDO_MS = 20_000;
 
 type Estado = {
   timer: NodeJS.Timeout | null;
   corriendo: boolean;
-  // La próxima cita y su hora. Se guarda la hora para no pisar una cita más
-  // próxima con otra más lejana: encolar en dos conversaciones a la vez
-  // dejaría a la primera esperando a la segunda.
+  // O próximo agendamento e a sua hora. Guarda-se a hora para não sobrescrever um
+  // agendamento mais próximo com outro mais distante: enfileirar em duas conversas ao
+  // mesmo tempo deixaria a primeira esperando a segunda.
   cita: NodeJS.Timeout | null;
   citaEn: number | null;
 };
 
-// En globalThis porque en dev los módulos se evalúan más de una vez (una por
-// ruta) y todas las copias deben compartir el mismo worker: dos temporizadores
-// sobre el mismo outbox se pisarían el lease.
+// Em globalThis porque em dev os módulos são avaliados mais de uma vez (uma por
+// rota) e todas as cópias devem compartilhar o mesmo worker: dois temporizadores
+// sobre o mesmo outbox se atropelariam no lease.
 const globalForWorker = globalThis as unknown as {
   __voceroDispatchWorker?: Estado;
 };
@@ -81,18 +81,18 @@ export function iniciarWorker(): void {
   const e = estado();
   if (e.timer) return;
   e.timer = setInterval(() => void tanda(), INTERVALO_MS);
-  // `unref` para que el temporizador no impida que el proceso termine.
+  // `unref` para que o temporizador não impeça o processo de terminar.
   e.timer.unref?.();
 }
 
 /**
- * Despierta al worker cuando venza esta ventana, además del barrido.
+ * Acorda o worker quando vencer esta janela, além do varrimento.
  *
- * La ventana de agrupado existe por una razón (la gente escribe a trozos),
- * pero los hasta 2 s de después eran solo el worker sin enterarse.
+ * A janela de agrupamento existe por uma razão (as pessoas escrevem aos pedaços),
+ * mas os até 2 s depois eram só o worker sem perceber.
  *
- * Una sola cita, la más próxima. Las demás filas que venzan entretanto las
- * recoge esa misma tanda, porque toma TODAS las vencidas, no solo la suya.
+ * Um só agendamento, o mais próximo. As demais linhas que vencerem nesse meio-tempo as
+ * recolhe esse mesmo lote, porque pega TODAS as vencidas, não só a sua.
  */
 export function programarTanda(cuando: Date): void {
   const e = estado();
@@ -117,7 +117,7 @@ export function detenerWorker(): void {
   e.citaEn = null;
 }
 
-/** Una pasada. Devuelve cuántos despachos tomó. */
+/** Uma passada. Devolve quantos despachos pegou. */
 export async function tanda(ahora: Date = new Date()): Promise<number> {
   const e = estado();
   if (e.corriendo) return 0;
@@ -125,8 +125,8 @@ export async function tanda(ahora: Date = new Date()): Promise<number> {
   try {
     let count = 0;
     for (; count < POR_TANDA; count++) {
-      // De una en una, y con la hora de AHORA: las que esperan en la cola no
-      // envejecen detrás de un POST lento con el lease ya corriendo.
+      // Um por um, e com a hora de AGORA: as que esperam na fila não
+      // envelhecem atrás de um POST lento com o lease já correndo.
       const [fila] = await tomarPendientes(1, count === 0 ? ahora : new Date());
       if (!fila) break;
       const latido = setInterval(() => {
@@ -153,17 +153,17 @@ export async function tanda(ahora: Date = new Date()): Promise<number> {
 async function procesar(fila: FilaDespacho): Promise<void> {
   const config = leerConfigDespacho();
   if (!config.active) {
-    // Quedó de antes de que se quitara o se rompiera la configuración: ya no
-    // hay a quién entregarlo, y el agente incluido vuelve a ser quien manda.
+    // Ficou de antes de a configuração ser removida ou quebrada: já não
+    // há a quem entregá-lo, e o agente incluído volta a ser quem manda.
     await descartarDespacho(fila, "el despacho ya no está configurado");
     return;
   }
 
   /**
-   * La pausa se vuelve a mirar al ENTREGAR, no solo al encolar.
+   * A pausa é conferida de novo ao ENTREGAR, não só ao enfileirar.
    *
-   * Entre un momento y otro está la ventana de agrupado: si alguien pausa la
-   * IA en esos segundos, el turno ya no le corresponde a ningún cerebro.
+   * Entre um momento e outro existe a janela de agrupamento: se alguém pausar a
+   * IA nesses segundos, o turno já não corresponde a nenhum cérebro.
    */
   const [conv] = await getDb()
     .select({
@@ -194,12 +194,12 @@ async function procesar(fila: FilaDespacho): Promise<void> {
     return;
   }
   /**
-   * 025 — Un despacho sin mensajes no se entrega.
+   * 025 — Um despacho sem mensagens não é entregue.
    *
-   * Pasa cuando lo que lo provocó ya lo contestó una persona dentro de la
-   * ventana. No es una caída del cerebro: mandárselo vacío sería pedirle un
-   * turno sobre nada —Nea lo rechaza con 422—, y un 4xx no se reintenta: la
-   * conversación acabaría con un humano por un fallo que no existió.
+   * Acontece quando o que o provocou já foi respondido por uma pessoa dentro da
+   * janela. Não é uma queda do cérebro: enviá-lo vazio seria pedir a ele um
+   * turno sobre nada —a Nea o rejeita com 422—, e um 4xx não é reintentado: a
+   * conversa acabaria com um humano por uma falha que não existiu.
    */
   if (evento.messages.length === 0) {
     await descartarDespacho(fila, "sin mensajes por despachar");
@@ -207,19 +207,19 @@ async function procesar(fila: FilaDespacho): Promise<void> {
   }
 
   const resultado = await entregar(evento, config);
-  // El lease pudo vencer mientras se esperaba al cerebro y otro pudo retomar
-  // la fila: si ya no es nuestra, lo que hagamos aquí pisaría su trabajo.
+  // O lease pode ter vencido enquanto se esperava pelo cérebro, e outro pode ter retomado
+  // a linha: se já não é nossa, o que fizermos aqui atropelaria o trabalho dele.
   if (!(await renovarLease(fila))) return;
 
   if (resultado.ok) {
     if (!(await marcarEntregado(fila))) return;
     /**
-     * 025 — Lo que entró mientras el evento iba en vuelo no viajó en él.
+     * 025 — O que entrou enquanto o evento ia em voo não viajou nele.
      *
-     * El evento se armó antes de que ese mensaje existiera. `encolarDespacho`
-     * lo dejó anotado en la fila, así que aquí se relee: lo anotado (y lo que
-     * haya en la ráfaga) menos lo que el cerebro recibió es lo que se le sigue
-     * debiendo, y sale en otro despacho con esos ids anotados.
+     * O evento foi montado antes de essa mensagem existir. `encolarDespacho`
+     * a deixou anotada na linha, então aqui ela é relida: o anotado (e o que
+     * houver na rajada) menos o que o cérebro recebeu é o que segue sendo
+     * pendente, e sai em outro despacho com esses ids anotados.
      */
     const actual = await rafagaDe(
       fila.organizationId,

@@ -8,7 +8,7 @@ import type { TemplateDto } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-/** Cuenta {{1}}..{{n}} igual que el servidor, para pedir sus valores. */
+/** Conta {{1}}..{{n}} igual ao servidor, para pedir os seus valores. */
 function countVariables(body: string): number {
   const found = new Set(
     Array.from(body.matchAll(/\{\{\s*(\d+)\s*\}\}/g)).map((m) => m[1])
@@ -17,11 +17,11 @@ function countVariables(body: string): number {
 }
 
 /**
- * Abrir conversación con quien nunca ha escrito.
+ * Abrir conversa com quem nunca escreveu.
  *
- * WhatsApp obliga a usar una plantilla aprobada para escribir primero; no es
- * una decisión del CRM. Si la ventana de 24 h está abierta, este panel ni se
- * muestra: gastar una plantilla ahí sería tirar dinero.
+ * O WhatsApp obriga a usar um modelo aprovado para escrever primeiro; não é
+ * uma decisão do CRM. Se a janela de 24 h estiver aberta, este painel nem
+ * aparece: gastar um modelo ali seria jogar dinheiro fora.
  */
 export function StartConversation({
   contactId,
@@ -66,8 +66,8 @@ export function StartConversation({
       | { error?: { message?: string }; conversationId?: string }
       | null;
     if (!res?.ok) {
-      // El fallo de Meta se explica aquí mismo (plantilla en pausa, número
-      // que no la recibe…) en vez de perderse.
+      // A falha da Meta é explicada aqui mesmo (modelo pausado, número
+      // que não o recebe…) em vez de se perder.
       setError(data?.error?.message ?? t("contacts.startFailed"));
       return;
     }

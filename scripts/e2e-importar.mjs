@@ -1,18 +1,18 @@
 /**
- * Self-test E2E de comportamiento — 027: importar contactos y «sin agente».
+ * Self-test E2E de comportamento — 027: importar contatos e «sem agente».
  *
- * Conduce la app real con los simuladores: importa por la misma ruta que usa
- * el diálogo, hace escribir a los importados por WhatsApp y comprueba qué
- * quedó en Contactos, en la bandeja y qué hizo (o calló) el agente incluido.
+ * Conduz o app real com os simuladores: importa pela mesma rota que usa o
+ * diálogo, faz os importados escreverem pelo WhatsApp e confere o que ficou
+ * em Contatos, na bandeja e o que fez (ou calou) o agente incluído.
  *
  * Uso:
- *   1) app corriendo (`next dev`) sobre una base migrada, SIN
- *      BRAIN_DISPATCH_URL, con WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL →
- *      wa-mock, OPENROUTER_BASE_URL → ai-mock con OPENROUTER_API_TOKEN y
- *      OPENROUTER_MODEL, y AGENT_COALESCE_MS corta (1500).
+ *   1) app rodando (`next dev`) sobre um banco migrado, SEM
+ *      BRAIN_DISPATCH_URL, com WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL →
+ *      wa-mock, OPENROUTER_BASE_URL → ai-mock com OPENROUTER_API_TOKEN e
+ *      OPENROUTER_MODEL, e AGENT_COALESCE_MS curto (1500).
  *   2) node --env-file=.env scripts/e2e-importar.mjs
  *
- * Sale con código 1 si algún check falla. Guion: tests/e2e/us-importar.md.
+ * Sai com código 1 se alguma verificação falhar. Roteiro: tests/e2e/us-importar.md.
  */
 const BASE = process.env.APP_BASE_URL ?? "http://localhost:3000";
 const COALESCE = Number(process.env.AGENT_COALESCE_MS ?? 6000);
@@ -20,8 +20,8 @@ const PN = "PN-E2E-1";
 const RUN = Date.now().toString(36);
 const MARCA = `#${RUN}`;
 const RELOJ = String(Date.now() % 1_000_000).padStart(6, "0");
-// Con el 1 de móvil mexicano a propósito: la importación tiene que guardarlo
-// igual que la ingesta (52…), o la persona acabaría con dos fichas.
+// Com o 1 de celular mexicano de propósito: a importação tem que salvá-lo
+// igual à ingestão (52…), senão a pessoa acabaria com duas fichas.
 const conUno = (n) => `52155${RELOJ}${String(n).padStart(2, "0")}`;
 const sinUno = (t) => `52${t.slice(3)}`;
 
@@ -110,7 +110,7 @@ async function main() {
 }
 
 // ---------------------------------------------------------------------------
-// Un archivo de 50 renglones
+// Um arquivo de 50 linhas
 // ---------------------------------------------------------------------------
 
 async function cincuenta() {
@@ -118,7 +118,7 @@ async function cincuenta() {
   const antes = (await conversaciones()).length;
   const buenos = Array.from({ length: 50 }, (_, i) => ({
     name: `Lista ${String(i + 1).padStart(2, "0")} ${MARCA}`,
-    // Formatos que trae una hoja de cálculo de verdad.
+    // Formatos que traz uma planilha de verdade.
     phone: i % 3 === 0 ? `+${conUno(i)}` : i % 3 === 1 ? conUno(i).replace(/(\d{3})(\d{3})(\d+)/, "$1 $2 $3") : sinUno(conUno(i)),
   }));
   const malos = [
@@ -153,7 +153,7 @@ async function cincuenta() {
 }
 
 // ---------------------------------------------------------------------------
-// «El agente no les responde»
+// «O agente não lhes responde»
 // ---------------------------------------------------------------------------
 
 async function sinAgente() {
@@ -165,7 +165,7 @@ async function sinAgente() {
   const NOMBRE_VIEJO = `Cliente Viejo ${MARCA}`;
   const NOMBRE_MIEMBRO = `Miembro Importado ${MARCA}`;
 
-  // Alguien con quien ya se hablaba antes de importar.
+  // Alguém com quem já se falava antes de importar.
   await entra(TEL_VIEJO, NOMBRE_VIEJO, `hola, ya soy cliente ${MARCA}`);
   let viejo = await hasta(async () => (await porTelefono(TEL_VIEJO))[0]);
   const convVieja = viejo ? await convDe(viejo.id) : null;
@@ -239,7 +239,7 @@ async function sinAgente() {
 }
 
 // ---------------------------------------------------------------------------
-// Lo que no se importa
+// O que não se importa
 // ---------------------------------------------------------------------------
 
 async function limites() {

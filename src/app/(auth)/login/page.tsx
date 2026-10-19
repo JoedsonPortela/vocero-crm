@@ -29,8 +29,8 @@ export default function LoginPage() {
       );
       return;
     }
-    // A la raíz, no a la Bandeja: ahí se decide si toca la guía de inicio
-    // (#86) o la Bandeja de siempre.
+    // Para a raiz, não para a Bandeja: ali é decidido se cabe o guia de início
+    // (#86) ou a Bandeja de sempre.
     router.push("/");
     router.refresh();
   }

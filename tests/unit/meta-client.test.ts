@@ -11,9 +11,9 @@ describe("normalizeRecipient", () => {
   });
 
   it("Argentina móvil: 549 + 10 dígitos → 54 + 10 dígitos (issue #35)", () => {
-    // Meta reporta `549…` pero la lista de destinatarios de prueba solo
-    // acepta el número sin el 9: con el 9 responde 131030 y el panel muestra
-    // el número como habilitado, así que el error manda a revisar donde no es.
+    // A Meta reporta `549…`, mas a lista de destinatários de teste só
+    // aceita o número sem o 9: com o 9 responde 131030 e o painel mostra
+    // o número como habilitado, então o erro manda revisar onde não é.
     expect(normalizeRecipient("5491122334455")).toBe("541122334455");
   });
 
@@ -29,13 +29,13 @@ describe("normalizeRecipient", () => {
   it("no confunde números que empiezan en el troncal pero con otra longitud", () => {
     expect(normalizeRecipient("521123")).toBe("521123");
     expect(normalizeRecipient("549123")).toBe("549123");
-    // 549 + 11 dígitos no es un móvil argentino: no se toca.
+    // 549 + 11 dígitos não é um celular argentino: não se mexe.
     expect(normalizeRecipient("54911223344556")).toBe("54911223344556");
   });
 
   it("la identidad NO se toca: normalizar al enviar es asimétrico a propósito", () => {
-    // Si la ingesta reescribiera `549…`, la identidad guardada dejaría de
-    // coincidir con el `wa_id` de cada webhook y el contacto se partiría.
+    // Se a ingestão reescrevesse `549…`, a identidade salva deixaria de
+    // coincidir com o `wa_id` de cada webhook e o contato se partiria.
     expect(normalizeMx("5491122334455")).toBe("5491122334455");
   });
 });
@@ -52,9 +52,9 @@ describe("MetaApiError.isAuthError", () => {
   });
 
   it("OAuthException solo NO basta (Meta la usa en errores transitorios)", () => {
-    // Incidente 2026-08-03: un 500 con type OAuthException (código 2,
-    // "service temporarily unavailable") marcaba el token como vencido y
-    // bloqueaba TODO envío. El type por sí solo jamás decide.
+    // Incidente 2026-08-03: um 500 com type OAuthException (código 2,
+    // "service temporarily unavailable") marcava o token como vencido e
+    // bloqueava TODO envio. O type sozinho jamais decide.
     expect(
       new MetaApiError("x", { status: 400, type: "OAuthException" }).isAuthError
     ).toBe(false);

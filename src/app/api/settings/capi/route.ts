@@ -15,10 +15,10 @@ import { getCredentialsByOrg } from "@/server/whatsapp/credentials";
 export const dynamic = "force-dynamic";
 
 /**
- * 016 — La conexión del negocio con su dataset de Meta.
+ * 016 — A conexão do negócio com o seu dataset da Meta.
  *
- * Sin la bandera `ATRIBUCION` esto no existe: 404, no 403 — no hay nada que
- * revelar sobre un endpoint que esta instancia no tiene.
+ * Sem a flag `ATRIBUCION` isto não existe: 404, não 403 — não há nada a
+ * revelar sobre um endpoint que esta instância não tem.
  */
 
 export const GET = withAuth(async (session) => {
@@ -30,12 +30,12 @@ export const GET = withAuth(async (session) => {
 const putSchema = z.object({
   datasetId: z.string().trim().min(1),
   /**
-   * Omitirlo reusa el token del negocio que ya conectó WhatsApp: es el mismo
-   * token que autoriza publicar en su dataset, y pedirlo otra vez solo
-   * consigue que alguien pegue un secreto en un chat.
+   * Omiti-lo reutiliza o token do negócio que já conectou o WhatsApp: é o mesmo
+   * token que autoriza publicar no seu dataset, e pedi-lo outra vez só
+   * consegue que alguém cole um segredo em um chat.
    */
   token: z.string().trim().min(1).optional(),
-  /** La etapa que ESTE negocio considera "lead calificado"; null lo apaga. */
+  /** A etapa que ESTE negócio considera "lead qualificado"; null desativa. */
   qualifiedStageId: z.string().trim().min(1).nullish(),
 });
 

@@ -4,16 +4,16 @@ import { newId } from "@/lib/db/ids";
 import { scoped } from "@/lib/db/tenant";
 
 /**
- * 015 — Memoria de lo ofrecido a una conversación (requisito INNEGOCIABLE).
+ * 015 — Memória do que foi ofertado a uma conversa (requisito INEGOCIÁVEL).
  *
- * Sin fila aquí no hay reserva: es lo que impide que un modelo alucine un
- * horario que nunca se le ofreció al cliente. La oferta se reemplaza completa
- * en cada ronda (la vigente es siempre la última) y se limpia al reservar.
+ * Sem linha aqui não há reserva: é o que impede um modelo de inventar um
+ * horário que nunca foi oferecido ao cliente. A oferta é substituída inteira
+ * a cada rodada (a vigente é sempre a última) e é limpa ao reservar.
  */
 
 export type OfferedSlot = { startUtc: string; label: string };
 
-/** Reemplaza TODA la oferta de la conversación, en una transacción. */
+/** Substitui TODA a oferta da conversa, numa transação. */
 export async function replaceOffers(
   organizationId: string,
   conversationId: string,
@@ -86,13 +86,13 @@ export async function clearOffers(
 }
 
 /**
- * ¿El instante pedido está entre los ofrecidos? Comparación por **epoch
- * exacto**: nada de tolerancias ni de comparar texto. Un ISO con otro offset
- * pero el mismo instante SÍ vale; un minuto de diferencia NO.
+ * O instante pedido está entre os ofertados? Comparação por **epoch
+ * exato**: nada de tolerâncias nem de comparar texto. Um ISO com outro offset
+ * mas o mesmo instante VALE; um minuto de diferença NÃO.
  *
- * La tolerancia sería la puerta por donde entra la alucinación: un modelo
- * inventa "el martes a las 10" con facilidad, y comparar exacto convierte eso
- * en un rechazo con la lista de lo que sí se ofreció.
+ * A tolerância seria a porta por onde entra a alucinação: um modelo
+ * inventa "terça às 10" com facilidade, e comparar exato transforma isso
+ * em uma recusa com a lista do que de fato foi ofertado.
  */
 export function findOffered(
   offers: OfferedSlot[],
@@ -103,7 +103,7 @@ export function findOffered(
   return offers.find((o) => Date.parse(o.startUtc) === target) ?? null;
 }
 
-/** Igualdad de instante, expuesta para tests. */
+/** Igualdade de instante, exposta para os testes. */
 export function sameInstant(a: string, b: string): boolean {
   const x = Date.parse(a);
   const y = Date.parse(b);
@@ -111,31 +111,31 @@ export function sameInstant(a: string, b: string): boolean {
 }
 
 /**
- * Encabezado del bloque de huecos que ve el modelo.
+ * Cabeçalho do bloco de horários que o modelo vê.
  *
- * Es una constante y no una cadena suelta porque hay DOS lados que dependen de
- * ella: quien la escribe (el turno del agente) y quien la lee (el mock de IA
- * del self-test). Con dos copias, el día que cambie la frase el guion pasaría
- * a verde sin ejercitar nada.
+ * É uma constante e não uma string solta porque há DOIS lados que dependem
+ * dela: quem a escreve (o turno do agente) e quem a lê (o mock de IA
+ * do self-test). Com duas cópias, no dia em que a frase mudar o roteiro passaria
+ * a verde sem exercitar nada.
  */
 export const CABECERA_HUECOS =
   "Horarios vigentes de esta conversación. Para book_slot usa el startUtc " +
   "EXACTO de la columna derecha, copiado tal cual:";
 
 /**
- * Los huecos vigentes, en la forma en que el modelo puede usarlos.
+ * Os horários vigentes, na forma em que o modelo pode usá-los.
  *
- * `book_slot` exige el `startUtc` y `findOffered` compara por epoch, sin
- * tolerancia. Pero al modelo solo le llegan el prompt y el historial de TEXTO,
- * donde están las etiquetas que leyó el cliente —«lun 7 sep, 11:00»— sin año,
- * sin zona y sin la fecha de hoy. Con eso, acertar el instante era cuestión de
- * suerte: el rechazo caía siempre en `slot_not_offered`, cuyo texto es fijo, y
- * la conversación se quedaba en bucle repitiendo la lista.
+ * `book_slot` exige o `startUtc` e `findOffered` compara por epoch, sem
+ * tolerância. Mas ao modelo só chegam o prompt e o histórico de TEXTO,
+ * onde estão os rótulos que o cliente leu — «seg 7 set, 11:00» — sem ano,
+ * sem fuso e sem a data de hoje. Com isso, acertar o instante era questão de
+ * sorte: a recusa caía sempre em `slot_not_offered`, cujo texto é fixo, e
+ * a conversa ficava em loop repetindo a lista.
  *
- * Devuelve `null` sin oferta vigente, para que el modelo siga obligado a
- * ofrecer antes de reservar.
+ * Devolve `null` sem oferta vigente, para que o modelo continue obrigado a
+ * ofertar antes de reservar.
  *
- * Reportado por @Diony7004 en #50, con el diagnóstico ya hecho.
+ * Reportado por @Diony7004 em #50, com o diagnóstico já feito.
  */
 export function mapaDeHuecosParaModelo(ofertas: OfferedSlot[]): string | null {
   if (ofertas.length === 0) return null;

@@ -16,9 +16,9 @@ describe("digitsOnly", () => {
 });
 
 describe("matchesQuery (bug reportado en producción)", () => {
-  // La Bandeja pasa SOLO el nombre: incluir el último mensaje hacía que
-  // buscar el nombre del dueño devolviera media bandeja (el agente lo escribe
-  // en sus propios mensajes).
+  // A Bandeja passa SOMENTE o nome: incluir a última mensagem fazia que
+  // buscar o nome do dono devolvesse metade da bandeja (o agente o escreve
+  // em suas próprias mensagens).
   const kevin = {
     text: ["Kevin Belier Sesión 🐏"],
     phone: "525550001234",
@@ -54,7 +54,7 @@ describe("matchesQuery (bug reportado en producción)", () => {
 
   it("no mira campos que no se le pasan (el mensaje ya no cuenta)", () => {
     const leonardo = { text: ["Leonardo García"], phone: "528999129209" };
-    // Su último mensaje nombra a Kevin, pero el preview ya no viaja aquí.
+    // Sua última mensagem cita o Kevin, mas o preview já não viaja aqui.
     expect(matchesQuery("Kevin", leonardo)).toBe(false);
   });
 

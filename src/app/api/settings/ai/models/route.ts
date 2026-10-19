@@ -9,9 +9,9 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * «Traer modelos»: `GET {base}/v1/models` con la llave escrita (o la
- * guardada). Un proveedor que no publica la lista no es un error: se dice
- * (`soportado: false`) y el modelo se escribe a mano.
+ * «Buscar modelos»: `GET {base}/v1/models` com a chave digitada (ou a
+ * salva). Um provedor que não publica a lista não é um erro: informa-se
+ * (`soportado: false`) e o modelo é digitado à mão.
  */
 export const POST = withAuth(async (session, req: Request) => {
   const body = await parseBody(req, aiModelsSchema);

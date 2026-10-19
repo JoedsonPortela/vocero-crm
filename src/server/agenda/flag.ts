@@ -1,27 +1,27 @@
 /**
- * 015 — Si esta instancia tiene agenda o no.
+ * 015 — Se esta instância tem agenda ou não.
  *
- * Misma decisión que los canales opcionales (ADR-001): el código del motor
- * viaja siempre en main, y lo que decide si EXISTE para el usuario es una
- * variable de despliegue. Una instancia normal (sin `AGENDA`) no ve la agenda
- * por ningún lado: ni pantalla de Citas, ni pestaña de Ajustes, ni rutas, ni
- * instrucciones de agendar en el prompt del agente — ni se le piden
- * credenciales de nadie.
+ * Mesma decisão que os canais opcionais (ADR-001): o código do motor
+ * viaja sempre na main, e o que decide se ele EXISTE para o usuário é uma
+ * variável de implantação. Uma instância normal (sem `AGENDA`) não vê a agenda
+ * por nenhum lado: nem tela de Agendamentos, nem aba de Configurações, nem rotas, nem
+ * instruções de agendar no prompt do agente — nem se pedem a ela
+ * credenciais de ninguém.
  *
- * Se hace así, y no con una rama, porque una rama tiene que mantenerse
- * compatible con main Y con las demás features opcionales, y su cadena de
- * migraciones diverge sin arreglo posible. La prueba está en el repo: la rama
- * `004-motor-agenda` quedó irrescatable en 26 días.
+ * Foi feito assim, e não com uma branch, porque uma branch precisa se manter
+ * compatível com a main E com as demais funcionalidades opcionais, e sua cadeia de
+ * migrações diverge sem conserto possível. A prova está no repositório: a branch
+ * `004-motor-agenda` ficou irrecuperável em 26 dias.
  *
- * La migración se aplica siempre: unas tablas vacías son inertes, y a cambio
- * todas las instancias comparten la misma estructura.
+ * A migração é aplicada sempre: tabelas vazias são inertes, e em troca
+ * todas as instâncias compartilham a mesma estrutura.
  *
- * No se llama `CHANNELS` porque agendar no es un canal: mezclar las dos
- * taxonomías haría que el contrato de capacidades por canal dejara de
- * significar lo que dice.
+ * Não se chama `CHANNELS` porque agendar não é um canal: misturar as duas
+ * taxonomias faria com que o contrato de capacidades por canal deixasse de
+ * significar o que diz.
  */
 
-/** Valores que cuentan como "encendida". Cualquier otra cosa, apagada. */
+/** Valores que contam como "ligada". Qualquer outra coisa, desligada. */
 const ON_VALUES = new Set(["on", "1", "true", "si", "sí", "yes"]);
 
 export function parseAgendaFlag(raw: string | undefined): boolean {
@@ -29,22 +29,22 @@ export function parseAgendaFlag(raw: string | undefined): boolean {
 }
 
 /**
- * Se lee de `process.env` directo, no por `getEnv()`, igual que
- * `isMockEnabled()` e `isAiConfiguredByEnv()`: preguntar si una feature existe no
- * puede depender de que TODO el entorno valide. Con `getEnv()`, un turno del
- * agente reventaba —en vez de degradar— solo por consultar la bandera.
+ * Lê-se de `process.env` direto, não por `getEnv()`, igual a
+ * `isMockEnabled()` e `isAiConfiguredByEnv()`: perguntar se uma funcionalidade existe não
+ * pode depender de todo o ambiente ser validado. Com `getEnv()`, um turno do
+ * agente estourava — em vez de degradar — só por consultar a flag.
  *
- * `AGENDA` sí está declarada en el esquema de `lib/env.ts`: ahí vive su
- * documentación y su tipo. Lo que no pasa por el validador es esta consulta.
+ * `AGENDA` está declarada no esquema de `lib/env.ts`: ali vive sua
+ * documentação e seu tipo. O que não passa pelo validador é esta consulta.
  */
 export function agendaEnabled(): boolean {
   return parseAgendaFlag(process.env.AGENDA);
 }
 
 /**
- * Respuesta para una superficie de agenda apagada. 404 y no 403 a propósito:
- * si la agenda no está encendida, ese endpoint no existe en esta instancia —
- * no hay nada que revelar sobre él.
+ * Resposta para uma superfície de agenda desligada. 404 e não 403 de propósito:
+ * se a agenda não estiver ligada, esse endpoint não existe nesta instância —
+ * não há nada a revelar sobre ele.
  */
 export function agendaDisabledResponse(): Response {
   return new Response(null, { status: 404 });

@@ -15,8 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 /**
- * 016 — Ajustes → Anúncios: conectar el dataset de Meta, decir qué etapa
- * significa "lead calificado" y ver qué se le ha reportado.
+ * 016 — Ajustes → Anúncios: conectar o dataset da Meta, dizer qual etapa
+ * significa "lead qualificado" e ver o que já foi reportado a ela.
  */
 
 type Capi = {
@@ -56,7 +56,7 @@ const STATUS_VARIANT: Record<
   pending: "secondary",
 };
 
-/** Qué significa cada evento, en el idioma del negocio y no en el de Meta. */
+/** O que cada evento significa, na linguagem do negócio e não na da Meta. */
 const EVENT_LABEL: Record<string, string> = {
   QualifiedLead: "Lead calificado",
   Purchase: "Venta",
@@ -109,7 +109,7 @@ export function AdsClient() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         datasetId: datasetId.trim(),
-        // Vacío = reusar el token de WhatsApp. Se omite en vez de mandar "".
+        // Vazio = reutilizar o token do WhatsApp. É omitido em vez de enviar "".
         ...(token.trim() ? { token: token.trim() } : {}),
         qualifiedStageId: qualifiedStageId || null,
       }),

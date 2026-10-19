@@ -1,21 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * 015 — El sandbox del Laboratorio en la agenda.
+ * 015 — O sandbox do Laboratório na agenda.
  *
- * Una cita de una conversación de prueba se registra, pero JAMÁS llega a un
- * conector: nadie crea una reunión de Zoom ni un evento en el calendario del
- * dueño por una simulación.
+ * Um agendamento de uma conversa de teste é registrado, mas JAMAIS chega a um
+ * conector: ninguém cria uma reunião do Zoom nem um evento na agenda do
+ * dono por uma simulação.
  *
- * Se prueba aquí y no en el arnés E2E por una razón concreta: las
- * conversaciones del Laboratorio no son alcanzables desde la API pública (a
- * propósito), así que no hay forma de conducirlas desde fuera. Este test sí
- * puede afirmar lo que importa —que el conector no se llama— en vez de
- * observarlo por ausencia.
+ * Testa-se aqui e não no arnês E2E por um motivo concreto: as
+ * conversas do Laboratório não são alcançáveis pela API pública (de
+ * propósito), então não há como conduzi-las de fora. Este teste pode
+ * afirmar o que importa —que o conector não é chamado— em vez de
+ * observá-lo por ausência.
  *
- * En el fork del que salió este motor la protección es ASIMÉTRICA: existe al
- * crear y está cableada a `false` al reprogramar y cancelar. Ahí no rompe nada
- * de milagro; aquí se comprueban las tres.
+ * No fork do qual saiu este motor a proteção é ASSIMÉTRICA: existe ao
+ * criar e está fiada em `false` ao remarcar e cancelar. Ali não quebra
+ * nada por milagre; aqui se conferem as três.
  */
 
 const settings = {
@@ -70,7 +70,7 @@ vi.mock("@/server/events/bus", () => ({ publish: () => {} }));
 
 const selectRows: unknown[][] = [];
 let lastInsert: Record<string, unknown> | null = null;
-/** La fila que devuelve un `update(...).returning()`. */
+/** A linha que devolve um `update(...).returning()`. */
 let updatedRow: Record<string, unknown> = {};
 
 function chain(rows: unknown[]) {
@@ -119,7 +119,7 @@ const CITA_DE_PRUEBA = {
   status: "agendada",
   isTest: true,
   connector: "zoom",
-  // Aunque tuviera reunión, no debe tocarse: es de prueba.
+  // Mesmo que tivesse reunião, não deve ser tocada: é de teste.
   externalRef: "zoom_viejo",
   meetingLink: null,
   linkPending: false,
@@ -140,9 +140,9 @@ describe("una cita del Laboratorio jamás llega al proveedor", () => {
 
   it("al CREAR: la cita se registra como de prueba y no se crea reunión", async () => {
     const { createSessionBooking } = await import("@/server/agenda/service");
-    selectRows.push([{ contactId: "ct_1", isTest: true }]); // la conversación
-    selectRows.push([{ name: "Persona simulada" }]); // el contacto
-    selectRows.push([]); // sin lead
+    selectRows.push([{ contactId: "ct_1", isTest: true }]); // a conversa
+    selectRows.push([{ name: "Persona simulada" }]); // o contato
+    selectRows.push([]); // sem lead
 
     const result = await createSessionBooking({
       organizationId: "org_1",
@@ -154,7 +154,7 @@ describe("una cita del Laboratorio jamás llega al proveedor", () => {
 
     expect(lastInsert?.isTest).toBe(true);
     expect(result.booking.isTest).toBe(true);
-    // Lo que importa: ni siquiera se resolvió el conector.
+    // O que importa: nem sequer se resolveu o conector.
     expect(bindConnector).not.toHaveBeenCalled();
     expect(createMeeting).not.toHaveBeenCalled();
   });

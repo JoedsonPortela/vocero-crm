@@ -4,7 +4,7 @@ import { ArrowDownRight, ArrowRight, ArrowUpRight } from "lucide-react";
 import { delta, type Comparable, type RateDto } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
-/** El marco común de las tarjetas de indicador. */
+/** A moldura comum dos cartões de indicador. */
 function Tile({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="min-w-0 rounded-md border bg-subtle px-3 py-2.5">
@@ -15,17 +15,17 @@ function Tile({ label, children }: { label: string; children: React.ReactNode })
 }
 
 /**
- * 019 — Tarjeta de indicador. Todo número comparable viaja con el mismo número
- * del periodo anterior: sin esa referencia, "12 tratos" no dice si el mes va
- * bien o mal. La dirección se lee por la flecha y el signo, no solo por el
- * color.
+ * 019 — Cartão de indicador. Todo número comparável vem com o mesmo número
+ * do período anterior: sem essa referência, "12 negócios" não diz se o mês vai
+ * bem ou mal. A direção é lida pela seta e pelo sinal, não só pela
+ * cor.
  */
 export function StatCard({
   label,
   value,
   compare,
   hint,
-  /** true = subir es peor (tratos perdidos, por ejemplo). */
+  /** true = subir é pior (negócios perdidos, por exemplo). */
   inverted = false,
 }: {
   label: string;
@@ -64,7 +64,7 @@ export function StatCard({
   );
 }
 
-/** Tarjeta de una tasa: el porcentaje grande y, debajo, de cuántos casos. */
+/** Cartão de uma taxa: a porcentagem grande e, embaixo, de quantos casos. */
 export function RateCard({
   label,
   rate,

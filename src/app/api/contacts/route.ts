@@ -12,10 +12,10 @@ import { createLeadForContact } from "@/server/inbox/lead-activity";
 export const dynamic = "force-dynamic";
 
 /**
- * Búsqueda tolerante en SQL, espejo de `matchesQuery` del cliente:
- * - nombre sin acentos ni mayúsculas (`translate`, sin depender de la
- *   extensión `unaccent`, que exigiría privilegios en la BD);
- * - teléfono por DÍGITOS, para poder teclearlo como se ve ("+52 555 000…").
+ * Busca tolerante em SQL, espelho de `matchesQuery` do cliente:
+ * - nome sem acentos nem maiúsculas (`translate`, sem depender da
+ *   extensão `unaccent`, que exigiria privilégios no BD);
+ * - telefone por DÍGITOS, para poder digitá-lo como aparece ("+52 555 000…").
  */
 const UNACCENT_FROM = "áàäâãéèëêíìïîóòöôõúùüûñçÁÀÄÂÃÉÈËÊÍÌÏÎÓÒÖÔÕÚÙÜÛÑÇ";
 const UNACCENT_TO = "aaaaaeeeeiiiiooooouuuuncAAAAAEEEEIIIIOOOOOUUUUNC";
@@ -28,9 +28,9 @@ export const GET = withAuth(async (session, req: Request) => {
 
   const db = getDb();
 
-  // Etapa de cada contacto en una consulta aparte: una subconsulta
-  // correlacionada aquí choca con el `id` de `lead` ("column reference id is
-  // ambiguous"), y un join duplicaría contactos con más de un lead.
+  // Etapa de cada contato em uma consulta à parte: uma subconsulta
+  // correlacionada aqui colide com o `id` de `lead` ("column reference id is
+  // ambiguous"), e um join duplicaria contatos com mais de um lead.
   const leadStages = await db
     .select({
       contactId: schema.lead.contactId,
@@ -51,15 +51,15 @@ export const GET = withAuth(async (session, req: Request) => {
   );
 
   const qDigits = q ? digitsOnly(q) : "";
-  // El patrón viaja normalizado igual que la columna, y con los comodines de
-  // LIKE escapados para que un "%" tecleado no liste todo.
+  // O padrão viaja normalizado como a coluna, e com os curingas do
+  // LIKE escapados para que um "%" digitado não liste tudo.
   const qLike = q ? normalizeText(q).replace(/[\\%_]/g, "\\$&") : "";
   const search =
     q && q.length > 0
       ? or(
           sql`lower(translate(${schema.contact.name}, ${UNACCENT_FROM}, ${UNACCENT_TO}))
               like ${`%${qLike}%`}`,
-          // Un dígito suelto barrería el directorio entero: mínimo 3.
+          // Um dígito solto varreria o diretório inteiro: mínimo 3.
           qDigits.length >= 3
             ? sql`regexp_replace(coalesce(${schema.contact.phone}, ''), '\\D', '', 'g')
                   like ${`%${qDigits}%`}`
@@ -67,8 +67,8 @@ export const GET = withAuth(async (session, req: Request) => {
         )
       : undefined;
 
-  // El filtro de etapa se aplica ANTES del límite: si no, un contacto de la
-  // etapa buscada podría quedar fuera por el corte de 200.
+  // O filtro de etapa é aplicado ANTES do limite: senão, um contato da
+  // etapa buscada poderia ficar de fora pelo corte de 200.
   const stageContactIds = stage
     ? leadStages.filter((r) => r.stageName === stage).map((r) => r.contactId)
     : null;
@@ -103,10 +103,10 @@ export const GET = withAuth(async (session, req: Request) => {
 const createSchema = z.object({
   name: z.string().trim().min(1).max(120),
   /**
-   * EXIGE código de país. Un número local crearía un contacto que jamás casaría
-   * con los mensajes entrantes —Meta siempre manda la identidad completa— y el
-   * dueño acabaría con dos fichas de la misma persona. No se asume un país:
-   * diez dígitos son válidos en varios, y asumir mal produce un número
+   * EXIGE código de país. Um número local criaria um contato que jamais casaria
+   * com as mensagens recebidas —a Meta sempre envia a identidade completa— e o
+   * dono acabaria com duas fichas da mesma pessoa. Não se assume um país:
+   * dez dígitos são válidos em vários, e assumir errado produz um número
    * silenciosamente equivocado.
    */
   phone: z
@@ -115,7 +115,7 @@ const createSchema = z.object({
     .regex(/^\d{7,15}$/, "Telefone em dígitos, com código do país (ex.: 5215512345678)"),
   notes: z.string().max(4000).optional(),
   source: z.enum(["anuncio", "organico", "referido", "conocido", "otro"]).optional(),
-  /** Etapa inicial del lead; si no viene, la primera abierta del tablero. */
+  /** Etapa inicial do lead; se não vier, a primeira aberta do quadro. */
   stageId: z.string().min(1).optional(),
 });
 
@@ -124,7 +124,7 @@ export const POST = withAuth(async (session, req: Request) => {
   if (!body.ok) return body.response;
 
   const db = getDb();
-  // 003: la identidad WhatsApp se deriva del teléfono normalizado.
+  // 003: a identidade WhatsApp é derivada do telefone normalizado.
   const phone = normalizeMx(body.data.phone);
   const inserted = await db
     .insert(schema.contact)
@@ -137,10 +137,10 @@ export const POST = withAuth(async (session, req: Request) => {
       notes: body.data.notes ?? null,
       source: body.data.source ?? null,
     })
-    // El canal entra en el target porque entra en el índice único desde 014
-    // (`contact_org_channel_identity_uq`). Postgres exige que el ON CONFLICT
-    // nombre EXACTAMENTE las columnas de un índice existente: sin `channel`,
-    // el alta manual falla con "no unique or exclusion constraint matching".
+    // O canal entra no target porque entra no índice único desde 014
+    // (`contact_org_channel_identity_uq`). O Postgres exige que o ON CONFLICT
+    // cite EXATAMENTE as colunas de um índice existente: sem `channel`,
+    // o cadastro manual falha com "no unique or exclusion constraint matching".
     .onConflictDoNothing({
       target: [
         schema.contact.organizationId,
@@ -153,9 +153,9 @@ export const POST = withAuth(async (session, req: Request) => {
     return apiError(409, "duplicate", "Já existe um contato com esse telefone");
   }
 
-  // Y su lead: un contacto sin lead es invisible en el Pipeline, que es la
-  // pantalla donde se trabaja el embudo. Dar de alta a alguien y no verlo ahí
-  // es la mitad de la función.
+  // E o seu lead: um contato sem lead é invisível no Pipeline, que é a
+  // tela onde se trabalha o funil. Cadastrar alguém e não vê-lo ali
+  // é metade da função.
   const lead = await createLeadForContact({
     organizationId: session.organizationId,
     contactId: inserted[0].id,

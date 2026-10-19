@@ -17,15 +17,15 @@ import type { ResolvedPeriod } from "@/server/analytics/period";
 import { localDateExpr, notLabContact } from "@/server/analytics/shared";
 
 /**
- * 019 — Bloque de ventas y embudo.
+ * 019 — Bloco de vendas e funil.
  *
- * Casi todo se agrega en SQL: traer los leads a Node para sumarlos aguanta 200
- * y se cae con 20 000, justo cuando el negocio crezca y la pantalla importe
- * más. La excepción es el desenlace de cada lead, que la base resuelve con un
- * DISTINCT ON y aquí solo se reparte en cubetas.
+ * Quase tudo é agregado em SQL: trazer os leads para o Node para somá-los aguenta 200
+ * e cai com 20 000, justo quando o negócio crescer e a tela importar
+ * mais. A exceção é o desfecho de cada lead, que o banco resolve com um
+ * DISTINCT ON e aqui só se distribui em faixas.
  *
- * Portado de Vocero Cloud sin el «dinero esperado»: necesita la probabilidad
- * de cierre del lead, una columna que el raíz no tiene (spec 019, D5).
+ * Portado do Vocero Cloud sem o «dinheiro esperado»: precisa da probabilidade
+ * de fechamento do lead, uma coluna que a raiz não tem (spec 019, D5).
  */
 export async function salesBlock(
   organizationId: string,
@@ -34,9 +34,9 @@ export async function salesBlock(
 ): Promise<SalesBlockDto> {
   const { start, end, previousStart, previousEnd } = period;
 
-  // El desenlace de cada lead se resuelve UNA vez y de ahí salen los
-  // indicadores, la serie y los motivos de pérdida. Si cada bloque lo dedujera
-  // por su cuenta podrían contradecirse entre sí en la misma pantalla.
+  // O desfecho de cada lead é resolvido UMA vez e daí saem os
+  // indicadores, a série e os motivos de perda. Se cada bloco o deduzisse
+  // por conta própria, poderiam se contradizer na mesma tela.
   const [desenlaces, desenlacesPrev] = await Promise.all([
     desenlacesDelPeriodo(organizationId, start, end),
     desenlacesDelPeriodo(organizationId, previousStart, previousEnd),
@@ -59,9 +59,9 @@ export async function salesBlock(
   const wonCount = cerrados.won.length;
   const lostCount = cerrados.lost.length;
 
-  // Ticket promedio sobre los tratos que SÍ tienen monto en la moneda del
-  // negocio: dividir entre todos los ganados castigaría el promedio con los
-  // que nadie capturó.
+  // Ticket médio sobre os negócios que TÊM valor na moeda do
+  // negócio: dividir por todos os ganhos castigaria a média com os
+  // que ninguém capturou.
   const avgTicketCents =
     cerrados.wonWithAmount > 0
       ? Math.round(cerrados.wonCents / cerrados.wonWithAmount)
@@ -84,13 +84,13 @@ export async function salesBlock(
     timeToWinDays,
     completeFrom,
     lossReasons: motivosDePerdida(desenlaces),
-    // "Vacío" habla del PERIODO, no del tablero: el embudo de hoy casi siempre
-    // tiene algo, y si contara un rango de 2020 nunca podría declararse vacío.
+    // "Vazio" fala do PERÍODO, não do painel: o funil de hoje quase sempre
+    // tem algo, e se contasse um intervalo de 2020 nunca poderia se declarar vazio.
     empty: nuevos === 0 && wonCount === 0 && lostCount === 0,
   };
 }
 
-/** Prospectos que entraron: leads creados en el rango, sin los del Laboratorio. */
+/** Prospectos que entraram: leads criados no intervalo, sem os do Laboratório. */
 async function contarNuevos(
   organizationId: string,
   start: Date,
@@ -127,16 +127,16 @@ export type Desenlace = {
 };
 
 /**
- * Cómo terminó cada lead que se movió dentro del rango: su ÚLTIMO movimiento,
- * sea del tipo que sea.
+ * Como terminou cada lead que se moveu dentro do intervalo: seu ÚLTIMO movimento,
+ * seja do tipo que for.
  *
- * Mirar solo los eventos de cierre no alcanza. Sacar una tarjeta de Ganado y
- * devolverla al embudo deja un evento `open`, así que el último evento *de
- * cierre* seguiría diciendo "ganado" y el trato aparecería como venta —encima
- * del mismo dinero contado otra vez en "hoy en el embudo"—. Y un trato que se
- * gana, se saca y se vuelve a ganar deja dos eventos `won` del mismo lead, que
- * sumarían el monto dos veces. Con el desenlace único los dos casos
- * desaparecen.
+ * Olhar só os eventos de fechamento não basta. Tirar um cartão de Ganho e
+ * devolvê-lo ao funil deixa um evento `open`, então o último evento *de
+ * fechamento* continuaria dizendo "ganho" e o negócio apareceria como venda —além
+ * do mesmo dinheiro contado outra vez em "hoje no funil"—. E um negócio que se
+ * ganha, se tira e se ganha de novo deixa dois eventos `won` do mesmo lead, que
+ * somariam o valor duas vezes. Com o desfecho único os dois casos
+ * desaparecem.
  */
 async function desenlacesDelPeriodo(
   organizationId: string,
@@ -170,10 +170,10 @@ async function desenlacesDelPeriodo(
 }
 
 /**
- * Tratos cerrados en el rango. Se cuenta el LEAD, no el evento.
+ * Negócios fechados no intervalo. Conta-se o LEAD, não o evento.
  *
- * El dinero sale del monto ACTUAL del lead —no se guarda histórico del monto—,
- * y solo suma el que está en la moneda del negocio.
+ * O dinheiro sai do valor ATUAL do lead — não se guarda histórico do valor —,
+ * e só soma o que está na moeda do negócio.
  */
 export function clasificarCierres(
   desenlaces: Desenlace[],
@@ -185,7 +185,7 @@ export function clasificarCierres(
   let wonWithAmount = 0;
 
   for (const d of desenlaces) {
-    // `open` = el lead volvió al embudo y no cerró nada en este rango.
+    // `open` = o lead voltou ao funil e não fechou nada neste intervalo.
     if (d.kind === "won") {
       won.push(d.leadId);
       if (sumable({ amountCents: d.amountCents, currency: d.currency }, businessCurrency)) {
@@ -201,9 +201,9 @@ export function clasificarCierres(
 }
 
 /**
- * Días desde que entró el prospecto hasta que se ganó. Solo con eventos
- * REALES: los sembrados por la migración traen `updated_at` como fecha, que
- * cualquier edición posterior pisó, y contaminarían el promedio.
+ * Dias desde que o prospecto entrou até ser ganho. Só com eventos
+ * REAIS: os semeados pela migração trazem `updated_at` como data, que
+ * qualquer edição posterior sobrescreveu, e contaminariam a média.
  */
 async function diasHastaGanar(
   organizationId: string,
@@ -230,11 +230,11 @@ async function diasHastaGanar(
 }
 
 /**
- * Serie por día o por mes, cortada en la zona del negocio.
+ * Série por dia ou por mês, cortada no fuso do negócio.
  *
- * `wonLeadIds` son los tratos que el periodo ya dio por ganados; la serie NO
- * vuelve a decidir quién ganó, solo reparte esos mismos en el calendario. Es lo
- * que mantiene la gráfica cuadrada con el indicador de arriba.
+ * `wonLeadIds` são os negócios que o período já deu como ganhos; a série NÃO
+ * volta a decidir quem ganhou, só distribui esses mesmos no calendário. É o
+ * que mantém o gráfico alinhado com o indicador de cima.
  */
 async function serieTemporal(
   organizationId: string,
@@ -262,13 +262,13 @@ async function serieTemporal(
           notLabContact(schema.lead.contactId)
         )
       )
-      // GROUP BY 1 (posición), no la expresión repetida: `localDateExpr` lleva
-      // parámetros y Postgres vería dos expresiones distintas.
+      // GROUP BY 1 (posição), não a expressão repetida: `localDateExpr` leva
+      // parâmetros e o Postgres veria duas expressões diferentes.
       .groupBy(sql`1`),
-    // Se agrupa por (día, lead) y NO por día a secas: el dinero es del LEAD, y
-    // sumarlo por evento haría que un trato ganado dos veces valiera el doble.
-    // El colapso a un solo bucket por lead se hace abajo, en memoria, porque
-    // los cierres de un rango son pocos por naturaleza.
+    // Agrupa-se por (dia, lead) e NÃO só por dia: o dinheiro é do LEAD, e
+    // somá-lo por evento faria um negócio ganho duas vezes valer o dobro.
+    // O colapso para um único balde por lead é feito abaixo, em memória, porque
+    // os fechamentos de um intervalo são poucos por natureza.
     wonLeadIds.length === 0
       ? []
       : db
@@ -297,8 +297,8 @@ async function serieTemporal(
   for (const r of nuevos) {
     buckets.set(r.bucket, { bucket: r.bucket, newLeads: r.n, won: 0, wonCents: 0 });
   }
-  // Un lead ganado en dos días distintos del rango sigue siendo UN trato: se
-  // queda en el bucket de su último cierre, que es lo que el indicador cuenta.
+  // Um lead ganho em dois dias diferentes do intervalo continua sendo UM negócio: fica
+  // no balde do seu último fechamento, que é o que o indicador conta.
   const ultimoBucket = new Map<string, { bucket: string; cents: number; at: number }>();
   for (const r of ganados) {
     const at = Number(r.lastAt);
@@ -317,18 +317,18 @@ async function serieTemporal(
     prev.wonCents += g.cents;
     buckets.set(g.bucket, prev);
   }
-  // Cada cubeta del periodo, con cero donde no pasó nada.
+  // Cada balde do período, com zero onde não aconteceu nada.
   return bucketsDelPeriodo(period.dto).map(
     (bucket) => buckets.get(bucket) ?? { bucket, newLeads: 0, won: 0, wonCents: 0 }
   );
 }
 
 /**
- * Embudo de COHORTE: de los prospectos que ENTRARON en el rango, cuántos
- * llegaron a cada etapa (en cualquier momento, incluso después del rango).
+ * Funil de COORTE: dos prospectos que ENTRARAM no intervalo, quantos
+ * chegaram a cada etapa (em qualquer momento, inclusive depois do intervalo).
  *
- * Es la pregunta del dueño —"de cada 100 que entran, cuántos cierran"— y no la
- * mezcla de cohortes que daría contar eventos sueltos.
+ * É a pergunta do dono — "de cada 100 que entram, quantos fecham" — e não a
+ * mistura de coortes que daria contar eventos soltos.
  */
 async function embudoCohorte(
   organizationId: string,
@@ -373,12 +373,12 @@ async function embudoCohorte(
 }
 
 /**
- * El embudo a partir de las etapas y de hasta dónde llegó cada lead. Aparte y
- * puro para poder probar sus reglas sin base.
+ * O funil a partir das etapas e de até onde chegou cada lead. À parte e
+ * puro para poder testar suas regras sem base.
  *
- * Un lead cuenta UNA vez por etapa aunque haya ido y vuelto, y el acumulado
- * solo corre sobre etapas ABIERTAS: si "Perdido" tuviera una posición alta, un
- * trato perdido aparecería como si hubiera pasado por todas.
+ * Um lead conta UMA vez por etapa mesmo que tenha ido e voltado, e o acumulado
+ * só percorre etapas ABERTAS: se "Perdido" tivesse uma posição alta, um
+ * negócio perdido apareceria como se tivesse passado por todas.
  */
 export function armarEmbudo(
   etapas: { id: string; name: string; kind: StageKind; position: number }[],
@@ -412,9 +412,9 @@ export function armarEmbudo(
 }
 
 /**
- * Días que un lead pasa en cada etapa: diferencia entre un evento y el
- * siguiente del mismo lead, los dos dentro del rango y los dos REALES. Un tramo
- * medido contra una fecha sembrada por la migración no mide nada.
+ * Dias que um lead passa em cada etapa: diferença entre um evento e o
+ * seguinte do mesmo lead, os dois dentro do intervalo e os dois REAIS. Um trecho
+ * medido contra uma data semeada pela migração não mede nada.
  */
 async function tiemposPorEtapa(
   organizationId: string,
@@ -461,10 +461,10 @@ async function tiemposPorEtapa(
 }
 
 /**
- * Desde cuándo los tiempos son completos: el primer evento observado de
- * verdad. Solo importa si hay eventos SEMBRADOS (la bitácora se instaló sobre
- * leads que ya existían); sin ellos el historial es completo desde el inicio y
- * no hay nada que advertir.
+ * Desde quando os tempos são completos: o primeiro evento observado de
+ * verdade. Só importa se houver eventos SEMEADOS (o histórico foi instalado sobre
+ * leads que já existiam); sem eles o histórico é completo desde o início e
+ * não há nada a advertir.
  */
 async function primerEventoReal(organizationId: string): Promise<string | null> {
   const rows = await getDb()
@@ -481,8 +481,8 @@ async function primerEventoReal(organizationId: string): Promise<string | null> 
 }
 
 /**
- * Motivos de pérdida del periodo. Sale del MISMO desenlace que los
- * indicadores: la tabla no puede contar un trato que arriba no es perdido.
+ * Motivos de perda do período. Sai do MESMO desfecho que os
+ * indicadores: a tabela não pode contar um negócio que acima não é perdido.
  */
 export function motivosDePerdida(desenlaces: Desenlace[]): LossReasonRowDto[] {
   const acc = new Map<LossReason | "sin_registro", LossReasonRowDto>();
@@ -503,9 +503,9 @@ export function motivosDePerdida(desenlaces: Desenlace[]): LossReasonRowDto[] {
 }
 
 /**
- * El embudo de HOY: dinero de las etapas abiertas en la moneda del negocio,
- * cuántos no tienen monto y cuántos están en otra moneda. Una sola pasada en
- * SQL; la suma va como `bigint` porque muchos montos de `integer` se salen de
+ * O funil de HOJE: dinheiro das etapas abertas na moeda do negócio,
+ * quantos não têm valor e quantos estão em outra moeda. Uma única passada em
+ * SQL; a soma vai como `bigint` porque muitos valores de `integer` estouram o
  * `integer`.
  */
 async function pipelineVivo(

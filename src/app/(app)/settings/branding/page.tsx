@@ -8,16 +8,16 @@ import { navKicker } from "@/lib/channels";
 export const dynamic = "force-dynamic";
 
 export default async function BrandingSettingsPage() {
-  // La marca se lee en el servidor para que la tarjeta del icono ya pinte la
-  // vista previa correcta en el primer render, sin un parpadeo del generado al
-  // subido mientras un fetch del cliente va y vuelve.
+  // A marca é lida no servidor para que o cartão do ícone já pinte a
+  // prévia correta na primeira renderização, sem um piscar do gerado para o
+  // enviado enquanto um fetch do cliente vai e volta.
   const session = await getSessionOrNull();
   const branding = await getBranding(session?.organizationId);
 
   return (
     <div className="max-w-2xl space-y-6">
-      {/* El logo viaja como prop: al subirlo o quitarlo, FaviconCard refresca
-          la página y la vista previa de la marca lo sigue sin recargar. */}
+      {/* A logo viaja como prop: ao enviá-la ou removê-la, o FaviconCard atualiza
+          a página e a prévia da marca acompanha sem recarregar. */}
       <BrandingClient
         favicon={branding.favicon}
         kicker={navKicker([...enabledChannels()])}

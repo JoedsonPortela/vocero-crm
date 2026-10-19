@@ -8,15 +8,15 @@ import {
 } from "@/server/dev/wa-mock-state";
 
 /**
- * Imitación de la Graph API (contrato mocks.md). El cliente real apunta aquí
- * cuando META_GRAPH_BASE_URL = <app>/api/dev/wa-mock/graph — el código de
- * producción no sabe que habla con un mock.
+ * Imitação da Graph API (contrato mocks.md). O cliente real aponta para cá
+ * quando META_GRAPH_BASE_URL = <app>/api/dev/wa-mock/graph — o código de
+ * produção não sabe que fala com um mock.
  */
 export const dynamic = "force-dynamic";
 
 type Params = { params: Promise<{ path: string[] }> };
 
-/** 016 — Catálogo cerrado de Meta para `business_messaging` (mismo que el real). */
+/** 016 — Catálogo fechado da Meta para `business_messaging` (igual ao real). */
 const CAPI_EVENT_NAMES = new Set([
   "Purchase",
   "LeadSubmitted",
@@ -34,7 +34,7 @@ const CAPI_EVENT_NAMES = new Set([
   "ReviewProvided",
 ]);
 
-/** La app de Meta "dueña" del token en el mock (la que queda suscrita). */
+/** O app da Meta "dono" do token no mock (o que fica inscrito). */
 const MOCK_APP = {
   id: "mock-app",
   name: "App de prueba Vocero",
@@ -61,9 +61,9 @@ function invalidTokenResponse(): Response {
 }
 
 /**
- * Tokens con los que el mock imita dos rechazos reales de Meta al registrar
- * el webhook: sin `whatsapp_business_management` (código 200) y una app sin
- * callback URL propia (el GET de `webhook_configuration` no trae
+ * Tokens com os quais o mock imita duas recusas reais da Meta ao registrar
+ * o webhook: sem `whatsapp_business_management` (código 200) e um app sem
+ * callback URL própria (o GET de `webhook_configuration` não traz
  * `application`).
  */
 const SIN_GESTION = "-sin-gestion";
@@ -98,14 +98,14 @@ function callbackVerificationFailed(failure: string): Response {
 }
 
 /**
- * Meta verifica el callback ANTES de aceptar un override: le hace el mismo
- * GET de suscripción que al configurarlo en el panel, y si no devuelve el
- * challenge, rechaza con 2200. El mock lo hace de verdad contra la URL, así
- * un verify token que no casa con la ruta no pasa en verde.
+ * A Meta verifica o callback ANTES de aceitar um override: faz o mesmo
+ * GET de inscrição que ao configurar no painel, e se não devolver o
+ * challenge, recusa com 2200. O mock faz isso de verdade contra a URL, assim
+ * um verify token que não bate com a rota não passa em verde.
  *
- * Si la URL es la de esta misma instancia (`APP_BASE_URL`), se le habla por
- * loopback, como hace `deliverToWebhook`: el dominio público puede no
- * resolver desde dentro del proceso y lo que se prueba es la ruta y el token.
+ * Se a URL for a desta mesma instância (`APP_BASE_URL`), fala-se com ela por
+ * loopback, como faz o `deliverToWebhook`: o domínio público pode não
+ * resolver de dentro do processo e o que se testa é a rota e o token.
  */
 async function callbackVerificationError(
   uri: string,
@@ -135,12 +135,12 @@ async function callbackVerificationError(
   }
 }
 
-/** Un teléfono de Meta es solo dígitos; un BSUID lleva prefijo y punto. */
+/** Um telefone da Meta é só dígitos; um BSUID tem prefixo e ponto. */
 function esSoloDigitos(valor: string): boolean {
   return /^[0-9]+$/.test(valor);
 }
 
-/** Quita el segmento de versión (v25.0/...) si viene en la ruta. */
+/** Remove o segmento de versão (v25.0/...) se vier na rota. */
 function normalizePath(path: string[]): string[] {
   return path[0] && /^v\d+/.test(path[0]) ? path.slice(1) : path;
 }
@@ -152,7 +152,7 @@ export async function GET(req: Request, ctx: Params) {
   const token = bearerToken(req);
   if (token.endsWith("-invalid")) return invalidTokenResponse();
 
-  // GET {wabaId}/message_templates → lista para el sync
+  // GET {wabaId}/message_templates → lista para o sync
   if (path.length === 2 && path[1] === "message_templates") {
     const state = getWaMockState();
     return Response.json({
@@ -167,8 +167,8 @@ export async function GET(req: Request, ctx: Params) {
     });
   }
 
-  // GET {wabaId}/subscribed_apps → la app suscrita y, si lo hay, su override
-  // de callback. Misma forma que Meta; sin suscripción, `data` vacío.
+  // GET {wabaId}/subscribed_apps → o app inscrito e, se houver, o seu override
+  // de callback. Mesma forma da Meta; sem inscrição, `data` vazio.
   if (path.length === 2 && path[1] === "subscribed_apps") {
     const sub = getWaMockState().wabaSubscriptions[path[0]!];
     return Response.json({
@@ -185,7 +185,7 @@ export async function GET(req: Request, ctx: Params) {
     });
   }
 
-  // GET {mediaId} (ids "media...") → metadata de adjunto (media proxy del bot)
+  // GET {mediaId} (ids "media...") → metadados de anexo (media proxy do bot)
   if (path.length === 1 && path[0]!.startsWith("media")) {
     const origin = new URL(req.url).origin;
     return Response.json({
@@ -196,12 +196,12 @@ export async function GET(req: Request, ctx: Params) {
     });
   }
 
-  // 017 — GET {psid}?fields=first_name,last_name → perfil de quien escribe
-  // por Messenger (la ingesta lo consulta la primera vez que ve un PSID).
+  // 017 — GET {psid}?fields=first_name,last_name → perfil de quem escreve
+  // pelo Messenger (a ingestão consulta na primeira vez que vê um PSID).
   const fields = new URL(req.url).searchParams.get("fields") ?? "";
 
-  // GET {phoneNumberId}?fields=webhook_configuration → el override vigente
-  // del número y la callback URL de la app (ausente con un token "-sin-app").
+  // GET {phoneNumberId}?fields=webhook_configuration → o override vigente
+  // do número e a callback URL do app (ausente com um token "-sem-app").
   if (path.length === 1 && fields.includes("webhook_configuration")) {
     const override = getWaMockState().phoneWebhooks[path[0]!];
     return Response.json({
@@ -223,12 +223,12 @@ export async function GET(req: Request, ctx: Params) {
     });
   }
 
-  // 017 — GET {pageId}?fields=id,name → validación de la página de Facebook
+  // 017 — GET {pageId}?fields=id,name → validação da página do Facebook
   if (path.length === 1 && /(^|,)name(,|$)/.test(fields)) {
     return Response.json({ id: path[0], name: "Página de prueba Vocero" });
   }
 
-  // GET {phoneNumberId}?fields=... → validación del wizard
+  // GET {phoneNumberId}?fields=... → validação do wizard
   if (path.length === 1) {
     return Response.json({
       display_phone_number: "+52 55 0000 0000",
@@ -247,8 +247,8 @@ export async function POST(req: Request, ctx: Params) {
   const token = bearerToken(req);
   if (token.endsWith("-invalid")) return invalidTokenResponse();
 
-  // POST {phoneNumberId}/media (multipart, 008) → id de media subido.
-  // Va ANTES del parseo JSON: el body es form-data.
+  // POST {phoneNumberId}/media (multipart, 008) → id da mídia enviada.
+  // Vem ANTES do parse do JSON: o body é form-data.
   if (path.length === 2 && path[1] === "media") {
     const form = await req.formData().catch(() => null);
     const file = form?.get("file");
@@ -258,17 +258,17 @@ export async function POST(req: Request, ctx: Params) {
         { status: 400 }
       );
     }
-    // El id arranca con "media" para que el GET de metadata lo resuelva.
+    // O id começa com "media" para que o GET de metadados o resolva.
     return Response.json({ id: `media-up-${nextN()}` });
   }
 
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
 
-  // 016 — POST {datasetId}/events: Conversions API. Imita las tres cosas que
-  // de verdad importan del endpoint real: el catálogo cerrado de nombres, la
-  // exigencia del ctwa_clid, y —sobre todo— que Meta puede responder 200
-  // DESCARTANDO el evento. Los datasets terminados en "-fail" reproducen eso
-  // último, que es el modo de fallo que nadie ve venir.
+  // 016 — POST {datasetId}/events: Conversions API. Imita as três coisas que
+  // de fato importam do endpoint real: o catálogo fechado de nomes, a
+  // exigência do ctwa_clid e — sobretudo — que a Meta pode responder 200
+  // DESCARTANDO o evento. Os datasets terminados em "-fail" reproduzem isso
+  // por último, que é o modo de falha que ninguém vê chegar.
   if (path.length === 2 && path[1] === "events") {
     const state = getWaMockState();
     const events = Array.isArray(body.data)
@@ -319,7 +319,7 @@ export async function POST(req: Request, ctx: Params) {
       at: new Date().toISOString(),
     });
 
-    // El 200 mentiroso: recibido por HTTP, descartado por Meta.
+    // O 200 mentiroso: recebido por HTTP, descartado pela Meta.
     const received = datasetId.endsWith("-fail") ? 0 : 1;
     return Response.json({
       events_received: received,
@@ -328,23 +328,23 @@ export async function POST(req: Request, ctx: Params) {
     });
   }
 
-  // POST {phoneNumberId}/messages con status:"read" → typing/leído:
-  // NO es un mensaje saliente — no contamina el outbox.
+  // POST {phoneNumberId}/messages com status:"read" → digitando/lido:
+  // NÃO é uma mensagem de saída — não contamina o outbox.
   if (path.length === 2 && path[1] === "messages" && body.status === "read") {
     return Response.json({ success: true });
   }
 
-  // POST {phoneNumberId}/messages → registra en el outbox
+  // POST {phoneNumberId}/messages → registra no outbox
   if (path.length === 2 && path[1] === "messages") {
     const state = getWaMockState();
 
     /**
-     * Meta espera un TELEFONO en `to`. Un BSUID ahi devuelve 131026 — «el
-     * destinatario no puede recibir mensajes» — y el mock lo replica.
+     * A Meta espera um TELEFONE em `to`. Um BSUID ali retorna 131026 — «o
+     * destinatário não pode receber mensagens» — e o mock replica isso.
      *
-     * Sin esto, mandar el BSUID en el campo equivocado pasaba en verde aqui y
-     * fallaba en produccion, que es exactamente lo que ocurrio. El BSUID va
-     * en `recipient`, con `recipient_type: "individual"`.
+     * Sem isso, mandar o BSUID no campo errado passava em verde aqui e
+     * falhava em produção, que é exatamente o que aconteceu. O BSUID vai
+     * em `recipient`, com `recipient_type: "individual"`.
      */
     const destino = body.to as string | undefined;
     if (destino && !esSoloDigitos(destino)) {
@@ -360,8 +360,8 @@ export async function POST(req: Request, ctx: Params) {
         { status: 400 }
       );
     }
-    // Meta responde 132000 si los parámetros no cuadran con las {{n}} de la
-    // plantilla aprobada. El mock lo replica para que un desfase no pase.
+    // A Meta responde 132000 se os parâmetros não baterem com as {{n}} do
+    // template aprovado. O mock replica isso para que um descompasso não passe.
     if (body.type === "template") {
       const tplSend = body.template as
         | {
@@ -401,8 +401,8 @@ export async function POST(req: Request, ctx: Params) {
       waMessageId,
       phoneNumberId: path[0]!,
       to: String(body.to ?? ""),
-      // Se guarda aparte para que un self-test pueda comprobar EN QUE CAMPO
-      // viajo el destinatario, que es de lo que dependia el fallo.
+      // Fica guardado à parte para que um self-test possa conferir EM QUAL CAMPO
+      // viajou o destinatário, que é do que dependia a falha.
       ...(body.recipient ? { recipient: String(body.recipient) } : {}),
       type: String(body.type ?? "text"),
       body,
@@ -415,7 +415,7 @@ export async function POST(req: Request, ctx: Params) {
     });
   }
 
-  // POST {wabaId}/message_templates → alta de plantilla (queda PENDING)
+  // POST {wabaId}/message_templates → cadastro de template (fica PENDING)
   if (path.length === 2 && path[1] === "message_templates") {
     const state = getWaMockState();
     const components = (body.components ?? []) as {
@@ -426,8 +426,8 @@ export async function POST(req: Request, ctx: Params) {
     const bodyComponent = components.find(
       (c) => (c.type ?? "").toUpperCase() === "BODY"
     );
-    // Meta valida que haya un ejemplo por cada {{n}} del cuerpo: sin esto el
-    // mock aceptaría plantillas que producción rechaza (error 100).
+    // A Meta valida que haja um exemplo para cada {{n}} do corpo: sem isso o
+    // mock aceitaria templates que a produção recusa (erro 100).
     const highestVar = [
       ...(bodyComponent?.text ?? "").matchAll(/\{\{\s*(\d+)\s*\}\}/g),
     ].reduce((max, m) => Math.max(max, Number(m[1])), 0);
@@ -458,10 +458,10 @@ export async function POST(req: Request, ctx: Params) {
     return Response.json({ id: tpl.id, status: "PENDING", category: tpl.category });
   }
 
-  // POST {wabaId}/subscribed_apps → suscribe la app. Como en Meta, el override
-  // de callback se fija mandándolo en el cuerpo y un POST SIN él lo BORRA
-  // ("Delete WABA alternate callback"): un CRM que re-suscribe a ciegas
-  // desconecta aquí al cerebro externo igual que en producción.
+  // POST {wabaId}/subscribed_apps → inscreve o app. Como na Meta, o override
+  // de callback é definido enviando-o no corpo, e um POST SEM ele o APAGA
+  // ("Delete WABA alternate callback"): um CRM que reinscreve às cegas
+  // desconecta aqui o cérebro externo igual à produção.
   if (path.length === 2 && path[1] === "subscribed_apps") {
     if (token.endsWith(SIN_GESTION)) return permissionErrorResponse();
     const uri =
@@ -474,10 +474,10 @@ export async function POST(req: Request, ctx: Params) {
     return Response.json({ success: true });
   }
 
-  // POST {phoneNumberId} con webhook_configuration → override del NÚMERO, el
-  // que el CRM registra al guardar la conexión. Como en Meta: exige el
-  // permiso de gestión, verifica el callback (handshake) antes de aceptarlo y
-  // una cadena vacía lo quita.
+  // POST {phoneNumberId} com webhook_configuration → override do NÚMERO, o
+  // que o CRM registra ao salvar a conexão. Como na Meta: exige a
+  // permissão de gestão, verifica o callback (handshake) antes de aceitá-lo e
+  // uma string vazia o remove.
   if (path.length === 1 && body.webhook_configuration) {
     if (token.endsWith(SIN_GESTION)) return permissionErrorResponse();
     const config = body.webhook_configuration as {

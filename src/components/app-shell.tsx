@@ -11,16 +11,16 @@ import { BrandLogo } from "@/components/brand-mark";
 import { t } from "@/lib/i18n";
 
 /**
- * Cascarón de la app en dos modos:
+ * Casca do app em dois modos:
  *
- * - Escritorio (lg+): el panel lateral es una columna fija, como siempre.
- * - Móvil/tableta: el lateral sale de la izquierda como cajón sobre un velo,
- *   y arriba queda una barra azul marino con el hamburguesa y la marca. El
- *   cajón se cierra solo al navegar (el `pathname` cambia) y con Escape.
+ * - Desktop (lg+): o painel lateral é uma coluna fixa, como sempre.
+ * - Mobile/tablet: a lateral sai pela esquerda como gaveta sobre um véu,
+ *   e no topo fica uma barra azul-marinho com o hambúrguer e a marca. A
+ *   gaveta fecha sozinha ao navegar (o `pathname` muda) e com Escape.
  *
- * La altura usa `100dvh` (no `100vh`) porque en el navegador móvil la barra de
- * direcciones se encoge al hacer scroll: con `vh` el compositor de la Bandeja
- * queda debajo del borde visible.
+ * A altura usa `100dvh` (não `100vh`) porque no navegador mobile a barra de
+ * endereços encolhe ao rolar: com `vh` o compositor da Bandeja
+ * fica abaixo da borda visível.
  */
 export function AppShell({
   branding,
@@ -37,19 +37,19 @@ export function AppShell({
   userName: string;
   role: string;
   theme: ThemePreference;
-  /** Commit resuelto en el servidor, con su procedencia (ver `resolveCommit`). */
+  /** Commit resolvido no servidor, com sua procedência (ver `resolveCommit`). */
   commit?: ResolvedCommit;
-  /** 015 — ¿esta instancia tiene agenda? Lo decide el servidor. */
+  /** 015 — Esta instância tem agenda? Quem decide é o servidor. */
   agenda?: boolean;
-  /** 028 — La etiqueta bajo el logo (`navKicker`). */
+  /** 028 — O rótulo sob o logo (`navKicker`). */
   kicker?: string;
   /**
-   * Franja de aviso por encima de TODA la aplicación (#85).
+   * Faixa de aviso acima de TODA a aplicação (#85).
    *
-   * Va aquí y no dentro de una pantalla porque lo que anuncia no es de una
-   * pantalla: es que el agente no puede contestar. Quien tiene ese problema
-   * no está mirando Ajustes, está mirando su bandeja y preguntándose por qué
-   * no responde nadie.
+   * Fica aqui e não dentro de uma tela porque o que anuncia não é de uma
+   * tela: é que o agente não consegue responder. Quem tem esse problema
+   * não está olhando Ajustes, está olhando a sua Bandeja e se perguntando por que
+   * ninguém responde.
    */
   aviso?: React.ReactNode;
   children: React.ReactNode;
@@ -57,8 +57,8 @@ export function AppShell({
   const pathname = usePathname();
   const [navOpen, setNavOpen] = useState(false);
 
-  // Navegar = cerrar el cajón. Sin esto, tocar "Pipeline" deja el velo encima
-  // de la pantalla recién cargada.
+  // Navegar = fechar a gaveta. Sem isso, tocar em "Pipeline" deixa o véu por cima
+  // da tela recém-carregada.
   useEffect(() => {
     setNavOpen(false);
   }, [pathname]);
@@ -96,8 +96,8 @@ export function AppShell({
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Misma pieza que la barra lateral (`nav-dark`): en el teléfono la
-            franja azul marino de arriba es lo que queda del bicolor. */}
+        {/* Mesma peça da barra lateral (`nav-dark`): no celular a
+            faixa azul-marinho do topo é o que resta do bicolor. */}
         <header className="nav-dark flex h-12 shrink-0 items-center gap-1.5 border-b bg-subtle px-2 text-foreground lg:hidden">
           <button
             onClick={() => setNavOpen(true)}

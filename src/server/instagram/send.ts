@@ -2,11 +2,11 @@ import { MetaApiError } from "@/lib/meta/client";
 import type { InstagramCredentials } from "@/server/instagram/credentials";
 
 /**
- * 014 — Frontera de salida del canal de Instagram (Constitución II: todo
- * request a una plataforma pasa por un único módulo).
+ * 014 — Fronteira de saída do canal do Instagram (Constituição II: toda
+ * requisição a uma plataforma passa por um único módulo).
  *
- * Dos transportes, misma firma: Zernio (API unificada) y Meta directo
- * (graph.instagram.com). Ambos devuelven el id del mensaje en la plataforma.
+ * Dois transportes, mesma assinatura: a Zernio (API unificada) e a Meta direto
+ * (graph.instagram.com). Ambos devolvem o id da mensagem na plataforma.
  */
 
 const ZERNIO_BASE = process.env.ZERNIO_BASE_URL ?? "https://zernio.com/api/v1";
@@ -14,8 +14,8 @@ const IG_GRAPH_BASE =
   process.env.IG_GRAPH_BASE_URL ?? "https://graph.instagram.com";
 const IG_GRAPH_VERSION = process.env.META_GRAPH_API_VERSION ?? "v25.0";
 
-/** Instagram corta el texto en 1000 BYTES (no caracteres): con acentos y
- * emojis el margen real es menor de lo que aparenta. */
+/** O Instagram corta o texto em 1000 BYTES (não caracteres): com acentos e
+ * emojis a margem real é menor do que aparenta. */
 export const IG_TEXT_MAX_BYTES = 1000;
 
 export function fitsInstagramText(text: string): boolean {
@@ -25,17 +25,17 @@ export function fitsInstagramText(text: string): boolean {
 export type InstagramSendResult = { platformMessageId: string };
 
 /**
- * Envía texto por el transporte que corresponda.
+ * Envia texto pelo transporte correspondente.
  *
- * `recipient` es el IGSID (sin el prefijo `ig:`); `threadRef` es el
- * conversationId opaco de Zernio, que solo hace falta en ese transporte.
+ * `recipient` é o IGSID (sem o prefixo `ig:`); `threadRef` é o
+ * conversationId opaco da Zernio, que só é necessário nesse transporte.
  */
 export async function sendInstagramText(input: {
   credentials: InstagramCredentials;
   recipient: string;
   threadRef: string | null;
   text: string;
-  /** Fuera de la ventana de 24 h Instagram solo admite HUMAN_AGENT. */
+  /** Fora da janela de 24 h o Instagram só admite HUMAN_AGENT. */
   humanAgentTag?: boolean;
 }): Promise<InstagramSendResult> {
   return input.credentials.source === "zernio"
@@ -101,8 +101,8 @@ async function sendViaMeta(input: {
     body.tag = "HUMAN_AGENT";
   }
 
-  // El host es graph.instagram.com, NO graph.facebook.com: es el error mas
-  // comun de esta integracion y devuelve un fallo de permisos que despista.
+  // O host é graph.instagram.com, NÃO graph.facebook.com: é o erro mais
+  // comum desta integração e devolve uma falha de permissões que confunde.
   const res = await fetchJson(
     `${IG_GRAPH_BASE}/${IG_GRAPH_VERSION}/${credentials.igUserId}/messages`,
     {
@@ -120,9 +120,9 @@ async function sendViaMeta(input: {
 }
 
 /**
- * Traduce los fallos de ambas plataformas al MetaApiError que el resto del
- * CRM ya sabe interpretar (incluido `isAuthError`, que distingue token muerto
- * de hipo transitorio y costó un incidente aprender).
+ * Traduz as falhas das duas plataformas para o MetaApiError que o resto do
+ * CRM já sabe interpretar (incluindo `isAuthError`, que distingue token morto
+ * de soluço transitório, e que custou um incidente aprender).
  */
 async function fetchJson(
   url: string,
@@ -143,7 +143,7 @@ async function fetchJson(
   try {
     json = text ? JSON.parse(text) : null;
   } catch {
-    // respuesta no-JSON: se conserva el texto crudo
+    // resposta não-JSON: guarda-se o texto bruto
   }
 
   if (!res.ok) {

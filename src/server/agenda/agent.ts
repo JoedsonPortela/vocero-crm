@@ -5,26 +5,26 @@ import { replaceOffers } from "@/server/agenda/offers";
 import { BookingError, createSessionBooking } from "@/server/agenda/service";
 
 /**
- * 015 — Lo que el agente incluido puede hacer con la agenda.
+ * 015 — O que o agente incluído pode fazer com a agenda.
  *
- * Vive aquí y no en el pipeline para que el pipeline no aprenda de agendas: el
- * turno pide "ofrece" o "reserva" y recibe el texto que hay que mandar.
+ * Mora aqui e não no pipeline para que o pipeline não aprenda sobre agendas: o
+ * turno pede "ofertar" ou "reservar" e recebe o texto que deve ser enviado.
  *
- * Regla que atraviesa las dos operaciones: el modelo NO redacta horarios. Pide
- * ofrecer, y el motor pega las etiquetas reales. Si el modelo inventa un
- * instante al reservar, el motor lo rechaza y se re-ofrece — nunca se agenda
- * algo que el cliente no eligió.
+ * Regra que atravessa as duas operações: o modelo NÃO redige horários. Pede
+ * ofertar, e o motor cola as etiquetas reais. Se o modelo inventa um
+ * instante ao reservar, o motor o rejeita e se re-oferta — nunca se agenda
+ * algo que o cliente não escolheu.
  */
 
-/** Cuántos huecos se le enseñan al cliente en un mensaje. */
+/** Quantos horários são mostrados ao cliente em uma mensagem. */
 const SHOWN = 3;
-/** Cuántos se guardan como reservables: el catálogo es más ancho que el menú. */
+/** Quantos são guardados como reserváveis: o catálogo é mais amplo que o menu. */
 const OFFERED = 12;
 
 export type AgendaTurn = {
-  /** Lo que hay que enviarle al cliente. */
+  /** O que deve ser enviado ao cliente. */
   text: string;
-  /** false ⇒ el motor no pudo; el turno sigue, sin agendar. */
+  /** false ⇒ o motor não conseguiu; o turno segue, sem agendar. */
   ok: boolean;
 };
 
@@ -47,7 +47,7 @@ export async function offerSlots(input: {
   });
 
   if (spread.length === 0) {
-    // Agenda llena no es un error: es una respuesta que el cliente entiende.
+    // Agenda lotada não é um erro: é uma resposta que o cliente entende.
     return {
       ok: false,
       text:
@@ -56,8 +56,8 @@ export async function offerSlots(input: {
     };
   }
 
-  // Se REGISTRA todo el catálogo, no solo lo que se enseña: si el cliente pide
-  // otro día, el agente tiene alternativas legítimas que aceptar.
+  // Registra-se TODO o catálogo, não só o que se mostra: se o cliente pedir
+  // outro dia, o agente tem alternativas legítimas para aceitar.
   await replaceOffers(
     input.organizationId,
     input.conversationId,
@@ -91,7 +91,7 @@ export async function bookSlot(input: {
       return { ok: true, text: `${base}\nEnlace: ${result.meetingLink}` };
     }
     if (result.linkPending) {
-      // La cita existe; el enlace no. No se promete lo que no se tiene.
+      // O agendamento existe; o link não. Não se promete o que não se tem.
       return {
         ok: true,
         text: `${base}\nEn un momento te comparto el enlace por aquí.`,
@@ -101,8 +101,8 @@ export async function bookSlot(input: {
   } catch (err) {
     if (!(err instanceof BookingError)) throw err;
 
-    // Se ocupó o el modelo inventó la hora: en ambos casos se re-ofrece con
-    // datos reales en vez de discutir con el cliente.
+    // Ou o horário foi ocupado ou o modelo inventou a hora: nos dois casos re-oferta-se com
+    // dados reais em vez de discutir com o cliente.
     if (err.slots.length > 0) {
       const lista = err.slots
         .slice(0, SHOWN)

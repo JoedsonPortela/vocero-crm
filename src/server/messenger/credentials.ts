@@ -5,22 +5,22 @@ import { decryptSecret, encryptSecret } from "@/lib/crypto";
 import { columnasDelSecreto, secretoDeLaFila } from "@/server/zernio/secreto-guardado";
 
 /**
- * 017 — Credenciales del canal de Messenger.
+ * 017 — Credenciais do canal do Messenger.
  *
- * Dos fuentes, como en Instagram: la API unificada de Zernio (una llave, y el
- * enrutado por `accountRef`) o una app propia de Meta (token de la página, y
- * el enrutado por `pageId`). El token viaja descifrado solo en memoria y nunca
- * sale en una respuesta de la API — hacia fuera se expone su cola.
+ * Duas fontes, como no Instagram: a API unificada da Zernio (uma chave, e o
+ * roteamento por `accountRef`) ou um app próprio da Meta (token da página, e
+ * o roteamento por `pageId`). O token viaja descriptografado só na memória e nunca
+ * sai numa resposta da API — para fora expõe-se a sua cauda.
  */
 
 export type MessengerCredentials = {
   id: string;
   organizationId: string;
   source: "zernio" | "meta";
-  /** ID de la página de Facebook. En modo Zernio puede no conocerse. */
+  /** ID da página do Facebook. No modo Zernio pode não ser conhecido. */
   pageId: string | null;
   pageName: string | null;
-  /** Zernio: accountId de la cuenta conectada. Meta directo: null. */
+  /** Zernio: accountId da conta conectada. Meta direto: null. */
   accountRef: string | null;
   webhookSecret: string | null;
   status: "connected" | "reconnect_required";
@@ -58,7 +58,7 @@ export async function getMessengerCredentialsByOrg(
   return rows[0] ? toCredentials(rows[0]) : null;
 }
 
-/** Enrutado del webhook de Meta: `entry[].id` es el ID de la página. */
+/** Roteamento do webhook da Meta: `entry[].id` é o ID da página. */
 export async function getMessengerCredentialsByPageId(
   pageId: string
 ): Promise<MessengerCredentials | null> {
@@ -70,7 +70,7 @@ export async function getMessengerCredentialsByPageId(
   return rows[0] ? toCredentials(rows[0]) : null;
 }
 
-/** Enrutado del webhook de Zernio: el evento trae `account.id`, no la página. */
+/** Roteamento do webhook da Zernio: o evento traz `account.id`, não a página. */
 export async function getMessengerCredentialsByAccountRef(
   accountRef: string
 ): Promise<MessengerCredentials | null> {
@@ -121,7 +121,7 @@ export async function saveMessengerCredentials(input: {
     .values({ id: newId("credentials"), ...values });
 }
 
-/** El token murió: se pausan los envíos y la UI pide reconectar. */
+/** O token morreu: os envios são pausados e a UI pede para reconectar. */
 export async function markMessengerReconnectRequired(
   organizationId: string
 ): Promise<void> {

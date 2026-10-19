@@ -1,10 +1,10 @@
 import { isMockEnabled } from "@/lib/env";
 
 /**
- * Gate del entorno de pruebas interno (FR-080).
- * Los mocks solo existen con WA_MOCK_ENABLED=true Y fuera de producción;
- * en cualquier otro caso responden 404 incondicional, indistinguible de una
- * ruta inexistente.
+ * Gate do ambiente de testes interno (FR-080).
+ * Os mocks só existem com WA_MOCK_ENABLED=true E fora de produção;
+ * em qualquer outro caso respondem 404 incondicional, indistinguível de uma
+ * rota inexistente.
  */
 export function mockGuard(): Response | null {
   if (!isMockEnabled()) {

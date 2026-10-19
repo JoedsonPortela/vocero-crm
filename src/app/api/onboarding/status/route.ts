@@ -6,9 +6,9 @@ import { onboardingStatus } from "@/server/onboarding/status";
 export const dynamic = "force-dynamic";
 
 /**
- * Qué le falta a la instancia para que el agente conteste (issue #86): los
- * pasos verificados y la guía que sale de ellos. Para quien puede configurar,
- * igual que la pantalla. Ver `server/onboarding/`.
+ * O que falta à instância para que o agente responda (issue #86): os
+ * passos verificados e o guia que sai deles. Para quem pode configurar,
+ * igual à tela. Ver `server/onboarding/`.
  */
 export const GET = withAuth(async (session) => {
   if (!canConfigure(session.role)) {

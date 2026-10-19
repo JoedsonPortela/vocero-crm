@@ -20,20 +20,20 @@ import { isWindowOpen, windowExpiresAt } from "@/server/inbox/window";
 import { windowMsFor } from "@/server/channels/capabilities";
 
 /**
- * 021 — Entrega de un despacho al cerebro: leer la ráfaga, armar el evento y
- * hacer el POST firmado. Puerto de `src/server/brains/deliver.ts` de Vocero
- * Cloud sin tipos de cerebro: aquí hay uno, el de `BRAIN_DISPATCH_URL`.
+ * 021 — Entrega de um despacho ao cérebro: ler a rajada, montar o evento e
+ * fazer o POST assinado. Adaptação de `src/server/brains/deliver.ts` do Vocero
+ * Cloud sem tipos de cérebro: aqui há um só, o de `BRAIN_DISPATCH_URL`.
  */
 
-/** Lo que el CRM espera por el 2xx. Significa «recibido», no «ya contesté». */
+/** O que o CRM espera pelo 2xx. Significa «recebido», não «já respondi». */
 export const TIMEOUT_ENTREGA_MS = 20_000;
 
-/** Cuántos mensajes hacia atrás se mira para delimitar la ráfaga. */
+/** Quantas mensagens para trás são olhadas para delimitar a rajada. */
 const VENTANA_DE_MENSAJES = 20;
 
 /**
- * Las columnas de un mensaje que el evento necesita, con su adjunto. Función y
- * no constante: el esquema no se toca al importar el módulo.
+ * As colunas de uma mensagem que o evento precisa, com seu anexo. Função e
+ * não constante: o esquema não é tocado ao importar o módulo.
  */
 function columnasDelMensaje() {
   return {
@@ -71,23 +71,23 @@ function paraEvento(m: {
 }
 
 /**
- * La ráfaga = lo que el cliente dijo y todavía no se le ha respondido.
+ * A rajada = o que o cliente disse e ainda não foi respondido.
  *
- * Se delimita por el último mensaje SALIENTE de la conversación, no por las
- * horas del despacho: `first_message_at` se toma después de persistir el
- * mensaje, así que el primero de la ráfaga podía quedar unos milisegundos
- * ANTES y caerse del evento. Delimitar por la conversación es además robusto
- * frente a relojes desalineados.
+ * Delimita-se pela última mensagem ENVIADA da conversa, não pelas
+ * horas do despacho: `first_message_at` é tomado depois de persistir a
+ * mensagem, então a primeira da rajada podia ficar uns milissegundos
+ * ANTES e cair do evento. Delimitar pela conversa é além disso robusto
+ * frente a relógios dessincronizados.
  *
- * 025 — `debidos` son los ids que el despacho tiene anotados
- * (`dispatch.message_ids`). El corte por el último saliente confunde «sin
- * responder» con «sin entregar»: lo que el cliente escribe mientras el cerebro
- * piensa queda DETRÁS de la respuesta a lo anterior, y ese mensaje se quedaba
- * sin despacho. Un debido viaja aunque tenga una respuesta del agente después.
+ * 025 — `debidos` são os ids que o despacho tem anotados
+ * (`dispatch.message_ids`). O corte pelo último envio confunde «sem
+ * responder» com «sem entregar»: o que o cliente escreve enquanto o cérebro
+ * pensa fica ATRÁS da resposta à anterior, e essa mensagem ficava
+ * sem despacho. Um pendente viaja mesmo que tenha uma resposta do agente depois.
  *
- * Lo que sí lo salda es que conteste una PERSONA (cualquier saliente que no
- * sea del agente): ese mensaje ya tuvo quien lo atendiera, y mandárselo al
- * cerebro sería contestarle dos veces al cliente.
+ * O que de fato a quita é uma PESSOA responder (qualquer envio que não
+ * seja do agente): essa mensagem já teve quem a atendesse, e mandá-la ao
+ * cérebro seria responder duas vezes ao cliente.
  */
 export async function rafagaDe(
   organizationId: string,
@@ -125,8 +125,8 @@ export async function rafagaDe(
   const faltan = [...new Set(debidos)].filter((id) => !enRafaga.has(id));
   if (!faltan.length) return rafaga.map(paraEvento);
 
-  // La comparación de horas se hace en Postgres, que guarda microsegundos: en
-  // JS dos mensajes del mismo milisegundo no tienen orden.
+  // A comparação de horas é feita no Postgres, que guarda microssegundos: em
+  // JS, duas mensagens do mesmo milissegundo não têm ordem.
   const atrasados = await db
     .select(columnasDelMensaje())
     .from(schema.message)
@@ -153,18 +153,18 @@ export async function rafagaDe(
       )
     )
     .orderBy(schema.message.createdAt);
-  // Los atrasados son, por definición, anteriores al último saliente; la
-  // ráfaga, posterior. Concatenar ya los deja en orden.
+  // Os atrasados são, por definição, anteriores ao último envio; a
+  // rajada, posterior. Concatená-los já os deixa em ordem.
   return [...atrasados, ...rafaga].map(paraEvento);
 }
 
 /**
- * Pura: ¿la ráfaga de ahora trae algo que el evento entregado no llevaba?
+ * Pura: a rajada de agora traz algo que o evento entregue não levava?
  *
- * Un mensaje que entra mientras su despacho está en vuelo no viaja en ese
- * evento (el cerebro ya lo tiene), así que al entregar se vuelve a mirar: si
- * hay algo nuevo, se encola otro despacho. Se compara por id y no por hora por
- * lo mismo que el lease: microsegundos contra milisegundos.
+ * Uma mensagem que entra enquanto seu despacho está em voo não viaja nesse
+ * evento (o cérebro já a tem), então ao entregar olha-se de novo: se
+ * houver algo novo, enfileira-se outro despacho. Compara-se por id e não por hora, pela
+ * mesma razão do lease: microssegundos contra milissegundos.
  */
 export function hayMensajesSinDespachar(
   entregados: readonly string[],
@@ -173,7 +173,7 @@ export function hayMensajesSinDespachar(
   return sinDespachar(entregados, rafagaActual).length > 0;
 }
 
-/** Pura: cuáles. Son los ids que el despacho siguiente lleva anotados. */
+/** Pura: quais. São os ids que o despacho seguinte traz anotados. */
 export function sinDespachar(
   entregados: readonly string[],
   rafagaActual: readonly { id: string }[]
@@ -183,11 +183,11 @@ export function sinDespachar(
 }
 
 /**
- * Arma el evento normalizado desde la base. `null` si la conversación o el
- * contacto ya no existen.
+ * Monta o evento normalizado a partir do banco. `null` se a conversa ou o
+ * contato já não existirem.
  *
- * 025 — Puede salir con `messages` vacío: una persona contestó a mano dentro
- * de la ventana y ya no se debe nada. Ese evento no se entrega; quien llama lo
+ * 025 — Pode sair com `messages` vazio: uma pessoa respondeu à mão dentro
+ * da janela e já não se deve nada. Esse evento não é entregue; quem chama o
  * descarta.
  */
 export async function construirEvento(
@@ -240,7 +240,7 @@ export async function construirEvento(
       id: conv.id,
       channel: conv.channel,
       aiEnabled: conv.aiEnabled,
-      // 022: la ventana es la del canal (48 h en TikTok).
+      // 022: a janela é a do canal (48 h no TikTok).
       windowOpen: isWindowOpen(
         conv.lastInboundAt,
         new Date(),
@@ -263,12 +263,12 @@ export async function construirEvento(
 }
 
 /**
- * El POST firmado.
+ * O POST assinado.
  *
- * Se serializa UNA vez y se firma ese string: firmar un objeto re-serializado
- * produciría una firma que el otro lado no puede reproducir. No se siguen
- * redirecciones —un cerebro no redirige, y seguirlas sería mandarle el turno a
- * donde diga otro—, y ni el cuerpo ni la llave llegan a un log.
+ * Serializa-se UMA vez e assina-se essa string: assinar um objeto re-serializado
+ * produziria uma assinatura que o outro lado não consegue reproduzir. Não se seguem
+ * redirecionamentos — um cérebro não redireciona, e segui-los seria mandar o turno para
+ * onde outro disser —, e nem o corpo nem a chave chegam a um log.
  */
 export async function entregar(
   evento: EventoDespacho,
@@ -298,8 +298,8 @@ export async function entregar(
     await res.body?.cancel().catch(() => {});
     return clasificarRespuesta(res.status);
   } catch {
-    // Sin respuesta a tiempo, nombre que no resuelve, conexión rechazada:
-    // todo reintentable. El cerebro puede estar reiniciándose.
+    // Sem resposta a tempo, nome que não resolve, conexão recusada:
+    // tudo é reintentável. O cérebro pode estar reiniciando.
     return {
       ok: false,
       reintentable: true,
@@ -312,25 +312,25 @@ export async function entregar(
   }
 }
 
-/** 026 — Lo que ve quien eliminó: si el cerebro confirmó que olvidó. */
+/** 026 — O que vê quem apagou: se o cérebro confirmou que esqueceu. */
 export type ResultadoOlvido = "no_aplica" | "avisado" | "sin_confirmar";
 
 /**
- * No se le hace esperar a quien elimina lo que espera un despacho: quien acusa
- * recibo de un borrado solo tiene que guardarlo, no pensar una respuesta.
+ * Não se faz esperar quem apaga o que um despacho aguarda: quem confirma
+ * o recebimento de uma exclusão só precisa guardá-la, não pensar uma resposta.
  */
 export const TIMEOUT_OLVIDO_MS = 8000;
 
 /**
- * 026 — Le avisa al cerebro que una conversación se eliminó.
+ * 026 — Avisa o cérebro de que uma conversa foi apagada.
  *
- * Un solo intento, sin cola. El borrado en el CRM ya ocurrió y no depende de
- * esto, y el contrato le pide al cerebro tratar un `conversation.id` nuevo
- * para la misma persona como una conversación nueva — así un aviso perdido no
- * deja memoria en uso, solo guardada hasta que esa persona vuelva a escribir.
+ * Uma tentativa só, sem fila. A exclusão no CRM já aconteceu e não depende de
+ * isto, e o contrato pede ao cérebro tratar um `conversation.id` novo
+ * para a mesma pessoa como uma conversa nova — assim um aviso perdido não
+ * deixa memória em uso, só guardada até que essa pessoa volte a escrever.
  *
- * Sin despacho configurado no hay a quién avisar: el agente incluido no guarda
- * nada aparte, su memoria ERAN los mensajes. Nunca lanza.
+ * Sem despacho configurado não há a quem avisar: o agente incluído não guarda
+ * nada à parte, sua memória ERAM as mensagens. Nunca lança.
  */
 export async function avisarOlvido(
   evento: EventoOlvido,
@@ -349,7 +349,7 @@ export async function avisarOlvido(
         : null;
   if (!destino) return "no_aplica";
 
-  // Se serializa UNA vez y se firma ese string, igual que un despacho.
+  // Serializa-se UMA vez e assina-se essa string, igual a um despacho.
   const cuerpo = JSON.stringify(evento);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeoutMs ?? TIMEOUT_OLVIDO_MS);

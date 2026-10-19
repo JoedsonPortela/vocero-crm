@@ -1,21 +1,21 @@
 import { describe, expect, it } from "vitest";
 
 /**
- * 003 / #51 — Cuándo se actualiza el nombre de un contacto.
+ * 003 / #51 — Quando o nome de um contato é atualizado.
  *
- * Se ponía SOLO al crearlo, así que quien cambiaba su nombre de WhatsApp
- * seguía apareciendo con el viejo para siempre (reportado por @federicorv25:
- * cambió de «Federico» a «Federicoso» y el CRM no se enteró).
+ * Era definido SOMENTE ao criá-lo, então quem mudava seu nome do WhatsApp
+ * continuava aparecendo com o antigo para sempre (relatado por @federicorv25:
+ * mudou de «Federico» para «Federicoso» e o CRM não percebeu).
  *
- * Pero actualizarlo siempre rompería otra cosa: el operador que renombró a
- * alguien como «Juan - obra Polanco» perdería ese trabajo con el siguiente
- * mensaje. De ahí `nameSource`.
+ * Mas atualizá-lo sempre quebraria outra coisa: o operador que renomeou
+ * alguém como «Juan - obra Polanco» perderia esse trabalho com a próxima
+ * mensagem. Daí o `nameSource`.
  *
- * La decisión se prueba como TABLA y sin base de datos: es una regla de
- * negocio, y enterrarla en un test de integración la haría invisible.
+ * A decisão se testa como TABELA e sem banco de dados: é uma regra de
+ * negócio, e enterrá-la num teste de integração a tornaria invisível.
  */
 
-/** La regla, tal cual la aplica `getOrCreateContactByIdentity`. */
+/** A regra, tal qual a aplica `getOrCreateContactByIdentity`. */
 function nombreNuevo(
   actual: { name: string; nameSource: "perfil" | "manual" },
   perfil: string | null
@@ -49,8 +49,8 @@ describe("el nombre que trae WhatsApp", () => {
   });
 
   /**
-   * Sin esto, cada mensaje escribiría el mismo nombre otra vez y movería
-   * `updated_at`: ruido en la base y en cualquier cosa que ordene por él.
+   * Sem isso, cada mensagem gravaria o mesmo nome outra vez e moveria
+   * `updated_at`: ruído no banco e em qualquer coisa que ordene por ele.
    */
   it("el mismo nombre no genera escritura", () => {
     expect(

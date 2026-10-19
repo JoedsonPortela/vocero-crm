@@ -101,8 +101,8 @@ export const DELETE = withAuth(async (session, req: Request, ctx: Params) => {
     if (!dest[0] || moveTo === id) {
       return apiError(422, "invalid_move_to", "Etapa de destino inválida");
     }
-    // Por la puerta única, un evento por lead: el embudo debe poder explicar
-    // por qué treinta tarjetas cambiaron de columna el mismo minuto.
+    // Pela porta única, um evento por lead: o funil deve poder explicar
+    // por que trinta cartões mudaram de coluna no mesmo minuto.
     await relocateLeadsFromStage({
       organizationId: session.organizationId,
       fromStageId: id,

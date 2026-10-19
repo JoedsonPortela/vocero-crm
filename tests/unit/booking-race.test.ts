@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * 015 — La carrera del hueco (FR-006).
+ * 015 — A corrida pelo horário (FR-006).
  *
- * Dos confirmaciones simultáneas del mismo instante pasan las dos la
- * re-validación —entre leer y escribir cabe la otra— y es la BASE quien las
- * separa, con el índice único parcial. Lo que se fija aquí es la traducción de
- * ese choque: `23505` ⇒ `slot_taken` CON alternativas frescas, y jamás una
- * cita creada.
+ * Duas confirmações simultâneas do mesmo instante passam ambas pela
+ * re-validação —entre ler e escrever cabe a outra— e é a BASE quem as
+ * separa, com o índice único parcial. O que se fixa aqui é a tradução desse
+ * choque: `23505` ⇒ `slot_taken` COM alternativas frescas, e jamais um
+ * agendamento criado.
  *
- * La carrera de verdad, con dos peticiones concurrentes contra la app viva, la
- * corre el arnés E2E: esto asegura que cuando ocurra, la respuesta sea útil.
+ * A corrida de verdade, com duas requisições concorrentes contra o app vivo, roda
+ * o harness E2E: isto garante que, quando ocorrer, a resposta seja útil.
  */
 
 const settings = {
@@ -44,7 +44,7 @@ vi.mock("@/server/agenda/settings", () => ({
 }));
 
 vi.mock("@/server/agenda/availability", () => ({
-  // El hueco se ve libre al re-validar: la otra confirmación aún no escribía.
+  // O horário aparece livre na re-validação: a outra confirmação ainda não escrevia.
   findSlot: async () => ({ startUtc: SLOT, endUtc: "…", label: "mié 5 ago, 09:00" }),
   computeAvailability: async () => ALTERNATIVES,
 }));
@@ -73,9 +73,9 @@ vi.mock("@/server/agenda/connectors", () => ({
 vi.mock("@/server/leads/stage-history", () => ({ moveLeadToStage }));
 vi.mock("@/server/events/bus", () => ({ publish: () => {} }));
 
-/** Cola de resultados para cada `select(...).limit(n)` en orden de llamada. */
+/** Fila de resultados para cada `select(...).limit(n)` na ordem da chamada. */
 const selectRows: unknown[][] = [];
-/** Si tiene algo, el INSERT lo lanza en vez de insertar. */
+/** Se tiver algo, o INSERT o lança em vez de inserir. */
 let insertThrows: unknown = null;
 const inserted: unknown[] = [];
 
@@ -141,7 +141,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 function primeLookups() {
-  // 1) la conversación, 2) el nombre del contacto, 3) el lead
+  // 1) a conversa, 2) o nome do contato, 3) o lead
   selectRows.push([{ contactId: "ct_1", isTest: false }]);
   selectRows.push([{ name: "Ana" }]);
   selectRows.push([{ id: "ld_1" }]);
@@ -174,14 +174,14 @@ describe("la carrera del hueco", () => {
     await expect(promise).rejects.toBeInstanceOf(BookingError);
     await promise.catch((err) => {
       expect(err.code).toBe("slot_taken");
-      // Con alternativas concretas: sin ellas, la conversación se queda sin
-      // salida y el cliente sin cita.
+      // Com alternativas concretas: sem elas, a conversa fica sem
+      // saída e o cliente sem agendamento.
       expect(err.slots).toHaveLength(2);
       expect(err.slots[0].label).toBe("mié 5 ago, 09:30");
     });
 
-    // Y quedan REGISTRADAS como la nueva oferta: el cliente puede aceptar una
-    // de inmediato y la validación seguirá siendo válida.
+    // E ficam REGISTRADAS como a nova oferta: o cliente pode aceitar uma
+    // de imediato e a validação seguirá sendo válida.
     expect(replaceOffers).toHaveBeenCalledOnce();
     expect(inserted).toHaveLength(0);
   });
@@ -227,7 +227,7 @@ describe("la carrera del hueco", () => {
     const promise = createSessionBooking({
       organizationId: "org_1",
       conversationId: "cv_1",
-      // Libre y válido, pero jamás ofrecido en esta conversación.
+      // Livre e válido, mas jamais ofertado nesta conversa.
       startUtc: "2026-08-05T20:00:00.000Z",
       source: "ai",
       requireOffer: true,
@@ -235,7 +235,7 @@ describe("la carrera del hueco", () => {
 
     await expect(promise).rejects.toMatchObject({ code: "slot_not_offered" });
     await promise.catch((err) => {
-      // Se devuelve lo que SÍ se ofreció, para que se re-ofrezca en vez de
+      // Devolve-se o que FOI ofertado, para que se reoferte em vez de
       // inventar.
       expect(err.slots[0].startUtc).toBe(SLOT);
     });

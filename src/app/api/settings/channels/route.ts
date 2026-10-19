@@ -11,12 +11,12 @@ import {
 
 export const dynamic = "force-dynamic";
 
-/** Sin ningún canal social encendido esta superficie no existe (ADR-001). */
+/** Sem nenhum canal social ligado, esta superfície não existe (ADR-001). */
 const haySociales = () => ZERNIO_CHANNELS.some((c) => isChannelEnabled(c));
 
 /**
- * 023 — Estado de los canales: conexión, última entrada y, con Zernio, la
- * salud de la cuenta y del webhook. Ni la llave ni el secreto salen de aquí.
+ * 023 — Estado dos canais: conexão, última entrada e, com a Zernio, a
+ * saúde da conta e do webhook. Nem a chave nem o segredo saem daqui.
  */
 export const GET = withAuth(async (session) => {
   if (!haySociales()) return channelDisabledResponse();
@@ -27,9 +27,9 @@ export const GET = withAuth(async (session) => {
 });
 
 /**
- * Da de alta o actualiza el webhook de esta instancia en Zernio, limitado a
- * las cuentas conectadas. Guardar una conexión ya lo hace; esto es para
- * reintentar si Zernio falló y para las instalaciones anteriores a la 1.6.
+ * Cadastra ou atualiza o webhook desta instância na Zernio, limitado às
+ * contas conectadas. Salvar uma conexão já faz isso; isto serve para
+ * tentar de novo se a Zernio falhou e para as instalações anteriores à 1.6.
  */
 export const POST = withAuth(async (session) => {
   if (!haySociales()) return channelDisabledResponse();

@@ -2,14 +2,14 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import type { CalendarSettings } from "@/server/agenda/settings";
 
 /**
- * `GET /api/bot/availability` con `date` (R10): lo que la ruta REGISTRA como
- * oferta y lo que contesta. El motor de huecos es el de verdad; solo se
- * sustituyen la BD, la llave y el reloj.
+ * `GET /api/bot/availability` com `date` (R10): o que a rota REGISTRA como
+ * oferta e o que responde. O motor de horários é o real; só são
+ * substituídos o BD, a chave e o relógio.
  *
- * El cerebro externo (Nea) lee `query.date` para saber si el CRM consultó el
- * día que pidió; si no vuelve, no afirma nada de ese día. Y solo puede
- * reservar lo que quedó registrado aquí (`POST /api/bot/bookings` compara por
- * epoch exacto contra la oferta vigente).
+ * A Nea (cérebro externo) lê `query.date` para saber se o CRM consultou o
+ * dia que pediu; se não voltar, não afirma nada desse dia. E só pode
+ * reservar o que ficou registrado aqui (`POST /api/bot/bookings` compara por
+ * epoch exato contra a oferta vigente).
  */
 
 const h = vi.hoisted(() => ({
@@ -35,7 +35,7 @@ const SETTINGS: CalendarSettings = {
   meetingLink: null,
 };
 
-// Lunes 21 sep 2026, 09:00 CDMX.
+// Segunda 21 set 2026, 09:00 CDMX.
 const NOW = new Date("2026-09-21T15:00:00.000Z");
 
 vi.mock("@/server/agenda/flag", () => ({
@@ -69,7 +69,7 @@ vi.mock("@/server/agenda/availability", async (importOriginal) => {
   const { addDaysISO, todayInTz } = await import("@/lib/time/slots");
   return {
     ...real,
-    // El motor real sin nada ocupado: horario semanal − aviso mínimo.
+    // O motor real sem nada ocupado: horário semanal − aviso mínimo.
     computeAvailability: async (
       _org: string,
       opts: { fromISO?: string; toISO?: string; now: Date; settings: CalendarSettings }
@@ -93,9 +93,9 @@ vi.mock("@/server/agenda/offers", async (importOriginal) => ({
 
 let GET: typeof import("@/app/api/bot/availability/route").GET;
 
-// La ruta se importa una vez y fuera de los casos: su primer import carga
-// medio servidor y, con la máquina ocupada, se comía los 5 s del primer caso
-// (y el segundo caía en cascada con la oferta a medio registrar).
+// A rota é importada uma vez e fora dos casos: seu primeiro import carrega
+// meio servidor e, com a máquina ocupada, consumia os 5 s do primeiro caso
+// (e o segundo caía em cascata com a oferta pela metade registrada).
 beforeAll(async () => {
   ({ GET } = await import("@/app/api/bot/availability/route"));
 }, 60_000);
@@ -144,10 +144,10 @@ describe("con date: la tarde de mañana, y reservable", () => {
       perDay: null,
     });
     expect(json!.diasConAgenda).toEqual(["2026-09-22"]);
-    // Solo se calculó ese día.
+    // Só se calculou esse dia.
     expect(h.computeCalls).toEqual([{ fromISO: "2026-09-22", toISO: "2026-09-22" }]);
-    // Lo registrado es EXACTAMENTE lo devuelto: cualquiera de esas horas se
-    // puede reservar después.
+    // O registrado é EXATAMENTE o devolvido: qualquer dessas horas pode ser
+    // reservada depois.
     expect(h.replaceOffers).toHaveBeenCalledOnce();
     expect(h.replaceOffers.mock.calls[0]!.slice(0, 2)).toEqual(["org_1", "cv_1"]);
     expect(ofertaRegistrada()).toEqual(

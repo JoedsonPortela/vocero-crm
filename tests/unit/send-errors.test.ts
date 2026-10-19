@@ -7,7 +7,7 @@ describe("describeSendError (fallo real del 2026-08-05)", () => {
     expect(msg).toMatch(/experimento/i);
     expect(msg).toMatch(/UTILITY/);
     expect(msg).toMatch(/130472/);
-    // Nada de jerga cruda de Meta en la frase principal.
+    // Nada de jargão cru da Meta na frase principal.
     expect(msg).not.toMatch(/User's number/);
   });
 

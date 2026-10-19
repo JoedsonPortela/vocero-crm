@@ -1,23 +1,23 @@
 /**
- * Tema claro/oscuro. La preferencia es POR DISPOSITIVO (cookie), no por
- * organización ni por usuario en BD: quien trabaja de noche no se lo impone a
- * su equipo, y no hace falta migración.
+ * Tema claro/escuro. A preferência é POR DISPOSITIVO (cookie), não por
+ * organização nem por usuário no BD: quem trabalha à noite não a impõe à
+ * sua equipe, e não é preciso migração.
  *
- * Sin parpadeo y sin script de arranque: la preferencia SIEMPRE es explícita,
- * así que el layout raíz escribe `data-theme` en el HTML del servidor y el
- * primer pintado ya llega con el tema correcto.
+ * Sem piscar e sem script de inicialização: a preferência é SEMPRE explícita,
+ * então o layout raiz escreve `data-theme` no HTML do servidor e a primeira
+ * pintura já chega com o tema correto.
  *
- * No hay opción "seguir al sistema" a propósito: el CRM se usa toda la jornada
- * y un cambio automático al anochecer sorprende en mitad de una conversación.
+ * Não há opção "seguir o sistema" de propósito: o CRM é usado a jornada toda
+ * e uma troca automática ao anoitecer surpreende no meio de uma conversa.
  */
 
 export const THEME_COOKIE = "vocero-theme";
 export const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 export type ThemePreference = "light" | "dark";
-/** El tema que de verdad está pintado en el DOM. Hoy coincide siempre con la
- *  preferencia; se nombra aparte porque quien lo lee (la vista previa del
- *  acento) pregunta por lo pintado, no por lo guardado. */
+/** O tema que de fato está pintado no DOM. Hoje coincide sempre com a
+ *  preferência; é nomeado à parte porque quem o lê (a pré-visualização do
+ *  acento) pergunta pelo pintado, não pelo salvo. */
 export type ResolvedTheme = ThemePreference;
 
 export const THEME_LABELS: Record<ThemePreference, string> = {
@@ -26,9 +26,9 @@ export const THEME_LABELS: Record<ThemePreference, string> = {
 };
 
 /**
- * Cookie ausente o con cualquier otro valor → claro, que es el aspecto
- * histórico del CRM. Nunca lanza: una cookie manipulada no debe tumbar el
- * layout raíz, que es de donde cuelga toda la app.
+ * Cookie ausente ou com qualquer outro valor → claro, que é o aspecto
+ * histórico do CRM. Nunca lança: um cookie adulterado não deve derrubar o
+ * layout raiz, do qual pende todo o app.
  */
 export function normalizeThemePreference(
   value: string | null | undefined
@@ -36,7 +36,7 @@ export function normalizeThemePreference(
   return value === "dark" ? "dark" : "light";
 }
 
-/** Siguiente valor del botón: Claro ⇄ Oscuro. */
+/** Próximo valor do botão: Claro ⇄ Escuro. */
 export function nextThemePreference(current: ThemePreference): ThemePreference {
   return current === "dark" ? "light" : "dark";
 }

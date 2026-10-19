@@ -15,20 +15,20 @@ import {
 import { getSettings, type CalendarSettings } from "@/server/agenda/settings";
 
 /**
- * 015 — Motor de disponibilidad:
- *   horario semanal del negocio − citas activas − bloqueos manuales.
+ * 015 — Motor de disponibilidade:
+ *   horário semanal do negócio − agendamentos ativos − bloqueios manuais.
  *
- * Limitación v1 documentada (Constitución VII): NO lee calendarios externos.
- * Es una decisión, no un olvido: meter al proveedor en este camino acoplaría su
- * latencia y sus caídas a la pantalla que más se usa. Los compromisos de fuera
- * se reflejan con bloqueos manuales.
+ * Limitação v1 documentada (Constituição VII): NÃO lê calendários externos.
+ * É uma decisão, não um esquecimento: colocar o provedor neste caminho acoplaria a sua
+ * latência e suas quedas à tela mais usada. Os compromissos de fora
+ * são refletidos com bloqueios manuais.
  */
 
 export type AvailableSlot = SlotUtc & { label: string };
 
 /**
- * PURA: expande el horario semanal a slots candidatos en UTC. Sin BD, sin
- * reloj — se testea sola (tests/unit/availability.test.ts).
+ * PURA: expande o horário semanal em slots candidatos em UTC. Sem BD, sem
+ * relógio — testa-se sozinha (tests/unit/availability.test.ts).
  */
 export function buildCandidateSlots(
   settings: CalendarSettings,
@@ -56,8 +56,8 @@ export function buildCandidateSlots(
 }
 
 /**
- * PURA: descarta lo que ya pasó (con aviso mínimo) y lo que se solapa con algo
- * ocupado, ordena y etiqueta.
+ * PURA: descarta o que já passou (com aviso mínimo) e o que se sobrepõe a algo
+ * ocupado, ordena e rotula.
  */
 export function filterFreeSlots(
   candidates: SlotUtc[],
@@ -111,16 +111,16 @@ export async function computeAvailability(
 }
 
 /**
- * Re-valida que un instante concreto siga libre. Se llama AL CONFIRMAR, nunca
- * al ofrecer. `excludeBookingId` permite reprogramar sin que la propia cita se
- * bloquee a sí misma.
+ * Revalida que um instante concreto continue livre. Chama-se AO CONFIRMAR, nunca
+ * ao ofertar. `excludeBookingId` permite reagendar sem que o próprio
+ * agendamento se bloqueie a si mesmo.
  *
- * Solo recalcula ±1 día alrededor del instante pedido.
+ * Recalcula só ±1 dia em torno do instante pedido.
  *
- * OJO: esto reduce la ventana de la carrera, no la cierra — entre este SELECT
- * y el INSERT cabe otra confirmación. Quien cierra de verdad es el índice
- * único parcial de `booking` (research D7); esto existe para dar una respuesta
- * útil (con alternativas) en el caso normal.
+ * ATENÇÃO: isto reduz a janela da corrida, não a fecha — entre este SELECT
+ * e o INSERT cabe outra confirmação. Quem fecha de verdade é o índice
+ * único parcial de `booking` (research D7); isto existe para dar uma resposta
+ * útil (com alternativas) no caso normal.
  */
 export async function findSlot(
   organizationId: string,
@@ -160,9 +160,9 @@ async function getBusyIntervals(
         schema.booking.organizationId,
         organizationId,
         and(
-          // Canceladas y no-show liberan el hueco.
+          // Cancelados e no-show liberam o horário.
           inArray(schema.booking.status, ["agendada", "realizada"]),
-          // Sandbox: una cita de prueba no consume la agenda real.
+          // Sandbox: um agendamento de teste não consome a agenda real.
           eq(schema.booking.isTest, false),
           gte(schema.booking.scheduledAt, input.fromUtc),
           lte(schema.booking.scheduledAt, input.toUtc)

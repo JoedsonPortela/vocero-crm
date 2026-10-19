@@ -3,19 +3,19 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * Vigilancia: un `ON CONFLICT` sobre `contact` tiene que nombrar EXACTAMENTE
- * las columnas del índice único.
+ * Vigilância: um `ON CONFLICT` sobre `contact` tem que nomear EXATAMENTE
+ * as colunas do índice único.
  *
- * Existe por un fallo real: la feature 014 cambió el índice de
- * `(organization_id, wa_identity)` a `(organization_id, channel, wa_identity)`
- * y dejó dos `onConflictDoNothing` apuntando al índice viejo. Postgres no falla
- * al compilar ni al arrancar: falla en la petición, con
+ * Existe por uma falha real: a feature 014 mudou o índice de
+ * `(organization_id, wa_identity)` para `(organization_id, channel, wa_identity)`
+ * e deixou dois `onConflictDoNothing` apontando para o índice antigo. O Postgres não falha
+ * ao compilar nem ao iniciar: falha na requisição, com
  * "no unique or exclusion constraint matching the ON CONFLICT specification".
  *
- * El resultado fue que el Laboratorio y el alta manual de contactos quedaron
- * rotos en `main` sin que ninguna prueba lo notara — porque ninguna los
- * ejercitaba contra una base real. Este test es más barato que volver a
- * descubrirlo en producción.
+ * O resultado foi que o Laboratório e o cadastro manual de contatos ficaram
+ * quebrados em `main` sem que nenhum teste percebesse — porque nenhum os
+ * exercitava contra um banco real. Este teste é mais barato que voltar a
+ * descobrir isso em produção.
  */
 
 const CONTACT_INDEX_COLUMNS = ["organizationId", "channel", "waIdentity"];
@@ -38,7 +38,7 @@ describe("ON CONFLICT sobre contact", () => {
       const source = readFileSync(file, "utf8");
       if (!source.includes("schema.contact.waIdentity")) continue;
 
-      // Solo interesan los `target: [...]` de un onConflict.
+      // Só interessam os `target: [...]` de um onConflict.
       const targets = source.matchAll(/target:\s*\[([^\]]*)\]/g);
       for (const match of targets) {
         const body = match[1] ?? "";

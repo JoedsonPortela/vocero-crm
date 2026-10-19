@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 const bodySchema = z.object({
   waMessageId: z.string().min(1),
   status: z.enum(["sent", "delivered", "read", "failed"]),
-  /** Reproduce el `errors[]` que Meta adjunta a los `failed`. */
+  /** Reproduz o `errors[]` que a Meta anexa aos `failed`. */
   errorCode: z.number().int().optional(),
   errorMessage: z.string().optional(),
 });
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   const body = await parseBody(req, bodySchema);
   if (!body.ok) return body.response;
 
-  // Resolver el número desde el mensaje (el payload real lleva metadata).
+  // Resolver o número a partir da mensagem (o payload real traz metadata).
   const db = getDb();
   const rows = await db
     .select({ organizationId: schema.message.organizationId })

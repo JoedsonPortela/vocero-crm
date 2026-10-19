@@ -11,15 +11,15 @@ import { faviconHref, faviconInitial } from "@/lib/favicon";
 import { cn } from "@/lib/utils";
 
 /**
- * Lo que la marca necesita para dibujarse: el nombre, el acento y si hay
- * logo subido (el acento entra en la URL versionada del icono generado).
+ * O que a marca precisa para se desenhar: o nome, o acento e se há
+ * logo enviado (o acento entra na URL versionada do ícone gerado).
  */
 export type BrandingMark = Pick<Branding, "name" | "accent" | "favicon">;
 
 /**
- * El trazo de la marca: la "v" caligráfica con remate cian de vocerocrm.com.
- * El cuerpo hereda `currentColor`; píntalo con `text-brand` (o blanco sobre el
- * mosaico) y el remate sigue siendo cian.
+ * O traço da marca: o "v" caligráfico com remate ciano do vocerocrm.com.
+ * O corpo herda `currentColor`; pinte-o com `text-brand` (ou branco sobre o
+ * mosaico) e o remate continua ciano.
  */
 export function BrandMark({
   className,
@@ -49,10 +49,10 @@ export function BrandMark({
 }
 
 /**
- * Mosaico cuadrado con degradado del acento: es el favicon en grande. Con un
- * logo subido lleva el logo (el MISMO archivo y la MISMA URL versionada que
- * la pestaña, así lo que se sube en Ajustes → Marca se ve en los dos sitios);
- * sin él, la "v" de Vocero o la inicial del nombre white-label.
+ * Mosaico quadrado com degradê do acento: é o favicon em tamanho grande. Com um
+ * logo enviado leva o logo (o MESMO arquivo e a MESMA URL versionada da
+ * aba, assim o que é enviado em Ajustes → Marca aparece nos dois lugares);
+ * sem ele, o "v" do Vocero ou a inicial do nome white-label.
  */
 export function BrandTile({
   branding,
@@ -70,8 +70,8 @@ export function BrandTile({
       aria-hidden
     >
       {branding.favicon ? (
-        // Sin next/image a propósito: es un archivo de una ruta propia, ya
-        // pequeño; pasarlo por el optimizador sería trabajo para no ahorrar.
+        // Sem next/image de propósito: é um arquivo de uma rota própria, já
+        // pequeno; passá-lo pelo otimizador seria trabalho sem economia.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={faviconHref(branding)}
@@ -103,10 +103,10 @@ const TILE_SIZE = {
 } as const;
 
 /**
- * La marca completa, como en la cabecera de la landing: trazo + wordmark
- * "vocero" en minúsculas y bien apretado. Una instancia rebautizada ve en su
- * lugar el mosaico con la inicial y su nombre (white-label). Con logo subido
- * gana el logo, se llame como se llame: quien sube un archivo quiere verlo.
+ * A marca completa, como no cabeçalho da landing: traço + wordmark
+ * "vocero" em minúsculas e bem justo. Uma instância renomeada vê no
+ * lugar o mosaico com a inicial e o seu nome (white-label). Com logo enviado
+ * vence o logo, chame-se como se chamar: quem envia um arquivo quer vê-lo.
  */
 export function BrandLogo({
   branding,

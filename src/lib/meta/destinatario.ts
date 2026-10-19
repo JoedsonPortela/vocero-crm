@@ -1,33 +1,33 @@
 /**
- * A quién va un mensaje de la Cloud API: teléfono o BSUID.
+ * Para quem vai uma mensagem da Cloud API: telefone ou BSUID.
  *
- * Meta los pide en campos DISTINTOS, y esa es toda la historia de este módulo:
+ * A Meta os pede em campos DIFERENTES, e essa é toda a história deste módulo:
  *
- *   - teléfono → `{ to: "<E.164>" }`
+ *   - telefone → `{ to: "<E.164>" }`
  *   - BSUID    → `{ recipient_type: "individual", recipient: "<BSUID>" }`
  *
- * Se mandaba el BSUID en `to`, donde Meta espera un número. La respuesta era
- * un 131026 —«el destinatario no puede recibir mensajes de WhatsApp (número
- * inexistente, sin cuenta o que no acepta mensajes de empresas)»— así que el
- * CRM le echaba la culpa al cliente del miembro por un campo mal puesto.
+ * Estava-se enviando o BSUID em `to`, onde a Meta espera um número. A resposta era
+ * um 131026 — «o destinatário não pode receber mensagens do WhatsApp (número
+ * inexistente, sem conta ou que não aceita mensagens de empresas)» — então o
+ * CRM culpava o cliente do membro por um campo mal colocado.
  *
- * Cuándo llega un contacto sin teléfono, según la documentación de Meta: el
- * usuario activó el nombre de usuario, no ha habido interacción con ese número
- * de empresa en 30 días, y no está en la agenda. Las tres a la vez. Por eso
- * fallaba con unos contactos y con otros no, que es justo lo que lo hacía
- * parecer un misterio.
+ * Quando chega um contato sem telefone, segundo a documentação da Meta: o
+ * usuário ativou o nome de usuário, não houve interação com esse número
+ * da empresa em 30 dias, e ele não está na agenda. As três ao mesmo tempo. Por isso
+ * falhava com alguns contatos e com outros não, o que justamente fazia
+ * parecer um mistério.
  *
- * Vive aparte porque hay CUATRO sitios que arman envíos (texto, adjuntos,
- * ubicación/contactos y plantillas) y con una copia en cada uno bastaría con
- * olvidar la quinta.
+ * Vive à parte porque há QUATRO lugares que montam envios (texto, anexos,
+ * localização/contatos e modelos) e com uma cópia em cada um bastaria esquecer
+ * a quinta.
  */
 export type Destinatario =
   | { to: string }
   | { recipient_type: "individual"; recipient: string };
 
 /**
- * `phone` gana cuando existe: la documentación dice que si van los dos, el
- * teléfono tiene precedencia, así que mandar ambos solo añadiría ruido.
+ * O `phone` prevalece quando existe: a documentação diz que se vierem os dois, o
+ * telefone tem precedência, então enviar ambos só acrescentaria ruído.
  */
 export function destinatarioMeta(
   phone: string | null,
@@ -38,7 +38,7 @@ export function destinatarioMeta(
   return null;
 }
 
-/** ¿Este destinatario es un BSUID? Para decidir qué se puede mandarle. */
+/** Este destinatário é um BSUID? Para decidir o que pode ser enviado a ele. */
 export function esBsuid(d: Destinatario): boolean {
   return "recipient" in d;
 }

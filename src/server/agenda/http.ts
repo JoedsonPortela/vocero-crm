@@ -1,20 +1,20 @@
 import { BookingError, type BookingResult } from "@/server/agenda/service";
 
 /**
- * 015 — La traducción entre el dominio y HTTP, en un solo sitio.
+ * 015 — A tradução entre o domínio e HTTP, em um único lugar.
  *
- * Vive aquí y no dentro de los `route.ts` por dos razones: Next solo admite
- * handlers como exports de una ruta (así que no serían testeables), y porque
- * los códigos y la FORMA del error son contrato observable, no un detalle.
+ * Mora aqui e não dentro dos `route.ts` por duas razões: o Next só admite
+ * handlers como exports de uma rota (então não seriam testáveis), e porque
+ * os códigos e a FORMA do erro são contrato observável, não um detalhe.
  *
- * Las dos lecciones que costaron caro en producción y que este módulo fija:
- *  - Crear responde **201**, no 200. Un cliente que validaba `=== 200` dejó a
- *    todos los leads sin agendar durante horas, y los mocks no lo vieron
- *    porque respondían 200.
- *  - El error va ANIDADO (`{"error":{"code":…}}`) con `slots` como HERMANO. Un
- *    mock con la forma plana escondió el camino de re-oferta durante semanas:
- *    todo 409 se leía como conflicto genérico y las alternativas nunca se
- *    ofrecían.
+ * As duas lições que custaram caro em produção e que este módulo fixa:
+ *  - Criar responde **201**, não 200. Um cliente que validava `=== 200` deixou
+ *    todos os leads sem agendar durante horas, e os mocks não viram isso
+ *    porque respondiam 200.
+ *  - O erro vai ANINHADO (`{"error":{"code":…}}`) com `slots` como IRMÃO. Um
+ *    mock com a forma plana escondeu o caminho de re-oferta por semanas:
+ *    todo 409 era lido como conflito genérico e as alternativas nunca
+ *    eram ofertadas.
  */
 
 export type BookingPayload = {
@@ -29,9 +29,9 @@ export function bookingPayload(result: BookingResult): BookingPayload {
     bookingId: result.booking.id,
     meetingLink: result.meetingLink,
     /**
-     * true ⇒ la cita EXISTE pero el proveedor aún no entregó el enlace.
-     * Confirma la cita y di que el enlace llega luego; no prometas uno que no
-     * tienes.
+     * true ⇒ o agendamento EXISTE, mas o provedor ainda não entregou o link.
+     * Confirme o agendamento e diga que o link chega depois; não prometa um que não
+     * você não tem.
      */
     linkPending: result.linkPending,
     label: result.label,
@@ -50,7 +50,7 @@ export function bookingErrorStatus(code: BookingError["code"]): number {
   }
 }
 
-/** Traduce un `BookingError` al sobre estándar. Cualquier otro error se relanza. */
+/** Traduz um `BookingError` para o envelope padrão. Qualquer outro erro é relançado. */
 export function bookingErrorResponse(err: unknown): Response {
   if (!(err instanceof BookingError)) throw err;
   const code = err.code === "invalid" ? "invalid_body" : err.code;

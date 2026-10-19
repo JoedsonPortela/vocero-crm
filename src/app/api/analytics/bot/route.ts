@@ -4,7 +4,7 @@ import { botBlock } from "@/server/analytics/bot";
 
 export const dynamic = "force-dynamic";
 
-/** 019 — El trabajo del agente. Las citas, solo con la bandera AGENDA. */
+/** 019 — O trabalho do agente. As consultas, só com a flag AGENDA. */
 export const GET = withAuth(async (session, req: Request) => {
   try {
     const period = await periodFromRequest(session.organizationId, new URL(req.url));

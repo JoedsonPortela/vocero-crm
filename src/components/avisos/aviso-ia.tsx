@@ -3,11 +3,11 @@ import { Sparkles } from "lucide-react";
 import type { AvisoIa } from "@/server/ai/aviso";
 
 /**
- * La franja que dice que el agente no puede contestar (issue #85).
+ * A faixa que diz que o agente não consegue responder (issue #85).
  *
- * Sin descartar. Un banner que se cierra es un banner que se cierra una vez y
- * nunca se vuelve a ver, y esto no es una novedad: es que el producto no está
- * haciendo lo que el dueño cree que hace. Se va solo cuando se arregla.
+ * Não é descartável. Um banner que se fecha é um banner que se fecha uma vez e
+ * nunca mais é visto, e isso não é novidade: é o produto não estar
+ * fazendo o que o dono acha que faz. Some sozinho quando é corrigido.
  */
 export function AvisoIaBanner({ aviso }: { aviso: AvisoIa }) {
   if (!aviso) return null;

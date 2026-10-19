@@ -4,9 +4,9 @@ import { agendaEnabled } from "@/server/agenda/flag";
 import { atribucionEnabled } from "@/server/attribution/flag";
 import { isChannelEnabled } from "@/server/channels/enabled";
 
-// La bandera se lee en cada petición: si esto se resolviera al construir, la
-// imagen quedaría con la agenda apagada para siempre y encenderla en la
-// plataforma no haría nada.
+// A flag é lida a cada requisição: se isto fosse resolvido no build, a
+// imagem ficaria com a agenda desligada para sempre, e ligá-la na
+// plataforma não faria nada.
 export const dynamic = "force-dynamic";
 
 export default function SettingsLayout({
@@ -17,7 +17,7 @@ export default function SettingsLayout({
       <header className="border-b px-4 py-3 sm:px-6 sm:py-4">
         <h2 className="text-[17px] font-bold tracking-tight">{t("settings.configTitle")}</h2>
       </header>
-      {/* En móvil las pestañas van arriba (en fila), no como columna lateral. */}
+      {/* No celular, as abas ficam no topo (em linha), e não como coluna lateral. */}
       <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
         <SettingsNav
           agenda={agendaEnabled()}

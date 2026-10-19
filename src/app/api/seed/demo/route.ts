@@ -5,8 +5,8 @@ import { isDomainEmpty, seedDemo } from "@/server/seed/demo";
 export const dynamic = "force-dynamic";
 
 /**
- * Carga el negocio demo (FR-075). Solo con la BD de dominio vacía — la
- * versión por script (`pnpm seed:demo`) permite recargar con --force.
+ * Carrega o negócio demo (FR-075). Só com a BD de domínio vazia — a
+ * versão por script (`pnpm seed:demo`) permite recarregar com --force.
  */
 export const POST = withAuth(async (session) => {
   const db = getDb();

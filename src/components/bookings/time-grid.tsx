@@ -16,19 +16,19 @@ import { cn } from "@/lib/utils";
 import { bookingTitle, bookingTone, hasDeliveryIssue, type Booking } from "./booking-look";
 
 /**
- * 215 — La rejilla de horas de las vistas Día y Semana, como Google Calendar:
- * cada cita ocupa el alto de su duración, lo que se solapa se reparte el
- * ancho, lo no hábil se sombrea y una línea marca la hora actual.
+ * 215 — A grade de horas das visões Dia e Semana, como o Google Calendar:
+ * cada agendamento ocupa a altura da sua duração, o que se sobrepõe divide a
+ * largura, o não útil é sombreado e uma linha marca a hora atual.
  *
- * Todo en la zona del negocio: el día y el minuto de cada cita los decide
- * `bookingSegments`, no el reloj del navegador.
+ * Tudo no fuso horário do negócio: o dia e o minuto de cada agendamento são decididos por
+ * `bookingSegments`, não pelo relógio do navegador.
  */
 
-/** Alto de una hora. Con 30 min = 24 px cabe una línea de texto legible. */
+/** Altura de uma hora. Com 30 min = 24 px cabe uma linha de texto legível. */
 const HOUR_PX = 48;
 const DAY_PX = HOUR_PX * 24;
 const MIN_EVENT_PX = 18;
-/** Sin horario ni citas, la rejilla abre a esta hora. */
+/** Sem horário nem agendamentos, a grade abre nesta hora. */
 const DEFAULT_SCROLL_MIN = 8 * 60;
 
 type Placed = DaySegment & { booking: Booking; col: number; cols: number };
@@ -53,10 +53,10 @@ export function TimeGrid({
   weeklyHours: WeeklyHours;
   today: string;
   nowMinutes: number;
-  /** "GMT-6": la esquina dice en qué hora está pintada la rejilla. */
+  /** "GMT-6": o canto indica em qual fuso a grade está desenhada. */
   tzLabel: string;
   selectedId: string | null;
-  /** Las citas de ESTE rango ya llegaron: solo entonces se decide el scroll. */
+  /** Os agendamentos DESTE intervalo já chegaram: só então se decide a rolagem. */
   ready: boolean;
   onSelect: (b: Booking) => void;
   onEmptySlot: (day: string, time: string) => void;
@@ -80,9 +80,9 @@ export function TimeGrid({
     return map;
   }, [bookings, days, timezone]);
 
-  // Abre donde empieza el día de trabajo (o antes, si hay una cita más
-  // temprano), una sola vez por rango: un refresco por SSE no debe mover la
-  // rejilla que alguien está leyendo.
+  // Abre onde começa o dia de trabalho (ou antes, se houver um agendamento mais
+  // cedo), uma única vez por intervalo: uma atualização por SSE não deve mover a
+  // grade que alguém está lendo.
   const rangeKey = `${days[0]}|${days.length}`;
   useEffect(() => {
     const el = scrollRef.current;
@@ -106,8 +106,8 @@ export function TimeGrid({
       style={{ "--cal-hour": `${HOUR_PX}px` } as React.CSSProperties}
     >
       <div className="grid" style={{ gridTemplateColumns: columns, minWidth: multi ? "40rem" : undefined }}>
-        {/* Encabezados: pegados arriba mientras se desplaza la rejilla. Capas:
-            esquina > días > horas > columnas (cada columna aísla las suyas). */}
+        {/* Cabeçalhos: fixados no topo enquanto a grade rola. Camadas:
+            canto > dias > horas > colunas (cada coluna isola as suas). */}
         <div className="sticky left-0 top-0 z-40 flex items-end justify-end border-b border-r bg-card px-1.5 pb-1.5 font-mono text-[10px] text-text-3">
           {tzLabel}
         </div>
@@ -136,7 +136,7 @@ export function TimeGrid({
           );
         })}
 
-        {/* Columna de horas. */}
+        {/* Coluna de horas. */}
         <div className="sticky left-0 z-20 border-r bg-card" style={{ height: DAY_PX }}>
           {Array.from({ length: 23 }, (_, i) => i + 1).map((h) => (
             <span
@@ -181,7 +181,7 @@ function DayColumn({
   placed: Placed[];
   weeklyHours: WeeklyHours;
   nowMinutes: number | null;
-  /** Columna de semana: en el celular mide ~90 px. */
+  /** Coluna da semana: no celular mede ~90 px. */
   narrow: boolean;
   selectedId: string | null;
   onSelect: (b: Booking) => void;
@@ -192,8 +192,8 @@ function DayColumn({
       data-day={day}
       className="cal-hours relative isolate cursor-pointer border-l"
       style={{ height: DAY_PX }}
-      // Tocar un hueco vacío propone bloquearlo a esa media hora, como el
-      // "crear evento" de Google. Las citas detienen el clic.
+      // Tocar num espaço vazio propõe bloqueá-lo naquela meia hora, como o
+      // "criar evento" do Google. Os agendamentos interrompem o clique.
       onClick={(e) => {
         const y = e.clientY - e.currentTarget.getBoundingClientRect().top;
         const minutes = Math.min(1410, Math.max(0, Math.floor((y / HOUR_PX) * 2) * 30));
@@ -250,8 +250,8 @@ function EventBlock({
   const start = hhmm(startMin);
   const end = hhmm(endMin);
   const range = `${placed.continuesBefore ? "…" : start} – ${placed.continuesAfter ? "…" : end}`;
-  // Una cita corta cabe en una línea: "Nombre, 10:00", como en Google. Si
-  // además comparte el ancho, el nombre manda y la hora queda en el panel.
+  // Um agendamento curto cabe numa linha: "Nome, 10:00", como no Google. Se
+  // além disso divide a largura, o nome prevalece e a hora fica no painel.
   const compact = height < 36;
   const showTime = !compact || cols === 1;
 
@@ -266,8 +266,8 @@ function EventBlock({
       className={cn(
         "absolute z-10 overflow-hidden rounded-[6px] border text-left leading-tight shadow-sm transition-[box-shadow,filter] hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-soft",
         cols > 1 ? "px-1" : "px-1.5",
-        // En una línea, la hora que no cabe junto al nombre salta a una
-        // segunda línea que queda oculta: se ve entera o no se ve.
+        // Numa linha, a hora que não cabe junto ao nome pula para uma
+        // segunda linha que fica oculta: aparece inteira ou não aparece.
         compact ? "flex flex-wrap content-start items-center gap-x-1 text-[11px]" : "py-1 text-[11.5px]",
         bookingTone(b).box,
         selected && "ring-2 ring-brand ring-offset-1 ring-offset-background"
@@ -277,7 +277,7 @@ function EventBlock({
         height,
         left: `calc(${(col / cols) * 100}% + 2px)`,
         width: `calc(${100 / cols}% - 4px)`,
-        // La primera línea, centrada en el alto de la cita.
+        // A primeira linha, centralizada na altura do agendamento.
         paddingTop: compact ? Math.max(1, (height - 14) / 2) : undefined,
       }}
     >
@@ -297,8 +297,8 @@ function EventBlock({
         <span
           className={cn(
             "font-mono text-[10.5px] opacity-80",
-            // En una línea el nombre manda. En la semana del celular la hora
-            // ni se intenta.
+            // Numa linha o nome prevalece. Na semana do celular a hora
+            // nem é tentada.
             compact ? cn("shrink-0 whitespace-nowrap", narrow && "hidden sm:inline") : "mt-0.5 block truncate"
           )}
         >

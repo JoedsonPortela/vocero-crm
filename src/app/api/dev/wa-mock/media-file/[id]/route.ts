@@ -2,16 +2,16 @@ import { mockGuard } from "@/lib/dev-guard";
 import { pngDePrueba } from "@/server/dev/png-de-prueba";
 
 /**
- * Binario de prueba del wa-mock (media proxy del bot). La metadata del mock de
- * Graph apunta aquí como la "url" efímera del adjunto.
+ * Binário de teste do wa-mock (media proxy do bot). Os metadados do mock do
+ * Graph apontam para cá como a "url" efêmera do anexo.
  *
- * 018 — También sirve los creativos de los anuncios simulados. Los ids que
- * empiezan por `creativo` devuelven un PNG real; algunos provocan a propósito
- * los caminos que la copia debe rechazar o reintentar.
+ * 018 — Também serve os criativos dos anúncios simulados. Os ids que
+ * começam com `creativo` devolvem um PNG real; alguns provocam de propósito
+ * os caminhos que a cópia deve recusar ou tentar de novo.
  */
 export const dynamic = "force-dynamic";
 
-/** Veces que se ha pedido cada creativo, para simular fallos que se curan. */
+/** Quantas vezes cada criativo foi pedido, para simular falhas que se curam. */
 const pedidos = new Map<string, number>();
 
 export async function GET(
@@ -24,22 +24,22 @@ export async function GET(
 
   if (id.startsWith("creativo")) {
     if (id === "creativo-enorme") {
-      // Más grande que la cota de una miniatura.
+      // Maior que o limite de uma miniatura.
       return new Response(new Uint8Array(400_000), {
         headers: { "content-type": "image/jpeg" },
       });
     }
     if (id === "creativo-svg") {
-      // Un SVG servido desde nuestro origen podría ejecutar scripts.
+      // Um SVG servido da nossa origem poderia executar scripts.
       return new Response('<svg xmlns="http://www.w3.org/2000/svg"/>', {
         headers: { "content-type": "image/svg+xml" },
       });
     }
     if (id === "creativo-redirige") {
-      // Un salto hacia un origen que no es el permitido y que, si se siguiera,
-      // SÍ devolvería un PNG: este mismo servidor por otro nombre (localhost ↔
-      // 127.0.0.1). Así la prueba demuestra que el salto se revalida, y no que
-      // el destino falló; y no sale de la máquina.
+      // Um redirecionamento para uma origem que não é a permitida e que, se fosse seguido,
+      // DEVOLVERIA um PNG: este mesmo servidor com outro nome (localhost ↔
+      // 127.0.0.1). Assim o teste demonstra que o salto é revalidado, e não que
+      // o destino falhou; e não sai da máquina.
       const aqui = new URL(req.url);
       const otro = aqui.hostname === "127.0.0.1" ? "localhost" : "127.0.0.1";
       return new Response(null, {
@@ -52,11 +52,11 @@ export async function GET(
     const vez = (pedidos.get(id) ?? 0) + 1;
     pedidos.set(id, vez);
     if (id.startsWith("creativo-lento") && vez === 1) {
-      // La primera vez tarda más que el tiempo de espera de la copia.
+      // A primeira vez demora mais que o tempo de espera da cópia.
       await new Promise((r) => setTimeout(r, 6_500));
     }
     if (id.startsWith("creativo-falla") && vez <= 2) {
-      // Falla la copia y su reintento; a la tercera, ya responde.
+      // Falha a cópia e a sua nova tentativa; na terceira, já responde.
       return new Response(null, { status: 503 });
     }
     return new Response(new Uint8Array(pngDePrueba(id)), {

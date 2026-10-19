@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * 016 — El evento que sale hacia Meta.
+ * 016 — O evento que sai para a Meta.
  *
- * Estos tests existen por un motivo muy concreto: el modo de fallar de
- * `POST {dataset}/events` es un **200 con `events_received: 0`**. Un campo mal
- * puesto se ve exactamente igual que uno bien puesto, así que la forma del
- * payload y la lectura del acuse se fijan aquí, donde sí se puede afirmar.
+ * Estes testes existem por um motivo bem concreto: o modo de falhar de
+ * `POST {dataset}/events` é um **200 com `events_received: 0`**. Um campo mal
+ * posto aparece exatamente igual a um bem posto, então o formato do
+ * payload e a leitura do aceite ficam fixados aqui, onde se pode afirmar.
  */
 
 const graphRequest = vi.fn();
@@ -46,7 +46,7 @@ describe("buildEventPayload", () => {
       ctwa_clid: "ARAaB_clic",
       whatsapp_business_account_id: "WABA-1",
     });
-    // Quién integró el evento: el proyecto, no el negocio ni una agencia.
+    // Quem integrou o evento: o projeto, não o negócio nem uma agência.
     expect(body.partner_agent).toBe("vocero-crm");
   });
 
@@ -55,8 +55,8 @@ describe("buildEventPayload", () => {
       data: Record<string, unknown>[];
     };
     const userData = body.data[0]!.user_data as Record<string, unknown>;
-    // `user_data` es el sobre donde Meta espera datos de persona: aquí solo
-    // lleva el identificador del clic y el de la cuenta del negocio.
+    // `user_data` é o envelope onde a Meta espera dados de pessoa: aqui só
+    // leva o identificador do clique e o da conta do negócio.
     expect(Object.keys(userData).sort()).toEqual([
       "ctwa_clid",
       "whatsapp_business_account_id",
@@ -77,8 +77,8 @@ describe("buildEventPayload", () => {
     const sin = buildEventPayload({ ...EVENT, customData: {} }) as {
       data: Record<string, unknown>[];
     };
-    // Un `custom_data: {}` no aporta nada reglable y ensucia el payload que
-    // uno inspecciona cuando algo falla.
+    // Um `custom_data: {}` não agrega nada verificável e suja o payload que
+    // alguém inspeciona quando algo falha.
     expect(sin.data[0]!.custom_data).toBeUndefined();
   });
 
@@ -100,7 +100,7 @@ describe("catálogo cerrado", () => {
   it("reconoce los nombres de Meta y rechaza los inventados", () => {
     expect(isMetaBusinessMessagingEvent("QualifiedLead")).toBe(true);
     expect(isMetaBusinessMessagingEvent("Purchase")).toBe(true);
-    // El nombre de dominio del fork del que viene esta idea: NO existe en Meta.
+    // O nome de domínio do fork de onde vem esta ideia: NÃO existe na Meta.
     expect(isMetaBusinessMessagingEvent("LeadQualified")).toBe(false);
     expect(isMetaBusinessMessagingEvent("SessionBooked")).toBe(false);
   });
@@ -137,8 +137,8 @@ describe("el acuse de Meta", () => {
   });
 
   it("un 200 con events_received: 0 es un FALLO, no un envío", async () => {
-    // Meta responde 200 aunque descarte el evento. Sin mirar el acuse,
-    // "enviado" solo significaría "no hubo error HTTP".
+    // A Meta responde 200 mesmo que descarte o evento. Sem olhar o aceite,
+    // "enviado" só significaria "não houve erro HTTP".
     graphRequest.mockResolvedValue({
       events_received: 0,
       fbtrace_id: "AkiZZZ",

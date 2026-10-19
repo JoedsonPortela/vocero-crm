@@ -25,7 +25,7 @@ import { registrarAnuncioDeOrigen } from "@/server/attribution/store";
 import { onLeadActivity } from "@/server/inbox/lead-activity";
 import { maybeRunAgentTurn } from "@/server/ai/trigger";
 
-/** Tipos de contenido soportados; el resto se ignora sin error. */
+/** Tipos de conteúdo suportados; o resto é ignorado sem erro. */
 const SUPPORTED_TYPES = new Set([
   "text",
   "image",
@@ -37,22 +37,22 @@ const SUPPORTED_TYPES = new Set([
   "contacts",
 ]);
 
-/** #78 — Respuestas de botón: entran como texto (ver `contenidoEntrante`). */
+/** #78 — Respostas de botão: entram como texto (ver `contenidoEntrante`). */
 const BUTTON_REPLY_TYPES = new Set(["button", "interactive"]);
 
 /**
- * #78 — Lo que escribió el cliente, también cuando lo hizo tocando un botón.
+ * #78 — O que escreveu o cliente, também quando o fez tocando um botão.
  *
- * Cuando el cliente toca un botón de respuesta rápida de una plantilla, Meta
- * manda `type: "button"` con el rótulo en `button.text`; cuando toca un botón
- * o una fila de lista de un mensaje interactivo, `type: "interactive"` con el
- * rótulo en `interactive.button_reply.title` o `interactive.list_reply.title`.
- * Para el negocio eso es un texto del cliente: entra a la bandeja, abre la
- * ventana de 24 h y dispara al agente igual que si lo hubiera tecleado. Se
- * guarda como `text` con el rótulo; el `payload`/`id` del botón no, porque el
- * mensaje no tiene campo para metadatos y el rótulo es lo que el cliente vio y
- * eligió. Devuelve null si la respuesta no trae ni rótulo ni identificador
- * (payload roto): quien llama la descarta con aviso, nunca revienta el webhook.
+ * Quando o cliente toca um botão de resposta rápida de um template, a Meta
+ * envia `type: "button"` com o rótulo em `button.text`; quando toca um botão
+ * ou uma linha de lista de uma mensagem interativa, `type: "interactive"` com o
+ * rótulo em `interactive.button_reply.title` ou `interactive.list_reply.title`.
+ * Para o negócio isso é um texto do cliente: entra na caixa de entrada, abre a
+ * janela de 24 h e dispara o agente igual se tivesse digitado. Guarda-se como
+ * `text` com o rótulo; o `payload`/`id` do botão não, porque a
+ * mensagem não tem campo para metadados e o rótulo é o que o cliente viu e
+ * escolheu. Devolve null se a resposta não trouxer nem rótulo nem identificador
+ * (payload quebrado): quem chama a descarta com aviso, nunca derruba o webhook.
  */
 export function contenidoEntrante(
   msg: WebhookMessage
@@ -73,7 +73,7 @@ function limpio(valor: unknown): string | null {
   return typeof valor === "string" && valor.trim() ? valor.trim() : null;
 }
 
-/** Tipos con archivo binario en Graph (008). */
+/** Tipos com arquivo binário no Graph (008). */
 const BINARY_MEDIA_TYPES = new Set([
   "image",
   "video",
@@ -93,8 +93,8 @@ type MediaInput = {
 };
 
 /**
- * 008 — Extrae el adjunto de un mensaje del webhook (entrante o echo).
- * Tolerante: payload incompleto → null (el mensaje se conserva sin adjunto).
+ * 008 — Extrai o anexo de uma mensagem do webhook (recebida ou echo).
+ * Tolerante: payload incompleto → null (a mensagem é mantida sem anexo).
  */
 export function mediaInputFrom(msg: WebhookMessage): MediaInput | null {
   if (msg.type === "location" && msg.location) {
@@ -142,8 +142,8 @@ export function mediaInputFrom(msg: WebhookMessage): MediaInput | null {
 }
 
 /**
- * Crea el media_asset de un mensaje recién insertado y dispara la descarga en
- * segundo plano si hay binario. Jamás lanza hacia el webhook (FR-013).
+ * Cria o media_asset de uma mensagem recém-inserida e dispara o download em
+ * segundo plano se houver binário. Jamais lança em direção ao webhook (FR-013).
  */
 async function attachMediaAsset(
   organizationId: string,
@@ -173,7 +173,7 @@ async function attachMediaAsset(
       .set({ mediaAssetId: asset.id })
       .where(eq(schema.message.id, messageId));
     if (asset.fetchStatus === "pending") {
-      // Descarga in-process, sin bloquear la ingesta; on-demand reintenta.
+      // Download in-process, sem bloquear a ingestão; o on-demand tenta de novo.
       void ensureAssetAvailable(organizationId, asset.id).catch(() => {});
     }
     return asset;
@@ -184,9 +184,9 @@ async function attachMediaAsset(
 }
 
 /**
- * Alta/resolución de contacto por teléfono (alta manual / seeds). La ingesta
- * del webhook usa `getOrCreateContactByIdentity` (003) — este helper deriva la
- * identidad del teléfono normalizado y delega ahí.
+ * Criação/resolução de contato por telefone (cadastro manual / seeds). A ingestão
+ * do webhook usa `getOrCreateContactByIdentity` (003) — este helper deriva a
+ * identidade do telefone normalizado e delega para lá.
  */
 export async function getOrCreateContact(
   organizationId: string,
@@ -216,9 +216,9 @@ export async function getOrCreateConversation(
       contactId,
       channel: opts?.channel ?? "whatsapp",
       channelThreadRef: opts?.threadRef ?? null,
-      // 027: hereda la pausa del contacto en el mismo INSERT. Si se leyera
-      // antes, cada mensaje entrante pagaría una consulta más, y entre la
-      // lectura y la inserción cabría el primer turno del agente.
+      // 027: herda a pausa do contato no mesmo INSERT. Se fosse lida
+      // antes, cada mensagem recebida pagaria mais uma consulta, e entre a
+      // leitura e a inserção caberia o primeiro turno do agente.
       aiEnabled: sql<boolean>`coalesce((select not c.ai_paused from contact c where c.id = ${contactId}), true)`,
     })
     .onConflictDoNothing()
@@ -238,8 +238,8 @@ export async function getOrCreateConversation(
     .limit(1);
   const existing = rows[0];
   if (!existing) throw new Error("conversación no encontrada tras upsert");
-  // 014: el hilo de la plataforma puede aparecer despues (o cambiar); se
-  // guarda en cuanto se conoce para poder responder.
+  // 014: o fio da plataforma pode aparecer depois (ou mudar); guarda-se
+  // assim que se conhece, para poder responder.
   if (opts?.threadRef && existing.channelThreadRef !== opts.threadRef) {
     await db
       .update(schema.conversation)
@@ -251,8 +251,8 @@ export async function getOrCreateConversation(
 }
 
 /**
- * Procesa el `value` de un cambio `messages` del webhook: mensajes entrantes
- * (idempotentes por wa_message_id) y actualizaciones de estado.
+ * Processa o `value` de uma mudança `messages` do webhook: mensagens recebidas
+ * (idempotentes por wa_message_id) e atualizações de status.
  */
 export async function processMessagesValue(value: WebhookValue): Promise<void> {
   const phoneNumberId = value.metadata?.phone_number_id;
@@ -260,8 +260,8 @@ export async function processMessagesValue(value: WebhookValue): Promise<void> {
 
   const credentials = await getCredentialsByPhoneNumberId(phoneNumberId);
   if (!credentials) {
-    // Caso típico: webhook/override configurado ANTES de guardar la conexión
-    // en el wizard — el evento llega pero no hay a qué organización enrutarlo.
+    // Caso típico: webhook/override configurado ANTES de salvar a conexão
+    // no assistente — o evento chega, mas não há a qual organização roteá-lo.
     console.warn(
       `[webhook] evento para phone_number_id desconocido (${phoneNumberId}): ` +
         "guarda la conexión en Configuración → WhatsApp para recibir mensajes"
@@ -288,8 +288,8 @@ export async function processMessagesValue(value: WebhookValue): Promise<void> {
     }
     const resolved = resolveIdentity(msg, value.contacts);
     if (!resolved) {
-      // Mensaje sin NINGUNA identidad utilizable (ni teléfono ni BSUID):
-      // registrar y descartar — jamás reventar el webhook (003).
+      // Mensagem sem NENHUMA identidade utilizável (nem telefone nem BSUID):
+      // registrar e descartar — jamais derrubar o webhook (003).
       console.warn(
         `[webhook] mensaje ${msg.id} sin identidad utilizable (sin from ni from_user_id): descartado`
       );
@@ -303,18 +303,18 @@ export async function processMessagesValue(value: WebhookValue): Promise<void> {
       text: contenido.text,
       timestamp: msg.timestamp,
       media: mediaInputFrom(msg),
-      // 018: normalizado aquí, en el adaptador del canal; la ingesta no sabe
-      // de qué forma lo mandó Meta.
+      // 018: normalizado aqui, no adaptador do canal; a ingestão não sabe
+      // de que forma a Meta o enviou.
       anuncio: anuncioDeWhatsapp(msg.referral),
     });
   }
 }
 
 /**
- * 008 — Echoes de coexistence (`smb_message_echoes`): mensajes que el dueño
- * envió A MANO desde la app de WhatsApp Business del teléfono. Se registran
- * como salientes `origin='manual'` y pausan la IA (decisión del dueño
- * 2026-08-04). JAMÁS tocan la ventana de 24 h ni disparan al agente.
+ * 008 — Echoes de coexistence (`smb_message_echoes`): mensagens que o dono enviou
+ * À MÃO pelo app do WhatsApp Business do telefone. São registradas como saídas
+ * `origin='manual'` e pausam a IA (decisão do dono, 2026-08-04). JAMAIS tocam a
+ * janela de 24 h nem disparam o agente.
  */
 export async function processEchoesValue(value: WebhookValue): Promise<void> {
   const phoneNumberId = value.metadata?.phone_number_id;
@@ -328,7 +328,7 @@ export async function processEchoesValue(value: WebhookValue): Promise<void> {
     return;
   }
 
-  // Meta documenta `message_echoes`; parser tolerante a `messages` (R1).
+  // A Meta documenta `message_echoes`; parser tolerante a `messages` (R1).
   const echoes = value.message_echoes ?? value.messages ?? [];
   for (const echo of echoes) {
     if (!SUPPORTED_TYPES.has(echo.type)) continue;
@@ -339,7 +339,7 @@ export async function processEchoesValue(value: WebhookValue): Promise<void> {
     try {
       await ingestManualEcho(credentials.organizationId, echo);
     } catch (err) {
-      // Un echo malformado jamás tumba el webhook (edge case del spec).
+      // Um echo malformado jamais derruba o webhook (caso de borda da especificação).
       console.error(`[webhook] error procesando echo ${echo.id}:`, err);
     }
   }
@@ -362,8 +362,8 @@ async function ingestManualEcho(
 
   const waTimestamp = toDate(echo.timestamp);
 
-  // Idempotencia dura: los mensajes ya registrados (o echoes repetidos) no
-  // duplican efectos — mismo wa_message_id → sin inserción ni handoff extra.
+  // Idempotência rígida: as mensagens já registradas (ou echoes repetidos) não
+  // duplicam efeitos — mesmo wa_message_id → sem inserção nem handoff extra.
   const inserted = await db
     .insert(schema.message)
     .values({
@@ -388,13 +388,13 @@ async function ingestManualEcho(
     ? await attachMediaAsset(organizationId, message.id, mediaInput)
     : null;
 
-  // Solo lastMessageAt: un mensaje del negocio NUNCA abre la ventana de 24 h.
+  // Só lastMessageAt: uma mensagem do negócio NUNCA abre a janela de 24 h.
   await db
     .update(schema.conversation)
     .set({ lastMessageAt: waTimestamp, updatedAt: new Date() })
     .where(eq(schema.conversation.id, conversation.id));
 
-  // Pausa automática de la IA, idempotente y atómica (solo si no hay handoff).
+  // Pausa automática da IA, idempotente e atômica (só se não houver handoff).
   const paused = await db
     .update(schema.conversation)
     .set({
@@ -437,9 +437,9 @@ export async function ingestInboundMessage(input: {
   text: string | null;
   timestamp: string;
   media?: MediaInput | null;
-  /** 014: hilo en la plataforma de origen (Zernio); null en WhatsApp. */
+  /** 014: fio na plataforma de origem (Zernio); null no WhatsApp. */
   threadRef?: string | null;
-  /** 016/018: el anuncio que abrió la conversación, ya normalizado por el canal. */
+  /** 016/018: o anúncio que abriu a conversa, já normalizado pelo canal. */
   anuncio?: AnuncioDeOrigen | null;
 }): Promise<void> {
   const db = getDb();
@@ -455,14 +455,14 @@ export async function ingestInboundMessage(input: {
     { channel: contact.channel, threadRef: input.threadRef ?? null }
   );
 
-  // 016/018 — Si el mensaje viene de un anuncio, capturar su origen ANTES del
-  // dedup de mensaje: es idempotente por sí mismo (el primer anuncio gana) y
-  // así un reintento de Meta que llegue con el referral no lo pierde por
-  // haberse cortado antes en el dedup. Siempre, desde 018: la bandeja dice de
-  // qué anuncio llegó cada quien; sin la bandera ATRIBUCION se guarda sin el
-  // identificador de clic (lo decide `registrarAnuncioDeOrigen`). Si falla,
-  // el mensaje del cliente entra igual: el anuncio es contexto, el mensaje es
-  // lo que importa.
+  // 016/018 — Se a mensagem vem de um anúncio, capturar sua origem ANTES do
+  // dedup da mensagem: é idempotente por si mesmo (o primeiro anúncio vence) e
+  // assim uma nova tentativa da Meta que chegue com o referral não a perde por
+  // ter sido cortada antes no dedup. Sempre, desde 018: a caixa de entrada diz de
+  // qual anúncio chegou cada pessoa; sem a bandeira ATRIBUCION guarda-se sem o
+  // identificador de clique (decide `registrarAnuncioDeOrigen`). Se falhar,
+  // a mensagem do cliente entra igual: o anúncio é contexto, a mensagem é
+  // o que importa.
   if (input.anuncio) {
     try {
       await registrarAnuncioDeOrigen({
@@ -481,7 +481,7 @@ export async function ingestInboundMessage(input: {
 
   const waTimestamp = toDate(input.timestamp);
 
-  // Idempotencia dura: mismo wa_message_id → sin efectos adicionales.
+  // Idempotência rígida: mesmo wa_message_id → sem efeitos adicionais.
   const inserted = await db
     .insert(schema.message)
     .values({
@@ -548,7 +548,7 @@ export function serializeMessage(
     type: m.type,
     text: m.text,
     status: m.status,
-    /** Motivo del fallo, ya traducido a algo accionable (`describeSendError`). */
+    /** Motivo da falha, já traduzido para algo acionável (`describeSendError`). */
     error: m.error,
     aiGenerated: m.aiGenerated,
     origin: m.origin,

@@ -7,7 +7,7 @@ import { getBranding, saveBranding } from "@/server/branding";
 
 export const dynamic = "force-dynamic";
 
-/** GET público: el login necesita la marca antes de autenticarse. */
+/** GET público: o login precisa da marca antes de autenticar. */
 export async function GET() {
   const session = await getSessionOrNull();
   const branding = await getBranding(session?.organizationId);
@@ -17,7 +17,7 @@ export async function GET() {
 const putSchema = z.object({
   name: z.string().trim().min(1).max(30),
   accent: z.string().refine(isValidHex, "Cor hex inválida (#rrggbb)"),
-  /** La moneda del negocio: la única que el tablero suma. */
+  /** A moeda do negócio: a única que o quadro soma. */
   currency: z.enum(CURRENCIES),
 });
 
@@ -27,9 +27,9 @@ export const PUT = withAuth(async (session, req: Request) => {
   }
   const body = await parseBody(req, putSchema);
   if (!body.ok) return body.response;
-  // El icono se conserva: este formulario es de nombre, color y moneda, y se
-  // sube y se quita por su propia ruta. Sin esto, guardar el nombre borraría
-  // el logo sin que nadie lo pidiera.
+  // O ícone é preservado: este formulário trata de nome, cor e moeda, e o ícone
+  // é enviado e removido pela sua própria rota. Sem isso, salvar o nome apagaria
+  // a logo sem que ninguém tivesse pedido.
   const actual = await getBranding(session.organizationId);
   await saveBranding(session.organizationId, {
     ...body.data,

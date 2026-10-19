@@ -3,66 +3,66 @@ import { CHANNEL_LABEL, type Channel } from "@/lib/channels";
 /**
  * 014 — Capacidades declaradas por canal.
  *
- * El núcleo NO debe saber las reglas de WhatsApp: debe preguntarlas. Antes,
- * la ventana de 24 h y el "usa una plantilla aprobada" vivían incrustados en
- * el camino genérico de envío, así que cada canal nuevo tenía que pelearse con
- * suposiciones que no eran suyas — Instagram no tiene plantillas, y su salida
- * fuera de ventana es una etiqueta.
+ * O núcleo NÃO deve conhecer as regras do WhatsApp: deve perguntá-las. Antes,
+ * a janela de 24 h e o "usa um template aprovado" viviam embutidos no
+ * caminho genérico de envio, então cada canal novo tinha que lutar contra
+ * suposições que não eram suas — o Instagram não tem templates, e a sua saída
+ * fora da janela é uma etiqueta.
  *
- * Agregar un canal debería ser: escribir su adaptador y declarar aquí lo que
- * puede y no puede hacer.
+ * Adicionar um canal deveria ser: escrever o seu adaptador e declarar aqui o que
+ * pode e não pode fazer.
  */
 
 export type OutsideWindowStrategy =
-  /** Solo se puede reabrir con una plantilla aprobada (WhatsApp). */
+  /** Só pode ser reaberta com um template aprovado (WhatsApp). */
   | "template"
-  /** Se marca el mensaje como respuesta de agente humano (Instagram). */
+  /** Marca-se a mensagem como resposta de agente humano (Instagram). */
   | "human_agent_tag"
-  /** No hay forma: fuera de ventana no se envía. */
+  /** Não há como: fora da janela não se envia. */
   | "none";
 
 export type ChannelCapabilities = {
-  /** Etiqueta legible, para mensajes de error dirigidos al operador. */
+  /** Rótulo legível, para mensagens de erro dirigidas ao operador. */
   label: string;
-  /** Ventana de servicio en ms desde el último entrante; null = sin ventana. */
+  /** Janela de serviço em ms desde a última mensagem recebida; null = sem janela. */
   windowMs: number | null;
-  /** Qué se puede hacer cuando la ventana está cerrada. */
+  /** O que se pode fazer quando a janela está fechada. */
   outsideWindow: OutsideWindowStrategy;
   /**
-   * 024 — Hasta cuándo puede contestar una PERSONA con la etiqueta de agente
-   * humano, en ms desde el último entrante. null = el canal no tiene esa
-   * extensión. La IA nunca la usa: Meta la reserva a personas.
+   * 024 — Até quando uma PESSOA pode responder com a etiqueta de agente
+   * humano, em ms desde a última mensagem recebida. null = o canal não tem essa
+   * extensão. A IA nunca a usa: a Meta a reserva para pessoas.
    */
   humanAgentWindowMs: number | null;
   /**
-   * 024 — Qué formato de texto dibuja el canal. `plain`: ninguno, así que al
-   * texto de la IA se le quitan las marcas antes de enviarlo.
+   * 024 — Qual formato de texto o canal renderiza. `plain`: nenhum, então ao
+   * texto da IA se tiram as marcas antes de enviá-lo.
    */
   textFormat: "whatsapp" | "plain";
-  /** Límite de texto en BYTES (no caracteres); null = sin límite práctico. */
+  /** Limite de texto em BYTES (não caracteres); null = sem limite prático. */
   maxTextBytes: number | null;
   /**
-   * 022 — Límite de texto en CARACTERES, para la plataforma que cuenta así
-   * (TikTok). null = no aplica. Un canal declara el que su plataforma mida.
+   * 022 — Limite de texto em CARACTERES, para a plataforma que conta assim
+   * (TikTok). null = não se aplica. Um canal declara o que a sua plataforma meça.
    */
   maxTextChars: number | null;
   /**
-   * 022 — Cuántos mensajes admite la plataforma desde el último entrante.
-   * null = sin tope. No es un límite de velocidad: no se recupera esperando,
-   * solo cuando el cliente vuelve a escribir.
+   * 022 — Quantas mensagens a plataforma aceita desde a última mensagem recebida.
+   * null = sem teto. Não é um limite de velocidade: não se recupera esperando,
+   * só quando o cliente volta a escrever.
    */
   maxOutboundPerWindow: number | null;
-  /** ¿Se pueden mandar adjuntos por este canal hoy? */
+  /** Podem-se enviar anexos por este canal hoje? */
   outboundMedia: boolean;
   /**
-   * 028 — ¿Admite ubicación y contactos? Son mensajes de WhatsApp: en los
-   * demás canales el compositor ni los ofrece.
+   * 028 — Admite localização e contatos? São mensagens do WhatsApp: nos
+   * demais canais o compositor nem os oferece.
    */
   structuredMessages: boolean;
   /**
-   * ¿El estado del mensaje avanza por webhook (entregado/leído)? Si no, la
-   * aceptación de la plataforma es la confirmación y el mensaje nace `sent`
-   * — sin esto se queda con el reloj puesto para siempre.
+   * O status da mensagem avança por webhook (entregue/lido)? Se não, a
+   * aceitação da plataforma é a confirmação e a mensagem nasce `sent`
+   * — sem isto ela fica com o relógio para sempre.
    */
   deliveryReceipts: boolean;
 };
@@ -77,9 +77,9 @@ export const CHANNEL_CAPABILITIES: Record<Channel, ChannelCapabilities> = {
     humanAgentWindowMs: null,
     textFormat: "whatsapp",
     maxTextBytes: null,
-    // 022: el límite de Meta para un texto. Antes vivía como un tope global en
-    // el esquema de la API, igual para todos los canales; ahora que un canal
-    // admite más (TikTok, 6,000), cada uno declara el suyo.
+    // 022: o limite da Meta para um texto. Antes vivia como um teto global no
+    // esquema da API, igual para todos os canais; agora que um canal
+    // admite mais (TikTok, 6.000), cada um declara o seu.
     maxTextChars: 4096,
     maxOutboundPerWindow: null,
     outboundMedia: true,
@@ -92,8 +92,8 @@ export const CHANNEL_CAPABILITIES: Record<Channel, ChannelCapabilities> = {
     outsideWindow: "human_agent_tag",
     humanAgentWindowMs: 7 * DAY_MS,
     textFormat: "plain",
-    // Meta corta en 1000 bytes: con acentos y emojis el margen real es menor
-    // de lo que aparenta al contar caracteres.
+    // A Meta corta em 1000 bytes: com acentos e emojis a margem real é menor
+    // do que aparenta ao contar caracteres.
     maxTextBytes: 1000,
     maxTextChars: null,
     maxOutboundPerWindow: null,
@@ -101,10 +101,10 @@ export const CHANNEL_CAPABILITIES: Record<Channel, ChannelCapabilities> = {
     structuredMessages: false,
     deliveryReceipts: false,
   },
-  // 017: Messenger comparte la plataforma de mensajería de Meta con Instagram
-  // (misma ventana de 24 h, misma etiqueta HUMAN_AGENT fuera de ella, sin
-  // plantillas), pero admite textos más largos: 2000 caracteres. Se declara
-  // en bytes para no ser más generoso que la plataforma con acentos y emojis.
+  // 017: o Messenger compartilha a plataforma de mensagens da Meta com o Instagram
+  // (mesma janela de 24 h, mesma etiqueta HUMAN_AGENT fora dela, sem
+  // templates), mas admite textos mais longos: 2000 caracteres. Declara-se
+  // em bytes para não ser mais generoso que a plataforma com acentos e emojis.
   messenger: {
     label: CHANNEL_LABEL.messenger,
     windowMs: DAY_MS,
@@ -119,11 +119,11 @@ export const CHANNEL_CAPABILITIES: Record<Channel, ChannelCapabilities> = {
     deliveryReceipts: false,
   },
   /**
-   * 022: lo que TikTok impone a los mensajes directos de una cuenta de
-   * negocio. Tras el último mensaje del cliente acepta hasta 10 mensajes en 48
-   * horas y no hay plantilla ni etiqueta que reabra: fuera de eso el envío
-   * falla. El texto se mide en caracteres (6,000). Admite una imagen, pero el
-   * envío de adjuntos queda fuera de esta entrega (spec 022 · D9).
+   * 022: o que o TikTok impõe às mensagens diretas de uma conta de
+   * negócio. Depois da última mensagem do cliente aceita até 10 mensagens em 48
+   * horas e não há template nem etiqueta que reabra: fora disso o envio
+   * falha. O texto se mede em caracteres (6.000). Admite uma imagem, mas o
+   * envio de anexos fica fora desta entrega (spec 022 · D9).
    */
   tiktok: {
     label: CHANNEL_LABEL.tiktok,
@@ -141,8 +141,8 @@ export const CHANNEL_CAPABILITIES: Record<Channel, ChannelCapabilities> = {
 };
 
 /**
- * 022 — La ventana de servicio de un canal, en ms. Con `null` (un canal sin
- * ventana) se devuelve Infinity: nunca se cierra.
+ * 022 — A janela de serviço de um canal, em ms. Com `null` (um canal sem
+ * janela) devolve-se Infinity: nunca fecha.
  */
 export function windowMsFor(channel: Channel): number {
   return capabilitiesFor(channel).windowMs ?? Number.POSITIVE_INFINITY;
@@ -152,15 +152,15 @@ export function capabilitiesFor(channel: Channel): ChannelCapabilities {
   return CHANNEL_CAPABILITIES[channel] ?? CHANNEL_CAPABILITIES.whatsapp;
 }
 
-/** Mensaje para el operador cuando la ventana está cerrada, según el canal. */
+/** Mensagem para o operador quando a janela está fechada, conforme o canal. */
 export function windowClosedMessage(channel: Channel): string {
   const caps = capabilitiesFor(channel);
   switch (caps.outsideWindow) {
     case "template":
       return "La ventana de 24 horas está cerrada; usa una plantilla aprobada";
     case "human_agent_tag":
-      // 024: dentro de la extensión el envío sale etiquetado solo y no se le
-      // pide nada al operador; este mensaje es para cuando también venció.
+      // 024: dentro da extensão o envio sai etiquetado sozinho e não se
+      // pede nada ao operador; esta mensagem é para quando ela também venceu.
       return `La ventana de atención de ${caps.label} está cerrada: solo se puede contestar hasta ${dias(caps.humanAgentWindowMs)} después del último mensaje del cliente. Hay que esperar a que vuelva a escribir`;
     case "none":
       return `La ventana de ${caps.label} está cerrada y este canal no permite reabrirla: hay que esperar a que el cliente vuelva a escribir`;
@@ -168,8 +168,8 @@ export function windowClosedMessage(channel: Channel): string {
 }
 
 /**
- * 024 — Mensaje cuando quien intenta escribir es la IA y la ventana normal ya
- * cerró, aunque una persona todavía pueda contestar.
+ * 024 — Mensagem quando quem tenta escrever é a IA e a janela normal já
+ * fechou, embora uma pessoa ainda possa responder.
  */
 export function aiWindowClosedMessage(channel: Channel): string {
   const caps = capabilitiesFor(channel);
@@ -180,33 +180,33 @@ const horas = (ms: number | null) => `${Math.round((ms ?? 0) / (60 * 60 * 1000))
 const dias = (ms: number | null) => `${Math.round((ms ?? 0) / DAY_MS)} días`;
 
 /**
- * El texto más largo que acepta la API del CRM, sea cual sea el canal: el
- * mayor de los que declaran límite en caracteres. Es solo la primera barrera
- * (un body absurdo no llega a la base); el límite de cada canal lo comprueba
- * el envío, que es quien sabe a qué canal va.
+ * O texto mais longo que a API do CRM aceita, seja qual for o canal: o
+ * maior dos que declaram limite em caracteres. É só a primeira barreira
+ * (um body absurdo não chega ao banco); o limite de cada canal quem verifica
+ * é o envio, que é quem sabe para qual canal vai.
  */
 export const MAX_TEXT_CHARS_ANY_CHANNEL = Math.max(
   ...Object.values(CHANNEL_CAPABILITIES).map((c) => c.maxTextChars ?? 0)
 );
 
-/** Lo que se le dice a quien manda un texto más largo que eso. */
+/** O que se diz a quem manda um texto mais longo do que isso. */
 export const TEXT_TOO_LONG_ANY_CHANNEL = `El mensaje es demasiado largo: el máximo es ${MAX_TEXT_CHARS_ANY_CHANNEL.toLocaleString("es-MX")} caracteres`;
 
-/** ¿Este texto cabe en el canal? Mira el límite que su plataforma mida. */
+/** Este texto cabe no canal? Verifica o limite que a sua plataforma meça. */
 export function textFits(channel: Channel, text: string): boolean {
   const caps = capabilitiesFor(channel);
   if (caps.maxTextBytes !== null && Buffer.byteLength(text, "utf8") > caps.maxTextBytes) {
     return false;
   }
-  // Caracteres como los cuenta una persona (puntos de código), no unidades
-  // UTF-16: un emoji es uno.
+  // Caracteres como uma pessoa os conta (pontos de código), não unidades
+  // UTF-16: um emoji é um.
   if (caps.maxTextChars !== null && [...text].length > caps.maxTextChars) {
     return false;
   }
   return true;
 }
 
-/** El límite de texto del canal, dicho para el operador. */
+/** O limite de texto do canal, dito para o operador. */
 export function textLimitMessage(channel: Channel): string {
   const caps = capabilitiesFor(channel);
   const limite =
@@ -216,7 +216,7 @@ export function textLimitMessage(channel: Channel): string {
   return `${caps.label} no acepta mensajes de más de ${limite}: acorta el texto`;
 }
 
-/** Mensaje para el operador cuando el canal ya no admite más mensajes. */
+/** Mensagem para o operador quando o canal não aceita mais mensagens. */
 export function outboundLimitMessage(channel: Channel): string {
   const caps = capabilitiesFor(channel);
   return `${caps.label} solo permite ${caps.maxOutboundPerWindow} mensajes después del último mensaje del cliente: hay que esperar a que vuelva a escribir`;

@@ -10,13 +10,13 @@ import {
 import { avisarOlvido } from "@/server/brains/deliver";
 
 /**
- * 026 — El contrato del olvido, fijado byte a byte.
+ * 026 — O contrato do esquecimento, fixado byte a byte.
  *
- * `CUERPO_GEMELO` y `FIRMA_GEMELA` están copiados de
- * `nea-agent/tests/test_olvido.py` (y de `tests/unit/olvido-contrato.test.ts`
- * de vocerocrm-cloud): es el contrato entre los repositorios. Cambiar uno
- * obliga a cambiar los otros. Si esta prueba falla, el cerebro deja de
- * entender el aviso o de aceptar su firma.
+ * `CUERPO_GEMELO` e `FIRMA_GEMELA` estão copiados de
+ * `nea-agent/tests/test_olvido.py` (e de `tests/unit/olvido-contrato.test.ts`
+ * de vocerocrm-cloud): é o contrato entre os repositórios. Mudar um obriga a
+ * mudar os outros. Se este teste falhar, o cérebro deixa de
+ * entender o aviso ou de aceitar sua assinatura.
  */
 const SECRETO_GEMELO = "secreto-gemelo-del-olvido";
 const CUERPO_GEMELO =
@@ -87,7 +87,7 @@ describe("026 · avisarOlvido", () => {
     expect(h[CABECERA_FIRMA]).toBe(FIRMA_GEMELA);
     expect(h[CABECERA_EVENTO]).toBe("conversation.deleted");
     expect(h[CABECERA_ORG]).toBe("gemela");
-    // No es un despacho: no lleva su id.
+    // Não é um despacho: não leva seu id.
     expect(h[CABECERA_DISPATCH]).toBeUndefined();
   });
 

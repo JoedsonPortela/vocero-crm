@@ -15,11 +15,11 @@ const { bucketsDelPeriodo } = await import("@/lib/analytics");
 const { shortcuts } = await import("@/components/results/range-picker");
 
 /**
- * 019 — Los periodos de la pantalla Resultados (portado de Vocero Cloud).
+ * 019 — Os períodos da tela Resultados (portado do Vocero Cloud).
  *
- * Lo que se fija aquí es que los cortes caen en la zona del NEGOCIO: con
- * cortes en UTC, todo lo que pasa después de las 18:00 en México cae en el día
- * siguiente y el dueño compararía su lunes contra un lunes que no existe.
+ * O que se fixa aqui é que os cortes caem na zona do NEGÓCIO: com
+ * cortes em UTC, tudo o que acontece depois das 18:00 no México cai no dia
+ * seguinte e o dono compararia sua segunda-feira com uma segunda-feira que não existe.
  */
 
 const MX = "America/Mexico_City";
@@ -35,14 +35,14 @@ describe("resolvePeriod", () => {
   });
 
   it("'hoy' es el del negocio: las 20:00 del 5 en México siguen siendo el 5", () => {
-    // 2026-03-06T02:00Z ya es día 6 en UTC.
+    // 2026-03-06T02:00Z já é dia 6 em UTC.
     const p = resolvePeriod({ timezone: MX, now: new Date("2026-03-06T02:00:00Z") });
     expect(p.dto.to).toBe("2026-03-05");
   });
 
   it("el periodo anterior dura LO MISMO y termina justo antes", () => {
-    // Si no, la comparación mezclaría un mes de 30 días con uno de 31 y el
-    // "+8 %" de la pantalla sería un artefacto del calendario.
+    // Senão, a comparação misturaria um mês de 30 dias com um de 31 e o
+    // "+8 %" da tela seria um artefato do calendário.
     const p = resolvePeriod({ from: "2026-03-01", to: "2026-03-10", timezone: MX });
     expect(p.dto.days).toBe(10);
     expect(p.dto.previousTo).toBe("2026-02-28");
@@ -57,12 +57,12 @@ describe("resolvePeriod", () => {
 
   it("los cortes son medianoche en la zona del negocio, no en UTC", () => {
     const p = resolvePeriod({ from: "2026-03-01", to: "2026-03-01", timezone: MX });
-    // Medianoche del 1 de marzo en México (UTC-6) son las 06:00Z.
+    // Meia-noite de 1 de março no México (UTC-6) são as 06:00Z.
     expect(p.start.toISOString()).toBe("2026-03-01T06:00:00.000Z");
   });
 
   it("un día con cambio de horario dura lo que dura en la zona", () => {
-    // Nueva York adelanta el reloj el 8 de marzo de 2026: ese día tiene 23 h.
+    // Nova York adianta o relógio em 8 de março de 2026: esse dia tem 23 h.
     const p = resolvePeriod({
       from: "2026-03-08",
       to: "2026-03-08",
@@ -98,8 +98,8 @@ describe("resolvePeriod", () => {
   });
 
   it("rechaza una fecha con formato inventado o que no existe", () => {
-    // Llega de la barra de direcciones: tiene que ser un 422 con mensaje, no
-    // un NaN que se propague hasta una consulta.
+    // Chega da barra de endereços: tem que ser um 422 com mensagem, não
+    // um NaN que se propague até uma consulta.
     expect(() => resolvePeriod({ from: "ayer", to: "2026-03-01", timezone: MX })).toThrow(
       PeriodError
     );
@@ -146,7 +146,7 @@ describe("atajos del rango", () => {
     expect(a["7 días"]).toEqual({ from: "2026-03-09", to: "2026-03-15" });
     expect(a["30 días"]).toEqual({ from: "2026-02-14", to: "2026-03-15" });
     expect(a["Este mes"]).toEqual({ from: "2026-03-01", to: "2026-03-15" });
-    // Marzo: el mes pasado es un febrero de 28 días.
+    // Março: o mês passado é um fevereiro de 28 dias.
     expect(a["Mes pasado"]).toEqual({ from: "2026-02-01", to: "2026-02-28" });
   });
 
@@ -165,8 +165,8 @@ describe("atajos del rango", () => {
 
 describe("median", () => {
   it("con lista vacía es null, no cero", () => {
-    // Cero significaría "contestó al instante"; null significa "no hubo nada
-    // que medir". La pantalla los dice distinto.
+    // Zero significaria "respondeu na hora"; null significa "não houve nada
+    // que medir. A tela os mostra de forma distinta.
     expect(median([])).toBeNull();
   });
 

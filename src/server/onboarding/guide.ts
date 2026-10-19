@@ -7,17 +7,17 @@ import {
 } from "./status";
 
 /**
- * La guía de inicio: tres pasos (cuatro con la agenda) y nada más (issue #86).
+ * O guia de início: três passos (quatro com a agenda) e nada mais (issue #86).
  *
- * Es lo primero que ve quien instala Vocero: configurar el agente, vincular
- * el proveedor de IA, conectar el número y, si la agenda existe en esta
- * instancia, dejarla lista. Al terminar, un botón enciende el agente. Lo
- * demás —la Bandeja, el Pipeline— ya está en el menú; la guía no lo repite.
+ * É o primeiro que vê quem instala o Vocero: configurar o agente, vincular
+ * o provedor de IA, conectar o número e, se a agenda existir nesta
+ * instância, deixá-la pronta. Ao terminar, um botão liga o agente. O
+ * resto —a Caixa de entrada, o Pipeline— já está no menu; o guia não o repete.
  *
- * El estado de cada paso sale de `onboardingStatus`, la misma fuente que ya
- * verifica cada conexión: la guía no inventa su propia noción de «listo».
- * Puerto de `onboarding/guide.ts` de Vocero Cloud sin lo que allá es de la
- * plataforma (modelo fijado por soporte, agencias, planes).
+ * O estado de cada passo sai de `onboardingStatus`, a mesma fonte que já
+ * verifica cada conexão: o guia não inventa sua própria noção de «pronto».
+ * Adaptação de `onboarding/guide.ts` do Vocero Cloud sem o que lá é da
+ * plataforma (modelo fixado pelo suporte, agências, planos).
  */
 export type GuideStep = {
   key: "agent" | "ai" | "whatsapp" | "calendar";
@@ -26,20 +26,20 @@ export type GuideStep = {
   done: boolean;
   href: string;
   cta: string;
-  /** Lo que falta, cuando no es lo obvio del paso. */
+  /** O que falta, quando não é o óbvio do passo. */
   hint: string | null;
 };
 
 export type Guide = {
   steps: GuideStep[];
   complete: boolean;
-  /** El agente ya está encendido. */
+  /** O agente já está ligado. */
   enabled: boolean;
 };
 
 const ready = (s: ReadinessStep | undefined) => s?.status === "ready";
 
-/** Pura: de los pasos verificados a los de la guía. */
+/** Pura: dos passos verificados aos do guia. */
 export function guideFrom(status: OnboardingStatus): Guide {
   const step = (key: ReadinessStep["key"]) =>
     status.steps.find((s) => s.key === key);
@@ -80,8 +80,8 @@ export function guideFrom(status: OnboardingStatus): Guide {
       hint: whatsapp?.problem ?? null,
     },
   ];
-  // Sin agenda en esta instancia el paso no existe: pintarlo «no aplica»
-  // sería justo el tipo de ruido que la guía evita.
+  // Sem agenda nesta instância o passo não existe: pintá-lo como «não se aplica»
+  // seria justamente o tipo de ruído que o guia evita.
   if (calendar && calendar.status !== "not_applicable") {
     steps.push({
       key: "calendar",
@@ -102,16 +102,16 @@ export async function guideStatus(organizationId: string): Promise<Guide> {
 }
 
 /**
- * ¿La guía es lo primero que ve esta persona al entrar?
+ * O guia é a primeira coisa que esta pessoa vê ao entrar?
  *
- * Solo a quien puede configurar (un miembro del equipo no puede hacer ninguno
- * de los pasos) y solo mientras falte algo: con todos los pasos listos y el
- * agente encendido se entra directo a la Bandeja, como siempre.
+ * Só para quem pode configurar (um membro da equipe não pode fazer nenhum
+ * dos passos) e só enquanto faltar algo: com todos os passos prontos e o
+ * agente ligado entra-se direto na Caixa de entrada, como sempre.
  *
- * Un negocio demo recién sembrado («Ferretería El Martillo») pasa por aquí
- * igual: el seed deja el agente configurado (paso 1 listo) pero no puede
- * vincular una llave de IA ni un número, y sin eso el agente no contesta.
- * Capturar `/` no encierra a nadie: el menú lleva a cualquier pantalla.
+ * Um negócio demo recém-semeado («Ferretería El Martillo») passa por aqui
+ * igual: o seed deixa o agente configurado (passo 1 pronto), mas não pode
+ * vincular uma chave de IA nem um número, e sem isso o agente não responde.
+ * Capturar `/` não prende ninguém: o menu leva a qualquer tela.
  */
 export async function guideFirst(
   session: Pick<SessionContext, "organizationId" | "role">

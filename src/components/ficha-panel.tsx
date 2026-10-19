@@ -9,20 +9,20 @@ import { fichaEntries, fichaLabel, fichaValueText, parseFichaValue } from "@/lib
 import type { FichaDto, FichaValue } from "@/lib/types";
 
 /**
- * Lo que se sabe del lead, donde se trabaja la conversación.
+ * O que se sabe do lead, onde se trabalha a conversa.
  *
- * Existe porque `PUT /api/bot/ficha` ya deja al agente guardar lo que
- * averigua: sin esta pantalla, eso era un cajón que se llenaba y no se abría.
+ * Existe porque `PUT /api/bot/ficha` já deixa o agente guardar o que
+ * descobre: sem esta tela, isso era uma gaveta que enchia e nunca era aberta.
  *
- * Se puede corregir a mano. Un dato equivocado que el dueño ve pero no puede
- * arreglar es peor que no tenerlo: enseña a desconfiar de toda la ficha.
+ * Pode ser corrigido à mão. Um dado errado que o dono vê mas não consegue
+ * consertar é pior do que não tê-lo: ensina a desconfiar de toda a ficha.
  */
 export function FichaPanel({
   ficha,
   onSave,
 }: {
   ficha: FichaDto;
-  /** Parche: solo lo que cambia. `null` borra la clave. */
+  /** Patch: só o que muda. `null` apaga a chave. */
   onSave: (patch: Record<string, FichaValue | null>) => Promise<void>;
 }) {
   const [editando, setEditando] = useState<string | null>(null);
@@ -46,9 +46,9 @@ export function FichaPanel({
   async function confirmarEdicion(clave: string) {
     const valor = parseFichaValue(borrador, ficha[clave]);
     setEditando(null);
-    // Vacío no borra: para eso está el bote de basura. Un campo que se vacía
-    // solo, porque alguien seleccionó y salió, se lleva un dato que costó una
-    // conversación.
+    // Vazio não apaga: para isso existe a lixeira. Um campo que é esvaziado
+    // sozinho, porque alguém selecionou e saiu, leva um dado que custou uma
+    // conversa.
     if (valor === "" || valor === ficha[clave]) return;
     await guardar({ [clave]: valor });
   }

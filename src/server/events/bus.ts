@@ -1,9 +1,9 @@
 import { EventEmitter } from "node:events";
 
 /**
- * Bus de eventos in-process por organización (contrato sse.md).
- * Publicar SIEMPRE después del commit de BD. Una instancia = un proceso,
- * así que un EventEmitter es suficiente (sin colas externas — Constitución II).
+ * Barramento de eventos in-process por organização (contrato sse.md).
+ * Publicar SEMPRE depois do commit do BD. Uma instância = um processo,
+ * então um EventEmitter é suficiente (sem filas externas — Constituição II).
  */
 
 export type SseEvent =
@@ -14,17 +14,17 @@ export type SseEvent =
         conversationId: string;
         messageId: string;
         status: string;
-        /** Motivo del fallo, presente solo cuando status = "failed". */
+        /** Motivo da falha, presente somente quando status = "failed". */
         error?: string | null;
       };
     }
   | { type: "conversation.updated"; data: { conversation: unknown } }
-  /** 026 — alguien del equipo eliminó la conversación: se quita de la bandeja. */
+  /** 026 — alguém da equipe apagou a conversa: ela sai da caixa de entrada. */
   | {
       type: "conversation.deleted";
       data: { conversationId: string; contactId: string; contactDeleted: boolean };
     }
-  /** 015 — algo cambió en la agenda: la pantalla de Citas se refresca sola. */
+  /** 015 — algo mudou na agenda: a tela de Agendamentos se atualiza sozinha. */
   | { type: "booking.updated"; data: { bookingId: string } }
   | {
       type: "lab.run";

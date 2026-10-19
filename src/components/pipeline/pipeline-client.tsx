@@ -45,18 +45,18 @@ export function PipelineClient() {
   const [leads, setLeads] = useState<BoardLead[]>([]);
   const [activeLead, setActiveLead] = useState<BoardLead | null>(null);
   const [managing, setManaging] = useState(false);
-  /** Arrastre hacia una etapa perdida, esperando el motivo. */
+  /** Arrasto para uma etapa perdida, aguardando o motivo. */
   const [pendingLoss, setPendingLoss] = useState<{
     leadId: string;
     stageId: string;
     name: string;
   } | null>(null);
-  /** Tarjeta cuyo monto se está capturando. */
+  /** Cartão cujo valor está sendo registrado. */
   const [editandoMonto, setEditandoMonto] = useState<BoardLead | null>(null);
   /**
-   * Trato abierto en el cajón. Se guarda el ID y no el objeto: así el cajón
-   * lee siempre del tablero y refleja al instante lo que se cambie desde
-   * dentro, en vez de enseñar una copia que envejece.
+   * Negócio aberto na gaveta. Guarda-se o ID e não o objeto: assim a gaveta
+   * sempre lê do painel e reflete na hora o que for mudado a partir de
+   * dentro, em vez de mostrar uma cópia que envelhece.
    */
   const [abiertoId, setAbiertoId] = useState<string | null>(null);
   const abierto = leads.find((l) => l.id === abiertoId) ?? null;
@@ -93,7 +93,7 @@ export function PipelineClient() {
     loss?: { reason: LossReason; note: string }
   ) {
     const position = leads.filter((l) => l.stageId === overStage).length;
-    // Optimista + persistencia
+    // Otimista + persistência
     setLeads((prev) =>
       prev.map((l) => (l.id === leadId ? { ...l, stageId: overStage, position } : l))
     );
@@ -118,7 +118,7 @@ export function PipelineClient() {
     await fetch(`/api/pipeline/leads/${leadId}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
-      // Sin `stageId`: esto NO mueve la tarjeta, solo escribe el importe.
+      // Sem `stageId`: isto NÃO move o cartão, só grava o valor.
       body: JSON.stringify({ amountCents: cents }),
     }).catch(() => null);
     void refetch();
@@ -144,8 +144,8 @@ export function PipelineClient() {
     const lead = leads.find((l) => l.id === leadId);
     if (!lead || lead.stageId === overStage) return;
 
-    // Perder un trato exige motivo. Se pregunta ANTES de mover: si el dueño
-    // cancela, la tarjeta ni siquiera parpadea fuera de su columna.
+    // Perder um negócio exige motivo. Pergunta-se ANTES de mover: se o dono
+    // cancelar, o cartão nem chega a piscar fora da sua coluna.
     const destino = stages.find((s) => s.id === overStage);
     if (destino?.kind === "lost") {
       setPendingLoss({ leadId, stageId: overStage, name: lead.contact.name });
@@ -156,9 +156,9 @@ export function PipelineClient() {
   }
 
   /**
-   * Cambiar de etapa desde el cajón. Entra por la MISMA puerta que el
-   * arrastre: perder un trato exige motivo venga de donde venga, y duplicar
-   * esa regla aquí sería tener dos sitios donde olvidarla.
+   * Mudar de etapa a partir da gaveta. Entra pela MESMA porta do
+   * arrasto: perder um negócio exige motivo, venha de onde vier, e duplicar
+   * essa regra aqui seria ter dois lugares onde esquecê-la.
    */
   function moverDesdeCajon(leadId: string, stageId: string) {
     const lead = leads.find((l) => l.id === leadId);
@@ -180,8 +180,8 @@ export function PipelineClient() {
         </Button>
       </header>
 
-      {/* El tablero se arrastra en horizontal; en el teléfono cada columna
-          se detiene en su sitio (snap) para no quedar a medio camino. */}
+      {/* O painel é arrastado na horizontal; no celular cada coluna
+          para no seu lugar (snap) para não ficar no meio do caminho. */}
       <div className="flex-1 snap-x snap-mandatory overflow-x-auto p-3 sm:snap-none sm:p-4">
         <DndContext
           sensors={sensors}
@@ -218,8 +218,8 @@ export function PipelineClient() {
         />
       )}
 
-      {/* Va ANTES que los diálogos: con el mismo z-index, el que se pinta
-          después queda encima, y el motivo de pérdida debe tapar al cajón. */}
+      {/* Fica ANTES dos diálogos: com o mesmo z-index, o que é desenhado
+          depois fica por cima, e o motivo de perda deve cobrir a gaveta. */}
       {abierto && (
         <LeadDrawer
           lead={abierto}
@@ -267,9 +267,9 @@ export function PipelineClient() {
 }
 
 /**
- * Totales de una columna. Se calculan al pintar: un total guardado se
- * desincroniza en cuanto alguien mueve una tarjeta, y sumar unas decenas es
- * gratis. Todo en CENTAVOS enteros — el dinero jamás pasa por coma flotante.
+ * Totais de uma coluna. São calculados ao desenhar: um total guardado se
+ * dessincroniza assim que alguém move um cartão, e somar algumas dezenas é
+ * grátis. Tudo em CENTAVOS inteiros — o dinheiro jamais passa por ponto flutuante.
  */
 function totalesDeEtapa(leads: BoardLead[], businessCurrency: string) {
   let totalCents = 0;
@@ -340,7 +340,7 @@ function StageColumn({
   );
 }
 
-/** Cuánto dinero hay en esta etapa, y qué quedó fuera de la cuenta. */
+/** Quanto dinheiro há nesta etapa, e o que ficou fora da conta. */
 function StageFooter({ leads, currency }: { leads: BoardLead[]; currency: string }) {
   const { totalCents, sinMonto, otraMoneda } = totalesDeEtapa(leads, currency);
   const conMonto = leads.length - sinMonto - otraMoneda;
@@ -348,7 +348,7 @@ function StageFooter({ leads, currency }: { leads: BoardLead[]; currency: string
   return (
     <div className="border-t px-3 py-2 text-[11px]">
       {conMonto === 0 ? (
-        // Un "$0.00" aquí se lee como un error del sistema, no como un dato.
+        // Um "$0.00" aqui é lido como erro do sistema, não como dado.
         <p className="text-muted-foreground">Sin montos capturados</p>
       ) : (
         <div className="flex items-baseline justify-between gap-2">
@@ -361,8 +361,8 @@ function StageFooter({ leads, currency }: { leads: BoardLead[]; currency: string
         </div>
       )}
       {otraMoneda > 0 && (
-        // Descartarlos en silencio haría que el total mintiera sin que nadie
-        // pudiera notarlo.
+        // Descartá-los em silêncio faria o total mentir sem que ninguém
+        // pudesse perceber.
         <p className="mt-0.5 text-warning-text">
           {otraMoneda} en otra moneda, fuera del total
         </p>
@@ -390,14 +390,14 @@ function DraggableLead({
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      // Abrir y arrastrar conviven porque el sensor solo activa el arrastre a
-      // los 6 px de movimiento: un clic quieto nunca llega a ser un arrastre.
-      // Los controles de dentro de la tarjeta cortan la propagación, para que
-      // tocar "+ monto" no abra además el cajón.
+      // Abrir e arrastar convivem porque o sensor só ativa o arrasto a
+      // partir de 6 px de movimento: um clique parado nunca chega a ser um arrasto.
+      // Os controles dentro do cartão interrompem a propagação, para que
+      // tocar em "+ valor" não abra também a gaveta.
       onClick={() => onOpen(lead)}
-      // dnd-kit ya deja el nodo con `role="button"` y `tabIndex`, pero un div
-      // no dispara `click` con el teclado: sin esto, el cajón sería alcanzable
-      // solo con el ratón.
+      // o dnd-kit já deixa o nó com `role="button"` e `tabIndex`, mas uma div
+      // não dispara `click` com o teclado: sem isso, a gaveta seria alcançável
+      // só com o mouse.
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -457,11 +457,11 @@ function LeadCard({
       </div>
       {!overlay && onEditAmount && (
         <button
-          // `stopPropagation` en pointerdown: sin esto, tocar el monto empieza
-          // un arrastre y el diálogo nunca abre.
+          // `stopPropagation` no pointerdown: sem isso, tocar no valor inicia
+          // um arrasto e o diálogo nunca abre.
           onPointerDown={(e) => e.stopPropagation()}
-          // También en `click`: sin esto, tocar el monto abriría además el
-          // cajón, porque el evento sigue subiendo hasta la tarjeta.
+          // Também no `click`: sem isso, tocar no valor abriria também a
+          // gaveta, porque o evento continua subindo até o cartão.
           onClick={(e) => {
             e.stopPropagation();
             onEditAmount(lead);

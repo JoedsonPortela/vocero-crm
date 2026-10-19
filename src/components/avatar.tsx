@@ -1,13 +1,13 @@
 import { avatarColor, cn, initials } from "@/lib/utils";
 
-/** Avatar de contacto: iniciales sobre color estable (FR-006). */
+/** Avatar de contato: iniciais sobre cor estável (FR-006). */
 export function ContactAvatar({
   name,
   seed,
   size = "md",
 }: {
   name: string;
-  /** Semilla del color (id o teléfono): estable para el mismo contacto. */
+  /** Semente da cor (id ou telefone): estável para o mesmo contato. */
   seed: string;
   size?: "sm" | "md" | "lg";
 }) {

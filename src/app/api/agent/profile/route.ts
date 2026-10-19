@@ -26,8 +26,8 @@ export const GET = withAuth(async (session) => {
       greeting: p.greeting,
     },
     aiConfigured: estado.activa,
-    // Por qué no (sin configurar, llave rechazada, sin saldo): la pantalla
-    // Agente lo dice con el enlace a Ajustes → IA.
+    // Por que não (sem configurar, chave recusada, sem saldo): a tela
+    // Agente diz isso com o link para Ajustes → IA.
     aiMensaje: mensajeDeEstado(estado),
   });
 });

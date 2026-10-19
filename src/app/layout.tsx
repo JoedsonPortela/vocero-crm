@@ -10,8 +10,8 @@ import { productName } from "@/lib/channels";
 import { LOCALE } from "@/lib/i18n";
 import "./globals.css";
 
-// Las tres voces de la marca, las mismas de vocerocrm.com. next/font las
-// descarga en BUILD y las sirve self-hosted (sin CDN en runtime: soberanía).
+// As três vozes da marca, as mesmas do vocerocrm.com. next/font as
+// baixa no BUILD e as serve self-hosted (sem CDN em runtime: soberania).
 const archivo = Archivo({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -39,8 +39,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `${branding.name} — ${producto}`,
     description: `${producto} con agente de IA y Laboratorio de auto-evaluación`,
-    // El `?v=` cambia con la marca: los navegadores guardan el favicon con una
-    // insistencia notable y, sin eso, el logo nuevo tarda días en aparecer.
+    // O `?v=` muda com a marca: os navegadores guardam o favicon com uma
+    // insistência notável e, sem isso, o logo novo leva dias para aparecer.
     icons: { icon: faviconHref(branding) },
   };
 }
@@ -56,12 +56,12 @@ export default async function RootLayout({
     <html
       lang={LOCALE}
       className={`${archivo.variable} ${instrumentSerif.variable} ${plexMono.variable}`}
-      // La preferencia siempre es explícita: el tema viaja resuelto en el HTML
-      // del servidor, así que no hay divergencia con el cliente ni parpadeo.
+      // A preferência é sempre explícita: o tema vai resolvido no HTML
+      // do servidor, então não há divergência com o cliente nem piscar.
       data-theme={theme}
     >
       <head>
-        {/* Acento white-label inyectado en SSR: sin flash de tema */}
+        {/* Acento white-label injetado no SSR: sem flash de tema */}
         <style
           dangerouslySetInnerHTML={{ __html: accentCssVariables(branding.accent) }}
         />

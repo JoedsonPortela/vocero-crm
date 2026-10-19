@@ -16,23 +16,23 @@ import { replaceOffers } from "@/server/agenda/offers";
 export const dynamic = "force-dynamic";
 
 /**
- * 015 — Los horarios que se le van a ofrecer al cliente, para quien conduce la
- * conversación.
+ * 015 — Os horários que serão oferecidos ao cliente, para quem conduz a
+ * conversa.
  *
- * A diferencia de la vista del operador, esta REGISTRA la oferta: es ese
- * registro lo que después habilita la reserva. Sin él, `POST /api/bot/bookings`
- * rechaza cualquier instante.
+ * Diferentemente da visão do operador, esta REGISTRA a oferta: é esse
+ * registro que depois habilita a reserva. Sem ele, `POST /api/bot/bookings`
+ * recusa qualquer instante.
  *
- * El catálogo reservable (`limit`) es más ancho que el menú que el agente
- * enseña: guardar solo los tres que se muestran deja al agente sin nada
- * legítimo que aceptar cuando el cliente pide otro día.
+ * O catálogo reservável (`limit`) é mais amplo que o menu que o agente
+ * mostra: guardar só os três exibidos deixa o agente sem nada
+ * legítimo para aceitar quando o cliente pede outro dia.
  *
- * Sin `date` es un REPARTO (hasta `perDay` horas de cada día) y `query` dice
- * hasta dónde llega. Con `date=YYYY-MM-DD` (día en la zona del negocio)
- * devuelve las horas libres de ESE día, repartidas a lo largo del día, y
- * `query.status` dice por qué no hay ninguna. Sin esto, a «¿mañana en la
- * tarde?» el cerebro solo veía las tres primeras horas de mañana y contestaba
- * que solo había mañana (`src/server/agenda/spread.ts`, `armarHuecos`).
+ * Sem `date` é uma DISTRIBUIÇÃO (até `perDay` horas de cada dia) e `query` diz
+ * até onde vai. Com `date=YYYY-MM-DD` (dia no fuso do negócio)
+ * devolve as horas livres DAQUELE dia, distribuídas ao longo do dia, e
+ * `query.status` diz por que não há nenhuma. Sem isso, para «amanhã à
+ * tarde?» o cérebro só via as três primeiras horas da manhã e respondia
+ * que só havia manhã (`src/server/agenda/spread.ts`, `armarHuecos`).
  */
 
 const LIMITS = {
@@ -42,8 +42,8 @@ const LIMITS = {
 };
 
 function clamp(raw: string | null, l: { min: number; max: number; def: number }) {
-  // Ausente o vacío ⇒ el default del contrato. `Number(null)` es 0, no NaN:
-  // sin este corte, pedir sin parámetros daba UN hueco de UN día.
+  // Ausente ou vazio ⇒ o default do contrato. `Number(null)` é 0, não NaN:
+  // sem esse corte, pedir sem parâmetros dava UM horário de UM dia.
   if (raw === null || raw.trim() === "") return l.def;
   const n = Number(raw);
   if (!Number.isFinite(n)) return l.def;
@@ -51,8 +51,8 @@ function clamp(raw: string | null, l: { min: number; max: number; def: number })
 }
 
 export async function GET(req: Request) {
-  // La bandera se evalúa ANTES que la llave: si esta instancia no tiene
-  // agenda, el endpoint no existe — no hay nada que autenticar.
+  // A flag é avaliada ANTES da chave: se esta instância não tem
+  // agenda, o endpoint não existe — não há nada para autenticar.
   if (!agendaEnabled()) return agendaDisabledResponse();
 
   const denied = requireBotKey(req);
@@ -68,8 +68,8 @@ export async function GET(req: Request) {
   if (!conversationId) {
     return apiError(422, "invalid_body", "Falta conversationId");
   }
-  // `date` es opcional; vacío cuenta como ausente. Mal formada o inexistente
-  // en el calendario (2026-02-31) → 422, nunca un 500 ni el reparto callado.
+  // `date` é opcional; vazio conta como ausente. Mal formada ou inexistente
+  // no calendário (2026-02-31) → 422, nunca um 500 nem a distribuição silenciosa.
   const date = url.searchParams.get("date")?.trim() || null;
   if (date !== null && !fechaValida(date)) {
     return apiError(
@@ -100,7 +100,7 @@ export async function GET(req: Request) {
   const settings = await getSettings(organizationId);
   const now = new Date();
   const hoy = todayInTz(now, settings.timezone);
-  // Un día fuera de lo agendable ni se calcula: no hay nada que buscar.
+  // Um dia fora do agendável nem é calculado: não há nada para buscar.
   const dentro =
     !date || (date >= hoy && date <= addDaysISO(hoy, settings.maxDaysAhead));
   const todos = dentro
@@ -123,10 +123,10 @@ export async function GET(req: Request) {
       date && dentro ? buildCandidateSlots(settings, date, date).length : 0,
   });
 
-  // Reemplazo completo: la oferta vigente es siempre la última. Pero una
-  // consulta por día que no encontró nada NO borra lo ya ofrecido: el cliente
-  // que pregunta por el sábado y oye «ese día no abrimos» todavía puede
-  // quedarse con el viernes que se le dio antes.
+  // Substituição completa: a oferta vigente é sempre a última. Mas uma
+  // consulta por dia que não achou nada NÃO apaga o que já foi oferecido: o cliente
+  // que pergunta pelo sábado e ouve «esse dia não abrimos» ainda pode
+  // ficar com a sexta que lhe foi dada antes.
   if (!date || slots.length > 0) {
     await replaceOffers(
       organizationId,
@@ -144,15 +144,15 @@ export async function GET(req: Request) {
       dayLabel: s.dayLabel,
       time: s.time,
     })),
-    // Los días que NO están aquí no tienen agenda HASTA `query.coveredUntil`:
-    // lo posterior no se revisó, y de cada día se ven hasta `query.perDay`
-    // horas. Para un día concreto, se pregunta con `date`.
+    // Os dias que NÃO estão aqui não têm agenda ATÉ `query.coveredUntil`:
+    // o posterior não foi revisado, e de cada dia são vistas até `query.perDay`
+    // horas. Para um dia específico, pergunta-se com `date`.
     diasConAgenda: daysWithAgenda(slots),
     query,
   });
 }
 
-/** YYYY-MM-DD que además existe en el calendario (nada de 2026-02-31). */
+/** YYYY-MM-DD que também existe no calendário (nada de 2026-02-31). */
 function fechaValida(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const d = new Date(`${value}T00:00:00Z`);

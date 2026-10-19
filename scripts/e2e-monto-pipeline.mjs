@@ -1,11 +1,11 @@
 /**
- * Self-test E2E de comportamiento — monto de la negociación
- * (guion tests/e2e/us2-pipeline.md, sección "monto").
+ * Self-test E2E de comportamento — valor da negociação
+ * (roteiro tests/e2e/us2-pipeline.md, seção "monto").
  *
- * El total por columna lo suma el CLIENTE, así que aquí se verifica lo que lo
- * alimenta: que el monto se guarde sin mover la tarjeta, que viaje con su
- * moneda, y que la moneda del negocio llegue al tablero. La aritmética tiene
- * sus propias pruebas en tests/unit/money.test.ts.
+ * O total por coluna é somado pelo CLIENTE, então aqui se verifica o que o
+ * alimenta: que o valor seja salvo sem mover o cartão, que trafegue com sua
+ * moeda, e que a moeda do negócio chegue ao painel. A aritmética tem
+ * seus próprios testes em tests/unit/money.test.ts.
  *
  * Uso: node --env-file=.env scripts/e2e-monto-pipeline.mjs
  */
@@ -147,7 +147,7 @@ ok(
   board2.leads.find((l) => l.id === leadId)?.currency === marca.currency,
   "un importe capturado en pesos no se vuelve dólares porque cambie el ajuste"
 );
-// Volver a dejarlo como estaba para no ensuciar corridas siguientes.
+// Deixa-o como estava de novo, para não sujar as execuções seguintes.
 await api("/api/settings/branding", {
   method: "PUT",
   body: JSON.stringify({ name: marca.name, accent: marca.accent, currency: marca.currency }),

@@ -9,15 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 /**
- * 023 — Conectar un canal por Zernio, igual en Instagram, Messenger y TikTok.
+ * 023 — Conectar um canal pelo Zernio, igual no Instagram, Messenger e TikTok.
  *
- * Se pega la llave y nada más: la cuenta la encuentra el CRM en Zernio. Antes
- * había que copiar un `accountId` del panel de Zernio, que enseña dos ids que
- * parecen iguales (el del perfil y el de la cuenta); quien copiaba el
- * equivocado veía el canal «conectado» y no recibía un solo mensaje.
+ * Cola-se a chave e nada mais: a conta o CRM encontra no Zernio. Antes
+ * era preciso copiar um `accountId` do painel do Zernio, que mostra dois ids que
+ * parecem iguais (o do perfil e o da conta); quem copiava o
+ * errado via o canal «conectado» e não recebia uma única mensagem.
  *
- * Si la llave tiene varias cuentas del canal (una agencia), se ofrecen para
- * elegir. El webhook lo da de alta el CRM al guardar; lo que pasó se dice aquí.
+ * Se a chave tiver várias contas do canal (uma agência), elas são oferecidas para
+ * escolha. O webhook é cadastrado pelo CRM ao salvar; o que aconteceu é dito aqui.
  */
 
 type Candidate = { id: string; name: string };
@@ -35,11 +35,11 @@ export function ZernioConnect({
   idPrefix,
   onSaved,
 }: {
-  /** La ruta de ajustes del canal (`/api/settings/instagram`…). */
+  /** A rota de ajustes do canal (`/api/settings/instagram`…). */
   endpoint: string;
-  /** Campos fijos del cuerpo (p. ej. `{ source: "zernio" }`). */
+  /** Campos fixos do corpo (ex.: `{ source: "zernio" }`). */
   extraBody?: Record<string, unknown>;
-  /** Cómo se llama lo que se conecta: «tu cuenta de Instagram». */
+  /** Como se chama o que está sendo conectado: «sua conta do Instagram». */
   what: string;
   idPrefix: string;
   onSaved: () => void;
@@ -118,7 +118,7 @@ export function ZernioConnect({
       )}
 
       {error && (
-        // Con cuentas para elegir no es un fallo: es la siguiente pregunta.
+        // Com contas para escolher não é uma falha: é a próxima pergunta.
         <p
           role="alert"
           className={candidates.length > 0 ? "text-sm font-medium" : "text-sm text-destructive"}

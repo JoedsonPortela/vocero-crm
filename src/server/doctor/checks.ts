@@ -15,15 +15,15 @@ import {
 } from "@/server/whatsapp/credentials";
 
 /**
- * `pnpm doctor` — las comprobaciones, una por línea, con el arreglo exacto de
- * cada ✗. Nada aquí imprime: devuelve resultados y el CLI (scripts/doctor.ts)
- * los formatea. Lo que toca red o disco recibe su sonda por parámetro para
- * poder probarse sin Postgres ni Meta.
+ * `pnpm doctor` — as verificações, uma por linha, com o conserto exato de
+ * cada ✗. Nada aqui imprime: devolve resultados e o CLI (scripts/doctor.ts)
+ * os formata. O que toca rede ou disco recebe sua sonda por parâmetro para
+ * poder ser testado sem Postgres nem Meta.
  *
- * Regla de la casa (constitución I): jamás un secreto en la salida. De las
- * variables secretas solo se dice que están definidas y cuánto miden; de la
- * URL de la base, todo menos la contraseña; del token de WhatsApp, los
- * últimos 4 caracteres, como en la UI.
+ * Regra da casa (constituição I): jamais um segredo na saída. Das
+ * variáveis secretas só se diz que estão definidas e quanto medem; da
+ * URL do banco, tudo menos a senha; do token do WhatsApp, os
+ * últimos 4 caracteres, como na UI.
  */
 
 export type CheckStatus = "ok" | "fail" | "warn" | "skip";
@@ -32,16 +32,16 @@ export type CheckResult = {
   status: CheckStatus;
   label: string;
   detail?: string;
-  /** Comando o acción exacta para arreglarlo (en todo ✗ y en los avisos). */
+  /** Comando ou ação exata para consertar (em todo ✗ e nos avisos). */
   fix?: string;
 };
 
-/* ---------- Variables de entorno ---------- */
+/* ---------- Variáveis de ambiente ---------- */
 
 /**
- * Las variables que el arranque exige: las del esquema sin default ni
- * `.optional()`. Derivadas del esquema, no copiadas: si env.ts gana una
- * obligatoria, el doctor la comprueba solo.
+ * As variáveis que a inicialização exige: as do esquema sem default nem
+ * `.optional()`. Derivadas do esquema, não copiadas: se o env.ts ganhar uma
+ * obrigatória, o doctor a verifica sozinho.
  */
 export function requiredEnvKeys(): string[] {
   return Object.entries(envSchema.shape)
@@ -49,7 +49,7 @@ export function requiredEnvKeys(): string[] {
     .map(([key]) => key);
 }
 
-/** Variables cuyo valor jamás se imprime (ni entero ni en parte). */
+/** Variáveis cujo valor nunca é impresso (nem inteiro nem em parte). */
 const SECRET_KEYS = new Set<string>([
   ...Object.keys(GENERATED_SECRETS),
   "DATABASE_URL",
@@ -76,7 +76,7 @@ export function fixFor(key: string): string {
   return FIX[key] ?? "revisa la guía de esa variable en .env.example";
 }
 
-/** `postgresql://usuario:***@host:puerto/base` — todo menos la contraseña. */
+/** `postgresql://usuario:***@host:puerto/base` — tudo menos a senha. */
 export function redactDatabaseUrl(url: string): string {
   try {
     const u = new URL(url);
@@ -92,7 +92,7 @@ export function describeValue(key: string, value: string): string {
   return value;
 }
 
-/** El mensaje de zod en español y sin el valor (zod no lo incluye, pero por si acaso). */
+/** A mensagem do zod em português e sem o valor (o zod não o inclui, mas por via das dúvidas). */
 export function translateIssue(issue: ZodIssue): string {
   switch (issue.code) {
     case "invalid_type":
@@ -143,9 +143,9 @@ function checkVar(
 export type EnvEvaluation = { results: CheckResult[]; env: Env | null };
 
 /**
- * Pasa el entorno por el MISMO esquema que el arranque (safeParseEnv) y
- * devuelve una línea por variable obligatoria, más una por cada opcional que
- * tenga un problema (también tumban el arranque) o siga con su placeholder.
+ * Passa o ambiente pelo MESMO esquema da inicialização (safeParseEnv) e
+ * devolve uma linha por variável obrigatória, mais uma por cada opcional que
+ * tenha um problema (também derrubam a inicialização) ou continue com seu placeholder.
  */
 export function evaluateEnv(source: Record<string, string | undefined>): EnvEvaluation {
   const parsed = safeParseEnv(source);
@@ -177,7 +177,7 @@ export function evaluateEnv(source: Record<string, string | undefined>): EnvEval
   return { results, env: parsed.success ? parsed.data : null };
 }
 
-/** Variables que no lee la app pero sí docker-compose.yml (Ruta B). */
+/** Variáveis que o app não lê, mas o docker-compose.yml sim (Rota B). */
 export const COMPOSE_ONLY_KEYS = ["DOMAIN", "POSTGRES_PASSWORD"] as const;
 
 export function evaluateComposeEnv(source: Record<string, string | undefined>): CheckResult[] {
@@ -198,9 +198,9 @@ export function evaluateComposeEnv(source: Record<string, string | undefined>): 
     }
   }
 
-  // docker compose arma la DATABASE_URL de la app con POSTGRES_PASSWORD; la
-  // de .env solo la leen pnpm dev y este doctor. Si no coinciden, lo que se
-  // prueba aquí no es lo que correrá en el contenedor.
+  // O docker compose monta a DATABASE_URL do app com POSTGRES_PASSWORD; a
+  // do .env só é lida pelo pnpm dev e por este doctor. Se não coincidirem, o que se
+  // testa aqui não é o que vai rodar no contêiner.
   const password = source.POSTGRES_PASSWORD;
   const url = source.DATABASE_URL;
   if (password && url && !hasPlaceholder(password) && !hasPlaceholder(url)) {
@@ -215,17 +215,17 @@ export function evaluateComposeEnv(source: Record<string, string | undefined>): 
         });
       }
     } catch {
-      // la URL inválida ya salió como ✗ en evaluateEnv
+      // a URL inválida já saiu como ✗ no evaluateEnv
     }
   }
   return results;
 }
 
-/* ---------- Base de datos ---------- */
+/* ---------- Banco de dados ---------- */
 
 export type DbProbe = (url: string) => Promise<void>;
 
-/** Un `select 1` con las mismas opciones de conexión que la app. */
+/** Um `select 1` com as mesmas opções de conexão do app. */
 export const probeDatabase: DbProbe = async (url) => {
   const sql = postgres(url, { max: 1, connect_timeout: 5, ...PG_CONNECTION_OPTIONS });
   try {
@@ -318,12 +318,12 @@ export function describeDbError(err: unknown, url: string): CheckResult {
   }
 }
 
-/* ---------- Adjuntos ---------- */
+/* ---------- Anexos ---------- */
 
 /**
- * El mismo sondeo que hacen el arranque y `/api/health` (`mediaWritable`,
- * #82): escribir de verdad y borrar el rastro. Sin caché: aquí se quiere la
- * respuesta de ahora.
+ * A mesma sondagem que fazem a inicialização e o `/api/health` (`mediaWritable`,
+ * #82): escrever de verdade e apagar o rastro. Sem cache: aqui se quer a
+ * resposta de agora.
  */
 export async function checkMediaDir(dir: string): Promise<CheckResult> {
   const media = await probeMediaDir(path.resolve(dir));
@@ -344,15 +344,15 @@ export type StoredWhatsApp = {
   organization: string;
   phoneNumberId: string;
   displayPhoneNumber: string | null;
-  /** null = la fila existe pero no se pudo descifrar con la ENCRYPTION_KEY actual. */
+  /** null = a linha existe mas não foi possível descriptografar com a ENCRYPTION_KEY atual. */
   credentials: Credentials | null;
 };
 
 /**
- * Las conexiones guardadas, organización por organización y por la misma
- * puerta que usa la app (getCredentialsByOrg: query acotada + descifrado).
- * Vocero raíz no tiene credenciales de WhatsApp en el entorno: viven cifradas
- * en la base.
+ * As conexões guardadas, organização por organização e pela mesma
+ * porta que usa o app (getCredentialsByOrg: consulta limitada + descriptografia).
+ * A raiz do Vocero não tem credenciais de WhatsApp no ambiente: elas vivem criptografadas
+ * no banco.
  */
 export async function loadWhatsAppCredentials(): Promise<StoredWhatsApp[]> {
   const db = getDb();
@@ -371,8 +371,8 @@ export async function loadWhatsAppCredentials(): Promise<StoredWhatsApp[]> {
         credentials,
       });
     } catch (err) {
-      // La fila está, pero el token no descifra: ENCRYPTION_KEY distinta.
-      // Cualquier otro error (tabla ausente, BD caída) sí sube.
+      // A linha existe, mas o token não descriptografa: ENCRYPTION_KEY diferente.
+      // Qualquer outro erro (tabela ausente, BD fora do ar) sobe, sim.
       if (!isDecryptError(err)) throw err;
       const rows = await db
         .select({
@@ -392,7 +392,7 @@ export async function loadWhatsAppCredentials(): Promise<StoredWhatsApp[]> {
 }
 
 function isDecryptError(err: unknown): boolean {
-  // GCM con otra clave: "Unsupported state or unable to authenticate data".
+  // GCM com outra chave: "Unsupported state or unable to authenticate data".
   const message = err instanceof Error ? err.message : "";
   return /unable to authenticate|unsupported state|ENCRYPTION_KEY/i.test(message);
 }
@@ -403,9 +403,9 @@ export type WhatsAppDeps = {
 };
 
 /**
- * Una llamada de prueba a Meta por conexión guardada, con el mismo
- * testConnection del wizard (GET del número con el token). Sin conexión
- * guardada no es un fallo: WhatsApp se conecta desde la app.
+ * Uma chamada de teste à Meta por conexão guardada, com o mesmo
+ * testConnection do assistente (GET do número com o token). Sem conexão
+ * guardada não é uma falha: o WhatsApp se conecta pelo app.
  */
 export async function checkWhatsApp(deps: WhatsAppDeps = {}): Promise<CheckResult[]> {
   const load = deps.load ?? loadWhatsAppCredentials;
@@ -526,13 +526,13 @@ export function checkAi(env: Env): CheckResult {
   };
 }
 
-/* ---------- Despacho al cerebro (opcional) ---------- */
+/* ---------- Despacho ao cérebro (opcional) ---------- */
 
 /**
- * 021 — `BRAIN_DISPATCH_URL` mal puesta no tumba nada: el despacho queda
- * inactivo y contesta el agente incluido, como en 1.5. Por eso es un aviso y
- * no una ✗: es justo el caso que alguien busca cuando «el cerebro no recibe
- * nada». Nunca se imprime la URL entera (puede llevar ruta con secreto).
+ * 021 — `BRAIN_DISPATCH_URL` mal colocada não derruba nada: o despacho fica
+ * inativo e responde o agente incluído, como na 1.5. Por isso é um aviso e não
+ * um ✗: é justamente o caso que alguém procura quando «o cérebro não recebe
+ * nada». Nunca se imprime a URL inteira (pode levar rota com segredo).
  */
 export function checkDispatch(
   source: Record<string, string | undefined>
@@ -569,7 +569,7 @@ export function checkDispatch(
   };
 }
 
-/* ---------- Salida ---------- */
+/* ---------- Saída ---------- */
 
 const MARK: Record<CheckStatus, string> = { ok: "✓", fail: "✗", warn: "!", skip: "-" };
 

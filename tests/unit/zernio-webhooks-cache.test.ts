@@ -9,9 +9,9 @@ import {
 } from "@/server/zernio/webhooks";
 
 /**
- * 023 — La lectura de los webhooks de Zernio corre en la verificación de firma
- * de cada entrega: no puede convertirse en una consulta por mensaje, ni dejar
- * al CRM diez minutos rechazando entregas si el secreto cambió en Zernio.
+ * 023 — A leitura dos webhooks do Zernio roda na verificação de assinatura
+ * de cada entrega: não pode virar uma consulta por mensagem, nem deixar
+ * o CRM por dez minutos rejeitando entregas se o segredo mudou no Zernio.
  */
 
 const SEGMENTO = "segmento-secreto";
@@ -71,9 +71,9 @@ describe("zernio · caché de los webhooks", () => {
     await webhookSecretsFromZernio(TOKEN, SEGMENTO);
     secreto = "dos";
     vi.advanceTimersByTime(WEBHOOKS_RECHECK_MS + 1000);
-    // La lectura normal sigue usando lo guardado…
+    // A leitura normal segue usando o que está salvo…
     expect(await webhookSecretsFromZernio(TOKEN, SEGMENTO)).toEqual(["uno"]);
-    // …y la fresca trae el secreto nuevo.
+    // …e a fresca traz o segredo novo.
     expect(await webhookSecretsFromZernio(TOKEN, SEGMENTO, WEBHOOKS_RECHECK_MS)).toEqual(["dos"]);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -88,8 +88,8 @@ describe("zernio · caché de los webhooks", () => {
     expect(r.webhooks.map((w) => w.secret)).toEqual(["uno"]);
     expect(fetchMock).toHaveBeenCalledTimes(2);
 
-    // Una ráfaga con Zernio caído no se vuelve una ráfaga de consultas, ni
-    // siquiera pidiendo la lectura fresca.
+    // Uma rajada com o Zernio fora do ar não vira uma rajada de consultas, nem
+    // sequer pedindo a leitura fresca.
     await cachedZernioWebhooks(TOKEN);
     await cachedZernioWebhooks(TOKEN, WEBHOOKS_RECHECK_MS);
     expect(fetchMock).toHaveBeenCalledTimes(2);

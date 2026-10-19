@@ -9,12 +9,12 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * 015 — Google de mentira para el self-test, tras `mockGuard()` (404
- * incondicional en producción).
+ * 015 — Google de mentira para o self-test, atrás de `mockGuard()` (404
+ * incondicional em produção).
  *
- * Cubre lo que el conector usa: refrescar el token, crear/leer/mover/borrar un
- * evento y leer el calendario. Y reproduce la asincronía de la conferencia:
- * al crear NO hay enlace de Meet, y aparece en una lectura posterior.
+ * Cobre o que o conector usa: renovar o token, criar/ler/mover/apagar um
+ * evento e ler o calendário. E reproduz a assincronia da conferência:
+ * ao criar NÃO há link do Meet, e ele aparece numa leitura posterior.
  */
 
 type Ctx = { params: Promise<{ path: string[] }> };
@@ -64,8 +64,8 @@ export async function POST(req: Request, ctx: Ctx) {
       meetLink: null,
       updates: 0,
     });
-    // Sin enlace todavía: la conferencia se está creando. Es el
-    // comportamiento real de Google y por eso el conector re-lee.
+    // Sem link ainda: a conferência está sendo criada. É o
+    // comportamento real do Google e por isso o conector relê.
     return Response.json({
       id,
       summary: body.summary,
@@ -86,7 +86,7 @@ export async function GET(req: Request, ctx: Ctx) {
   const unauthorized = requireToken(req);
   if (unauthorized) return unauthorized;
 
-  // GET /calendars/{id} — la prueba de conexión.
+  // GET /calendars/{id} — o teste de conexão.
   if (path[0] === "calendars" && path.length === 2) {
     return Response.json({ id: path[1], summary: "Calendario de prueba" });
   }
@@ -130,7 +130,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
   if (body.start?.dateTime) event.start = body.start.dateTime;
   if (body.end?.dateTime) event.end = body.end.dateTime;
   event.updates += 1;
-  // El evento se movió: su enlace de Meet es el mismo.
+  // O evento foi movido: o link do Meet é o mesmo.
   return Response.json({ id: event.id });
 }
 

@@ -10,13 +10,13 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * 008 — Simula un echo de coexistence: el dueño respondió A MANO desde la app
- * de WhatsApp Business del teléfono. Entrega el payload firmado al webhook
- * real (misma ruta que Meta). Solo en el entorno de pruebas (dev-guard).
+ * 008 — Simula um echo de coexistência: o dono respondeu À MÃO pelo app
+ * do WhatsApp Business do telefone. Entrega o payload assinado ao webhook
+ * real (mesma rota da Meta). Só no ambiente de testes (dev-guard).
  */
 const schema = z.object({
   phoneNumberId: z.string().min(1),
-  /** wa_id del lead destinatario. */
+  /** wa_id do lead destinatário. */
   to: z.string().min(5),
   type: z.string().optional(),
   text: z.string().optional(),

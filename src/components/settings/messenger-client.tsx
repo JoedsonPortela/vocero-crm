@@ -19,13 +19,13 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 /**
- * 017 — Conexión del canal de Messenger.
+ * 017 — Conexão do canal do Messenger.
  *
- * Dos fuentes, como Instagram: la API unificada de Zernio o una app propia de
- * Meta. Misma forma que el wizard de WhatsApp: se prueba contra la plataforma
- * ANTES de guardar, el token se cifra y hacia fuera solo se enseña su cola. Y
- * la misma regla que los demás canales: la pantalla solo existe si el canal
- * está encendido con `CHANNELS` (ADR-001).
+ * Duas fontes, como o Instagram: a API unificada do Zernio ou um app próprio da
+ * Meta. Mesma forma do wizard do WhatsApp: é testada na plataforma
+ * ANTES de salvar, o token é cifrado e para fora só se mostra a sua cauda. E
+ * a mesma regra dos demais canais: a tela só existe se o canal
+ * estiver ligado com `CHANNELS` (ADR-001).
  */
 
 type Source = "zernio" | "meta";
@@ -96,7 +96,7 @@ export function MessengerClient() {
     void refetch();
   }, [refetch]);
 
-  /** Fuente Meta. Con Zernio guarda `ZernioConnect` (023). */
+  /** Fonte Meta. Com o Zernio, guarda `ZernioConnect` (023). */
   async function save() {
     setSaving(true);
     setError(null);
@@ -130,7 +130,7 @@ export function MessengerClient() {
       setCopied(what);
       setTimeout(() => setCopied(null), 1500);
     } catch {
-      // sin portapapeles (contexto no seguro): el texto sigue visible
+      // sem área de transferência (contexto não seguro): o texto continua visível
     }
   }
 

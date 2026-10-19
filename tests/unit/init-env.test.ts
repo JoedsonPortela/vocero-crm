@@ -13,16 +13,16 @@ import {
 } from "@/server/doctor/init-env";
 
 /**
- * `pnpm init-env` existe para que `docker compose up -d` arranque sin editar
- * nada. Se prueba sobre el `.env.example` REAL del repo: si el ejemplo gana
- * una variable obligatoria sin generador, o cambia la forma de un
- * placeholder, esto se pone rojo antes que la instalación de alguien.
+ * `pnpm init-env` existe para que `docker compose up -d` suba sem editar
+ * nada. Testa-se sobre o `.env.example` REAL do repo: se o exemplo ganhar
+ * uma variável obrigatória sem gerador, ou mudar a forma de um
+ * placeholder, isto fica vermelho antes da instalação de alguém.
  */
 
 const RAIZ = path.resolve(import.meta.dirname, "..", "..");
 const EJEMPLO = readFileSync(path.join(RAIZ, ".env.example"), "utf8");
 
-/** Solo las líneas activas (sin `#`), como las lee docker compose. */
+/** Só as linhas ativas (sem `#`), como as lê o docker compose. */
 function activas(content: string): string[] {
   return content.split(/\r?\n/).filter((l) => /^[A-Z][A-Z0-9_]*=/.test(l));
 }
@@ -36,11 +36,11 @@ describe("generateSecrets", () => {
       "META_WEBHOOK_VERIFY_TOKEN",
       "POSTGRES_PASSWORD",
     ]);
-    // AES-256-GCM: exactamente 32 bytes (44 caracteres en base64).
+    // AES-256-GCM: exatamente 32 bytes (44 caracteres em base64).
     expect(Buffer.from(s.ENCRYPTION_KEY, "base64")).toHaveLength(32);
     expect(s.ENCRYPTION_KEY).toHaveLength(44);
     expect(s.BETTER_AUTH_SECRET.length).toBeGreaterThanOrEqual(16);
-    // hex: va dentro de una URL (DATABASE_URL) y del path del webhook sin escapar.
+    // hex: vai dentro de uma URL (DATABASE_URL) e do path do webhook sem escapar.
     expect(s.META_WEBHOOK_VERIFY_TOKEN).toMatch(/^[0-9a-f]{64}$/);
     expect(s.POSTGRES_PASSWORD).toMatch(/^[0-9a-f]{48}$/);
   });
@@ -70,7 +70,7 @@ describe("renderInitEnv sobre el .env.example real", () => {
     expect(vars.DOMAIN).toBe("localhost");
     expect(vars.APP_BASE_URL).toBe("https://localhost");
 
-    // Lo que importa de verdad: el mismo esquema que valida el arranque lo acepta.
+    // O que importa de verdade: o mesmo esquema que valida o arranque o aceita.
     const parsed = safeParseEnv(vars);
     expect(parsed.success).toBe(true);
   });
@@ -145,8 +145,8 @@ describe("runInitEnv", () => {
   });
 
   it("no pisa un .env existente: avisa y no cambia ni un byte", async () => {
-    // Un .env existente tiene los secretos reales de alguien (y quizá el
-    // token de WhatsApp cifrado con ESA ENCRYPTION_KEY en su base).
+    // Um .env existente tem os segredos reais de alguém (e talvez o
+    // token do WhatsApp cifrado COM essa ENCRYPTION_KEY no seu banco).
     await writeFile(path.join(dir, ".env"), "MIO=1\n");
     const outcome = await runInitEnv({ dir });
     expect(outcome.status).toBe("exists");

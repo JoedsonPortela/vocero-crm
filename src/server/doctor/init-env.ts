@@ -3,25 +3,25 @@ import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 /**
- * `pnpm init-env` — crea `.env` a partir de `.env.example` con los secretos
- * ya generados, para que `docker compose up -d` arranque sin editar nada.
+ * `pnpm init-env` — cria `.env` a partir de `.env.example` com os segredos
+ * já gerados, para que `docker compose up -d` inicie sem editar nada.
  *
- * La lógica es pura (texto → texto) a propósito: se prueba sin tocar el
- * disco, y el CLI (scripts/init-env.ts) solo decide si puede escribir. Los
- * comentarios del ejemplo se conservan: el `.env` resultante sigue siendo la
- * guía inline de cada variable.
+ * A lógica é pura (texto → texto) de propósito: testa-se sem tocar no
+ * disco, e o CLI (scripts/init-env.ts) só decide se pode escrever. Os
+ * comentários do exemplo são mantidos: o `.env` resultante continua sendo o
+ * guia inline de cada variável.
  */
 
-/** Prefijo de los valores de ejemplo que hay que sustituir. */
+/** Prefixo dos valores de exemplo que devem ser substituídos. */
 export const PLACEHOLDER_PREFIX = "REEMPLAZA_";
 
-/** Dominio por defecto: el Caddyfile lo sirve con certificado interno. */
+/** Domínio padrão: o Caddyfile o serve com certificado interno. */
 export const DEFAULT_DOMAIN = "localhost";
 
 /**
- * Los secretos que el arranque exige (src/lib/env.ts) más la contraseña de
- * Postgres del compose. El comando `openssl` es el que pedía la documentación:
- * `pnpm doctor` lo sugiere cuando falta uno en un `.env` que ya existe.
+ * Os segredos que a inicialização exige (src/lib/env.ts) mais a senha de
+ * Postgres do compose. O comando `openssl` é o que pedia a documentação:
+ * o `pnpm doctor` o sugere quando falta um num `.env` que já existe.
  */
 export const GENERATED_SECRETS = {
   POSTGRES_PASSWORD: {
@@ -32,7 +32,7 @@ export const GENERATED_SECRETS = {
     generate: () => randomBytes(32).toString("base64"),
     openssl: "openssl rand -base64 32",
   },
-  // Exactamente 32 bytes: es lo que valida el esquema (AES-256-GCM).
+  // Exatamente 32 bytes: é o que valida o esquema (AES-256-GCM).
   ENCRYPTION_KEY: {
     generate: () => randomBytes(32).toString("base64"),
     openssl: "openssl rand -base64 32",
@@ -53,25 +53,25 @@ export function generateSecrets(): Record<GeneratedSecret, string> {
   return out;
 }
 
-/** Un dominio sin esquema ni ruta: lo que Caddy pone en su site address. */
+/** Um domínio sem esquema nem rota: o que o Caddy põe no seu site address. */
 export function isValidDomain(domain: string): boolean {
   return /^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$/.test(domain);
 }
 
 export type RenderedEnv = {
   content: string;
-  /** Variables cuyo valor se generó (solo nombres: los valores no se imprimen). */
+  /** Variáveis cujo valor foi gerado (só nomes: os valores não são impressos). */
   generated: string[];
-  /** Variables fijadas a un valor no secreto (DOMAIN, APP_BASE_URL). */
+  /** Variáveis fixadas em um valor não secreto (DOMAIN, APP_BASE_URL). */
   set: Record<string, string>;
-  /** Variables activas que siguen con REEMPLAZA_ (hoy ninguna; por si el ejemplo crece). */
+  /** Variáveis ativas que continuam com REEMPLAZA_ (hoje nenhuma; por via das dúvidas, se o exemplo crescer). */
   pending: string[];
 };
 
 /**
- * Transforma el texto de `.env.example` en el de un `.env` listo para
- * arrancar. Línea a línea: solo cambian las variables activas (sin `#`) que
- * hay que generar o fijar; comentarios y todo lo demás quedan igual.
+ * Transforma o texto de `.env.example` no de um `.env` pronto para
+ * iniciar. Linha a linha: só mudam as variáveis ativas (sem `#`) que
+ * precisam ser geradas ou fixadas; comentários e todo o resto ficam iguais.
  */
 export function renderInitEnv(
   example: string,
@@ -99,8 +99,8 @@ export function renderInitEnv(
     }
     if (key in set) return `${key}=${set[key]}`;
     if (key === "DATABASE_URL") {
-      // postgresql://usuario:REEMPLAZA_...@host:puerto/base → la misma
-      // contraseña que acaba de recibir POSTGRES_PASSWORD.
+      // postgresql://usuario:REEMPLAZA_...@host:puerto/base → a mesma
+      // senha que acaba de receber POSTGRES_PASSWORD.
       const url = /^(\w+:\/\/[^:/@]+:)REEMPLAZA_[^@]*(@.*)$/.exec(value);
       if (url) {
         generated.push(key);
@@ -117,7 +117,7 @@ export function renderInitEnv(
 export type InitEnvIo = {
   exists: (file: string) => Promise<boolean>;
   read: (file: string) => Promise<string>;
-  /** Debe fallar si el archivo ya existe (flag "wx"): la comprobación previa no basta sola. */
+  /** Deve falhar se o arquivo já existir (flag "wx"): a verificação prévia não basta sozinha. */
   writeNew: (file: string, content: string) => Promise<void>;
 };
 
@@ -131,7 +131,7 @@ const defaultIo: InitEnvIo = {
       }
     ),
   read: (file) => readFile(file, "utf8"),
-  // 0600: el archivo lleva secretos. flag wx: nunca pisa uno existente.
+  // 0600: o arquivo leva segredos. flag wx: nunca sobrescreve um existente.
   writeNew: (file, content) => writeFile(file, content, { mode: 0o600, flag: "wx" }),
 };
 
@@ -142,8 +142,8 @@ export type InitEnvOutcome =
   | { status: "bad_domain"; domain: string };
 
 /**
- * Decide y ejecuta: crea `<dir>/.env` desde `<dir>/.env.example`. Nunca pisa
- * un `.env` existente (quien lo tiene ya puso ahí sus secretos reales).
+ * Decide e executa: cria `<dir>/.env` a partir de `<dir>/.env.example`. Nunca sobrescreve
+ * um `.env` existente (quem já o tem colocou ali seus segredos reais).
  */
 export async function runInitEnv(
   opts: { dir: string; domain?: string; io?: InitEnvIo }

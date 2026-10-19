@@ -2,36 +2,36 @@ import type { Channel } from "@/lib/channels";
 import { zernioFetch } from "@/server/zernio";
 
 /**
- * 023 — Qué cuenta de Zernio es la que se está conectando, y cómo está.
+ * 023 — Qual conta da Zernio está sendo conectada, e como está.
  *
- * En el panel de Zernio hay DOS ids que parecen iguales: el del **perfil** (el
- * contenedor, que agrupa Instagram, Facebook y TikTok) y el de cada
- * **cuenta**. Los webhooks enrutan por el de la cuenta. Quien guardaba el del
- * perfil veía el webhook responder 200 y cada mensaje descartado en silencio
- * con «accountId desconocido».
+ * No painel da Zernio há DOIS ids que parecem iguais: o do **perfil** (o
+ * contêiner, que agrupa Instagram, Facebook e TikTok) e o de cada
+ * **conta**. Os webhooks roteiam pelo da conta. Quem guardava o do
+ * perfil via o webhook responder 200 e cada mensagem descartada em silêncio
+ * com «accountId desconhecido».
  *
- * Por eso el id capturado ya no se guarda a ciegas: se resuelve contra las
- * cuentas reales de esa llave. De paso, quien tiene una sola cuenta del canal
- * no tiene que copiar ningún id.
+ * Por isso o id capturado já não se guarda às cegas: resolve-se contra as
+ * contas reais dessa chave. De quebra, quem tem uma só conta do canal
+ * não precisa copiar nenhum id.
  */
 
-/** Los canales que llegan por Zernio. */
+/** Os canais que chegam pela Zernio. */
 export type ZernioChannel = Exclude<Channel, "whatsapp">;
 
-/** Cómo llama Zernio a la plataforma de cada canal. */
+/** Como a Zernio chama a plataforma de cada canal. */
 export const ZERNIO_PLATFORMS: Record<ZernioChannel, readonly string[]> = {
   instagram: ["instagram"],
   messenger: ["facebook", "messenger"],
   tiktok: ["tiktok"],
 };
 
-/** Una cuenta de `GET /accounts`, en lo que a Vocero le importa. */
+/** Uma conta de `GET /accounts`, no que interessa ao Vocero. */
 export type ZernioAccount = {
   _id: string;
   platform?: string | null;
   username?: string | null;
   displayName?: string | null;
-  /** En Instagram, el id con el que Meta identifica al perfil. */
+  /** No Instagram, o id com que a Meta identifica o perfil. */
   platformUserId?: string | null;
   isActive?: boolean;
   enabled?: boolean;
@@ -40,7 +40,7 @@ export type ZernioAccount = {
   platformStatusReason?: string | null;
   tokenExpiresAt?: string | null;
   messagingRestriction?: unknown;
-  /** Solo TikTok: `business` o `personal`. */
+  /** Só TikTok: `business` ou `personal`. */
   tiktokAccountType?: string | null;
   profileId?: string | { _id?: string } | null;
   metadata?: {
@@ -66,7 +66,7 @@ function profileIdOf(a: ZernioAccount): string | null {
   return typeof p === "string" ? p : (p._id ?? null);
 }
 
-/** El nombre con el que una persona reconoce la cuenta. */
+/** O nome pelo qual uma pessoa reconhece a conta. */
 export function zernioAccountName(a: ZernioAccount): string {
   const pagina = a.metadata?.selectedPageName?.trim();
   if (pagina) return pagina;
@@ -76,11 +76,11 @@ export function zernioAccountName(a: ZernioAccount): string {
   return a.displayName?.trim() || usuario || a._id;
 }
 
-// Una agencia puede tener decenas de cuentas en una llave: la lista que se le
-// enseña a quien conecta se corta, y el mensaje lo dice.
+// Uma agência pode ter dezenas de contas em uma chave: a lista que se mostra a
+// quem conecta é cortada, e a mensagem diz isso.
 const MAX_CANDIDATES = 8;
 
-/** Puro: decide la cuenta que corresponde a lo capturado (tabla D1 de la spec). */
+/** Puro: decide a conta que corresponde ao capturado (tabela D1 da spec). */
 export function pickZernioAccount(
   accounts: readonly ZernioAccount[],
   ref: string | null | undefined,
@@ -129,7 +129,7 @@ export function pickZernioAccount(
     };
   }
 
-  // Se pegó el id del PERFIL: vale si en ese perfil hay UNA cuenta del canal.
+  // Colou-se o id do PERFIL: vale se nesse perfil houver UMA conta do canal.
   const delPerfil = delCanal.filter((a) => profileIdOf(a) === id);
   if (delPerfil.length === 1) return { ok: true, account: delPerfil[0]! };
 
@@ -144,8 +144,8 @@ export function pickZernioAccount(
 export type Health = { level: "ok" | "warn" | "error"; message: string };
 
 /**
- * Puro: cómo está la cuenta según Zernio. `null` es «ya no aparece entre las
- * cuentas de esa llave»: se desvinculó en Zernio o la llave es de otra cuenta.
+ * Puro: como está a conta segundo a Zernio. `null` é «já não aparece entre as
+ * contas dessa chave»: foi desvinculada na Zernio ou a chave é de outra conta.
  */
 export function accountHealth(
   account: ZernioAccount | null | undefined,
@@ -200,8 +200,8 @@ export function accountHealth(
 }
 
 /**
- * Las cuentas de esa llave. Lanza `MetaApiError` (401 = llave inválida, 0 o
- * 5xx = Zernio no responde), igual que el resto del transporte.
+ * As contas dessa chave. Lança `MetaApiError` (401 = chave inválida, 0 ou
+ * 5xx = a Zernio não responde), igual ao resto do transporte.
  */
 export async function fetchZernioAccounts(token: string): Promise<ZernioAccount[]> {
   const json = (await zernioFetch("/accounts", { token, timeoutMs: 10_000 })) as {

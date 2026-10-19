@@ -38,7 +38,7 @@ const createSchema = z.object({
   password: z.string().min(8).max(128),
 });
 
-/** Alta de cuenta de equipo (owner only): email + contraseña temporal (FR-061). */
+/** Cadastro de conta de equipe (somente owner): e-mail + senha temporária (FR-061). */
 export const POST = withAuth(async (session, req: Request) => {
   if (session.role !== "owner") {
     return apiError(403, "forbidden", "Somente o proprietário pode criar contas");

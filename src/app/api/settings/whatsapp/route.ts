@@ -41,13 +41,13 @@ const putSchema = z.object({
 });
 
 /**
- * Guarda la conexión: re-valida contra Meta, cifra (FR-040) y registra el
- * webhook de esta instancia en el número.
+ * Salva a conexão: revalida na Meta, criptografa (FR-040) e registra o
+ * webhook desta instância no número.
  *
- * Antes el CRM solo suscribía la app a la WABA y la URL había que pegarla a
- * mano en el panel de Meta. Si Meta rechaza el registro, la conexión YA está
- * guardada y es válida: se avisa en `webhook` y la tarjeta del webhook ofrece
- * reintentar (o pegar la URL a mano, que sigue a la vista).
+ * Antes o CRM só assinava o app na WABA e a URL precisava ser colada à mão no
+ * painel da Meta. Se a Meta recusar o cadastro, a conexão JÁ está salva e é
+ * válida: avisa-se em `webhook` e o cartão do webhook oferece tentar de novo
+ * (ou colar a URL à mão, que continua à vista).
  */
 export const PUT = withAuth(async (session, req: Request) => {
   const body = await parseBody(req, putSchema);
@@ -84,14 +84,14 @@ export const PUT = withAuth(async (session, req: Request) => {
 });
 
 /**
- * Desconectar el número. Sin esto, conectar era una calle de un solo
- * sentido: la unicidad del número impedía moverlo a otra instancia y no había
- * pantalla donde soltarlo.
+ * Desconecta o número. Sem isso, conectar era mão única: a unicidade do número
+ * impedia movê-lo para outra instância e não havia tela onde largá-lo.
+ * pela qual soltá-lo.
  *
- * Primero quita el override del webhook que puso el guardado —con el token
- * todavía a mano; sin él no se podría— y después borra las credenciales. No
- * borra la bandeja: las conversaciones son de la organización, no de la
- * conexión. Idempotente: sin conexión responde 200 igual.
+ * Primeiro remove o override do webhook que o salvar definiu — com o token
+ * ainda disponível; sem ele não seria possível — e depois apaga as credenciais. Não
+ * apaga a bandeja: as conversas são da organização, não da
+ * conexão. Idempotente: sem conexão responde 200 do mesmo jeito.
  */
 export const DELETE = withAuth(async (session) => {
   const creds = await getCredentialsByOrg(session.organizationId);

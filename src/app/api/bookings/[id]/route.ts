@@ -24,8 +24,8 @@ const patchSchema = z.discriminatedUnion("action", [
 ]);
 
 /**
- * 015 — Reprogramar, cancelar (idempotente), marcar el resultado o reintentar
- * el enlace que el proveedor no entregó.
+ * 015 — Remarcar, cancelar (idempotente), marcar o resultado ou tentar de novo
+ * o link que o provedor não entregou.
  */
 export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
   if (!agendaEnabled()) return agendaDisabledResponse();

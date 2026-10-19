@@ -1,6 +1,6 @@
 import type { BookingListItem } from "@/server/agenda/queries";
 
-/** 215 — Cómo se ve y cómo se nombra una cita, igual en las cuatro vistas. */
+/** 215 — Como um agendamento aparece e como é nomeado, igual nas quatro visões. */
 
 export type Booking = BookingListItem;
 
@@ -11,22 +11,22 @@ export const STATUS_LABEL: Record<Booking["status"], string> = {
   cancelada: "Cancelada",
 };
 
-/** Un bloqueo no se "agenda" ni se "cancela": está activo o se quitó. */
+/** Um bloqueio não é "agendado" nem "cancelado": está ativo ou foi removido. */
 export function statusLabel(b: Booking): string {
   if (b.kind === "block") return b.status === "cancelada" ? "Quitado" : "Activo";
   return STATUS_LABEL[b.status];
 }
 
-/** Lo que se lee en la rejilla: el contacto o, en un bloqueo, su nota. */
+/** O que se lê na grade: o contato ou, num bloqueio, a sua nota. */
 export function bookingTitle(b: Booking): string {
   if (b.kind === "block") return b.notes?.trim() || "Bloqueo";
   return b.contact?.name.trim() || "Sin contacto";
 }
 
 /**
- * Color por estado, solo con tokens (regla 1 de `tailwind.config.ts`). Lo que
- * viene es relleno del acento, como un evento de Google; lo que ya pasó se
- * apaga a su tinta de estado para que la semana se lea de un vistazo.
+ * Cor por estado, só com tokens (regra 1 de `tailwind.config.ts`). O que
+ * está por vir é preenchido com o acento, como um evento do Google; o que já passou
+ * é apagado para a sua tinta de estado, para que a semana seja lida de relance.
  */
 export function bookingTone(b: Booking): { box: string; dot: string } {
   if (b.status === "cancelada") {
@@ -48,15 +48,15 @@ export function bookingTone(b: Booking): { box: string; dot: string } {
 }
 
 /**
- * El proveedor falló al crear la reunión: la cita existe y lo único que falta
- * es el enlace, que se reintenta desde el panel. En esta edición la entrega
- * es eso —el enlace del conector—; no hay más estados que vigilar.
+ * O provedor falhou ao criar a reunião: o agendamento existe e a única coisa que falta
+ * é o link, que é reenviado pelo painel. Nesta edição a entrega
+ * é isso —o link do conector—; não há mais estados a vigiar.
  */
 export function canRetrySync(b: Booking): boolean {
   return b.linkPending && b.status !== "cancelada";
 }
 
-/** Aviso pequeño en la rejilla: la cita quedó sin enlace de la reunión. */
+/** Aviso pequeno na grade: o agendamento ficou sem link da reunião. */
 export function hasDeliveryIssue(b: Booking): boolean {
   return canRetrySync(b);
 }

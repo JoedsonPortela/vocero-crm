@@ -12,18 +12,18 @@ import {
 } from "@/server/attribution/referral";
 
 /**
- * 016 + 018 — De qué anuncio vino una conversación.
+ * 016 + 018 — De qual anúncio veio uma conversa.
  *
- * El `referral` solo llega cuando el mensaje viene de un anuncio
- * Click-to-WhatsApp, y normalmente solo en el PRIMER mensaje de la
- * conversación. Desde 018 se guarda siempre, para que la bandeja diga de qué
- * anuncio llegó cada persona; su `ctwa_clid` —la llave para reportarle a Meta
- * (016)— solo con la bandera `ATRIBUCION` encendida.
+ * O `referral` só chega quando a mensagem vem de um anúncio
+ * Click-to-WhatsApp, e normalmente só na PRIMEIRA mensagem da
+ * conversa. Desde a 018 é guardado sempre, para que a caixa de entrada diga de qual
+ * anúncio chegou cada pessoa; seu `ctwa_clid` —a chave para reportar à Meta
+ * (016)— só com a bandeira `ATRIBUCION` ligada.
  */
 
 /**
- * Lo que de verdad se guarda de un anuncio. Sin la bandera, sin identificador
- * de clic (018, D2). Aparte y puro para poder probar las dos posiciones.
+ * O que de fato é guardado de um anúncio. Sem a bandeira, sem identificador
+ * de clique (018, D2). À parte e puro para poder testar as duas posições.
  */
 export function anuncioParaGuardar(
   anuncio: AnuncioDeOrigen,
@@ -33,10 +33,10 @@ export function anuncioParaGuardar(
 }
 
 /**
- * El primer anuncio gana. `ON CONFLICT DO NOTHING` sobre el UNIQUE de
- * (organización, conversación) —y no un "consulta y luego inserta"— porque Meta
- * reintenta el webhook y dos entregas simultáneas ganarían la carrera las dos
- * (Constitución IV).
+ * O primeiro anúncio vence. `ON CONFLICT DO NOTHING` sobre o UNIQUE de
+ * (organização, conversa) —e não um "consulta e depois insere"— porque a Meta
+ * reenvia o webhook e duas entregas simultâneas venceriam a corrida as duas
+ * (Constituição IV).
  */
 export async function registrarAnuncioDeOrigen(input: {
   organizationId: string;
@@ -70,7 +70,7 @@ export async function registrarAnuncioDeOrigen(input: {
     })
     .returning({ id: schema.adAttribution.id });
 
-  // Solo la fila nueva baja imagen: una reentrega no dispara otra descarga.
+  // Só a linha nova baixa imagem: um reenvio não dispara outro download.
   if (creadas[0] && a.sourceId && a.imageUrl) {
     const { organizationId, conversationId } = input;
     const sourceId = a.sourceId;
@@ -85,7 +85,7 @@ export async function registrarAnuncioDeOrigen(input: {
   }
 }
 
-/** Usada por la Conversions API (016): el anuncio de UNA conversación. */
+/** Usada pela Conversions API (016): o anúncio de UMA conversa. */
 export async function getAttributionForConversation(
   organizationId: string,
   conversationId: string
@@ -104,7 +104,7 @@ export async function getAttributionForConversation(
   return rows[0] ?? null;
 }
 
-/** La fila del anuncio de origen de un contacto: el primero que lo trajo. */
+/** A linha do anúncio de origem de um contato: o primeiro que o trouxe. */
 async function primeraFilaDelContacto(organizationId: string, contactId: string) {
   const db = getDb();
   const filas = await db
@@ -130,13 +130,13 @@ export async function anuncioDelContacto(
   return fila ? serializarAnuncio(fila) : null;
 }
 
-/** Como mucho un intento de reparación por anuncio en esta ventana. */
+/** No máximo uma tentativa de reparo por anúncio nesta janela. */
 export const REPARAR_CADA_MS = 10 * 60_000;
 
 /**
- * El freno de la reparación, aparte para poder probarlo sin base: ¿toca
- * intentar esta clave ahora? Si sí, deja anotado el intento. Las claves viejas
- * se purgan para que el mapa no crezca sin fin.
+ * O freio do reparo, à parte para poder testá-lo sem base: cabe tentar esta
+ * chave agora? Se sim, anota a tentativa. As chaves antigas
+ * são purgadas para que o mapa não cresça sem fim.
  */
 export function crearFreno(ventanaMs = REPARAR_CADA_MS, maxClaves = 5_000) {
   const ultimos = new Map<string, number>();
@@ -161,25 +161,25 @@ export function crearFreno(ventanaMs = REPARAR_CADA_MS, maxClaves = 5_000) {
 const frenoDeReparacion = crearFreno();
 
 /**
- * Si la imagen no se pudo copiar al llegar (la red tropezó más de una vez, o
- * la fila es de antes de 018), se vuelve a intentar cuando alguien abre el
- * contacto: la URL de Meta suele seguir viva unos días, y es justo cuando la
- * tarjeta se va a ver.
+ * Se a imagem não pôde ser copiada na chegada (a rede tropeçou mais de uma vez, ou
+ * a linha é de antes da 018), tenta-se de novo quando alguém abre o
+ * contato: a URL da Meta costuma continuar viva alguns dias, e é justamente quando o
+ * cartão vai ser visto.
  *
- * No bloquea la lectura, y va con freno: el panel pide el detalle en cada
- * evento de la bandeja, y sin él una URL que ya no sirve se pediría a Meta una
- * y otra vez.
+ * Não bloqueia a leitura, e vai com freio: o painel pede o detalhe a cada
+ * evento da caixa de entrada, e sem ele uma URL que já não funciona seria pedida à Meta
+ * uma e outra vez.
  */
 export function repararImagenSiFalta(organizationId: string, contactId: string): void {
   void (async () => {
     const fila = await primeraFilaDelContacto(organizationId, contactId);
     if (!fila || fila.imageAssetId || !fila.sourceId) return;
-    // La copia de la llegada sigue en marcha: no es un fallo, y gastar aquí el
-    // intento de la ventana dejaría sin reparar lo que de verdad falle.
+    // A cópia da chegada continua em andamento: não é uma falha, e gastar aqui a
+    // tentativa da janela deixaria sem reparo o que de fato falhe.
     if (descargaEnCurso(organizationId, fila.sourceId)) return;
     if (!frenoDeReparacion.intentar(`${organizationId}:${fila.sourceId}`)) return;
 
-    // El `raw` conserva las claves de imagen (también el de las filas de 016).
+    // O `raw` mantém as chaves de imagem (também as das linhas da 016).
     const anuncio = anuncioDeWhatsapp(fila.raw);
     if (!anuncio?.imageUrl) return;
     await guardarCreativo({
@@ -197,10 +197,10 @@ export function repararImagenSiFalta(organizationId: string, contactId: string):
 }
 
 /**
- * Lo que ve la bandeja. El `ctwa_clid` NO viaja: es el identificador del clic
- * para la Conversions API, y a quien atiende solo le sirve saber si existe. Y
- * ni eso sin la bandera: «Meta identificó el clic» solo tiene sentido en una
- * instancia que atribuye (018, D2), aunque la fila sea de cuando lo hacía.
+ * O que a caixa de entrada vê. O `ctwa_clid` NÃO viaja: é o identificador do clique
+ * para a Conversions API, e quem atende só precisa saber se ele existe. E
+ * nem isso sem a bandeira: «a Meta identificou o clique» só faz sentido numa
+ * instância que atribui (018, D2), mesmo que a linha seja de quando ela o fazia.
  */
 export function serializarAnuncio(
   fila: typeof schema.adAttribution.$inferSelect,
@@ -209,7 +209,7 @@ export function serializarAnuncio(
   return {
     sourceId: fila.sourceId,
     sourceType: fila.sourceType,
-    // El enlace va a un `href`: solo https, aunque la ingesta ya filtró.
+    // O link vai para um `href`: só https, mesmo que a ingestão já tenha filtrado.
     sourceUrl: fila.sourceUrl?.startsWith("https://") ? fila.sourceUrl : null,
     headline: fila.headline,
     body: fila.body,

@@ -9,8 +9,8 @@ import { guideStatus } from "@/server/onboarding/guide";
 export const dynamic = "force-dynamic";
 
 /**
- * La guía se resuelve en el servidor en cada visita: el dueño va a Agente o
- * a WhatsApp, vuelve por el menú y ve su avance sin recargar nada a mano.
+ * O guia é resolvido no servidor a cada visita: o dono vai para Agente ou
+ * para WhatsApp, volta pelo menu e vê o seu progresso sem recarregar nada manualmente.
  */
 export default async function OnboardingPage() {
   const session = await getSessionOrNull();

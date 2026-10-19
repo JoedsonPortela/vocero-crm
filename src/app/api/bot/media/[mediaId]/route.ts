@@ -5,15 +5,15 @@ import { downloadGraphMedia, MediaFetchError } from "@/server/whatsapp/media";
 
 export const dynamic = "force-dynamic";
 
-/** Límite para el bot (transcribe audio/imagen; nunca documentos de 100 MB). */
+/** Limite para o bot (transcreve áudio/imagem; nunca documentos de 100 MB). */
 const MAX_MEDIA_BYTES = 16 * 1024 * 1024;
 
 /**
- * 006 (amendment 002) — Descarga de un adjunto de Meta para el bot.
- * GET /api/bot/media/{mediaId} → binario + content-type.
+ * 006 (amendment 002) — Download de um anexo da Meta para o bot.
+ * GET /api/bot/media/{mediaId} → binário + content-type.
  *
- * El token de WhatsApp NO sale del CRM: el bot pide aquí, jamás a Meta.
- * Flujo Graph delegado al helper compartido (008): src/server/whatsapp/media.
+ * O token do WhatsApp NÃO sai do CRM: o bot pede aqui, jamais à Meta.
+ * Fluxo Graph delegado ao helper compartilhado (008): src/server/whatsapp/media.
  */
 export async function GET(
   req: Request,

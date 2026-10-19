@@ -1,10 +1,10 @@
 /**
- * Self-test E2E de comportamiento — prioridad del lead
- * (guion tests/e2e/us2-pipeline.md, sección "prioridad").
+ * Self-test E2E de comportamento — prioridade do lead
+ * (roteiro tests/e2e/us2-pipeline.md, seção "prioridad").
  *
- * Lo que se verifica sobre todo es lo que NO pasa: que nada escriba la
- * prioridad por su cuenta. Un CRM que la adivina y pisa lo que el dueño puso
- * es un CRM en el que se deja de mirar esa columna.
+ * O que se verifica acima de tudo é o que NÃO acontece: que nada escreva a
+ * prioridade por conta própria. Um CRM que a adivinha e atropela o que o dono
+ * definiu é um CRM em que se deixa de olhar essa coluna.
  *
  * Uso: node --env-file=.env scripts/e2e-prioridad.mjs
  */
@@ -110,7 +110,7 @@ ok(
   (await tarjeta(leadId))?.priority === "alta"
 );
 
-// Un mensaje entrante mueve la actividad del lead: tampoco debe opinar.
+// Uma mensagem recebida move a atividade do lead: também não deve opinar.
 await api("/api/dev/wa-mock/inbound", {
   method: "POST",
   body: JSON.stringify({

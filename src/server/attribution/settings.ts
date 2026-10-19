@@ -5,11 +5,11 @@ import { decryptSecret, encryptSecret } from "@/lib/crypto";
 import { scoped } from "@/lib/db/tenant";
 
 /**
- * 016 — La conexión del negocio con su dataset de Meta.
+ * 016 — A conexão do negócio com o seu dataset da Meta.
  *
- * El token se cifra con el MISMO mecanismo que el de WhatsApp (`lib/crypto`,
- * AES-256-GCM), no con un segundo: dos formas de guardar un secreto es una de
- * más que auditar.
+ * O token é criptografado com o MESMO mecanismo do WhatsApp (`lib/crypto`,
+ * AES-256-GCM), e não com um segundo: duas formas de guardar um segredo é uma a
+ * mais para auditar.
  */
 
 export type CapiSettings = {
@@ -19,7 +19,7 @@ export type CapiSettings = {
   status: "connected" | "error";
 };
 
-/** Lo que puede ver el cliente. El token NUNCA sale: solo sus últimos 4. */
+/** O que o cliente pode ver. O token NUNCA sai: só os seus últimos 4. */
 export type CapiSettingsView = {
   datasetId: string;
   status: "connected" | "error";
@@ -101,14 +101,14 @@ export async function deleteCapiSettings(
   organizationId: string
 ): Promise<void> {
   const db = getDb();
-  // Los eventos ya registrados NO se borran: son la bitácora de lo que se le
-  // dijo a Meta, y eso no deja de ser cierto porque el negocio desconecte.
+  // Os eventos já registrados NÃO são apagados: são o registro do que foi dito
+  // à Meta, e isso não deixa de ser verdade porque o negócio desconectou.
   await db
     .delete(schema.capiSettings)
     .where(scoped(schema.capiSettings.organizationId, organizationId));
 }
 
-/** ¿Esa etapa es de esta organización? (multi-tenancy: III). */
+/** Essa etapa é desta organização? (multi-tenancy: III). */
 export async function stageBelongsToOrg(
   organizationId: string,
   stageId: string

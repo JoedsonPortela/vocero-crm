@@ -6,23 +6,23 @@ import {
 } from "@/server/agenda/context";
 
 /**
- * 015 — Las citas del contacto en el contexto de un cerebro externo
+ * 015 — As consultas do contato no contexto de um cérebro externo
  * (`GET /api/bot/context` → `booking`).
  *
- * Nea pega este bloque tal cual en su prompt y lo trata como LA verdad sobre
- * las citas (`_booking_lines`): sin él, en la edición cloud, reservó una
- * segunda cita a quien no llegó a la primera, dijo a las 17:04 que la demo era
- * «hoy a las 10:30» y negó con un motivo inventado una cita que el equipo
- * había cancelado. Por eso la forma importa tanto como el contenido: la de la
- * edición cloud, para que un mismo cerebro sirva contra las dos.
+ * A Nea cola este bloco tal como está no seu prompt e o trata como A verdade sobre
+ * os agendamentos (`_booking_lines`): sem ele, na edição cloud, reservou um
+ * segundo agendamento para quem não chegou ao primeiro, disse às 17:04 que a demo era
+ * «hoy a las 10:30» e negou com um motivo inventado um agendamento que a equipe
+ * tinha cancelado. Por isso a forma importa tanto quanto o conteúdo: a da
+ * edição cloud, para que um mesmo cérebro sirva contra as duas.
  */
 
 const TZ = "America/Mexico_City";
 const DIA = 86_400_000;
 
-// Lunes 14 de septiembre de 2026, 10:30 en CDMX (UTC-6).
+// Segunda-feira 14 de setembro de 2026, 10:30 em CDMX (UTC-6).
 const LUNES_1030 = new Date("2026-09-14T16:30:00.000Z");
-// 17:04 del mismo lunes: la hora a la que el agente dijo «tu demo es hoy a las 10:30».
+// 17:04 da mesma segunda-feira: a hora em que o agente disse «tu demo es hoy a las 10:30».
 const LUNES_1704 = new Date("2026-09-14T23:04:00.000Z");
 
 function cita(extra: Partial<FilaCita> = {}): FilaCita {
@@ -42,9 +42,9 @@ function cita(extra: Partial<FilaCita> = {}): FilaCita {
 
 describe("la forma de una cita en el contexto", () => {
   it("la etiqueta dice el DÍA en palabras, relativo a ahora, en la zona del negocio", () => {
-    // Con la corta («lun 14 sep, 10:30») un modelo no tiene cómo saber que
-    // esa cita es la de hoy.
-    const antes = new Date("2026-09-14T15:00:00.000Z"); // 09:00 del mismo lunes
+    // Com a curta («lun 14 sep, 10:30») um modelo não tem como saber que
+    // esse agendamento é o de hoje.
+    const antes = new Date("2026-09-14T15:00:00.000Z"); // 09:00 da mesma segunda-feira
     expect(citasEnContexto([cita()], TZ, antes).next?.label).toBe(
       "hoy lunes, 14 de septiembre, 10:30"
     );
@@ -97,7 +97,7 @@ describe("qué citas salen", () => {
   });
 
   it("una cita que ya empezó y nadie cerró NO es la próxima: va en `unresolved`", () => {
-    // El caso de las 17:04: darla por vigente es decir «tu demo es hoy a las 10:30».
+    // O caso das 17:04: dá-la por vigente é dizer «tu demo es hoy a las 10:30».
     const r = citasEnContexto([cita()], TZ, LUNES_1704);
     expect(r.next).toBeNull();
     expect(r.unresolved?.id).toBe("bk_1");
@@ -121,7 +121,7 @@ describe("qué citas salen", () => {
       id: "bk_1",
       status: "cancelada",
       closedAt: "2026-09-14T22:00:00.000Z",
-      // En la raíz solo el equipo cancela: por /api/bot/* no existe cancelar.
+      // Na raiz só a equipe cancela: por /api/bot/* não existe cancelar.
       cancelledBy: "equipo",
     });
   });
@@ -155,8 +155,8 @@ describe("qué citas salen", () => {
   });
 
   it("una cita de PRUEBA jamás aparece, ni siendo la mejor candidata de cada bloque", () => {
-    // Del Laboratorio: es de un cliente simulado. Presentarla como real le
-    // haría al cerebro negar una cita nueva o defender una que no existe.
+    // Do Laboratório: é de um cliente simulado. Apresentá-la como real faria
+    // o cérebro negar um agendamento novo ou defender um que não existe.
     const prueba = (extra: Partial<FilaCita>) => cita({ isTest: true, ...extra });
     const r = citasEnContexto(
       [
@@ -176,10 +176,10 @@ describe("qué citas salen", () => {
   });
 });
 
-/* -------- citasParaContexto: la bandera y la degradación -------- */
+/* -------- citasParaContexto: a flag e a degradação -------- */
 
-// `vi.hoisted`: el módulo bajo prueba se importa arriba, y el mock tiene que
-// existir antes de que ese import resuelva `@/lib/db`.
+// `vi.hoisted`: o módulo sob teste é importado acima, e o mock precisa
+// existir antes de esse import resolver `@/lib/db`.
 const { getDb } = vi.hoisted(() => ({ getDb: vi.fn() }));
 
 vi.mock("@/lib/db", async (importOriginal) => {
@@ -198,7 +198,7 @@ vi.mock("@/server/agenda/settings", async (importOriginal) => {
   };
 });
 
-/** Una base cuyo `select … from … where` devuelve `rows` (o revienta). */
+/** Uma base cujo `select … from … where` devolve `rows` (ou estoura). */
 function baseCon(rows: FilaCita[] | Error) {
   const chain: Record<string, unknown> = {};
   for (const m of ["from", "where", "orderBy", "limit"]) chain[m] = () => chain;
@@ -232,7 +232,7 @@ describe("citasParaContexto", () => {
     const r = await citasParaContexto("org_1", "ct_1", LUNES_1704);
     expect(r?.timezone).toBe("America/Bogota");
     expect(r?.next?.id).toBe("bk_real");
-    // 15:00Z es 10:00 en Bogotá (UTC-5).
+    // 15:00Z é 10:00 em Bogotá (UTC-5).
     expect(r?.next?.label).toBe("miércoles, 16 de septiembre, 10:00");
     vi.unstubAllEnvs();
   });

@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import { clasificarFallo, listModels, probeProvider } from "@/lib/ai/probe";
 
 /**
- * #85 — «Probar conexión» y «Traer modelos» nunca lanzan: cada fallo vuelve
- * tipado y en el idioma del dueño, y la llave solo viaja en el header.
+ * #85 — «Probar conexión» e «Traer modelos» nunca lançam: cada falha volta
+ * tipada e no idioma do dono, e a chave só viaja no header.
  */
 
 function respuesta(status: number, body: unknown) {

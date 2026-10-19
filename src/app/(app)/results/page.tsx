@@ -9,16 +9,16 @@ import { ResultsClient } from "@/components/results/results-client";
 export const dynamic = "force-dynamic";
 
 /**
- * 019 — Resultados. Siempre disponible: no depende de nada externo, así que no
- * lleva bandera (spec 019, D3).
+ * 019 — Resultados. Sempre disponível: não depende de nada externo, então não
+ * tem flag (spec 019, D3).
  *
- * Moneda, zona y "hoy" se resuelven en el servidor y bajan como props: si los
- * pidiera el cliente, la pantalla pintaría un instante con la moneda o el día
- * equivocados, y los atajos del rango no coincidirían con los del servidor.
+ * Moeda, fuso e "hoje" são resolvidos no servidor e descem como props: se
+ * fossem pedidos pelo cliente, a tela renderizaria por um instante com a moeda ou o dia
+ * errados, e os atalhos do intervalo não coincidiriam com os do servidor.
  */
 export default async function ResultsPage() {
-  // El layout ya manda al login sin sesión; esto es por si la página se
-  // resuelve primero.
+  // O layout já manda para o login sem sessão; isto é por precaução, caso a página
+  // seja resolvida primeiro.
   const session = await getSessionOrNull();
   if (!session) redirect("/login");
   const [branding, timezone] = await Promise.all([

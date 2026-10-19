@@ -1,17 +1,17 @@
 /**
- * 015 — Helpers puros de tiempo para el motor de agenda.
+ * 015 — Helpers puros de tempo para o motor de agenda.
  *
- * Regla de oro: los instantes viven en UTC. La zona horaria del negocio solo
- * sirve para (a) expandir el horario semanal, que es hora de PARED, y (b)
- * etiquetar para el cliente.
+ * Regra de ouro: os instantes vivem em UTC. O fuso horário do negócio só
+ * serve para (a) expandir o horário semanal, que é hora de PAREDE, e (b)
+ * rotular para o cliente.
  *
- * Sin dependencias: todo se resuelve con `Intl` de la plataforma, que ya trae
- * la base de datos de zonas (verificado también en el contenedor Alpine de
- * producción: 418 zonas y formato es-MX correcto). Ver
+ * Sem dependências: tudo se resolve com o `Intl` da plataforma, que já traz
+ * o banco de dados de fusos (verificado também no contêiner Alpine de
+ * produção: 418 fusos e formato es-MX correto). Ver
  * specs/015-motor-agenda-universal/research.md D1.
  */
 
-export type Interval = { start: string; end: string }; // "HH:mm" hora de pared
+export type Interval = { start: string; end: string }; // "HH:mm" hora de parede
 
 export type WeekdayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
@@ -41,7 +41,7 @@ export function isValidInterval(iv: unknown): iv is Interval {
   );
 }
 
-/** ¿El runtime conoce esta zona IANA? Evita guardar basura que rompa el motor. */
+/** O runtime conhece este fuso IANA? Evita gravar lixo que quebre o motor. */
 export function isValidTimeZone(tz: string): boolean {
   try {
     new Intl.DateTimeFormat("en-US", { timeZone: tz });
@@ -52,9 +52,9 @@ export function isValidTimeZone(tz: string): boolean {
 }
 
 /**
- * Offset de la zona (minutos al este de UTC) EN un instante dado. Se formatea
- * el instante en la zona y se lee el resultado como si fuera UTC: la
- * diferencia es el offset vigente ahí, con DST ya aplicado.
+ * Defasagem do fuso (minutos a leste de UTC) EM um instante dado. Formata-se
+ * o instante no fuso e lê-se o resultado como se fosse UTC: a
+ * diferença é a defasagem vigente ali, com o horário de verão já aplicado.
  */
 export function tzOffsetMinutes(date: Date, tz: string): number {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -74,7 +74,7 @@ export function tzOffsetMinutes(date: Date, tz: string): number {
     Number(map.year),
     Number(map.month) - 1,
     Number(map.day),
-    // Intl puede devolver "24" a medianoche en algunos entornos.
+    // O Intl pode devolver "24" à meia-noite em alguns ambientes.
     Number(map.hour) % 24,
     Number(map.minute),
     Number(map.second)
@@ -83,12 +83,12 @@ export function tzOffsetMinutes(date: Date, tz: string): number {
 }
 
 /**
- * Hora de pared (`YYYY-MM-DD` + `HH:mm`) en una zona → instante UTC.
+ * Hora de parede (`YYYY-MM-DD` + `HH:mm`) em um fuso → instante UTC.
  *
- * Dos pasadas: la primera estima el offset, la segunda lo corrige cuando el
- * cambio de horario cae justo en ese punto. En una hora inexistente (salto de
- * primavera) devuelve un instante real usando el offset previo; en una hora
- * ambigua (retroceso) elige la primera ocurrencia. Nunca lanza.
+ * Duas passadas: a primeira estima a defasagem, a segunda a corrige quando a
+ * mudança de horário cai justo naquele ponto. Numa hora inexistente (salto de
+ * primavera) devolve um instante real usando a defasagem anterior; numa hora
+ * ambígua (recuo) escolhe a primeira ocorrência. Nunca lança exceção.
  */
 export function zonedWallClockToUtc(
   dayISODate: string,
@@ -112,9 +112,9 @@ export function zonedWallClockToUtc(
   return new Date(ts);
 }
 
-/** Día de la semana (mon..sun) de una fecha ISO en una zona dada. */
+/** Dia da semana (mon..sun) de uma data ISO em um fuso dado. */
 export function weekdayKeyOf(dayISODate: string, tz: string): WeekdayKey | null {
-  // Mediodía: ningún offset del mundo lo empuja al día vecino.
+  // Meio-dia: nenhuma defasagem do mundo o empurra para o dia vizinho.
   const noon = zonedWallClockToUtc(dayISODate, "12:00", tz);
   if (!noon) return null;
   const short = new Intl.DateTimeFormat("en-US", {
@@ -127,20 +127,20 @@ export function weekdayKeyOf(dayISODate: string, tz: string): WeekdayKey | null 
   return key ?? null;
 }
 
-/** Fechas ISO (YYYY-MM-DD) de cada día del rango [from, to] inclusive. */
+/** Datas ISO (YYYY-MM-DD) de cada dia do intervalo [from, to] inclusive. */
 export function eachDateInRange(fromISO: string, toISO: string): string[] {
   const out: string[] = [];
   const from = Date.parse(`${fromISO}T00:00:00Z`);
   const to = Date.parse(`${toISO}T00:00:00Z`);
   if (Number.isNaN(from) || Number.isNaN(to) || to < from) return out;
-  // Tope defensivo: la ventana máxima configurable es de 60 días.
+  // Limite defensivo: a janela máxima configurável é de 60 dias.
   for (let t = from, i = 0; t <= to && i < 400; t += 86_400_000, i++) {
     out.push(new Date(t).toISOString().slice(0, 10));
   }
   return out;
 }
 
-/** Fecha ISO (YYYY-MM-DD) de un instante en la zona del negocio. */
+/** Data ISO (YYYY-MM-DD) de um instante no fuso do negócio. */
 export function dayIsoInTz(instant: Date, tz: string): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: tz,
@@ -153,12 +153,12 @@ export function dayIsoInTz(instant: Date, tz: string): string {
   return `${map.year}-${map.month}-${map.day}`;
 }
 
-/** Fecha ISO de "hoy" en la zona del negocio. */
+/** Data ISO de "hoje" no fuso do negócio. */
 export function todayInTz(now: Date, tz: string): string {
   return dayIsoInTz(now, tz);
 }
 
-/** Suma días a una fecha ISO (sin zona: es aritmética de calendario). */
+/** Soma dias a uma data ISO (sem fuso: é aritmética de calendário). */
 export function addDaysISO(dayISODate: string, days: number): string {
   const ts = Date.parse(`${dayISODate}T00:00:00Z`);
   if (Number.isNaN(ts)) return dayISODate;
@@ -166,9 +166,9 @@ export function addDaysISO(dayISODate: string, days: number): string {
 }
 
 /**
- * Expande los intervalos hábiles de UN día (hora de pared en tz) a slots UTC.
- * Avanza `slot + buffer` por paso y solo emite el slot si CABE completo dentro
- * del intervalo.
+ * Expande os intervalos úteis de UM dia (hora de parede no tz) em slots UTC.
+ * Avança `slot + buffer` a cada passo e só emite o slot se ele CABER inteiro
+ * dentro do intervalo.
  */
 export function expandWorkingDayToUtc(
   dayISODate: string,
@@ -200,7 +200,7 @@ export function expandWorkingDayToUtc(
   return out;
 }
 
-/** ¿Se solapan [aStart,aEnd) y [bStart,bEnd)? */
+/** Sobrepõem-se [aStart,aEnd) e [bStart,bEnd)? */
 export function overlaps(
   aStart: string,
   aEnd: string,
@@ -213,7 +213,7 @@ export function overlaps(
   );
 }
 
-/** Etiqueta legible en la zona del negocio: "mié 5 ago, 10:00". */
+/** Rótulo legível no fuso do negócio: "mié 5 ago, 10:00". */
 export function labelInTz(startUtc: string, tz: string): string {
   const d = new Date(startUtc);
   if (Number.isNaN(d.getTime())) return "";
@@ -233,7 +233,7 @@ export function labelInTz(startUtc: string, tz: string): string {
   return `${weekday} ${map.day} ${month}, ${map.hour}:${map.minute}`;
 }
 
-/** Solo la hora en la zona del negocio: "10:00". */
+/** Só a hora no fuso do negócio: "10:00". */
 export function timeInTz(startUtc: string, tz: string): string {
   const d = new Date(startUtc);
   if (Number.isNaN(d.getTime())) return "";
@@ -246,12 +246,12 @@ export function timeInTz(startUtc: string, tz: string): string {
 }
 
 /**
- * El día EN PALABRAS, con "hoy"/"mañana" cuando aplica: "hoy viernes 7 de
+ * O dia POR EXTENSO, com "hoje"/"amanhã" quando cabe: "hoy viernes 7 de
  * agosto".
  *
- * Existe porque la etiqueta corta no basta: en producción del fork un lead
- * contestó "10:30, de mañana" a una oferta de HOY y se agendó el día
- * equivocado. Quien ofrece tiene que poder decir el día completo.
+ * Existe porque o rótulo curto não basta: em produção do fork um lead
+ * respondeu "10:30, de manhã" a uma oferta de HOJE e o agendamento foi feito no dia
+ * errado. Quem oferece precisa poder dizer o dia completo.
  */
 export function dayLabelInTz(startUtc: string, tz: string, now?: Date): string {
   const d = new Date(startUtc);
@@ -273,10 +273,10 @@ export function dayLabelInTz(startUtc: string, tz: string, now?: Date): string {
 }
 
 /**
- * Los formateadores de `partsInTz`, uno por zona. Construir un
- * `Intl.DateTimeFormat` cuesta mucho más que usarlo, y el calendario de Citas
- * (215) formatea hasta 3 000 citas por consulta: tres construcciones por cita
- * eran segundos de CPU por respuesta.
+ * Os formatadores de `partsInTz`, um por fuso. Construir um
+ * `Intl.DateTimeFormat` custa muito mais do que usá-lo, e o calendário de Agendamentos
+ * (215) formata até 3 000 agendamentos por consulta: três construções por agendamento
+ * seriam segundos de CPU por resposta.
  */
 const PARTS_FORMATS = new Map<
   string,
@@ -298,7 +298,7 @@ function partsFormats(tz: string) {
   return f;
 }
 
-/** Partes por separado para la tabla de Citas. */
+/** Partes separadas para a tabela de Agendamentos. */
 export function partsInTz(
   startUtc: string,
   tz: string

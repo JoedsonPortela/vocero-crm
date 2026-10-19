@@ -5,11 +5,11 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * #82 — `/api/health` dice qué banderas están encendidas y si el volumen de
- * adjuntos se puede escribir. Es lo que una plataforma o un script pueden
- * confirmar con un `curl`, sin iniciar sesión: que `AGENDA=on` llegó al
- * contenedor, que `/data` quedó bien montado. Y la imagen deja de llevar lo
- * que el migrador nunca abre.
+ * #82 — `/api/health` diz quais flags estão ligadas e se o volume de
+ * anexos pode ser escrito. É o que uma plataforma ou um script pode
+ * confirmar com um `curl`, sem iniciar sessão: que `AGENDA=on` chegou ao
+ * contêiner, que `/data` ficou bem montado. E a imagem deixa de levar o que
+ * o migrador nunca abre.
  */
 
 const RAIZ = path.resolve(import.meta.dirname, "..", "..");
@@ -54,7 +54,7 @@ describe("features: las banderas de despliegue", () => {
   });
 
   it("con las tres encendidas, los canales van en el orden del catálogo", () => {
-    // El de la variable no: dos instancias iguales tienen que responder igual.
+    // O da variável não: duas instâncias iguais têm que responder igual.
     expect(
       healthFeatures({
         AGENDA: "on",
@@ -69,8 +69,8 @@ describe("features: las banderas de despliegue", () => {
   });
 
   it("un typo no enciende nada: dice lo que la app hace, no lo que se escribió", () => {
-    // Mismos parsers que usan las rutas para responder 404: si aquí dijera
-    // `true` y la agenda respondiera 404, el health mentiría.
+    // Os mesmos parsers que as rotas usam para responder 404: se aqui dissesse
+    // `true` e a agenda respondesse 404, o health mentiria.
     expect(
       healthFeatures({ AGENDA: "onn", CHANNELS: "telegram", ATRIBUCION: "off" })
     ).toEqual({ agenda: false, channels: ["whatsapp"], atribucion: false });
@@ -86,8 +86,8 @@ describe("mediaWritable: el volumen de adjuntos", () => {
   });
 
   it("no escribible → false, pero `ok` sigue en true y el código en 200", async () => {
-    // Un healthcheck en rojo reiniciaría en bucle un contenedor que atiende
-    // clientes: sin adjuntos el CRM funciona, y esto solo lo hace visible.
+    // Um healthcheck em vermelho reiniciaria em loop um contêiner que atende
+    // clientes: sem anexos o CRM funciona, e isto só o torna visível.
     const archivo = path.join(tmp, "no-soy-directorio");
     await writeFile(archivo, "x");
     getEnv.mockReturnValue({ MEDIA_DIR: path.join(archivo, "media") });
@@ -102,8 +102,8 @@ describe("mediaWritable: el volumen de adjuntos", () => {
     const t0 = 1_000_000;
     expect((await mediaDirStatus(t0))?.writable).toBe(true);
 
-    // El directorio desaparece y en su lugar hay un archivo: un sondeo nuevo
-    // diría false. Dentro del minuto se responde lo recordado; después, no.
+    // O diretório some e em seu lugar há um arquivo: uma sondagem nova
+    // diria false. Dentro do minuto responde-se o lembrado; depois, não.
     await rm(dir, { recursive: true, force: true });
     await writeFile(dir, "x");
     expect((await mediaDirStatus(t0 + MEDIA_DIR_PROBE_TTL_MS - 1))?.writable).toBe(true);
@@ -143,8 +143,8 @@ describe("GET /api/health", () => {
       mediaWritable: true,
     });
     expect(typeof cuerpo.version).toBe("string");
-    // Los campos de antes siguen delante: quien ya lee `ok` y `version` no
-    // nota el cambio.
+    // Os campos de antes seguem na frente: quem já lê `ok` e `version` não
+    // percebe a mudança.
     expect(Object.keys(cuerpo).slice(0, 2)).toEqual(["ok", "version"]);
   });
 
@@ -165,9 +165,9 @@ describe("GET /api/health", () => {
 
 describe("la imagen no lleva lo que el migrador no lee", () => {
   it("el migrador de drizzle-orm abre meta/_journal.json y los .sql, nada más", () => {
-    // Si una versión nueva de drizzle-orm empezara a leer los snapshots en
-    // runtime, el .dockerignore de abajo rompería las migraciones del
-    // arranque: esto lo atrapa antes.
+    // Se uma versão nova do drizzle-orm começasse a ler os snapshots em
+    // runtime, o .dockerignore abaixo quebraria as migrações do
+    // arranque: isto pega antes.
     const migrador = readFileSync(
       path.join(RAIZ, "node_modules", "drizzle-orm", "migrator.js"),
       "utf8"
@@ -191,8 +191,8 @@ describe("la imagen no lleva lo que el migrador no lee", () => {
     const excluye = lineas.indexOf("drizzle/meta/*");
     const conserva = lineas.indexOf("!drizzle/meta/_journal.json");
     expect(excluye).toBeGreaterThanOrEqual(0);
-    // La excepción tiene que venir DESPUÉS: en .dockerignore manda la última
-    // regla que coincide.
+    // A exceção tem que vir DEPOIS: no .dockerignore vale a última
+    // regra que casa.
     expect(conserva).toBeGreaterThan(excluye);
     expect(lineas.some((l) => /^drizzle\/?\*?$/.test(l) || l.endsWith(".sql"))).toBe(false);
   });

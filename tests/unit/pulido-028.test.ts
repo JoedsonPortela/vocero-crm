@@ -4,7 +4,7 @@ import { channelList, emptyInboxDescription } from "@/components/inbox/helpers";
 import { navKicker } from "@/lib/channels";
 import { initials } from "@/lib/utils";
 
-/** 028 — Pulido visual de la 1.6. */
+/** 028 — Polimento visual da 1.6. */
 
 describe("lo que el compositor ofrece por canal (D1)", () => {
   it("solo WhatsApp admite ubicación y contactos", () => {

@@ -1,13 +1,13 @@
 /**
- * Self-test E2E de comportamiento — el compositor no espera a Meta
- * (guion tests/e2e/us1-inbox.md, sección "envío instantáneo").
+ * Self-test E2E de comportamento — o compositor não espera a Meta
+ * (roteiro tests/e2e/us1-inbox.md, seção "envio instantâneo").
  *
- * Conduce la UI real con Playwright: enviar con Enter tarda ~1,5 s en el viaje
- * a Meta, y durante ese rato el renglón siguiente se escribía ENCIMA del
- * anterior, así que dos frases seguidas salían como un solo mensaje.
+ * Conduz a UI real com Playwright: enviar com Enter leva ~1,5 s na viagem
+ * até a Meta, e nesse intervalo a linha seguinte era escrita POR CIMA da
+ * anterior, então duas frases seguidas saíam como uma só mensagem.
  *
  * Uso: node --env-file=.env scripts/e2e-envio-instantaneo.mjs
- * Requiere: app corriendo (pnpm dev) con WA_MOCK_ENABLED=true y BD migrada.
+ * Requer: app rodando (pnpm dev) com WA_MOCK_ENABLED=true e BD migrada.
  */
 import { chromium } from "playwright";
 
@@ -88,8 +88,8 @@ const outMsgs = async () => {
   return (d.messages ?? []).filter((m) => m.direction === "out");
 };
 
-// Calentar la ruta que el guion va a MEDIR: en dev su primera compilación
-// tarda segundos y falsearía el tiempo de la UI.
+// Aquece a rota que o roteiro vai MEDIR: em dev, sua primeira compilação
+// leva segundos e falsearia o tempo da UI.
 await req.get(`${BASE}/api/conversations/${conv.id}/messages`);
 
 const page = await ctx.newPage();
@@ -105,8 +105,8 @@ await box.click();
 await box.fill(T1);
 await box.press("Enter");
 
-// El bug medía ~1,5 s. Se exige que el campo quede libre en menos de 300 ms,
-// que es lo que tarda una persona en empezar el renglón siguiente.
+// O bug mediu ~1,5 s. Exige-se que o campo fique livre em menos de 300 ms,
+// que é o que uma pessoa leva para começar a linha seguinte.
 const t0 = Date.now();
 let vacioEn = null;
 while (Date.now() - t0 < 3000) {
@@ -142,9 +142,9 @@ ok(
   textos[0] === T1 && textos[1] === T2,
   JSON.stringify(textos)
 );
-// Espera ACTIVA y acotada al hilo: entre que llega el mensaje real y se retira
-// el provisional hay un instante con los dos, y el preview de la lista lateral
-// también repite el texto. Lo que se afirma es el estado en reposo.
+// Espera ATIVA e limitada à conversa: entre a chegada da mensagem real e a remoção
+// do provisório há um instante com os dois, e o preview da lista lateral
+// também repete o texto. O que se afirma é o estado em repouso.
 const hilo = page
   .locator("section")
   .filter({ has: page.getByPlaceholder("Escribe una respuesta") });
@@ -185,9 +185,9 @@ ok(
   "y el error se muestra en el compositor",
   (await page.getByText(/Meta no responde/i).count()) > 0
 );
-// El texto SÍ sigue en pantalla, pero dentro del compositor (acaba de volver).
-// Lo que no debe quedar es una burbuja en el hilo, así que el compositor se
-// excluye a mano: contarlo daría un falso fallo.
+// O texto AINDA continua na tela, mas dentro do compositor (acabou de voltar).
+// O que não deve ficar é uma bolha na conversa, então o compositor é
+// excluído à mão: contá-lo daria uma falha falsa.
 const rastros = await page.getByText(T3, { exact: true }).all();
 const enElHilo = [];
 for (const nodo of rastros) {

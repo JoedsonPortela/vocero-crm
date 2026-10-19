@@ -8,15 +8,15 @@ import { webhookUrl, webhookVerifyToken } from "@/server/whatsapp/webhook-url";
 export const dynamic = "force-dynamic";
 
 /**
- * Datos del webhook (FR-043). El de WhatsApp lo registra el CRM al guardar la
- * conexión; la URL y el verify token siguen a la vista para el backend de una
- * agencia o para pegarlos a mano si el registro automático falla.
+ * Dados do webhook (FR-043). O do WhatsApp o CRM cadastra ao salvar a
+ * conexão; a URL e o verify token continuam à vista para o backend de uma
+ * agência ou para colá-los à mão se o cadastro automático falhar.
  *
- * Los canales opcionales comparten el segmento secreto y el verify token, pero
- * cada uno tiene su ruta: Meta configura el webhook de Messenger y el de
- * Instagram por separado (productos distintos de la misma app), así que aquí
- * viajan las tres URLs y la pantalla de cada canal enseña la suya. Las de un
- * canal apagado van en null: no existen en esta instancia (ADR-001).
+ * Os canais opcionais compartilham o segmento secreto e o verify token, mas
+ * cada um tem a sua rota: a Meta configura o webhook do Messenger e o do
+ * Instagram separadamente (produtos distintos do mesmo app), então aqui
+ * trafegam as três URLs e a tela de cada canal mostra a sua. As de um
+ * canal desligado ficam em null: não existem nesta instância (ADR-001).
  */
 export const GET = withAuth(async () => {
   const env = getEnv();
@@ -25,7 +25,7 @@ export const GET = withAuth(async () => {
     url,
     instagramUrl: isChannelEnabled("instagram") ? webhookUrl("ig") : null,
     messengerUrl: isChannelEnabled("messenger") ? webhookUrl("messenger") : null,
-    // 022: la URL que se da de alta en Zernio para los mensajes de TikTok.
+    // 022: a URL que é cadastrada na Zernio para as mensagens do TikTok.
     tiktokUrl: isChannelEnabled("tiktok") ? webhookUrl("tiktok") : null,
     verifyToken: env.META_WEBHOOK_VERIFY_TOKEN,
     isHttps: url.startsWith("https://"),
@@ -34,10 +34,10 @@ export const GET = withAuth(async () => {
 });
 
 /**
- * Registrar el webhook en Meta con la conexión YA guardada.
+ * Registra o webhook na Meta com a conexão JÁ salva.
  *
- * Guardar ya lo hace; esto es para las conexiones anteriores a ese cambio y
- * para reintentar si Meta falló, sin volver a pegar el token.
+ * Salvar já faz isso; isto serve para as conexões anteriores a essa mudança e
+ * para tentar de novo se a Meta falhou, sem colar o token outra vez.
  */
 export const POST = withAuth(async (session) => {
   const creds = await getCredentialsByOrg(session.organizationId);

@@ -6,10 +6,10 @@ import { productName } from "@/lib/channels";
 import { BrandLogo } from "@/components/brand-mark";
 
 /**
- * Pantalla de entrada con la escenografía del hero de vocerocrm.com: papel
- * frío, rejilla difuminada y dos resplandores (azul y cian) detrás del
- * formulario. Con la marca Vocero se remata con el titular de la landing; una
- * instancia white-label ve su nombre y una descripción neutra.
+ * Tela de entrada com o cenário do hero de vocerocrm.com: papel
+ * frio, grade esmaecida e dois brilhos (azul e ciano) atrás do
+ * formulário. Com a marca Vocero, fecha-se com o título da landing; uma
+ * instância white-label mostra o nome dela e uma descrição neutra.
  */
 export default async function AuthLayout({
   children,

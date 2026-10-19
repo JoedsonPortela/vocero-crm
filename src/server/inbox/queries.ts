@@ -6,9 +6,9 @@ import { capabilitiesFor, windowMsFor } from "@/server/channels/capabilities";
 import type { ConversationDto } from "@/lib/types";
 
 /**
- * 018 — El anuncio de origen viaja con la conversación. La llave única
- * (organización, conversación) garantiza a lo más una fila por renglón, así
- * que el LEFT JOIN no multiplica la lista.
+ * 018 — O anúncio de origem viaja com a conversa. A chave única
+ * (organização, conversa) garante no máximo uma linha por registro, então
+ * o LEFT JOIN não multiplica a lista.
  */
 const anuncioDeLaConversacion = and(
   eq(schema.adAttribution.organizationId, schema.conversation.organizationId),
@@ -30,7 +30,7 @@ function aAnuncioDeLista(
     sourceType: string | null;
   } | null
 ): ConversationDto["anuncio"] {
-  // Sin fila, drizzle devuelve el objeto con todo en null (o null a secas).
+  // Sem linha, o drizzle devolve o objeto com tudo em null (ou null puro).
   if (!fila?.id) return null;
   return {
     headline: fila.headline,
@@ -154,7 +154,7 @@ export function serializeConversation(
   anuncio: ConversationDto["anuncio"] = null
 ): ConversationDto {
   const caps = capabilitiesFor(c.channel);
-  // 024: la extensión humana solo existe en los canales que la declaran.
+  // 024: a extensão humana só existe nos canais que a declaram.
   const reply =
     caps.humanAgentWindowMs !== null
       ? replyWindow(c.channel, c.lastInboundAt)
@@ -170,7 +170,7 @@ export function serializeConversation(
     lastInboundAt: c.lastInboundAt?.toISOString() ?? null,
     lastMessageAt: c.lastMessageAt?.toISOString() ?? null,
     unreadCount: c.unreadCount,
-    // 022: la ventana es la del canal (48 h en TikTok, 24 en los demás).
+    // 022: a janela é a do canal (48 h no TikTok, 24 nos demais).
     windowOpen: isWindowOpen(c.lastInboundAt, new Date(), windowMsFor(c.channel)),
     windowRemainingMs: windowRemainingMs(
       c.lastInboundAt,

@@ -23,13 +23,13 @@ import {
 } from "@/lib/ai/presets";
 
 /**
- * Ajustes → IA: con qué piensa el agente (issue #85).
+ * Ajustes → IA: com o que o agente pensa (issue #85).
  *
- * La llave se manda una vez y no vuelve: la pantalla solo muestra sus últimos
- * 4 y el estado. Si está pausada, dice POR QUÉ y qué hacer — no es lo mismo
- * «tu llave dejó de servir» que «tu cuenta se quedó sin saldo», y son dos
- * acciones distintas del dueño. «Testar conexión» y «Buscar modelos» hablan
- * con el proveedor usando lo escrito, sin guardar nada.
+ * A chave é enviada uma vez e não volta: a tela mostra apenas os últimos
+ * 4 e o estado. Se estiver pausada, diz POR QUE e o que fazer — não é o mesmo
+ * «sua chave deixou de funcionar» que «sua conta ficou sem saldo», e são duas
+ * ações diferentes do dono. «Testar conexão» e «Buscar modelos» conversam
+ * com o provedor usando o que foi digitado, sem salvar nada.
  */
 
 type Credencial = {
@@ -85,8 +85,8 @@ export function AiClient() {
     void (async () => {
       const data = await cargar();
       if (!data) return;
-      // El formulario arranca con lo guardado; si no hay nada, con el respaldo
-      // del entorno (para que «Guardar» lo deje escrito tal cual se usa hoy).
+      // O formulário começa com o que foi salvo; se não houver nada, com o de reserva
+      // do ambiente (para que «Guardar» o deixe escrito exatamente como é usado hoje).
       const base = data.credencial
         ? {
             provider: data.credencial.proveedor,
@@ -111,7 +111,7 @@ export function AiClient() {
   const preset = AI_PROVIDER_PRESETS[provider];
   const cred = vista?.credencial ?? null;
 
-  /** Lo que viaja en cada llamada: el token solo si se escribió. */
+  /** O que vai em cada chamada: o token só se foi digitado. */
   function cuerpo(conModelo: boolean) {
     return JSON.stringify({
       provider,
@@ -216,8 +216,8 @@ export function AiClient() {
       return;
     }
     setVista((await res.json()) as Vista);
-    // La llave se borra del formulario en cuanto viaja: no tiene por qué
-    // seguir en pantalla ni en la memoria de la pestaña.
+    // A chave é apagada do formulário assim que é enviada: não há motivo para
+    // continuar na tela nem na memória da aba.
     setToken("");
     setMensaje({
       kind: "ok",
@@ -455,7 +455,7 @@ function EstadoGuardado({ cred, vista }: { cred: Credencial; vista: Vista }) {
   );
 }
 
-/** Lo que hay que saber ANTES de pegar nada. Plegado: no estorba al que ya lo sabe. */
+/** O que é preciso saber ANTES de colar qualquer coisa. Recolhido: não atrapalha quem já sabe. */
 function AyudaLlave({ provider }: { provider: AiProviderId }) {
   return (
     <details className="rounded-lg border p-3 text-sm">

@@ -5,18 +5,18 @@ import { agendaEnabled } from "@/server/agenda/flag";
 import { verifyCalendar } from "./calendar-verifiers";
 
 /**
- * Qué le falta a esta instancia para que el agente conteste (issue #86).
+ * O que falta a esta instância para o agente responder (issue #86).
  *
- * Puerto de `onboarding/status.ts` de Vocero Cloud recortado a lo que la raíz
- * tiene: el perfil del agente, la credencial de IA (la fila de Ajustes → IA
- * o, de respaldo, `OPENROUTER_*` del entorno), el número de WhatsApp y, solo
- * con `AGENDA=on`, la agenda. Nada de modelo de plataforma, dueño invitado,
- * cerebro compartido, cobertura ni evidencia de prueba: aquí una instancia es
- * un negocio y quien la instala es quien la configura.
+ * Adaptação de `onboarding/status.ts` do Vocero Cloud reduzida ao que a raiz
+ * tem: o perfil do agente, a credencial de IA (a linha de Configurações → IA
+ * ou, de reserva, `OPENROUTER_*` do ambiente), o número de WhatsApp e, só
+ * com `AGENDA=on`, a agenda. Nada de modelo da plataforma, dono convidado,
+ * cérebro compartilhado, cobertura nem evidência de teste: aqui uma instância é
+ * um negócio e quem a instala é quem a configura.
  *
- * Cada paso sale de la MISMA fuente que ya decide si esa pieza funciona
- * (`estadoIaDe`, el `status` de la conexión, el catálogo de conectores): la
- * guía no inventa su propia noción de «listo».
+ * Cada passo sai da MESMA fonte que já decide se essa peça funciona
+ * (`estadoIaDe`, o `status` da conexão, o catálogo de conectores): o
+ * guia não inventa sua própria noção de «pronto».
  */
 export type ReadinessStatus =
   | "ready"
@@ -30,20 +30,20 @@ export type ReadinessStep = {
   key: ReadinessKey;
   label: string;
   status: ReadinessStatus;
-  /** Qué hacer para dejarlo listo; en `ready`, qué quedó. */
+  /** O que fazer para deixá-lo pronto; em `ready`, o que ficou. */
   nextAction: string;
   href: string | null;
   /**
-   * Lo que está MAL, cuando no es simplemente que falte el paso: la llave
-   * rechazada, el token de WhatsApp vencido, un conector sin credencial. La
-   * guía lo pinta en ámbar debajo del paso.
+   * O que está ERRADO, quando não é simplesmente que falte o passo: a chave
+   * rejeitada, o token do WhatsApp vencido, um conector sem credencial. O
+   * guia o pinta em âmbar abaixo do passo.
    */
   problem: string | null;
 };
 
 export type OnboardingStatus = {
   steps: ReadinessStep[];
-  /** El agente ya está encendido. */
+  /** O agente já está ligado. */
   enabled: boolean;
 };
 
@@ -86,8 +86,8 @@ export async function onboardingStatus(
           : "Respaldo del entorno (OPENROUTER_*)"
         : "Pega la llave de tu proveedor y elige el modelo en Ajustes → IA",
       href: "/settings/ai",
-      // «Sin configurar» es lo obvio del paso; lo que sí hay que decir es por
-      // qué una llave que el dueño YA pegó no sirve.
+      // «Sem configurar» é o óbvio do passo; o que é preciso dizer é por
+      // que uma chave que o dono JÁ colou não serve.
       problem:
         !ia.activa && ia.motivo !== "sin_configurar"
           ? mensajeDeEstado(ia)
@@ -114,9 +114,9 @@ export async function onboardingStatus(
   if (agendaEnabled()) {
     steps.push(await pasoAgenda(organizationId, db));
   } else {
-    // Sin la bandera, la agenda no existe en esta instancia (015): el paso se
-    // reporta para que la guía sepa que no aplica, sin enlace a una pantalla
-    // que respondería 404.
+    // Sem a bandeira, a agenda não existe nesta instância (015): o passo se
+    // reporta para que o guia saiba que não se aplica, sem link para uma tela
+    // que responderia 404.
     steps.push({
       key: "calendar",
       label: "Agenda",
@@ -134,9 +134,9 @@ export async function onboardingStatus(
 type Perfil = { name: string; instructions: string | null; enabled: boolean };
 
 /**
- * El agente está «configurado» cuando tiene con qué contestar: instrucciones
- * o conocimiento. El nombre viene con default («Asistente»), así que no es
- * lo que distingue a un perfil trabajado de uno recién sembrado.
+ * O agente está «configurado» quando tem com que responder: instruções
+ * ou conhecimento. O nome vem com padrão («Assistente»), então não é
+ * o que distingue um perfil trabalhado de um recém-semeado.
  */
 function pasoPerfil(profile: Perfil | undefined, hayConocimiento: boolean): ReadinessStep {
   const listo =

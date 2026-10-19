@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import type { ResolvedTheme } from "@/lib/theme";
 
 /**
- * Tema realmente pintado, leído del atributo `data-theme` del <html>.
- * Para los pocos lugares que calculan color en JS (la vista previa de la
- * marca): el CSS solo no alcanza porque el color lo elige el usuario.
+ * Tema realmente aplicado, lido do atributo `data-theme` do <html>.
+ * Para os poucos lugares que calculam cor em JS (a pré-visualização da
+ * marca): o CSS sozinho não basta porque a cor é escolhida pelo usuário.
  *
- * Arranca en "light" y se corrige tras montar — en SSR no hay DOM que leer.
+ * Começa em "light" e é corrigido após montar — no SSR não há DOM para ler.
  */
 export function useResolvedTheme(): ResolvedTheme {
   const [theme, setTheme] = useState<ResolvedTheme>("light");

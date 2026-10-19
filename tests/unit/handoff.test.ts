@@ -16,12 +16,12 @@ describe("patrón de respaldo de handoff (FR-022 / SC-006)", () => {
   });
 
   it.each([
-    "somos 4 personas", // el caso canónico que NO debe disparar
+    "somos 4 personas", // o caso canônico que NÃO deve disparar
     "somos cuatro personas y queremos reservar",
     "¿tienen taladros?",
     "la persona que me atendió ayer fue amable",
     "mi humano favorito es mi hijo",
-    "el asesor fiscal ya me cobró", // sin verbo de contacto ni "un asesor"
+    "el asesor fiscal ya me cobró", // sem verbo de contato nem "un asesor"
   ])("NO dispara: %s", (text) => {
     expect(matchesHandoffIntent(text)).toBe(false);
   });

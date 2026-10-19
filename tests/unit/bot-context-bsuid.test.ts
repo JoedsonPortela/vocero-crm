@@ -4,10 +4,10 @@ import { PgDialect } from "drizzle-orm/pg-core";
 import { findContactByIdentity, parseIdentity } from "@/server/inbox/identity";
 
 /**
- * R11 — El cerebro externo pregunta por `bsuid:<id>` y el contacto escribió
- * primero CON teléfono (su `wa_identity` es el teléfono, de por vida, y el
- * BSUID quedó en `wa_user_id`). La ingesta ya lo reconciliaba; el contexto
- * del bot no, y respondía 404: el cliente se quedaba sin respuesta.
+ * R11 — O cérebro externo pergunta por `bsuid:<id>` e o contato escreveu
+ * primeiro COM telefone (seu `wa_identity` é o telefone, para sempre, e o BSUID
+ * ficou em `wa_user_id`). A ingestão já o reconciliava; o contexto
+ * do bot não, e respondia 404: o cliente ficava sem resposta.
  */
 
 const { getDb } = vi.hoisted(() => ({ getDb: vi.fn() }));
@@ -17,7 +17,7 @@ vi.mock("@/lib/db", async (importOriginal) => {
   return { ...original, getDb };
 });
 
-/** Una base cuyos `select` devuelven `resultados` en orden, y que guarda cada WHERE. */
+/** Um banco cujos `select` devolvem `resultados` na ordem, e que guarda cada WHERE. */
 function base(resultados: unknown[][]) {
   const wheres: SQL[] = [];
   getDb.mockReturnValue({
@@ -79,7 +79,7 @@ describe("findContactByIdentity", () => {
     const wheres = base([[], [CONTACTO]]);
     await expect(findContactByIdentity("org_1", "bsuid:MX.bsu.1")).resolves.toBe(CONTACTO);
     expect(wheres).toHaveLength(2);
-    // La segunda es la regla de la ingesta: por wa_user_id, solo WhatsApp.
+    // A segunda é a regra da ingestão: por wa_user_id, só WhatsApp.
     const q = sqlDe(wheres[1]!);
     expect(q.sql).toContain('"wa_user_id" = ');
     expect(q.sql).toContain('"channel" = ');

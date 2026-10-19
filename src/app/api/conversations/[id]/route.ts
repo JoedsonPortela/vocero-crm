@@ -47,11 +47,11 @@ export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
 const FECHA_DE_CITA = new Intl.DateTimeFormat("es-MX", { dateStyle: "long" });
 
 /**
- * 026 — Elimina la conversación y le pide al cerebro que la olvide.
+ * 026 — Exclui a conversa e pede ao cérebro que a esqueça.
  *
- * `?contacto=1` se lleva además a la persona: contacto, lead y citas pasadas.
- * Es irreversible en los dos casos, y por eso exige rol de configuración
- * (propietario o administrador) y no solo operar la bandeja.
+ * `?contacto=1` leva também a pessoa embora: contato, lead e citas passadas.
+ * É irreversível nos dois casos, e por isso exige papel de configuração
+ * (proprietário ou administrador) e não apenas operar a bandeja.
  */
 export const DELETE = withAuth(async (session, req: Request, ctx: Params) => {
   if (!canConfigure(session.role)) {
@@ -77,13 +77,13 @@ export const DELETE = withAuth(async (session, req: Request, ctx: Params) => {
     return apiError(404, "not_found", "Conversa não encontrada");
   }
 
-  // Irreversible y sin papelera: que al menos quede quién y cuándo. Solo ids.
+  // Irreversível e sem lixeira: que ao menos fique registrado quem e quando. Só ids.
   console.info(
     `[bandeja] ${session.userId} eliminó ${id} (${alcance}) en ${session.organizationId}`
   );
 
-  // El aviso va DESPUÉS del borrado y no lo condiciona: lo que se pidió ya
-  // pasó, y un cerebro caído no puede dejar la conversación en la bandeja.
+  // O aviso vem DEPOIS da exclusão e não a condiciona: o que foi pedido já
+  // aconteceu, e um cérebro fora do ar não pode deixar a conversa na bandeja.
   let agente: ResultadoOlvido = "no_aplica";
   const deletedAt = new Date();
   for (const conversacion of resultado.conversaciones) {

@@ -20,19 +20,19 @@ describe("parseMoneyToCents", () => {
   });
 
   it("un decimal solo no se confunde con millares", () => {
-    // "12.5" son doce cincuenta, no doce mil quinientos.
+    // "12.5" são doze e cinquenta, não doze mil e quinhentos.
     expect(parseMoneyToCents("12.5")).toBe(1_250);
     expect(parseMoneyToCents("12,5")).toBe(1_250);
   });
 
   it("trata el punto de millares como millares, no como decimales", () => {
-    // "12.500" con tres dígitos detrás es doce mil quinientos.
+    // "12.500" com três dígitos depois é doze mil e quinhentos.
     expect(parseMoneyToCents("12.500")).toBe(1_250_000);
   });
 
   it("sin número reconocible devuelve null, no cero", () => {
-    // Un 0 se leería como "este trato no vale nada", que es un dato distinto
-    // de "nadie capturó el monto".
+    // Um 0 seria lido como "este negócio não vale nada", que é um dado diferente
+    // de "ninguém capturou o valor".
     expect(parseMoneyToCents("")).toBeNull();
     expect(parseMoneyToCents("   ")).toBeNull();
     expect(parseMoneyToCents("$")).toBeNull();
@@ -51,7 +51,7 @@ describe("sumable", () => {
   });
 
   it("un monto sin moneda se asume en la del negocio", () => {
-    // Es el caso de los leads capturados antes de que existiera la columna.
+    // É o caso dos leads capturados antes de existir a coluna.
     expect(sumable({ amountCents: 1000, currency: null }, "MXN")).toBe(true);
   });
 
@@ -109,8 +109,8 @@ describe("catálogo de monedas", () => {
     const groups = new Set<string>(CURRENCY_GROUPS.map((g) => g.id));
     for (const c of CURRENCY_OPTIONS) {
       expect(groups.has(c.group), c.code).toBe(true);
-      // Sin símbolo significaría que Intl no conoce el código: caería al
-      // «1500.00 XXX» de emergencia.
+      // Sem símbolo significaria que o Intl não conhece o código: cairia no
+      // «1500.00 XXX» de emergência.
       expect(formatMoneyCents(150_000, c.code), c.code).not.toMatch(new RegExp(`\\d ${c.code}$`));
     }
   });

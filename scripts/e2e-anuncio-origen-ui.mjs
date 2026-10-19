@@ -1,20 +1,20 @@
 /**
- * Self-test E2E de comportamiento — de qué anuncio llegó cada conversación
- * (018), en un navegador de verdad. Guion: tests/e2e/us-atribucion.md.
+ * Self-test E2E de comportamento — de qual anúncio veio cada conversa
+ * (018), em um navegador de verdade. Roteiro: tests/e2e/us-atribucion.md.
  *
- * La sección 018 de `e2e-selftest.mjs` prueba que los datos llegan; este prueba
- * que se VEN: la marca en la lista, el filtro, la tarjeta con la imagen cargada
- * (no un ícono roto), la ausencia de tarjeta en una conversación orgánica, el
- * cajón del trato, los dos temas y el teléfono sin desborde. De paso deja las
+ * A seção 018 de `e2e-selftest.mjs` prova que os dados chegam; este prova
+ * que eles APARECEM: a marca na lista, o filtro, o cartão com a imagem carregada
+ * (não um ícone quebrado), a ausência de cartão numa conversa orgânica, a
+ * gaveta do negócio, os dois temas e o celular sem estouro. De quebra deixa as
  * capturas.
  *
- * Se prepara solo: mete por el wa-mock dos conversaciones de anuncio y una
- * orgánica, así no depende de lo que haya dejado otro guion.
+ * Prepara-se sozinho: envia pelo wa-mock duas conversas de anúncio e uma
+ * orgânica, para não depender do que outro roteiro tenha deixado.
  *
  * Uso: node --env-file=.env scripts/e2e-anuncio-origen-ui.mjs
- * Requiere: app corriendo (pnpm dev) con WA_MOCK_ENABLED=true y Playwright.
- * Capturas en CAPTURAS_DIR (por defecto scratch/anuncio-origen). Con
- * CAPTURA=1 los nombres van sin el sufijo de corrida (para una base limpia).
+ * Requer: app rodando (pnpm dev) com WA_MOCK_ENABLED=true e Playwright.
+ * Capturas em CAPTURAS_DIR (padrão scratch/anuncio-origen). Com
+ * CAPTURA=1 os nomes saem sem o sufixo da execução (para uma base limpa).
  */
 import { chromium } from "playwright";
 import { existsSync, mkdirSync } from "node:fs";
@@ -30,7 +30,7 @@ let ORIGEN_MOCK = BASE;
 try {
   ORIGEN_MOCK = new URL(process.env.META_GRAPH_BASE_URL).origin;
 } catch {
-  /* sin META_GRAPH_BASE_URL: el propio BASE */
+  /* sem META_GRAPH_BASE_URL: o próprio BASE */
 }
 
 const TITULAR = "Taller de ventas por WhatsApp";
@@ -52,7 +52,7 @@ const ok = (name, cond, extra = "") => {
 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Playwright trae su Chromium; si en esta máquina no está, se usa el del sistema.
+// O Playwright traz seu Chromium; se nesta máquina não estiver, usa-se o do sistema.
 const candidatos = [
   "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
   "C:/Program Files/Google/Chrome/Application/chrome.exe",
@@ -67,9 +67,9 @@ try {
 mkdirSync(SALIDA, { recursive: true });
 
 const ctx = await browser.newContext({ viewport: DESKTOP });
-// El canal SSE se corta: cada stream vivo ocupa una ranura de `next dev` y a
-// la ~15ª carga el servidor deja de contestar. La imagen se espera por la API
-// antes de abrir la página, así que la tarjeta no depende del refetch en vivo.
+// O canal SSE é cortado: cada stream vivo ocupa um slot do `next dev` e, na
+// ~15ª carga, o servidor para de responder. A imagem é aguardada pela API
+// antes de abrir a página, então o cartão não depende do refetch ao vivo.
 await ctx.route("**/api/events*", (route) => route.abort());
 await ctx.addInitScript(() => localStorage.setItem("vocero.panelOpen", "true"));
 ctx.setDefaultNavigationTimeout(120000);
@@ -133,7 +133,7 @@ try {
   });
   await entra({ from: `5215562${DIG}`, name: ORGANICO, text: "Buenas tardes, ¿tienen envíos?" });
 
-  // La imagen se copia en segundo plano: se espera a que la API la tenga.
+  // A imagem é copiada em segundo plano: aguarda-se até a API tê-la.
   const conImagen = async (nombre) => {
     for (let i = 0; i < 60; i++) {
       const lista = await (await req.get(`${BASE}/api/conversations`)).json();
@@ -149,12 +149,12 @@ try {
   const anuncio = await conImagen(CON_ANUNCIO);
   const anuncioVideo = await conImagen(CON_VIDEO);
   ok("las dos imágenes de creativo quedaron guardadas", !!anuncio && !!anuncioVideo);
-  // Calienta las rutas por HTTP: la primera visita compila y un goto con SSE
-  // vivo a la vez atasca el servidor de desarrollo.
+  // Aquece as rotas por HTTP: a primeira visita compila e um goto com SSE
+  // ativo ao mesmo tempo trava o servidor de desenvolvimento.
   for (const ruta of ["/inbox", "/pipeline"]) await req.get(`${BASE}${ruta}`, { timeout: 180000 });
 
-  // El botón flotante de `next dev` tapa la esquina de la barra lateral: no es
-  // parte del producto y no va en las capturas.
+  // O botão flutuante do `next dev` cobre o canto da barra lateral: não é
+  // parte do produto e não entra nas capturas.
   const captura = async (p, archivo) => {
     await p.addStyleTag({ content: "nextjs-portal { display: none !important; }" }).catch(() => {});
     await p.screenshot({ path: `${SALIDA}/${archivo}` });

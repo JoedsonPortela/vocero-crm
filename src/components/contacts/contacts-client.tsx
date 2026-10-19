@@ -43,8 +43,8 @@ export function ContactsClient() {
   const [escribiendo, setEscribiendo] = useState<ContactDto | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Mismo rescate que en la Bandeja: lo tecleado antes de que hidrate el JS
-  // se perdía en silencio. Ver conversation-list.tsx.
+  // Mesmo resgate da Bandeja: o que foi digitado antes de o JS hidratar
+  // se perdia em silêncio. Ver conversation-list.tsx.
   useEffect(() => {
     const typed = inputRef.current?.value ?? "";
     if (typed) setQuery(typed);
@@ -67,9 +67,9 @@ export function ContactsClient() {
     const res = await fetch(`/api/contacts?${params}`).catch(() => null);
     if (!res?.ok) return;
     const data = (await res.json()) as { contacts: ContactDto[] };
-    // A quién llamar primero: alta arriba, sin prioridad al final. El orden lo
-    // decide esta lista, no el servidor, porque es una preferencia de trabajo y
-    // no un dato del contacto.
+    // Para quem ligar primeiro: ativos no topo, sem prioridade no fim. A ordem é
+    // definida por esta lista, não pelo servidor, porque é uma preferência de trabalho e
+    // não um dado do contato.
     setContacts(
       [...data.contacts].sort(
         (a, b) => priorityRank(a.priority ?? null) - priorityRank(b.priority ?? null)
@@ -176,8 +176,8 @@ export function ContactsClient() {
                 className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border bg-card px-3 py-3 sm:flex-nowrap sm:gap-x-4 sm:px-4"
               >
                 <ContactAvatar name={c.name} seed={c.id} />
-                {/* El 60% mínimo es lo que empuja los botones a su propio
-                    renglón en el teléfono en vez de exprimir el nombre. */}
+                {/* Os 60% mínimos são o que empurra os botões para a sua própria
+                    linha no celular, em vez de espremer o nome. */}
                 <div className="min-w-[60%] flex-1 sm:min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="truncate text-sm font-medium">
@@ -199,9 +199,9 @@ export function ContactsClient() {
                         Sin agente
                       </Badge>
                     )}
-                    {/* Solo la fuente que alguien capturó: presentar una
-                        deducción como dato la volvería un número inventado en
-                        cuanto se cuente por fuente. */}
+                    {/* Só a origem que alguém registrou: apresentar uma
+                        dedução como dado a tornaria um número inventado assim
+                        que fosse contada por origem. */}
                     {c.source?.source === "capturada" && (
                       <Badge variant="secondary">
                         {SOURCE_LABELS[c.source.value]}
@@ -221,8 +221,8 @@ export function ContactsClient() {
                   >
                     Editar
                   </Button>
-                  {/* A quien nunca escribió hay que abrirle la conversación con
-                      una plantilla: es regla de Meta, no del CRM. */}
+                  {/* Para quem nunca escreveu é preciso abrir a conversa com
+                      um modelo: é regra da Meta, não do CRM. */}
                   <Button
                     variant="ghost"
                     size="icon"
@@ -288,8 +288,8 @@ export function ContactsClient() {
               onStarted={() => {
                 const contactId = escribiendo.id;
                 setEscribiendo(null);
-                // La Bandeja resuelve por CONTACTO (`?contact=`), no por
-                // conversación: con `?conversation=` no seleccionaría nada.
+                // A Bandeja resolve por CONTATO (`?contact=`), não por
+                // conversa: com `?conversation=` não selecionaria nada.
                 router.push(`/inbox?contact=${contactId}`);
               }}
             />
@@ -392,8 +392,8 @@ function EditDialog({
               void onSave({
                 name: name.trim(),
                 notes,
-                // Solo si cambió: mandarlo siempre reescribiría el interruptor
-                // de la Bandeja cada vez que alguien corrige un nombre.
+                // Só se mudou: enviá-lo sempre reescreveria o interruptor
+                // da Bandeja toda vez que alguém corrige um nome.
                 ...(aiPaused !== (contact.aiPaused ?? false) ? { aiPaused } : {}),
               })
             }

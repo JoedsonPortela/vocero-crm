@@ -8,7 +8,7 @@ import {
 
 export const dynamic = "force-dynamic";
 
-/** 025 — Consultar o configurar el mock (demora y peticiones recibidas). */
+/** 025 — Consultar ou configurar o mock (atraso e requisições recebidas). */
 export async function GET(req: Request) {
   const guard = mockGuard();
   if (guard) return guard;
@@ -20,8 +20,8 @@ export async function POST(req: Request) {
   const guard = mockGuard();
   if (guard) return guard;
 
-  // Como el wa-mock con su sufijo `-invalid`: una llave con sufijo conocido
-  // se rechaza con el código que daría el proveedor, para ejercitar la pausa.
+  // Como o wa-mock com o seu sufixo `-invalid`: uma chave com sufixo conhecido
+  // é recusada com o código que daria o provedor, para exercitar a pausa.
   const rechazo = aiMockAuthFailure(req.headers.get("authorization"));
   if (rechazo) return Response.json(rechazo.body, { status: rechazo.status });
 

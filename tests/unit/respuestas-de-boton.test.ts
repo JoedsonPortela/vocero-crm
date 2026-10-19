@@ -3,18 +3,18 @@ import { contenidoEntrante, mediaInputFrom } from "@/server/inbox/ingest";
 import type { WebhookMessage } from "@/server/inbox/webhook";
 
 /**
- * #78 — Las respuestas de botón (`type: "button"` e `"interactive"`) se
- * descartaban: no llegaban a la bandeja, no abrían la ventana de 24 h ni
- * disparaban al agente. Ahora entran como texto con el rótulo del botón.
+ * #78 — As respostas de botão (`type: "button"` e `"interactive"`) eram
+ * descartadas: não chegavam à bandeja, não abriam a janela de 24 h nem
+ * acionavam o agente. Agora entram como texto com o rótulo do botão.
  *
- * Los payloads son los que documenta Meta para el webhook `messages`
- * (referencia «Button» e «Interactive»); la integración completa (bandeja,
- * ventana, agente) se ejercita en scripts/e2e-selftest.mjs.
+ * Os payloads são os que a Meta documenta para o webhook `messages`
+ * (referência «Button» e «Interactive»); a integração completa (bandeja,
+ * janela, agente) é exercitada em scripts/e2e-selftest.mjs.
  */
 
 const base = { from: "16505551234", id: "wamid.HBgL.test", timestamp: "1750025136" };
 
-/** Respuesta a un botón de respuesta rápida de una plantilla. */
+/** Resposta a um botão de resposta rápida de um modelo. */
 const botonDePlantilla: WebhookMessage = {
   ...base,
   context: { from: "15550783881", id: "wamid.HBgL.plantilla" },
@@ -22,7 +22,7 @@ const botonDePlantilla: WebhookMessage = {
   button: { payload: "No-Button-Payload", text: "No" },
 };
 
-/** Botón de un mensaje interactivo. */
+/** Botão de uma mensagem interativa. */
 const botonInteractivo: WebhookMessage = {
   ...base,
   context: { from: "15550783881", id: "wamid.HBgL.interactivo" },
@@ -33,7 +33,7 @@ const botonInteractivo: WebhookMessage = {
   },
 };
 
-/** Fila de una lista interactiva. */
+/** Linha de uma lista interativa. */
 const filaDeLista: WebhookMessage = {
   ...base,
   context: { from: "15550783881", id: "wamid.HBgL.lista" },

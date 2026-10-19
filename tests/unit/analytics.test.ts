@@ -5,17 +5,17 @@ import { MAX_ANUNCIOS, unirAnuncios, unirFuentes } from "@/server/analytics/ads"
 import { escalaLimpia, etiqueta } from "@/components/results/time-bars";
 
 /**
- * 019 — La aritmética de la pantalla Resultados (portada de Vocero Cloud, sin
- * los casos del gasto publicitario ni de la probabilidad de cierre).
+ * 019 — A aritmética da tela Resultados (portado do Vocero Cloud, sem
+ * os casos do gasto publicitário nem da probabilidade de fechamento).
  *
- * Toda tasa de la pantalla pasa por `rate`. Estas pruebas son lo que permite
- * que la UI no divida nunca.
+ * Toda taxa da tela passa por `rate`. Estes testes são o que permite
+ * que a UI nunca divida.
  */
 
 describe("rate", () => {
   it("sin denominador devuelve null, no cero", () => {
-    // Cero por ciento significa "lo intenté y falló". Null significa "no ha
-    // pasado nada todavía". La pantalla los dice con palabras distintas.
+    // Zero por cento significa "tentei e falhou". Null significa "não
+    // aconteceu nada ainda". A tela os diz com palavras diferentes.
     const r = rate(0, 0);
     expect(r.value).toBeNull();
     expect(r.sample).toBe(0);
@@ -27,7 +27,7 @@ describe("rate", () => {
   });
 
   it("marca la muestra chica en vez de esconderla", () => {
-    // 1 de 1 es 100 %, y presentarlo como firme sería mentir con la verdad.
+    // 1 de 1 é 100 %, e apresentá-lo como firme seria mentir com a verdade.
     const flaca = rate(1, 1);
     expect(flaca.value).toBe(100);
     expect(flaca.reliable).toBe(false);
@@ -46,7 +46,7 @@ describe("rate", () => {
 
 describe("delta", () => {
   it("sin base previa es null, no un aumento infinito", () => {
-    // De 0 a 8 no es "+800 %": es que antes no había con qué comparar.
+    // De 0 a 8 não é "+800 %": é que antes não havia com o que comparar.
     expect(delta(comparable(8, 0))).toBeNull();
   });
 
@@ -68,14 +68,14 @@ describe("clasificarCierres", () => {
     const c = clasificarCierres(
       [
         desenlace({ leadId: "a", kind: "won", amountCents: 100_00, currency: "MXN" }),
-        // Sin moneda = la del negocio al capturarlo.
+        // Sem moeda = a do negócio ao capturá-lo.
         desenlace({ leadId: "b", kind: "won", amountCents: 50_00 }),
-        // Otra moneda: se cuenta como trato, no se suma.
+        // Outra moeda: conta-se como negócio, não se soma.
         desenlace({ leadId: "c", kind: "won", amountCents: 999_00, currency: "USD" }),
-        // Sin monto: trato ganado, no suma ni entra al ticket promedio.
+        // Sem valor: negócio ganho, não soma nem entra no ticket médio.
         desenlace({ leadId: "d", kind: "won" }),
         desenlace({ leadId: "e", kind: "lost", lossReason: "precio" }),
-        // Volvió al embudo dentro del rango: no cerró nada.
+        // Voltou ao funil dentro do intervalo: não fechou nada.
         desenlace({ leadId: "f", kind: "open", amountCents: 70_00 }),
       ],
       "MXN"
@@ -92,7 +92,7 @@ describe("motivosDePerdida", () => {
     const m = motivosDePerdida([
       desenlace({ leadId: "a", kind: "lost", lossReason: "precio" }),
       desenlace({ leadId: "b", kind: "lost", lossReason: "precio" }),
-      // Sembrado por la migración: perdido sin motivo capturado.
+      // Semeado pela migração: perdido sem motivo capturado.
       desenlace({ leadId: "c", kind: "lost" }),
       desenlace({ leadId: "d", kind: "won" }),
     ]);
@@ -108,18 +108,18 @@ describe("armarEmbudo", () => {
     { id: "s1", name: "Novo", kind: "open" as const, position: 0 },
     { id: "s2", name: "Interessado", kind: "open" as const, position: 1 },
     { id: "s3", name: "Cotizado", kind: "open" as const, position: 2 },
-    // Perdido con una posición alta: NO puede contar como "pasó por todas".
+    // Perdido com uma posição alta: NÃO pode contar como "passou por todas".
     { id: "sl", name: "Perdido", kind: "lost" as const, position: 9 },
     { id: "sw", name: "Cliente", kind: "won" as const, position: 3 },
   ];
 
   it("cada lead cuenta una vez por etapa y el acumulado solo corre sobre abiertas", () => {
     const pasos = armarEmbudo(etapas, [
-      { maxOpenPos: 0, won: 0 }, // se quedó en Nuevo
-      { maxOpenPos: 1, won: 0 }, // llegó a Interesado y se perdió
-      { maxOpenPos: 2, won: 1 }, // hasta Cotizado y se ganó
-      { maxOpenPos: 0, won: 1 }, // de Nuevo directo a Cliente
-      { maxOpenPos: null, won: 0 }, // sus etapas ya no existen
+      { maxOpenPos: 0, won: 0 }, // ficou em Nuevo
+      { maxOpenPos: 1, won: 0 }, // chegou a Interesado e foi perdido
+      { maxOpenPos: 2, won: 1 }, // até Cotizado e foi ganho
+      { maxOpenPos: 0, won: 1 }, // de Nuevo direto a Cliente
+      { maxOpenPos: null, won: 0 }, // suas etapas já não existem
     ]);
     expect(pasos.map((p) => [p.name, p.reached])).toEqual([
       ["Novo", 4],
@@ -128,7 +128,7 @@ describe("armarEmbudo", () => {
       ["Cliente", 2],
     ]);
     expect(pasos.find((p) => p.name === "Perdido")).toBeUndefined();
-    // La proporción que pasa a la siguiente, con su denominador.
+    // A proporção que passa para a seguinte, com seu denominador.
     expect(pasos[0]!.advanceRate).toEqual({ value: 50, sample: 4, reliable: false });
     expect(pasos.at(-1)!.advanceRate).toBeNull();
   });
@@ -158,7 +158,7 @@ describe("unirFuentes", () => {
     ]);
     expect(filas[0]!.label).toBe("Anuncio");
     expect(filas.at(-1)!.label).toBe("Sin identificar");
-    // La tasa de la fila es ventas entre prospectos, calculada en el servidor.
+    // A taxa da linha é vendas entre prospectos, calculada no servidor.
     expect(filas[0]!.winRate).toEqual({ value: 25, sample: 4, reliable: false });
     expect(filas.at(-1)!.winRate.value).toBeNull();
   });
@@ -186,7 +186,7 @@ describe("unirAnuncios", () => {
       leads: 2,
       won: 1,
       winRate: { value: 50, sample: 2 },
-      // La imagen llega en cualquiera de las dos vistas: se conserva.
+      // A imagem chega em qualquer das duas visões: ela se conserva.
       imageAssetId: "ma_1",
     });
   });
@@ -208,7 +208,7 @@ describe("unirAnuncios", () => {
       [{ ...meta("con-prospectos", { lastAt: 50 }), leads: 2, won: 0 }]
     );
     expect(filas.map((f) => f.key)).toEqual(["grande", "con-prospectos", "nuevo", "viejo"]);
-    // El instante de orden no viaja al cliente.
+    // O instante de ordenação não viaja ao cliente.
     expect(filas[0]).not.toHaveProperty("lastAt");
   });
 

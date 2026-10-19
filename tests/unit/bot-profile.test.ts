@@ -2,10 +2,10 @@
 import { serializeBotProfile } from "@/server/bot/profile";
 import type { schema } from "@/lib/db";
 import { resetRateLimit } from "@/lib/rate-limit";
-// Estático a propósito: `vi.mock` se hoistea por encima de los imports, así que
-// la ruta ya nace con la BD falsa. Importarla DENTRO de cada test cargaba la
-// cadena de módulos con el reloj corriendo y, con la suite completa en
-// paralelo, el primero se pasaba de los 5 s de timeout.
+// Estático de propósito: `vi.mock` é içado acima dos imports, então
+// a rota já nasce com o BD falso. Importá-la DENTRO de cada teste carregava a
+// cadeia de módulos com o relógio correndo e, com a suíte completa em
+// paralelo, o primeiro estourava os 5 s de timeout.
 import { GET } from "@/app/api/bot/profile/route";
 
 const dbState = vi.hoisted(() => ({ queue: [] as unknown[][] }));
@@ -26,7 +26,7 @@ vi.mock("@/server/bot/auth", async (importOriginal) => {
   return { ...actual, resolveInstanceOrg: async () => "org_1" };
 });
 
-/** Perfil del agente + knowledge base vía la API de servicio `/api/bot/*`. */
+/** Perfil do agente + knowledge base via a API de serviço `/api/bot/*`. */
 
 type AgentProfile = typeof schema.agentProfile.$inferSelect;
 type KbEntry = typeof schema.kbEntry.$inferSelect;
@@ -96,7 +96,7 @@ describe("serializeBotProfile", () => {
   it("enabled NO viaja: gobierna solo la IA in-process", () => {
     const out = serializeBotProfile(profileRow({ enabled: false }), []);
     expect("enabled" in out.profile).toBe(false);
-    // Y enabled=true produce exactamente lo mismo:
+    // E enabled=true produz exatamente o mesmo:
     expect(serializeBotProfile(profileRow({ enabled: true }), [])).toEqual(out);
   });
 

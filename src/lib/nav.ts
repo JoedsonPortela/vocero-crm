@@ -14,30 +14,30 @@ import { canConfigure } from "@/lib/auth/roles";
 import { t } from "@/lib/i18n";
 
 /**
- * #87 — El modelo del menú, separado del componente que lo pinta.
+ * #87 — O modelo do menu, separado do componente que o desenha.
  *
- * Qué entradas existen lo deciden dos cosas que el nav de cliente no puede
- * leer solo: las banderas de la instancia (`AGENDA`, `CHANNELS`, `ATRIBUCION`,
- * que bajan por prop desde el servidor) y el rol de quien mira. Tenerlo aquí,
- * sin React, deja que una prueba unitaria afirme qué aparece y qué no sin
- * dibujar nada.
+ * Quais entradas existem é decidido por duas coisas que o nav do cliente não pode
+ * ler sozinho: as flags da instância (`AGENDA`, `CHANNELS`, `ATRIBUCION`,
+ * que descem por prop a partir do servidor) e o papel de quem olha. Tê-lo aqui,
+ * sem React, permite que um teste unitário afirme o que aparece e o que não aparece sem
+ * desenhar nada.
  */
 
 export type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
-  /** Muestra el contador de no leídos (solo la Bandeja). */
+  /** Mostra o contador de não lidas (só a Bandeja). */
   badge?: boolean;
 };
 
 export type NavGroup = {
-  /** Encabezado pequeño; sin él, el grupo es una entrada suelta. */
+  /** Cabeçalho pequeno; sem ele, o grupo é uma entrada avulsa. */
   title?: string;
   items: NavItem[];
 };
 
-/** La única entrada que va abajo, separada del resto. */
+/** A única entrada que fica embaixo, separada do resto. */
 export const SETTINGS_ITEM: NavItem = {
   href: "/settings",
   label: t("nav.settings"),
@@ -45,16 +45,16 @@ export const SETTINGS_ITEM: NavItem = {
 };
 
 /**
- * Grupos de la barra lateral, en el orden en que se leen: lo que se atiende
- * cada día, lo que configura al agente y, al final, cómo va el negocio.
+ * Grupos da barra lateral, na ordem em que são lidos: o que se atende
+ * todo dia, o que configura o agente e, no final, como vai o negócio.
  */
 export function appNavGroups({
   agenda = false,
   role,
 }: {
-  /** 015 — "Citas" solo existe si esta instancia encendió la agenda. */
+  /** 015 — "Citas" só existe se esta instância ligou a agenda. */
   agenda?: boolean;
-  /** #86 — La guía de inicio solo para quien puede configurar. */
+  /** #86 — O guia inicial só para quem pode configurar. */
   role?: string | null;
 }): NavGroup[] {
   const trabajo: NavItem[] = [
@@ -62,12 +62,12 @@ export function appNavGroups({
     { href: "/pipeline", label: t("nav.pipeline"), icon: Kanban },
     { href: "/contacts", label: t("nav.contacts"), icon: Users },
   ];
-  // Citas va después de Contactos: es el paso siguiente de un trato, no una
-  // sección aparte.
+  // Agendamentos vem depois de Contatos: é o passo seguinte de um negócio, não uma
+  // seção à parte.
   if (agenda) trabajo.push({ href: "/bookings", label: t("nav.bookings"), icon: CalendarDays });
 
   const agente: NavItem[] = [];
-  // Un miembro del equipo no puede hacer ninguno de los pasos de la guía.
+  // Um membro da equipe não pode fazer nenhum dos passos do guia.
   if (canConfigure(role)) {
     agente.push({ href: "/onboarding", label: t("nav.onboarding"), icon: ListChecks });
   }
@@ -79,7 +79,7 @@ export function appNavGroups({
   return [
     { title: "Trabajo", items: trabajo },
     { title: "Agente", items: agente },
-    // 019 — Se mide al final: primero se atiende y se organiza.
+    // 019 — Mede-se no final: primeiro se atende e se organiza.
     { items: [{ href: "/results", label: t("nav.results"), icon: ChartColumn }] },
   ];
 }
@@ -92,13 +92,13 @@ export type SettingsSection = {
 };
 
 /**
- * Ajustes en tres secciones: por dónde entran los mensajes, qué hace el agente
- * con ellos y lo que es del negocio. Una pestaña por canal no escala; una
- * sección por canal, sí: cada canal nuevo cae en "Canales" sin tocar el resto.
+ * Ajustes em três seções: por onde entram as mensagens, o que o agente faz
+ * com elas e o que é do negócio. Uma aba por canal não escala; uma
+ * seção por canal, sim: cada canal novo cai em "Canais" sem tocar no resto.
  *
- * Instagram no tiene pantalla propia todavía: sus credenciales se guardan
- * por API (`/api/settings/instagram`). Cuando la tenga, va aquí tras
- * `CHANNELS`, igual que Messenger.
+ * O Instagram ainda não tem tela própria: suas credenciais são salvas
+ * pela API (`/api/settings/instagram`). Quando tiver, vai aqui atrás de
+ * `CHANNELS`, igual ao Messenger.
  */
 export function settingsSections({
   agenda = false,
@@ -108,18 +108,18 @@ export function settingsSections({
   tiktok = false,
 }: {
   agenda?: boolean;
-  /** 016 — "Anúncios" existe solo con la bandera ATRIBUCION. */
+  /** 016 — "Anúncios" existe só com a flag ATRIBUCION. */
   atribucion?: boolean;
-  /** 023 — "Instagram" solo si el canal está encendido con CHANNELS. */
+  /** 023 — "Instagram" só se o canal estiver ligado com CHANNELS. */
   instagram?: boolean;
   /** 017 — "Messenger", igual. */
   messenger?: boolean;
-  /** 022 — "TikTok", igual: solo con el canal en CHANNELS. */
+  /** 022 — "TikTok", igual: só com o canal em CHANNELS. */
   tiktok?: boolean;
 }): SettingsSection[] {
   const canales: SettingsLink[] = [];
-  // 023 — "Status" reúne todos los canales; con WhatsApp solo no aporta nada
-  // que su pantalla no diga, así que no existe (ADR-001).
+  // 023 — "Status" reúne todos os canais; com só WhatsApp não acrescenta nada
+  // que a sua tela não diga, então não existe (ADR-001).
   if (instagram || messenger || tiktok) {
     canales.push({ href: "/settings/channels", label: "Status" });
   }
@@ -128,7 +128,7 @@ export function settingsSections({
   if (messenger) canales.push({ href: "/settings/messenger", label: "Messenger" });
   if (tiktok) canales.push({ href: "/settings/tiktok", label: "TikTok" });
 
-  // #85 — el proveedor de IA se configura aquí; el entorno queda de respaldo.
+  // #85 — o provedor de IA é configurado aqui; o ambiente fica como reserva.
   const agente: SettingsLink[] = [{ href: "/settings/ai", label: "IA" }];
   if (agenda) agente.push({ href: "/settings/calendar", label: "Agenda" });
 
@@ -146,7 +146,7 @@ export function settingsSections({
   ];
 }
 
-/** Activa si la ruta es la entrada o cuelga de ella (`/inbox/cv_123`). */
+/** Ativa se a rota é a entrada ou pende dela (`/inbox/cv_123`). */
 export function isNavActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }

@@ -1,13 +1,13 @@
 /**
- * CLI de `pnpm doctor`: valida el entorno con el MISMO esquema zod de
- * src/lib/env.ts, prueba DATABASE_URL (select 1), la escritura en MEDIA_DIR
- * y, si hay una conexión de WhatsApp guardada, una llamada a Meta con el
- * cliente de siempre. Una línea por comprobación (✓/✗) con el arreglo exacto
- * de cada ✗. Sale con 1 si algo obligatorio falla. Jamás imprime secretos.
+ * CLI do `pnpm doctor`: valida o ambiente com o MESMO esquema zod de
+ * src/lib/env.ts, testa a DATABASE_URL (select 1), a escrita em MEDIA_DIR
+ * e, se houver uma conexão de WhatsApp salva, uma chamada à Meta com o
+ * cliente de sempre. Uma linha por verificação (✓/✗) com o ajuste exato
+ * de cada ✗. Sai com 1 se algo obrigatório falhar. Jamais imprime segredos.
  *
- * Carga `.env` él mismo (sin pisar lo que ya traiga el entorno del proceso),
- * así que también sirve `node --env-file=.env .tmp-doctor.mjs`. Se bundlea
- * con esbuild (alias @ → ./src), igual que seed:demo; la lógica vive en
+ * Carrega o `.env` por conta própria (sem sobrescrever o que o ambiente do processo já traz),
+ * assim também serve `node --env-file=.env .tmp-doctor.mjs`. É empacotado
+ * com esbuild (alias @ → ./src), igual ao seed:demo; a lógica fica em
  * src/server/doctor/checks.ts.
  */
 import { existsSync } from "node:fs";

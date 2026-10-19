@@ -1,30 +1,30 @@
 /**
- * #78 — Con qué cabeceras se sirve un adjunto al navegador
+ * #78 — Com quais cabeçalhos um anexo é servido ao navegador
  * (`GET /api/media/{assetId}`).
  *
- * Un adjunto es un archivo que mandó un cliente: contenido que no controlamos,
- * servido desde el mismo origen que la sesión del operador. Si el navegador lo
- * abriera como página —un `.html` que dice ser documento, un SVG con un
- * `<script>`, o un tipo adivinado a partir de los bytes— correría con las
- * cookies del CRM. Tres cabeceras cierran esa clase de problema entera, con el
- * mismo patrón que ya usa el icono de la marca
+ * Um anexo é um arquivo que um cliente enviou: conteúdo que não controlamos,
+ * servido a partir da mesma origem da sessão do operador. Se o navegador o
+ * abrisse como página —um `.html` que diz ser documento, um SVG com um
+ * `<script>`, ou um tipo adivinhado a partir dos bytes— rodaria com as
+ * cookies do CRM. Três cabeçalhos fecham essa classe de problema inteira, com o
+ * mesmo padrão que já usa o ícone da marca
  * (`src/app/api/branding/favicon/route.ts`):
  *
- * - `X-Content-Type-Options: nosniff`: el navegador se cree el tipo declarado
- *   y no lo reinterpreta por el contenido.
- * - `Content-Security-Policy: default-src 'none'; sandbox`: aunque el tipo
- *   resultara ser un documento, no tiene de dónde cargar nada ni permiso para
- *   ejecutar guiones, enviar formularios ni abrir ventanas.
- * - `Content-Disposition`: `inline` solo para lo que el navegador previsualiza
- *   de forma inerte (imagen, audio, video, PDF); todo lo demás se descarga.
+ * - `X-Content-Type-Options: nosniff`: o navegador acredita no tipo declarado
+ *   e não o reinterpreta pelo conteúdo.
+ * - `Content-Security-Policy: default-src 'none'; sandbox`: mesmo que o tipo
+ *   resulte ser um documento, não tem de onde carregar nada nem permissão para
+ *   executar scripts, enviar formulários ou abrir janelas.
+ * - `Content-Disposition`: `inline` só para o que o navegador pré-visualiza
+ *   de forma inerte (imagem, áudio, vídeo, PDF); todo o resto é baixado.
  *
- * Módulo puro (sin BD ni disco) para poder probarse por unidad; la ruta solo
- * lee el asset y llama aquí.
+ * Módulo puro (sem BD nem disco) para poder ser testado por unidade; a rota só
+ * lê o asset e chama aqui.
  */
 
 /**
- * Lo que el navegador muestra sin ejecutar nada. Lista cerrada: lo que no está
- * aquí se descarga, aunque sea inofensivo (un `.txt`, un `.csv`).
+ * O que o navegador mostra sem executar nada. Lista fechada: o que não está
+ * aqui é baixado, mesmo que seja inofensivo (um `.txt`, um `.csv`).
  */
 export const PREVIEWABLE_MIMES: ReadonlySet<string> = new Set([
   "image/jpeg",
@@ -42,9 +42,9 @@ export const PREVIEWABLE_MIMES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Tipos que un navegador abre como DOCUMENTO con permiso de ejecutar guiones.
- * No se aceptan como adjunto saliente: WhatsApp no los previsualiza y no hay
- * caso de negocio que justifique colar una página en el origen del CRM.
+ * Tipos que um navegador abre como DOCUMENTO com permissão de executar scripts.
+ * Não são aceitos como anexo de saída: o WhatsApp não os pré-visualiza e não
+ * há caso de negócio que justifique enfiar uma página na origem do CRM.
  */
 export const FORBIDDEN_UPLOAD_MIMES: ReadonlySet<string> = new Set([
   "text/html",
@@ -52,13 +52,13 @@ export const FORBIDDEN_UPLOAD_MIMES: ReadonlySet<string> = new Set([
   "image/svg+xml",
 ]);
 
-/** `tipo/subtipo`, con o sin parámetros (`; codecs=opus`), solo ASCII imprimible. */
+/** `tipo/subtipo`, com ou sem parâmetros (`; codecs=opus`), só ASCII imprimível. */
 const MIME_SHAPE = /^[\w.+-]+\/[\w.+-]+(\s*;[\x20-\x7e]*)?$/;
 const MIME_BASE_SHAPE = /^[\w.+-]+\/[\w.+-]+$/;
 
 /**
- * `Audio/OGG; codecs=opus` → `audio/ogg`. Meta manda los audios con el códec
- * como parámetro; previsualizar o no se decide por el tipo base.
+ * `Audio/OGG; codecs=opus` → `audio/ogg`. A Meta envia os áudios com o codec
+ * como parâmetro; pré-visualizar ou não se decide pelo tipo base.
  */
 export function baseMime(mime: string | null | undefined): string | null {
   if (!mime) return null;
@@ -77,10 +77,10 @@ export function isForbiddenUploadMime(mime: string | null | undefined): boolean 
 }
 
 /**
- * El `Content-Type` que se declara. Un MIME ausente o malformado (un asset
- * viejo sin tipo, basura en la metadata de Meta) sale como
- * `application/octet-stream`, que junto con `nosniff` significa «descárgalo y
- * no lo interpretes».
+ * O `Content-Type` que se declara. Um MIME ausente ou malformado (um asset
+ * antigo sem tipo, lixo nos metadados da Meta) sai como
+ * `application/octet-stream`, que junto com `nosniff` significa «baixe-o e
+ * não o interprete».
  */
 export function contentTypeFor(mime: string | null | undefined): string {
   const limpio = (mime ?? "").trim();
@@ -88,10 +88,10 @@ export function contentTypeFor(mime: string | null | undefined): string {
 }
 
 /**
- * Nombre de archivo apto para la cabecera: sin comillas, saltos de línea ni
- * rutas. El `filename*` conserva acentos y eñes (RFC 5987) para que
- * «cotización.pdf» se descargue con su nombre; el `filename` plano es el
- * respaldo ASCII.
+ * Nome de arquivo apto para o cabeçalho: sem aspas, quebras de linha nem
+ * caminhos. O `filename*` mantém acentos e til (RFC 5987) para que
+ * «cotação.pdf» seja baixado com seu nome; o `filename` simples é o
+ * reserva ASCII.
  */
 export function contentDisposition(
   tipo: "inline" | "attachment",
@@ -110,7 +110,7 @@ export function contentDisposition(
   return `${tipo}; filename="${ascii}"; filename*=UTF-8''${utf8}`;
 }
 
-/** Cabeceras completas con las que se sirve el binario de un adjunto. */
+/** Cabeçalhos completos com os quais o binário de um anexo é servido. */
 export function mediaResponseHeaders(
   asset: { mimeType: string | null; fileName: string | null },
   byteLength: number
@@ -125,7 +125,7 @@ export function mediaResponseHeaders(
     ),
     "x-content-type-options": "nosniff",
     "content-security-policy": "default-src 'none'; sandbox",
-    // El contenido de un asset es inmutable; privado por sesión.
+    // O conteúdo de um asset é imutável; privado por sessão.
     "cache-control": "private, max-age=86400",
   };
 }

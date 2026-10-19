@@ -4,7 +4,7 @@ import { describeSendError } from "@/lib/meta/send-errors";
 import { publish } from "@/server/events/bus";
 import type { WebhookStatus } from "@/server/inbox/webhook";
 
-/** Orden monotónico de estados: nunca degradar (un delivered tardío no pisa read). */
+/** Ordem monotônica dos estados: nunca regredir (um delivered tardio não sobrescreve read). */
 const STATUS_RANK: Record<string, number> = {
   pending: 0,
   sent: 1,
@@ -65,7 +65,7 @@ export async function applyStatusUpdate(
       conversationId: msg.conversationId,
       messageId: msg.id,
       status: next,
-      // Sin esto el operador ve el triángulo de fallo pero nunca el motivo.
+      // Sem isto o operador vê o triângulo de falha, mas nunca o motivo.
       error,
     },
   });

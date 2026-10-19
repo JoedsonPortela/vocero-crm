@@ -10,7 +10,7 @@ import {
 } from "@/server/agenda/settings";
 import { daysWithAgenda, spreadByDay } from "@/server/agenda/spread";
 
-/** 015 — El motor: horario − ocupado, con aviso mínimo. Sin BD ni reloj real. */
+/** 015 — O motor: horário − ocupado, com aviso mínimo. Sem BD nem relógio real. */
 
 const MX = "America/Mexico_City";
 
@@ -20,12 +20,12 @@ function settings(over: Partial<CalendarSettings> = {}): CalendarSettings {
 
 describe("buildCandidateSlots", () => {
   it("solo genera slots en los días con horario (L-V por defecto)", () => {
-    // 2026-08-08 es sábado; 2026-08-10 lunes.
+    // 2026-08-08 é sábado; 2026-08-10 é segunda.
     const slots = buildCandidateSlots(settings(), "2026-08-08", "2026-08-10");
     const días = new Set(slots.map((s) => s.startUtc.slice(0, 10)));
     expect(días.has("2026-08-08")).toBe(false); // sábado cerrado
     expect(días.has("2026-08-09")).toBe(false); // domingo cerrado
-    expect(días.size).toBeGreaterThan(0); // el lunes sí
+    expect(días.size).toBeGreaterThan(0); // a segunda sim
   });
 
   it("respeta la duración configurada", () => {
@@ -64,8 +64,8 @@ describe("filterFreeSlots", () => {
   );
 
   it("descarta lo que no cumple el aviso mínimo", () => {
-    // "Ahora" son las 09:00 locales del mismo día, con 2 h de aviso ⇒ el
-    // primer hueco ofrecible es a las 11:00 locales (17:00Z).
+    // "Agora" são 09:00 locais do mesmo dia, com 2 h de aviso ⇒ o
+    // primeiro vão oferecível é às 11:00 locais (17:00Z).
     const now = new Date("2026-08-05T15:00:00.000Z");
     const free = filterFreeSlots(candidates, [], {
       now,
@@ -149,15 +149,15 @@ describe("filterFreeSlots", () => {
 });
 
 /**
- * Sin reparto, los primeros huecos se los come el día de hoy y quien ofrece se
- * queda sin nada que decir cuando el lead pide otro día.
+ * Sem distribuição, os primeiros horários são comidos pelo dia de hoje e quem oferece
+ * fica sem nada a dizer quando o lead pede outro dia.
  */
 describe("spreadByDay", () => {
-  // 14:00Z son las 08:00 en México: "hoy" es el miércoles 5, no la víspera.
-  // (Con 00:00Z el día local del negocio sería todavía el 4 — el motor decide
-  // el día en la zona del negocio, no en la del servidor.)
+  // 14:00Z são 08:00 no México: "hoje" é a quarta 5, não a véspera.
+  // (Com 00:00Z o dia local do negócio ainda seria o 4 — o motor decide
+  // o dia no fuso do negócio, não no do servidor.)
   const now = new Date("2026-08-05T14:00:00.000Z");
-  // Mié 5 a vie 7 de agosto, 09:00-18:00, citas de 30 ⇒ 18 huecos por día.
+  // Qua 5 a sex 7 de agosto, 09:00-18:00, agendamentos de 30 ⇒ 18 horários por dia.
   const libres = filterFreeSlots(
     buildCandidateSlots(settings(), "2026-08-05", "2026-08-07"),
     [],
@@ -187,7 +187,7 @@ describe("spreadByDay", () => {
       now,
     });
     expect(spread).toHaveLength(4);
-    // 3 del primer día + 1 del segundo: el límite no se come la variedad.
+    // 3 do primeiro dia + 1 do segundo: o limite não come a variedade.
     expect(daysWithAgenda(spread)).toEqual(["2026-08-05", "2026-08-06"]);
   });
 
@@ -215,13 +215,13 @@ describe("normalizeWeeklyHours", () => {
     const out = normalizeWeeklyHours({
       mon: [
         { start: "09:00", end: "18:00" },
-        { start: "20:00", end: "19:00" }, // fin antes del inicio
+        { start: "20:00", end: "19:00" }, // fim antes do início
         { start: "9:00", end: "18:00" }, // formato inválido
       ],
       tue: [],
     });
     expect(out.mon).toEqual([{ start: "09:00", end: "18:00" }]);
-    expect(out.tue).toBeUndefined(); // día sin franjas válidas = cerrado
+    expect(out.tue).toBeUndefined(); // dia sem faixas válidas = fechado
   });
 
   it("ordena las franjas por hora de inicio", () => {

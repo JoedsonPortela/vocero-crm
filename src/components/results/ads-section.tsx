@@ -12,15 +12,15 @@ import { RateCard, StatCard } from "./stat-card";
 type Conteos = { conversations: number; leads: number; won: number; winRate: RateDto };
 
 /**
- * 019 — De dónde llegan: por origen y por anuncio, en conteos.
+ * 019 — De onde chegam: por origem e por anúncio, em contagens.
  *
- * Sin gasto, costo ni retorno (decisión del dueño): lo que se sabe de cada
- * anuncio es lo que Meta manda en el `referral` del webhook, que 018 ya
- * guarda. Contar no depende de ningún tercero.
+ * Sem gasto, custo nem retorno (decisão do dono): o que se sabe de cada
+ * anúncio é o que a Meta envia no `referral` do webhook, que o 018 já
+ * guarda. Contar não depende de nenhum terceiro.
  *
- * En el teléfono cada fila es una tarjeta con sus cuatro números a la vista:
- * una tabla de cinco columnas ahí esconde justo los números detrás de un
- * scroll lateral.
+ * No celular cada linha é um cartão com seus quatro números à vista:
+ * uma tabela de cinco colunas ali esconde justamente os números atrás de uma
+ * rolagem lateral.
  */
 export function AdsSection({
   data,
@@ -107,7 +107,7 @@ export function AdsSection({
 
 type Fila = { key: string; titulo: ReactNode; conteos: Conteos; sourceId?: string | null };
 
-/** La misma lista como tabla (desde `sm`) o como tarjetas (teléfono). */
+/** A mesma lista como tabela (a partir de `sm`) ou como cartões (celular). */
 function Filas({ primera, filas }: { primera: string; filas: Fila[] }) {
   return (
     <>
@@ -208,8 +208,8 @@ function Cell({ children }: { children: ReactNode }) {
 }
 
 /**
- * La tasa de una fila: el porcentaje con su denominador, atenuada con muestra
- * chica (la nota al pie lo explica) para no ensanchar la columna.
+ * A taxa de uma linha: a porcentagem com seu denominador, atenuada com amostra
+ * pequena (a nota de rodapé explica) para não alargar a coluna.
  */
 function TasaCorta({ rate, conDenominador = true }: { rate: RateDto; conDenominador?: boolean }) {
   if (rate.value === null) return <span className="text-text-3">—</span>;

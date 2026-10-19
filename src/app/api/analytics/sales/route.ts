@@ -5,7 +5,7 @@ import { salesBlock } from "@/server/analytics/sales";
 
 export const dynamic = "force-dynamic";
 
-/** 019 — Ventas y embudo del periodo (`?from=AAAA-MM-DD&to=AAAA-MM-DD`). */
+/** 019 — Vendas e funil do período (`?from=AAAA-MM-DD&to=AAAA-MM-DD`). */
 export const GET = withAuth(async (session, req: Request) => {
   try {
     const [period, branding] = await Promise.all([

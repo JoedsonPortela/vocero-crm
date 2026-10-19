@@ -15,14 +15,14 @@ import {
 import { cn } from "@/lib/utils";
 
 /**
- * «Quién responde a tus clientes»: arriba de la pantalla del Agente, porque
- * el interruptor de esta página solo gobierna al agente incluido. Un cerebro
- * externo (Nea) contesta por su cuenta, y con los dos activos el cliente
- * recibe dos respuestas distintas.
+ * «Quem responde aos seus clientes»: no topo da tela do Agente, porque
+ * o interruptor desta página governa só o agente incluído. Um cérebro
+ * externo (Nea) responde por conta própria, e com os dois ativos o cliente
+ * recebe duas respostas diferentes.
  *
- * 021 — Con el despacho (`BRAIN_DISPATCH_URL`) el CRM le pasa cada turno al
- * cerebro y calla al agente incluido: la tercera fila dice a quién, cuándo
- * llegó el último y si alguno no llegó.
+ * 021 — Com o despacho (`BRAIN_DISPATCH_URL`) o CRM repassa cada turno ao
+ * cérebro e silencia o agente incluído: a terceira linha diz para quem, quando
+ * chegou o último e se algum não chegou.
  */
 
 type Tone = "ok" | "warn" | "off";
@@ -111,8 +111,8 @@ function embeddedView(s: BrainStatusDto): RowView {
   const headline = `${enabled ? "Encendido" : "Apagado"} · ${
     configured ? "IA configurada" : "sin proveedor de IA"
   }`;
-  // Con el despacho activo no contesta, esté como esté: va antes que todo lo
-  // demás para no pedir un proveedor de IA que no hace falta.
+  // Com o despacho ativo ele não responde, esteja como estiver: vem antes de tudo o
+  // resto, para não pedir um provedor de IA que não é necessário.
   if (s.dispatch.active) {
     return {
       tone: "off",
@@ -332,8 +332,8 @@ function Callout({
   );
 }
 
-/** El nombre de una variable, entero: partido a media palabra en el móvil no
- *  se puede copiar ni reconocer. */
+/** O nome de uma variável, inteiro: quebrado no meio da palavra no celular não
+ *  dá para copiar nem reconhecer. */
 function Env({ children }: { children: React.ReactNode }) {
   return <code className="whitespace-nowrap font-mono text-[0.92em]">{children}</code>;
 }

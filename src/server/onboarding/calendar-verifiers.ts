@@ -1,31 +1,31 @@
 import { isConnectorId } from "@/lib/agenda-connectors";
 
 /**
- * ¿La agenda está lista para que el agente agende por el negocio?
+ * A agenda está pronta para o agente agendar pelo negócio?
  *
- * Se decide con lo PERSISTIDO: horarios y conector guardados en Ajustes →
- * Agenda y el estado de la credencial del conector. Que la reunión de verdad
- * se entregue lo demuestra la prueba de conexión de cada conector, no esto.
+ * Decide-se com o que está PERSISTIDO: horários e conector guardados em Configurações →
+ * Agenda e o estado da credencial do conector. Que a reunião de fato
+ * seja entregue quem demonstra é o teste de conexão de cada conector, não isto.
  *
- * Pura (sin base de datos) para poder probar la tabla de decisión sola.
- * Puerto de `calendar-verifiers.ts` de Vocero Cloud, recortado al catálogo de
- * la raíz: `enlace-fijo`, `zoom` y `google` (que aquí hace calendario y Meet
- * en una sola credencial).
+ * Pura (sem banco de dados) para poder testar a tabela de decisão sozinha.
+ * Adaptação de `calendar-verifiers.ts` do Vocero Cloud, reduzida ao catálogo da
+ * raiz: `enlace-fijo`, `zoom` e `google` (que aqui faz agenda e Meet
+ * numa só credencial).
  */
 export type CalendarConfiguration = {
   connector: string;
-  /** `{"mon":[{"start":"09:00","end":"18:00"}]}`; `unknown` porque viene de jsonb. */
+  /** `{"mon":[{"start":"09:00","end":"18:00"}]}`; `unknown` porque vem do jsonb. */
   weeklyHours: unknown;
 };
 
 export type CalendarReadiness = "ready" | "pending" | "unsupported";
 
-/** Qué conectores tienen credencial guardada y aceptada. */
+/** Quais conectores têm credencial guardada e aceita. */
 export type CalendarConnections = { google: boolean; zoom: boolean };
 
 const HORA = /^\d{2}:\d{2}$/;
 
-/** ¿Hay al menos un día con un intervalo bien formado y no vacío? */
+/** Há ao menos um dia com um intervalo bem formado e não vazio? */
 export function hasWeeklyHours(weeklyHours: unknown): boolean {
   if (!weeklyHours || typeof weeklyHours !== "object") return false;
   return Object.values(weeklyHours as Record<string, unknown>).some(
@@ -49,12 +49,12 @@ export function verifyCalendar(
   configuration: CalendarConfiguration | undefined,
   connections: CalendarConnections = { google: false, zoom: false }
 ): CalendarReadiness {
-  // Sin fila, nadie guardó nada todavía: la agenda arranca con horarios de
-  // fábrica utilizables, pero la guía pide que el dueño los confirme.
+  // Sem linha, ninguém guardou nada ainda: a agenda começa com horários de
+  // fábrica utilizáveis, mas o guia pede que o dono os confirme.
   if (!configuration) return "pending";
   if (!hasWeeklyHours(configuration.weeklyHours)) return "pending";
-  // Un conector que ya no existe en el código (venías de un fork): el motor
-  // lo degrada al soberano al leer, pero aquí se dice, para que lo arreglen.
+  // Um conector que já não existe no código (você vinha de um fork): o motor
+  // o rebaixa para o soberano ao ler, mas aqui se diz, para que o arrumem.
   if (!isConnectorId(configuration.connector)) return "unsupported";
   if (configuration.connector === "google" && !connections.google) return "pending";
   if (configuration.connector === "zoom" && !connections.zoom) return "pending";

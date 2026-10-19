@@ -13,9 +13,9 @@ const schema = z.object({
 });
 
 /**
- * Probar sin guardar. Con los campos vacíos prueba las credenciales YA
- * guardadas — así el operador puede verificar una conexión sin volver a pegar
- * un secreto que la UI nunca le devolvió.
+ * Testar sem salvar. Com os campos vazios, testa as credenciais JÁ
+ * salvas — assim o operador pode verificar uma conexão sem colar de novo
+ * um segredo que a UI nunca lhe devolveu.
  */
 export const POST = withAuth(async (session, req: Request) => {
   if (!agendaEnabled()) return agendaDisabledResponse();

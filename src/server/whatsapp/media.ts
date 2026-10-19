@@ -11,15 +11,15 @@ import {
 import { isForbiddenUploadMime } from "@/server/whatsapp/media-headers";
 
 /**
- * 008 — Única frontera de media con la Graph API (constitución II: todo el
- * tráfico a Meta pasa por adaptadores dedicados) + persistencia en el volumen
- * local `MEDIA_DIR`. Meta expira sus archivos (~30 días, URLs de minutos):
- * el disco propio es la copia durable que la UI previsualiza.
+ * 008 — Única fronteira de mídia com a Graph API (constituição II: todo o
+ * tráfego para a Meta passa por adaptadores dedicados) + persistência no volume
+ * local `MEDIA_DIR`. A Meta expira seus arquivos (~30 dias, URLs de minutos):
+ * o disco próprio é a cópia durável que a UI pré-visualiza.
  */
 
 export type MediaKind = (typeof schema.mediaAsset.$inferSelect)["kind"];
 
-/** Límites de la Cloud API por tipo (validados ANTES de tocar red, FR-007). */
+/** Limites da Cloud API por tipo (validados ANTES de tocar a rede, FR-007). */
 export const MEDIA_LIMITS: Record<
   Exclude<MediaKind, "location" | "contacts">,
   { maxBytes: number; mimes: RegExp; label: string }
@@ -51,7 +51,7 @@ export const MEDIA_LIMITS: Record<
   },
 };
 
-/** Clasifica un MIME de archivo saliente al tipo de mensaje de la Cloud API. */
+/** Classifica um MIME de arquivo de saída no tipo de mensagem da Cloud API. */
 export function kindFromMime(mime: string): "image" | "audio" | "video" | "document" {
   if (MEDIA_LIMITS.image.mimes.test(mime)) return "image";
   if (MEDIA_LIMITS.audio.mimes.test(mime)) return "audio";
@@ -69,11 +69,11 @@ export class MediaValidationError extends Error {
 }
 
 /**
- * Valida MIME y tamaño para envío; devuelve el kind resuelto. Los formatos
- * que WhatsApp no acepta como su tipo nativo (p. ej. image/bmp) van como
- * documento — igual que hace la app de WhatsApp. HTML y SVG no van ni como
- * documento (#78): el navegador de quien los abra los trataría como una
- * página, y se servirían desde el origen del CRM.
+ * Valida MIME e tamanho para envio; devolve o kind resolvido. Os formatos
+ * que o WhatsApp não aceita como seu tipo nativo (p. ex. image/bmp) vão como
+ * documento — igual faz o app do WhatsApp. HTML e SVG não vão nem como
+ * documento (#78): o navegador de quem os abrisse os trataria como uma
+ * página, e seriam servidos a partir da origem do CRM.
  */
 export function validateOutgoing(mime: string, sizeBytes: number) {
   if (!/^[\w.-]+\/[\w.+-]+$/.test(mime)) {
@@ -102,7 +102,7 @@ function assertSafeSegment(s: string): void {
   if (!/^[\w.-]+$/.test(s)) throw new Error(`segmento de ruta inválido: ${s}`);
 }
 
-/** Ruta absoluta del archivo de un asset dentro de MEDIA_DIR. */
+/** Caminho absoluto do arquivo de um asset dentro de MEDIA_DIR. */
 export function mediaFilePath(organizationId: string, assetId: string): string {
   assertSafeSegment(organizationId);
   assertSafeSegment(assetId);
@@ -128,9 +128,9 @@ export async function readMediaFile(
 }
 
 /**
- * 018 — Borra el archivo de un asset. Sin error si ya no estaba: quien lo
- * llama está deshaciendo una copia que sobró, y un archivo que no existe es
- * justo el estado al que quiere llegar.
+ * 018 — Apaga o arquivo de um asset. Sem erro se já não estava: quem o
+ * chama está desfazendo uma cópia que sobrou, e um arquivo que não existe é
+ * justamente o estado ao qual quer chegar.
  */
 export async function deleteMediaFile(
   organizationId: string,
@@ -139,12 +139,12 @@ export async function deleteMediaFile(
   await rm(mediaFilePath(organizationId, assetId), { force: true });
 }
 
-/* ---------- Descarga desde Graph (entrantes y echoes) ---------- */
+/* ---------- Download a partir do Graph (entrantes e echoes) ---------- */
 
 type GraphMediaMeta = { url?: string; mime_type?: string; file_size?: number };
 
 export class MediaFetchError extends Error {
-  /** true si Meta ya no tiene el archivo (expirado/borrado) — no reintentar. */
+  /** true se a Meta já não tiver o arquivo (expirado/apagado) — não tentar de novo. */
   gone: boolean;
   constructor(message: string, gone = false) {
     super(message);
@@ -154,8 +154,8 @@ export class MediaFetchError extends Error {
 }
 
 /**
- * Descarga un media de Graph: GET {mediaId} → url efímera → GET con Bearer.
- * El token JAMÁS sale del servidor.
+ * Baixa uma mídia do Graph: GET {mediaId} → url efêmera → GET com Bearer.
+ * O token JAMAIS sai do servidor.
  */
 export async function downloadGraphMedia(
   token: string,
@@ -200,10 +200,10 @@ export async function downloadGraphMedia(
 }
 
 /**
- * Garantiza que el asset esté en disco (`fetchStatus=available`).
- * Se usa en la descarga in-process post-ingesta Y on-demand desde la ruta de
- * media. Nunca lanza hacia el webhook: el que llama decide qué hacer con el
- * resultado. Devuelve el asset actualizado o null si no se pudo.
+ * Garante que o asset esteja no disco (`fetchStatus=available`).
+ * Usa-se no download in-process pós-ingestão E sob demanda pela rota de
+ * mídia. Nunca lança em direção ao webhook: quem chama decide o que fazer com o
+ * resultado. Devolve o asset atualizado ou null se não foi possível.
  */
 export async function ensureAssetAvailable(
   organizationId: string,
@@ -253,12 +253,12 @@ export async function ensureAssetAvailable(
   }
 }
 
-/* ---------- Subida a Graph (salientes) ---------- */
+/* ---------- Envio ao Graph (saídas) ---------- */
 
 /**
- * Sube un archivo a Graph (`POST /{phone_number_id}/media`, multipart) y
- * devuelve el media id para usar en /messages. Errores → MetaApiError (la
- * capa de envío los traduce con las mismas reglas que el texto).
+ * Envia um arquivo ao Graph (`POST /{phone_number_id}/media`, multipart) e
+ * devolve o media id para usar em /messages. Erros → MetaApiError (a
+ * camada de envio os traduz com as mesmas regras do texto).
  */
 export async function uploadGraphMedia(
   credentials: Credentials,

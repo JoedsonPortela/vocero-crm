@@ -7,10 +7,10 @@ import { serializeBotProfile } from "@/server/bot/profile";
 export const dynamic = "force-dynamic";
 
 /**
- * Perfil del agente + knowledge base para un cerebro externo.
- * GET /api/bot/profile → {profile, kb, resources}. Sin caché: cada consulta
- * refleja lo que el dueño dejó en la UI al momento (el TTL vive del lado del
- * bot, que es quien sabe cada cuánto le conviene releer).
+ * Perfil do agente + knowledge base para um cérebro externo.
+ * GET /api/bot/profile → {profile, kb, resources}. Sem cache: cada consulta
+ * reflete o que o dono deixou na UI no momento (o TTL fica do lado do
+ * bot, que é quem sabe de quanto em quanto tempo convém reler).
  */
 export async function GET(req: Request) {
   const denied = requireBotKey(req);
@@ -29,7 +29,7 @@ export async function GET(req: Request) {
     .limit(1);
   const profile = profiles[0];
   if (!profile) {
-    // Condición esperada (instancia sin perfil): el bot cae a su brief local.
+    // Condição esperada (instância sem perfil): o bot cai no seu brief local.
     return apiError(404, "no_profile", "A instância não tem perfil de agente");
   }
 

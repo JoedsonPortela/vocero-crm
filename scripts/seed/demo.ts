@@ -1,7 +1,7 @@
 /**
- * CLI del seed demo: `pnpm seed:demo` (local) o `node seed-demo.mjs` dentro
- * del contenedor. Acepta --force para recargar aunque haya datos.
- * Se bundlea con esbuild (alias @ → ./src).
+ * CLI do seed demo: `pnpm seed:demo` (local) ou `node seed-demo.mjs` dentro
+ * do contêiner. Aceita --force para recarregar mesmo que já existam dados.
+ * É empacotado com esbuild (alias @ → ./src).
  */
 import { readFileSync } from "node:fs";
 import { drizzle } from "drizzle-orm/postgres-js";

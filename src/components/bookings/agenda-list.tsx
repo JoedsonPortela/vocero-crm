@@ -9,9 +9,9 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { STATUS_LABEL, bookingTitle, bookingTone, hasDeliveryIssue, type Booking } from "./booking-look";
 
 /**
- * 215 — La Lista: las citas del rango, agrupadas por día, como la «Agenda» de
- * Google o la lista de reuniones de Zoom. Es la vista para revisar qué viene
- * (o qué pasó) sin buscar en la rejilla.
+ * 215 — A Lista: os agendamentos do intervalo, agrupados por dia, como a «Agenda» do
+ * Google ou a lista de reuniões do Zoom. É a visão para revisar o que vem
+ * (ou o que passou) sem procurar na grade.
  */
 export function AgendaList({
   range,

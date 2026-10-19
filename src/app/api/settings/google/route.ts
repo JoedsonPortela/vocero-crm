@@ -11,7 +11,7 @@ import {
 
 export const dynamic = "force-dynamic";
 
-/** 015 — Conexión de Google Calendar. Los secretos entran y no vuelven a salir. */
+/** 015 — Conexão do Google Calendar. Os segredos entram e não voltam a sair. */
 
 export const GET = withAuth(async (session) => {
   if (!agendaEnabled()) return agendaDisabledResponse();

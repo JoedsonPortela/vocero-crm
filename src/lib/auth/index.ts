@@ -13,16 +13,16 @@ import {
 import { isPublicSignupAllowed } from "@/server/auth/registration";
 
 /**
- * Contexto interno del proceso: permite que el alta de cuentas de equipo
- * (owner → API) atraviese el gate de registro cerrado. No es alcanzable
- * desde fuera: solo envuelve llamadas server-side.
+ * Contexto interno do processo: permite que o cadastro de contas de equipe
+ * (owner → API) atravesse o gate de registro fechado. Não é alcançável
+ * de fora: apenas envolve chamadas server-side.
  */
 const globalForSignup = globalThis as unknown as {
   __voceroInternalSignup?: AsyncLocalStorage<boolean>;
 };
 
-// En globalThis: los módulos pueden evaluarse más de una vez (una por ruta en
-// dev) y todas las copias deben compartir el mismo contexto.
+// Em globalThis: os módulos podem ser avaliados mais de uma vez (uma por rota em
+// dev) e todas as cópias devem compartilhar o mesmo contexto.
 function internalSignupContext(): AsyncLocalStorage<boolean> {
   if (!globalForSignup.__voceroInternalSignup) {
     globalForSignup.__voceroInternalSignup = new AsyncLocalStorage<boolean>();
@@ -65,7 +65,7 @@ function createAuth() {
     plugins: [organization({ creatorRole: "owner" })],
     hooks: {
       before: createAuthMiddleware(async (ctx) => {
-        // Rate limit por IP en login/registro (FR-062): 10 / 10 min → 429.
+        // Rate limit por IP no login/registro (FR-062): 10 / 10 min → 429.
         if (RATE_LIMITED_PATHS.has(ctx.path)) {
           const ip = clientIp(ctx.headers);
           const result = checkRateLimit(`${ctx.path}:${ip}`, AUTH_RATE_LIMIT);
@@ -75,7 +75,7 @@ function createAuth() {
             });
           }
         }
-        // Registro público cerrado tras la primera organización (FR-060).
+        // Registro público fechado após a primeira organização (FR-060).
         if (ctx.path === "/sign-up/email") {
           if (!isInternalSignup() && !(await isPublicSignupAllowed())) {
             throw new APIError("FORBIDDEN", {

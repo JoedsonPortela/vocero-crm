@@ -2,26 +2,26 @@ import { sql, type SQL } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
 
 /**
- * 019 — Piezas de SQL que comparten los cuatro bloques de Resultados.
+ * 019 — Trechos de SQL que compartilham os quatro blocos de Resultados.
  *
- * Son subconsultas CORRELACIONADAS con la columna que reciben. Van en WHERE, en
- * condiciones de JOIN o en consultas con JOIN: en la lista de SELECT de una
- * consulta de una sola tabla, drizzle le quita la tabla a la columna
- * interpolada y la subconsulta se correlacionaría consigo misma (ver
- * `conversacionId` en bot.ts).
+ * São subconsultas CORRELACIONADAS com a coluna que recebem. Vão em WHERE, em
+ * condições de JOIN ou em consultas com JOIN: na lista de SELECT de uma
+ * consulta de uma só tabela, o drizzle tira a tabela da coluna
+ * interpolada e a subconsulta se correlacionaria consigo mesma (ver
+ * `conversacionId` em bot.ts).
  */
 
 /**
- * El Laboratorio NO existe para la analítica (spec 019, D6).
+ * O Laboratório NÃO existe para a analítica (spec 019, D6).
  *
- * Sus corridas generan conversaciones completas con respuestas del modelo y
- * escalamientos; sin este filtro, una tarde de autopruebas inflaría
- * conversaciones, tasa de respuesta y tiempos, y el dueño tomaría decisiones
- * sobre personas que no existen.
+ * Suas execuções geram conversas completas com respostas do modelo e
+ * escalonamentos; sem este filtro, uma tarde de autotestes inflaria
+ * conversas, taxa de resposta e tempos, e o dono tomaria decisões
+ * sobre pessoas que não existem.
  *
- * Se excluye al contacto cuya ÚNICA conversación es de prueba. Un contacto real
- * que además tenga una conversación de laboratorio sigue contando: lo real pesa
- * más que lo simulado.
+ * Exclui-se o contato cuja ÚNICA conversa é de teste. Um contato real
+ * que tenha também uma conversa de laboratório continua contando: o real pesa
+ * mais que o simulado.
  */
 export function notLabContact(contactIdColumn: PgColumn): SQL {
   return sql`(
@@ -37,9 +37,9 @@ export function notLabContact(contactIdColumn: PgColumn): SQL {
 }
 
 /**
- * Fecha local del negocio para agrupar series. Las columnas son `timestamp`
- * sin zona y guardan UTC: el primer `AT TIME ZONE` las interpreta como UTC y
- * el segundo las lleva a la hora del negocio.
+ * Data local do negócio para agrupar séries. As colunas são `timestamp`
+ * sem fuso e guardam UTC: o primeiro `AT TIME ZONE` as interpreta como UTC e
+ * o segundo as leva para a hora do negócio.
  */
 export function localDateExpr(
   column: PgColumn,
@@ -51,13 +51,13 @@ export function localDateExpr(
 }
 
 /**
- * El origen EFECTIVO del contacto, en SQL: el capturado manda; sin capturar,
- * «anuncio» si su PRIMER anuncio de origen es un anuncio (no una publicación);
- * si no, NULL (= sin identificar).
+ * A origem EFETIVA do contato, em SQL: a capturada prevalece; sem captura,
+ * «anúncio» se o seu PRIMEIRO anúncio de origem for um anúncio (não uma publicação);
+ * senão NULL (= não identificada).
  *
- * Es la misma regla que la ficha del contacto (018: la primera fila de
- * `ad_attribution` + `cuentaComoAnuncio` + `effectiveSource`): si Resultados
- * dedujera distinto, la tabla por origen contradiría lo que el dueño ve en la
+ * É a mesma regra da ficha do contato (018: a primeira linha de
+ * `ad_attribution` + `cuentaComoAnuncio` + `effectiveSource`): se Resultados
+ * deduzisse de outro jeito, a tabela por origem contradiria o que o dono vê na
  * ficha.
  */
 export function effectiveSourceExpr(
@@ -76,8 +76,8 @@ export function effectiveSourceExpr(
 }
 
 /**
- * La primera fila de `ad_attribution` del contacto, la misma que enseña su
- * ficha: un contacto cuenta UNA vez, con el anuncio que lo trajo primero.
+ * A primeira linha de `ad_attribution` do contato, a mesma que mostra sua
+ * ficha: um contato conta UMA vez, com o anúncio que o trouxe primeiro.
  */
 export function firstAttributionIdExpr(
   organizationIdColumn: PgColumn,

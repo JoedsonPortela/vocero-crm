@@ -30,13 +30,13 @@ export const GET = withAuth(async (session, req: Request, ctx: Params) => {
   });
 });
 
-// 008: además de texto, el body acepta ubicación y contactos (discriminado
-// por `type`; sin `type` sigue siendo texto — compat con clientes previos).
+// 008: além de texto, o body aceita localização e contatos (discriminado
+// por `type`; sem `type` continua sendo texto — compat. com clientes anteriores).
 const sendSchema = z.union([
   z.object({
     type: z.literal("text").optional(),
-    // 022: el tope de aquí es el del canal que más admite; el de cada
-    // canal lo comprueba el envío (`text_too_long`).
+    // 022: o teto daqui é o do canal que mais admite; o de cada
+    // canal é verificado pelo envio (`text_too_long`).
     text: z.string().trim().min(1).max(MAX_TEXT_CHARS_ANY_CHANNEL, TEXT_TOO_LONG_ANY_CHANNEL),
   }),
   z.object({

@@ -1,15 +1,15 @@
 /**
- * Self-test E2E de comportamiento — conduce la app real en localhost con los
- * mocks (wa-mock + ai-mock) por las superficies de usuario, en vez de darle
- * el guion al humano. Cubre tests/e2e/us-bsuid.md y tests/e2e/us-bot-api.md.
+ * Self-test E2E de comportamento — conduz o app real em localhost com os
+ * mocks (wa-mock + ai-mock) pelas superfícies de usuário, em vez de passar o
+ * roteiro ao humano. Cobre tests/e2e/us-bsuid.md e tests/e2e/us-bot-api.md.
  *
  * Uso:
- *   1) app corriendo con WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL → wa-mock,
- *      BOT_API_KEY configurada y BD migrada
+ *   1) app rodando com WA_MOCK_ENABLED=true, META_GRAPH_BASE_URL → wa-mock,
+ *      BOT_API_KEY configurada e BD migrada
  *   2) node --env-file=.env scripts/e2e-selftest.mjs
  *
- * Sale con código 1 si algún check falla (apto para CI o para el gate previo
- * a declarar "Hecho").
+ * Sai com código 1 se alguma verificação falhar (apto para CI ou para o gate prévio
+ * a declarar "Pronto").
  */
 
 const BASE = process.env.APP_BASE_URL ?? "http://localhost:3000";
@@ -34,7 +34,7 @@ async function api(path, opts = {}) {
     ...opts,
     headers: {
       "content-type": "application/json",
-      // Better Auth valida Origin (CSRF) en los endpoints de auth.
+      // O Better Auth valida Origin (CSRF) nos endpoints de auth.
       origin: BASE,
       ...(cookie ? { cookie } : {}),
       ...(opts.headers ?? {}),
@@ -61,11 +61,11 @@ function bot(path, opts = {}) {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /**
- * Espera a que algo OCURRA, en vez de dormir un rato y confiar.
+ * Espera até que algo ACONTEÇA, em vez de dormir um pouco e confiar.
  *
- * Un `sleep` fijo convierte cualquier lentitud —la primera compilación de una
- * ruta en `next dev`, por ejemplo— en un fallo que no significa nada. Y si se
- * pone generoso, alarga el guion entero para todos.
+ * Um `sleep` fixo transforma qualquer lentidão —a primeira compilação de uma
+ * rota no `next dev`, por exemplo— numa falha que não significa nada. E se
+ * ele for generoso, alonga o roteiro inteiro para todos.
  */
 async function hasta(cond, ms = 15000, paso = 400) {
   const fin = Date.now() + ms;
@@ -93,7 +93,7 @@ async function main() {
     body: JSON.stringify({ email, password, name: "Operador E2E" }),
   });
   if (!su.res.ok) {
-    // Re-corrida: el registro se cierra tras la primera organización.
+    // Nova execução: o cadastro se fecha após a primeira organização.
     su = await api("/api/auth/sign-in/email", {
       method: "POST",
       body: JSON.stringify({ email, password }),
@@ -147,10 +147,10 @@ async function main() {
 
   const outbox = (await api("/api/dev/wa-mock/outbox")).json?.outbox ?? [];
   /**
-   * Esta comprobación fijaba el comportamiento EQUIVOCADO: afirmaba que el
-   * BSUID viaja en `to`. Y pasaba, porque el mock aceptaba cualquier cosa ahí
-   * — mientras Meta respondía 131026 en producción. Un test verde sobre un
-   * mock permisivo es peor que no tenerlo: convence de lo contrario.
+   * Esta checagem fixava o comportamento ERRADO: afirmava que o BSUID viaja em `to`.
+   * E passava, porque o mock aceitava qualquer coisa ali
+   * — enquanto a Meta respondia 131026 em produção. Um teste verde sobre um
+   * mock permissivo é pior que não tê-lo: convence do contrário.
    */
   ok(
     "el destinatario del envío es el BSUID, en `recipient`",
@@ -158,7 +158,7 @@ async function main() {
     JSON.stringify(outbox.map((o) => ({ to: o.to, recipient: o.recipient })))
   );
 
-  // Idempotencia: re-entrega del mismo wa_message_id
+  // Idempotência: reentrega do mesmo wa_message_id
   await api("/api/dev/wa-mock/inbound", {
     method: "POST",
     body: JSON.stringify({
@@ -179,14 +179,14 @@ async function main() {
   console.log("\n== us-bsuid: a un contacto sin teléfono se le puede responder ==");
   {
     /**
-     * El caso de produccion que dejo mudo al agente de un miembro.
+     * O caso de produção que deixou mudo o agente de um membro.
      *
-     * Meta omite el telefono cuando coinciden TRES condiciones: el usuario
-     * activo su nombre de usuario, no hubo interaccion con ese numero de
-     * empresa en 30 dias, y no esta en la agenda. Entonces solo llega el
-     * BSUID — y hay que responderle por `recipient`, no por `to`: en `to`
-     * Meta espera un telefono y devuelve 131026, que en la bandeja se lee
-     * como si el numero del cliente no existiera.
+     * A Meta omite o telefone quando coincidem TRÊS condições: o usuário
+     * ativou seu nome de usuário, não houve interação com esse número de
+     * empresa em 30 dias, e ele não está na agenda. Então só chega o
+     * BSUID — e é preciso respondê-lo por `recipient`, não por `to`: em `to`
+     * a Meta espera um telefone e devolve 131026, que na bandeja se lê
+     * como se o número do cliente não existisse.
      */
     const conv = bsuidConv;
     if (!conv) {
@@ -236,10 +236,10 @@ async function main() {
   );
   ok("el contacto reconciliado conserva su conversación", !!mxConv);
 
-  // Issue #35: un destinatario argentino llega como `549` + 10 dígitos y hay
-  // que ENVIARLE sin el 9. La identidad, en cambio, conserva lo que Meta
-  // reporta: si se reescribiera, dejaría de casar con el `wa_id` de cada
-  // webhook y el contacto se partiría en dos.
+  // Issue #35: um destinatário argentino chega como `549` + 10 dígitos e é preciso
+  // ENVIAR-LHE sem o 9. A identidade, por sua vez, conserva o que a Meta
+  // informa: se fosse reescrita, deixaria de casar com o `wa_id` de cada
+  // webhook e o contato se partiria em dois.
   console.log("\n== us-bsuid: destinatario argentino (549 → 54) ==");
   const AR_REPORTADO = "5491122334455";
   await api("/api/dev/wa-mock/inbound", {
@@ -264,10 +264,10 @@ async function main() {
   );
 
   if (convAr) {
-    // Se cuenta lo que ya había en vez de vaciar el outbox: el DELETE del
-    // wa-mock reinicia su contador de wa_message_id, y en una RE-CORRIDA eso
-    // choca con los mensajes que ya están en la base (unique) y tumba el envío
-    // con un 500 que no tiene nada que ver con lo que se está probando.
+    // Conta-se o que já havia em vez de esvaziar a caixa de saída: o DELETE do
+    // wa-mock reinicia seu contador de wa_message_id, e numa NOVA EXECUÇÃO isso
+    // colide com as mensagens que já estão no banco (unique) e derruba o envio
+    // com um 500 que não tem nada a ver com o que está sendo testado.
     const outboxAntes =
       ((await api("/api/dev/wa-mock/outbox")).json?.outbox ?? []).length;
     const envioAr = await api(`/api/conversations/${convAr.id}/messages`, {
@@ -316,14 +316,14 @@ async function main() {
     ok("el contacto nace con el nombre del perfil", creado?.name === "Federico",
       `nombre: ${creado?.name}`);
 
-    // El caso reportado: cambia su nombre de WhatsApp y vuelve a escribir.
+    // O caso relatado: muda seu nome no WhatsApp e volta a escrever.
     await decir("Federicoso", 2);
     await hasta(async () => (await contactoDe())?.name === "Federicoso");
     ok("cambiar el nombre de WhatsApp actualiza el contacto",
       (await contactoDe())?.name === "Federicoso",
       `nombre: ${(await contactoDe())?.name}`);
 
-    // Y lo que NO puede pasar: que el perfil pise lo que escribió una persona.
+    // E o que NÃO pode acontecer: que o perfil atropele o que uma pessoa escreveu.
     const editado = await api(`/api/contacts/${creado?.id}`, {
       method: "PATCH",
       body: JSON.stringify({ name: "Fede - obra Polanco" }),
@@ -475,10 +475,10 @@ async function main() {
     JSON.stringify(ctx.json?.conversation)
   );
 
-  // 015 — `booking` es aditivo y solo existe con la agenda encendida. Un
-  // cerebro lo tolera ausente (no afirma nada sobre citas); lo que no puede
-  // recibir es un bloque vacío en una instancia SIN agenda, porque lo leería
-  // como «este lead no tiene cita».
+  // 015 — `booking` é aditivo e só existe com a agenda ligada. Um
+  // cérebro o tolera ausente (não afirma nada sobre agendamentos); o que não pode
+  // receber é um bloco vazio numa instância SEM agenda, porque o leria
+  // como «este lead não tem agendamento».
   if (/^(on|1|true|si|sí|yes)$/i.test((process.env.AGENDA ?? "").trim())) {
     const b = ctx.json?.booking;
     ok(
@@ -631,12 +631,12 @@ async function main() {
   });
   ok("texto vacío → 422 (no se manda un mensaje en blanco)", sendVacio.res.status === 422);
 
-  // Regresión: la hora del saliente debe ser la misma en las dos vistas.
-  // Las columnas son `timestamp without time zone` y se llenan por dos caminos
-  // — `now()` de los `defaultNow()` (marco de la SESIÓN de BD) y `Date` desde
-  // JS (marco UTC, lo que Drizzle lee de vuelta). Si la sesión no está en UTC,
-  // `message.created_at` (burbuja del hilo) se desfasa de
-  // `conversation.last_message_at` (lista) por el offset del servidor de BD.
+  // Regressão: a hora da saída deve ser a mesma nas duas visões.
+  // As colunas são `timestamp without time zone` e são preenchidas por dois caminhos
+  // — `now()` dos `defaultNow()` (referencial da SESSÃO do BD) e `Date` vindo do
+  // JS (referencial UTC, o que o Drizzle lê de volta). Se a sessão não estiver em UTC,
+  // `message.created_at` (bolha do fio) se desloca de
+  // `conversation.last_message_at` (lista) pelo offset do servidor do BD.
   console.log("\n== zona horaria: la misma hora en la lista y en el hilo ==");
   const convTz = ((await api("/api/conversations")).json?.conversations ?? [])
     .find((c) => c.id === convId);
@@ -710,8 +710,8 @@ async function main() {
   });
   ok("handoff de conversación inexistente → 404", hoNoConv.res.status === 404);
 
-  // El handoff jamás debe perderse por un motivo que no esté en el catálogo:
-  // el bot se quedaría hablándole a alguien que pidió un humano.
+  // O handoff jamais pode se perder por um motivo que não esteja no catálogo:
+  // o bot continuaria falando com alguém que pediu um humano.
   await bot("/api/bot/reset", {
     method: "POST",
     body: JSON.stringify({ conversationId: convId }),
@@ -843,25 +843,25 @@ async function main() {
   console.log("\n== FR-022: pedir un humano no deja al cliente en silencio ==");
   {
     /**
-     * El patrón de respaldo (antes del modelo) traspasaba SIN mandar nada: el
-     * cliente que escribía «quiero hablar con un humano» no recibía respuesta,
-     * aunque por dentro el traspaso sí ocurría. Lo encontró @fondeur27-09-73
+     * O padrão de contingência (antes do modelo) transferia SEM enviar nada: o
+     * cliente que escrevia «quero falar com um humano» não recebia resposta,
+     * embora por dentro a transferência acontecesse. Quem encontrou foi @fondeur27-09-73
      * (#62).
      *
-     * El ai-mock, si le llegara esta frase, traspasaría SIN `farewell` y con
-     * motivo `modelo`. Así que el motivo `cliente` prueba que decidió el
-     * patrón, y el saliente prueba el arreglo: con el bug hay cero mensajes.
+     * O ai-mock, se recebesse essa frase, transferiria SEM `farewell` e com
+     * motivo `modelo`. Assim, o motivo `cliente` prova que decidiu o
+     * padrão, e a saída prova a correção: com o bug há zero mensagens.
      *
-     * Hay que ENCENDER el agente in-process a propósito, y apagarlo al final
-     * para no alterar lo que sigue.
+     * É preciso LIGAR o agente in-process de propósito, e desligá-lo no fim
+     * para não alterar o que vem depois.
      */
     await api("/api/agent/profile", {
       method: "PUT",
       body: JSON.stringify({ enabled: true }),
     });
 
-    // Contacto nuevo por corrida: con uno fijo, la segunda ejecución lo
-    // encontraría ya traspasado y el agente no llegaría a correr.
+    // Contato novo por execução: com um fixo, a segunda execução o
+    // encontraria já transferido e o agente não chegaria a rodar.
     const CORRIDA = Date.now().toString().slice(-6);
     const TEL = `5214628${CORRIDA}`;
     const CANONICO = `524628${CORRIDA}`;
@@ -890,8 +890,8 @@ async function main() {
       );
 
     await decir("quiero hablar con un humano", 1);
-    // Lo que se espera es el TRASPASO; cuánto tarde el debounce no es asunto
-    // del check.
+    // O que se espera é a TRANSFERÊNCIA; quanto demore o debounce não é assunto
+    // do check.
     await hasta(async () => Boolean((await convDe())?.handoffAt));
     const conv = await convDe();
     ok(
@@ -919,9 +919,9 @@ async function main() {
         `envíos=${cable.length}`
       );
 
-      // Un turno nuevo sobre la conversación YA traspasada: su último
-      // entrante vuelve a ser la frase del patrón, así que si el silencio del
-      // traspaso no mandara, el acuse saldría otra vez.
+      // Um turno novo sobre a conversa JÁ transferida: sua última
+      // mensagem recebida volta a ser a frase do padrão, então se o silêncio da
+      // transferência não enviasse, o aviso sairia outra vez.
       await decir("sigo esperando, quiero hablar con un humano", 2);
       const coalesce = Number(process.env.AGENT_COALESCE_MS ?? 6000);
       await sleep(coalesce + 2500);
@@ -939,9 +939,9 @@ async function main() {
   }
 
   console.log("\n== 008: paridad inbox — echoes de coexistence (US1) ==");
-  const LEAD = "5214627008001"; // canónica: 524627008001
+  const LEAD = "5214627008001"; // canônica: 524627008001
 
-  // Un inbound primero: la conversación existe y la ventana queda abierta.
+  // Uma mensagem recebida primeiro: a conversa existe e a janela fica aberta.
   await api("/api/dev/wa-mock/inbound", {
     method: "POST",
     body: JSON.stringify({
@@ -961,7 +961,7 @@ async function main() {
   ok("conversación del lead 008 creada", Boolean(conv008), "sin conversación");
   const inboundAtBefore = conv008?.lastInboundAt;
 
-  // Echo: el dueño contesta A MANO desde la app del teléfono.
+  // Eco: o dono responde MANUALMENTE pelo aplicativo do telefone.
   const echo1 = await api("/api/dev/wa-mock/echo", {
     method: "POST",
     body: JSON.stringify({
@@ -982,9 +982,9 @@ async function main() {
     JSON.stringify(manual1)
   );
 
-  // Se espera la pausa, no un tiempo fijo: el eco guarda el mensaje y DESPUÉS
-  // pausa la IA. Leer la conversación entre un paso y otro —pasa con el
-  // servidor recién arrancado— daba la IA encendida sin que nada fallara.
+  // Espera-se a pausa, não um tempo fixo: o eco grava a mensagem e DEPOIS
+  // pausa a IA. Ler a conversa entre um passo e outro —isso acontece com o
+  // servidor recém-iniciado— dava a IA ligada sem que nada falhasse.
   await hasta(
     async () => {
       conv008 = await findConv008();
@@ -1004,7 +1004,7 @@ async function main() {
     `${inboundAtBefore} → ${conv008?.lastInboundAt}`
   );
 
-  // Idempotencia: el mismo echo otra vez no duplica.
+  // Idempotência: o mesmo eco de novo não duplica.
   await api("/api/dev/wa-mock/echo", {
     method: "POST",
     body: JSON.stringify({
@@ -1021,7 +1021,7 @@ async function main() {
     msgs2.filter((m) => m.text === "te contesto yo, dame un minuto").length === 1
   );
 
-  // Variante defensiva: echoes bajo la clave `messages`.
+  // Variante defensiva: ecos sob a chave `messages`.
   await api("/api/dev/wa-mock/echo", {
     method: "POST",
     body: JSON.stringify({
@@ -1039,7 +1039,7 @@ async function main() {
     msgs3.some((m) => m.text === "segundo mensaje manual" && m.origin === "manual")
   );
 
-  // Echo hacia un número SIN conversación previa → la crea.
+  // Eco para um número SEM conversa prévia → cria-a.
   await api("/api/dev/wa-mock/echo", {
     method: "POST",
     body: JSON.stringify({
@@ -1055,7 +1055,7 @@ async function main() {
   );
   ok("echo a número nuevo crea contacto y conversación", Boolean(convNew));
 
-  // Reactivación desde el CRM (flujo existente de handoff).
+  // Reativação pelo CRM (fluxo existente de transferência).
   const react = await api(`/api/conversations/${conv008.id}`, {
     method: "PATCH",
     body: JSON.stringify({ reactivate: true }),
@@ -1107,7 +1107,7 @@ async function main() {
     outbox008.some((o) => o.type === "image" && JSON.stringify(o.body).includes("media-up-"))
   );
 
-  // Camino infeliz: archivo que excede el límite (imagen > 5 MB) → 413 previo.
+  // Caminho infeliz: arquivo que excede o limite (imagem > 5 MB) → 413 antes.
   const bigForm = new FormData();
   bigForm.set(
     "file",
@@ -1121,7 +1121,7 @@ async function main() {
   });
   ok("imagen de 6 MB → 413 too_large ANTES de enviar", bigRes.status === 413);
 
-  // Ubicación (payload estructurado, sin archivo).
+  // Localização (payload estruturado, sem arquivo).
   const locRes = await api(`/api/conversations/${conv008.id}/messages`, {
     method: "POST",
     body: JSON.stringify({
@@ -1155,7 +1155,7 @@ async function main() {
       waMessageId: "wamid.e2e.008.in.img",
     }),
   });
-  await sleep(1600); // ingesta + descarga in-process del binario
+  await sleep(1600); // ingestão + download in-process do binário
   const msgs6 = (await api(`/api/conversations/${conv008.id}/messages`)).json?.messages ?? [];
   const inImg = msgs6.find((m) => m.media?.caption === "foto de mi negocio");
   ok(
@@ -1170,7 +1170,7 @@ async function main() {
   });
   ok("el binario entrante se sirve desde el volumen local", inImgBin.ok);
 
-  // Ubicación entrante: payload directo, sin binario (404 en /api/media).
+  // Localização recebida: payload direto, sem binário (404 em /api/media).
   await api("/api/dev/wa-mock/inbound", {
     method: "POST",
     body: JSON.stringify({
@@ -1190,8 +1190,8 @@ async function main() {
     JSON.stringify(inLoc?.media)
   );
 
-  // Camino infeliz: media cuya descarga falla (metadata sin url) → failed,
-  // el mensaje se conserva y /api/media responde 410.
+  // Caminho infeliz: mídia cujo download falha (metadado sem url) → failed,
+  // a mensagem é preservada e /api/media responde 410.
   await api("/api/dev/wa-mock/inbound", {
     method: "POST",
     body: JSON.stringify({
@@ -1217,7 +1217,7 @@ async function main() {
     ok("asset fallido → 410 gone en /api/media", goneRes.status === 410);
   }
 
-  // Echo CON adjunto (AC-5 de US1): la foto que el dueño mandó desde el cel.
+  // Eco COM anexo (AC-5 do US1): a foto que o dono mandou do celular.
   await api("/api/dev/wa-mock/echo", {
     method: "POST",
     body: JSON.stringify({
@@ -1249,17 +1249,17 @@ async function main() {
 }
 
 /* ============================================================
- * #78 — Respuestas de botón. Cuando el cliente toca un botón de respuesta
- * rápida de una plantilla, Meta manda `type: "button"`; cuando toca un botón
- * o una fila de lista de un mensaje interactivo, `type: "interactive"`. La
- * ingesta los descartaba: ni bandeja, ni ventana de 24 h, ni agente. Ahora
- * entran como texto con el rótulo del botón, igual que si lo hubiera
- * tecleado. Los payloads del mock tienen la forma documentada por Meta.
+ * #78 — Respostas de botão. Quando o cliente toca num botão de resposta
+ * rápida de um modelo, a Meta envia `type: "button"`; quando toca um botão
+ * ou uma linha de lista de uma mensagem interativa, `type: "interactive"`. A
+ * ingestão os descartava: nem bandeja, nem janela de 24 h, nem agente. Agora
+ * entram como texto com o rótulo do botão, igual se o tivesse digitado. Os
+ * payloads do mock têm o formato documentado pela Meta.
  * ========================================================================== */
 async function respuestasDeBotonChecks() {
   console.log("\n== #78: una respuesta de botón entra como texto del cliente ==");
-  // Contacto nuevo por corrida: la sección cuenta entrantes y espera la
-  // respuesta del agente a ESTE botón, no a los de una corrida anterior.
+  // Contato novo por execução: a seção conta as recebidas e espera a
+  // resposta do agente a ESTE botão, não às de uma execução anterior.
   const CORRIDA = Date.now().toString().slice(-6);
   const LEAD_B = `5215550${CORRIDA}`;
   const TEL_B = `525550${CORRIDA}`;
@@ -1290,7 +1290,7 @@ async function respuestasDeBotonChecks() {
   const entrantes = async (convId) =>
     (await mensajesDe(convId)).filter((m) => m.direction === "in");
 
-  // 1) Botón de respuesta rápida de una plantilla.
+  // 1) Botão de resposta rápida de um modelo.
   const envio = await entrante(
     { type: "button", button: { text: "Sí, me interesa", payload: "SI_INTERESA" } },
     1
@@ -1309,9 +1309,9 @@ async function respuestasDeBotonChecks() {
       boton?.type === "text",
       JSON.stringify((await mensajesDe(conv.id)).map((m) => [m.direction, m.type, m.text]))
     );
-    // La conversación se releyó: la de arriba se tomó en cuanto apareció, y la
-    // ingesta la crea ANTES de guardar el mensaje y anotarle la hora. Leída en
-    // ese hueco, la ventana salía cerrada sin que el producto fallara.
+    // A conversa foi relida: a de cima foi pega assim que apareceu, e a
+    // ingestão a cria ANTES de salvar a mensagem e anotar a hora. Lida nesse
+    // intervalo, a janela saía fechada sem que o produto falhasse.
     conv = (await conversacion()) ?? conv;
     ok(
       "abre la ventana de 24 h",
@@ -1334,7 +1334,7 @@ async function respuestasDeBotonChecks() {
       JSON.stringify((await mensajesDe(conv.id)).map((m) => [m.direction, m.text]))
     );
 
-    // 2) Botón de un mensaje interactivo.
+    // 2) Botão de uma mensagem interativa.
     await entrante(
       {
         type: "interactive",
@@ -1350,7 +1350,7 @@ async function respuestasDeBotonChecks() {
     );
     ok("un button_reply interactivo entra como texto con su título", hayCancelar);
 
-    // 3) Fila de una lista.
+    // 3) Linha de uma lista.
     await entrante(
       {
         type: "interactive",
@@ -1370,8 +1370,8 @@ async function respuestasDeBotonChecks() {
     );
     ok("un list_reply entra como texto con el título de la fila (no la descripción)", hayLista);
 
-    // Camino infeliz: respuesta sin rótulo ni id → se descarta con aviso y
-    // el webhook sigue vivo; el hilo no gana un mensaje vacío.
+    // Caminho infeliz: resposta sem rótulo nem id → descarta-se com aviso e
+    // o webhook segue vivo; o fio não ganha uma mensagem vazia.
     const roto = await entrante(
       { type: "interactive", interactive: { type: "button_reply", button_reply: {} } },
       4
@@ -1389,17 +1389,17 @@ async function respuestasDeBotonChecks() {
 }
 
 /* ============================================================
- * «Quién responde a tus clientes» (tests/e2e/us-bot-api.md, pasos 40-44)
+ * «Quién responde a tus clientes» (tests/e2e/us-bot-api.md, passos 40-44)
  *
- * El agente incluido y un cerebro externo (Nea) no se ven entre sí: con los
- * dos activos, el cliente recibe dos respuestas. La tarjeta del Agente lo
- * dice con dos señales: la última llamada autenticada a /api/bot/* (en
- * memoria) y el /health de Nea si hay BRAIN_HEALTH_URL. Aquí se levanta una
- * Nea FALSA en el puerto de esa URL (tiene que ser local) — la app ya corre
- * con ella en su .env — y se la pone sana y después colgada.
+ * O agente incluído e um cérebro externo (Nea) não se veem entre si: com os
+ * dois ativos, o cliente recebe duas respostas. O cartão do Agente diz isso
+ * com dois sinais: a última chamada autenticada a /api/bot/* (em
+ * memória) e o /health da Nea se houver BRAIN_HEALTH_URL. Aqui se sobe uma
+ * Nea FALSA na porta dessa URL (tem que ser local) — o app já roda
+ * com ela no seu .env — e ela é deixada saudável e depois travada.
  * ============================================================ */
 
-/** Una Nea de mentira: responde su /health como la Nea de verdad. */
+/** Uma Nea de mentira: responde seu /health como a Nea de verdade. */
 async function levantarNeaFalsa(url) {
   const { createServer } = await import("node:http");
   const estado = { modo: "sana", pedidos: 0, ultimaAuth: null, ultimaRuta: null };
@@ -1411,7 +1411,7 @@ async function levantarNeaFalsa(url) {
     estado.pedidos++;
     estado.ultimaAuth = req.headers.authorization ?? null;
     estado.ultimaRuta = req.url;
-    if (estado.modo === "colgada") return; // nunca contesta
+    if (estado.modo === "colgada") return; // nunca responde
     res.writeHead(200, { "content-type": "application/json" });
     res.end(
       JSON.stringify({
@@ -1449,8 +1449,8 @@ async function quienRespondeChecks(convId) {
   if (url && !local) {
     console.log(`  SKIP /health: BRAIN_HEALTH_URL apunta a ${url.host}, no a esta máquina`);
   }
-  // Antes de la primera consulta: así la caché de 15 s no guarda un «no está
-  // en línea» de antes de que la Nea falsa existiera.
+  // Antes da primeira consulta: assim o cache de 15 s não guarda um «não está
+  // online» de antes de a Nea falsa existir.
   const nea = local ? await levantarNeaFalsa(url) : null;
   const perfil = (await api("/api/agent/profile")).json;
   const enabledOriginal = perfil?.profile?.enabled === true;
@@ -1479,7 +1479,7 @@ async function quienResponde(convId, estado, url, nea) {
   );
   ok("la llave del cerebro externo cuenta como configurada", antes?.external?.keyConfigured === true);
 
-  // La última llamada: solo la mueve una llamada AUTENTICADA.
+  // A última chamada: só a move uma chamada AUTENTICADA.
   await sleep(1100);
   await api("/api/bot/profile", { headers: { "x-api-key": "x".repeat(BOT_KEY.length) } });
   const trasMala = await estado();
@@ -1508,7 +1508,7 @@ async function quienResponde(convId, estado, url, nea) {
   }
 
   if (nea) {
-    // Una corrida anterior pudo dejar en caché a su Nea colgada (15 s).
+    // Uma execução anterior pode ter deixado em cache a sua Nea travada (15 s).
     let h = null;
     const enLinea = await hasta(async () => {
       h = (await estado())?.external?.health ?? null;
@@ -1544,7 +1544,7 @@ async function quienResponde(convId, estado, url, nea) {
     );
   }
 
-  // Los dos contestando: el aviso rojo.
+  // Os dois respondendo: o aviso vermelho.
   const on = await api("/api/agent/profile", {
     method: "PUT",
     body: JSON.stringify({ enabled: true }),
@@ -1570,7 +1570,7 @@ async function quienResponde(convId, estado, url, nea) {
   );
 
   if (nea) {
-    // Nea colgada: la tarjeta se entera sin quedarse esperando.
+    // Nea travada: o cartão percebe sem ficar esperando.
     nea.estado.modo = "colgada";
     let h = null;
     let masLenta = 0;
@@ -1600,28 +1600,28 @@ async function quienResponde(convId, estado, url, nea) {
 }
 
 /* ============================================================
- * Guía de inicio — la primera pantalla (tests/e2e/us-guia-de-inicio.md, #86)
+ * Guia de início — a primeira tela (tests/e2e/us-guia-de-inicio.md, #86)
  *
- * Lo que se protege: que la raíz mande a la guía mientras falte un paso o el
- * agente siga apagado, que cada paso se marque solo cuando la pieza de verdad
- * funciona (la misma fuente que usa el resto de la app), y que «Encender»
- * saque la guía del camino. Corre justo después del login, antes de que el
- * resto del guion conecte nada: así se ve la instancia como la ve quien
- * acaba de instalar. En una RE-CORRIDA la base ya trae de todo, así que
- * primero se vuelve al punto de partida (sin llave, sin número, agente sin
- * instrucciones y apagado) y al final se deja como estaba para lo que sigue.
+ * O que se protege: que a raiz mande para o guia enquanto falte um passo ou o
+ * agente continue desligado, que cada passo se marque sozinho quando a peça de verdade
+ * funciona (a mesma fonte que usa o resto do app), e que «Encender»
+ * tire o guia do caminho. Roda logo após o login, antes que o
+ * resto do roteiro conecte qualquer coisa: assim se vê a instância como a vê quem
+ * acabou de instalar. Numa NOVA EXECUÇÃO o banco já traz de tudo, então
+ * primeiro volta-se ao ponto de partida (sem chave, sem número, agente sem
+ * instruções e desligado) e no final deixa-se como estava para o que vem depois.
  * ============================================================ */
 
 async function guiaChecks() {
   console.log("\n== guía de inicio: la primera pantalla ==");
   const agenda = /^(on|1|true|si|sí|yes)$/i.test((process.env.AGENDA ?? "").trim());
-  // La app lee el mismo .env que este guion: si trae la llave, el paso 2 ya
-  // está listo «por el respaldo del entorno» y la guía lo dice así.
+  // O app lê o mesmo .env deste roteiro: se trouxer a chave, o passo 2 já
+  // está pronto «por el respaldo del entorno», e o guia diz isso.
   const respaldoEnv = Boolean((process.env.OPENROUTER_API_TOKEN ?? "").trim());
 
   const estado = async () => (await api("/api/onboarding/status")).json;
   const paso = async (key) => (await estado())?.steps?.find((s) => s.key === key);
-  /** A dónde manda la raíz con la sesión del operador. */
+  /** Para onde a raiz manda com a sessão do operador. */
   const raiz = async () => {
     const res = await fetch(`${BASE}/`, { redirect: "manual", headers: { cookie } });
     const loc = res.headers.get("location") ?? "";
@@ -1629,11 +1629,11 @@ async function guiaChecks() {
   };
   const mandaA = (destino) => (r) =>
     /^30[0-9] /.test(r) && (r.endsWith(destino) || r.endsWith(`${destino}/`));
-  // React separa las expresiones JSX con `<!-- -->` en el HTML del servidor:
-  // «Deja listo tu CRM en <!-- -->4<!-- --> pasos». Se compara el texto.
+  // O React separa as expressões JSX com `<!-- -->` no HTML do servidor:
+  // «Deja listo tu CRM en <!-- -->4<!-- --> pasos». Compara-se o texto.
   const texto = (h) => h.replace(/<!--.*?-->/g, "");
 
-  // --- Punto de partida reproducible ---
+  // --- Ponto de partida reproduzível ---
   await api("/api/settings/ai", { method: "DELETE" });
   await api("/api/settings/whatsapp", { method: "DELETE" });
   await api("/api/agent/profile", {
@@ -1644,15 +1644,15 @@ async function guiaChecks() {
     await api(`/api/kb/${e.id}`, { method: "DELETE" });
   }
   if (agenda) {
-    // Todos los días cerrados: el paso 4 queda pendiente aunque una corrida
-    // anterior ya hubiera guardado horarios.
+    // Todos os dias fechados: o passo 4 fica pendente mesmo que uma execução
+    // anterior já tivesse salvo horários.
     await api("/api/calendar/settings", {
       method: "PUT",
       body: JSON.stringify({ connector: "enlace-fijo", weeklyHours: {} }),
     });
   }
 
-  // --- Lo que ve quien acaba de instalar ---
+  // --- O que vê quem acabou de instalar ---
   const anon = await fetch(`${BASE}/api/onboarding/status`);
   ok("estado sin sesión → 401", anon.status === 401, `status=${anon.status}`);
 
@@ -1701,7 +1701,7 @@ async function guiaChecks() {
   const r0 = await raiz();
   ok("la raíz manda a /onboarding mientras falte un paso", mandaA("/onboarding")(r0), r0);
 
-  // La pantalla se compila en su primer request en `next dev`: espera activa.
+  // A tela é compilada na sua primeira requisição no `next dev`: espera ativa.
   let html = "";
   const pantalla = await hasta(async () => {
     const res = await fetch(`${BASE}/onboarding`, { headers: { cookie } });
@@ -1719,7 +1719,7 @@ async function guiaChecks() {
   );
   ok("…y la entrada «Guía de inicio» en el menú", html.includes("Guía de inicio"));
 
-  // --- Los pasos se marcan solos ---
+  // --- Os passos se marcam sozinhos ---
   const perfilOk = await api("/api/agent/profile", {
     method: "PUT",
     body: JSON.stringify({ name: "Sofi", instructions: "Vendemos limpiezas dentales." }),
@@ -1831,30 +1831,30 @@ async function guiaChecks() {
     htmlEncendido.includes("Sofi ya está contestando") && htmlEncendido.includes("Ir a la Bandeja")
   );
 
-  // --- Como estaba, para lo que sigue ---
+  // --- Como estava, para o que vem depois ---
   await api("/api/agent/profile", { method: "PUT", body: JSON.stringify({ enabled: false }) });
-  // Sin la fila, el resto del guion sigue hablando con el ai-mock por el
-  // respaldo del entorno, como antes de esta sección.
+  // Sem a linha, o resto do roteiro segue falando com o ai-mock pelo
+  // respaldo do ambiente, como antes desta seção.
   await api("/api/settings/ai", { method: "DELETE" });
 }
 
 /* ============================================================
- * us5 — Guardar la conexión registra el webhook en Meta y respeta el
- * override de un cerebro externo (tests/e2e/us5-connect.md, pasos 3, 4, 4b,
- * 7 y 8)
+ * us5 — Salvar a conexão registra o webhook na Meta e respeita o
+ * override de um cérebro externo (tests/e2e/us5-connect.md, passos 3, 4, 4b,
+ * 7 e 8)
  *
- * Antes, guardar dejaba al operador a medias: el token era válido y se podía
- * enviar, pero no llegaba nada hasta que alguien pegaba la URL en el panel de
- * su app de Meta. Ahora el CRM la registra él mismo, como override del
- * NÚMERO, y «Meta» (el wa-mock) hace el handshake de verdad contra la ruta.
+ * Antes, salvar deixava o operador pela metade: o token era válido e dava para
+ * enviar, mas nada chegava até alguém colar a URL no painel do seu
+ * app da Meta. Agora o CRM a registra ele mesmo, como override do
+ * NÚMERO, e a «Meta» (o wa-mock) faz o handshake de verdade contra a rota.
  *
- * Y lo de siempre: en Meta, `POST {WABA}/subscribed_apps` SIN cuerpo es la
- * forma documentada de BORRAR el override de callback de la WABA, y el CRM lo
- * mandaba en cada "Guardar": un cerebro externo (Nea) que recibe los webhooks
- * por ese override quedaba sordo sin que nada lo avisara. El override del
- * número ganaría igual, así que con uno ajeno en la WABA el CRM no lo pone.
- * El wa-mock se comporta como Meta, así que si el CRM vuelve a pisar a
- * ciegas, esto se pone rojo.
+ * E o de sempre: na Meta, `POST {WABA}/subscribed_apps` SEM corpo é a
+ * forma documentada de APAGAR o override de callback da WABA, e o CRM o
+ * mandava a cada "Guardar": um cérebro externo (Nea) que recebe os webhooks
+ * por esse override ficava surdo sem que nada o avisasse. O override do
+ * número ganharia igual, então com um alheio na WABA o CRM não o põe.
+ * O wa-mock se comporta como a Meta, então se o CRM voltar a sobrescrever às
+ * cegas, isto fica vermelho.
  * ============================================================ */
 
 async function overrideChecks() {
@@ -1869,7 +1869,7 @@ async function overrideChecks() {
   const overrideActual = async () =>
     (await suscripcion()).find((app) => app.override_callback_uri)
       ?.override_callback_uri ?? null;
-  /** El override que «Meta» tiene en el NÚMERO (lo que el CRM registra). */
+  /** O override que a «Meta» tem no NÚMERO (o que o CRM registra). */
   const webhookDelNumero = async () =>
     (await api("/api/dev/wa-mock/webhooks")).json?.phoneWebhooks?.[PN] ?? null;
   const guardar = (token) =>
@@ -1879,7 +1879,7 @@ async function overrideChecks() {
     });
   const urlPropia = (await api("/api/settings/webhook")).json?.url ?? null;
 
-  // Modo directo: sin override, guardar suscribe la app, como siempre…
+  // Modo direto: sem override, salvar inscreve o app, como sempre…
   let guardado = await guardar("tok-e2e");
   const trasGuardar = await suscripcion();
   ok(
@@ -1889,7 +1889,7 @@ async function overrideChecks() {
       !trasGuardar[0]?.override_callback_uri,
     JSON.stringify({ status: guardado.res.status, trasGuardar })
   );
-  // …y registra el webhook de la instancia en el número (pasó el handshake).
+  // …e registra o webhook da instância no número (passou pelo handshake).
   ok(
     "y registra el webhook de la instancia en el NÚMERO (handshake incluido)",
     guardado.json?.webhook?.ok === true &&
@@ -1899,7 +1899,7 @@ async function overrideChecks() {
     JSON.stringify({ webhook: guardado.json?.webhook, urlPropia, enMeta: await webhookDelNumero() })
   );
 
-  // El botón «Registrar en Meta» lo repite con la conexión guardada.
+  // O botão «Registrar en Meta» repete isso com a conexão salva.
   const boton = await api("/api/settings/webhook", { method: "POST" });
   ok(
     "«Registrar en Meta» repite el registro sin volver a pegar el token",
@@ -1907,8 +1907,8 @@ async function overrideChecks() {
     JSON.stringify(boton.json)
   );
 
-  // Un token sin whatsapp_business_management: Meta rechaza el registro, la
-  // conexión se guarda igual y el motivo viaja en la respuesta.
+  // Um token sem whatsapp_business_management: a Meta recusa o registro, a
+  // conexão é salva mesmo assim e o motivo vai na resposta.
   const sinGestion = await guardar("tok-e2e-sin-gestion");
   ok(
     "sin permiso de gestión, la conexión se guarda (200) y avisa por qué no registró",
@@ -1926,7 +1926,7 @@ async function overrideChecks() {
   );
   await guardar("tok-e2e");
 
-  // El cerebro externo fija SU override contra Meta (lo que hace Nea).
+  // O cérebro externo define SEU override contra a Meta (o que faz a Nea).
   const fijado = await api(graph, {
     method: "POST",
     headers: comoMeta,
@@ -1940,7 +1940,7 @@ async function overrideChecks() {
     fijado.res.ok && (await overrideActual()) === NEA
   );
 
-  // Rotar el token y guardar otra vez — el caso que lo desconectaba.
+  // Girar o token e salvar outra vez — o caso que a desconectava.
   guardado = await guardar("tok-e2e-rotado");
   ok(
     "guardar la conexión con el token rotado responde 200",
@@ -1953,8 +1953,8 @@ async function overrideChecks() {
     despues === NEA,
     `override=${despues}`
   );
-  // El override del número gana al de la WABA: con uno ajeno, el CRM no pone
-  // el suyo y quita el que había dejado el guardado anterior.
+  // O override do número vence o da WABA: com um alheio, o CRM não põe
+  // o seu e remove o que o salvamento anterior tinha deixado.
   ok(
     "y el número queda SIN override propio: el cerebro externo sigue recibiendo",
     guardado.json?.webhook?.skipped === "waba_override" &&
@@ -1963,17 +1963,17 @@ async function overrideChecks() {
     JSON.stringify({ webhook: guardado.json?.webhook, enMeta: await webhookDelNumero() })
   );
 
-  // Control del propio mock: un POST sin cuerpo SÍ borra el override, como en
-  // Meta. Sin esto, el check anterior podría pasar contra un mock permisivo.
+  // Controle do próprio mock: um POST sem corpo APAGA o override, como na
+  // Meta. Sem isso, a verificação anterior poderia passar contra um mock permissivo.
   await api(graph, { method: "POST", headers: comoMeta });
   ok(
     "control: un POST sin cuerpo borra el override (así se comporta Meta)",
     (await overrideActual()) === null
   );
 
-  // Desconectar: quita el override del número en Meta ANTES de soltar el
-  // token, y la bandeja no se toca. Luego el guion sigue con la conexión de
-  // siempre.
+  // Desconectar: remove o override do número na Meta ANTES de soltar o
+  // token, e a bandeja não é tocada. Depois o roteiro segue com a conexão de
+  // sempre.
   await guardar("tok-e2e");
   const antesDeSoltar = await webhookDelNumero();
   const soltar = await api("/api/settings/whatsapp", { method: "DELETE" });
@@ -1997,9 +1997,9 @@ async function overrideChecks() {
 /* ============================================================
  * 015 — Motor de agenda universal (tests/e2e/us-agenda.md)
  *
- * Cubre las dos configuraciones de la bandera, las dos garantías
- * innegociables con sus CÓDIGOS EXACTOS, la carrera del hueco, el enlace
- * pendiente cuando el proveedor falla, y el sandbox del Laboratorio.
+ * Cobre as duas configurações da flag, as duas garantias
+ * inegociáveis com seus CÓDIGOS EXATOS, a corrida do horário, o link
+ * pendente quando o provedor falha, e o sandbox do Laboratório.
  * ============================================================ */
 
 async function agendaChecks() {
@@ -2015,9 +2015,9 @@ async function agendaChecks() {
   ];
 
   if (!encendida) {
-    // Con la bandera apagada la agenda NO EXISTE: ni rutas de operador, ni de
-    // servicio, ni pantallas. Es la mitad del contrato que casi nunca se
-    // prueba, y la que toda instancia normal usa.
+    // Com a flag desligada a agenda NÃO EXISTE: nem rotas de operador, nem de
+    // serviço, nem telas. É a metade do contrato que quase nunca se
+    // testa, e a que toda instância normal usa.
     for (const ruta of rutas) {
       const { res } = await api(ruta);
       ok(`${ruta} → 404 con la agenda apagada`, res.status === 404, `status=${res.status}`);
@@ -2129,12 +2129,12 @@ async function agendaChecks() {
     JSON.stringify(ofertaA.json?.diasConAgenda)
   );
 
-  // GARANTÍA 1: un instante libre pero JAMÁS ofrecido se rechaza.
+  // GARANTIA 1: um instante livre mas NUNCA ofertado é recusado.
   const noOfrecido = await bot("/api/bot/bookings", {
     method: "POST",
     body: JSON.stringify({
       conversationId: convA.id,
-      // Un minuto después de un hueco real: válido, libre, y nunca ofrecido.
+      // Um minuto depois de um vão real: válido, livre e nunca ofertado.
       startUtc: new Date(Date.parse(slotsA[0].startUtc) + 60_000).toISOString(),
     }),
   });
@@ -2149,7 +2149,7 @@ async function agendaChecks() {
     (noOfrecido.json?.slots ?? []).length > 0
   );
 
-  // Camino feliz: 201 EXACTO, no 200.
+  // Caminho feliz: 201 EXATO, não 200.
   const elegido = slotsA[0].startUtc;
   const creada = await bot("/api/bot/bookings", {
     method: "POST",
@@ -2181,12 +2181,12 @@ async function agendaChecks() {
   );
 
   /**
-   * El contexto del cerebro SABE de la cita.
+   * O contexto do cérebro SABE do agendamento.
    *
-   * Sin esto un cerebro externo solo conoce la cita por el historial, y en la
-   * edición cloud eso acabó en una segunda cita para quien no llegó a la
-   * primera y en «tu demo es hoy a las 10:30» dicho por la tarde. Nea lee este
-   * bloque tal cual; la raíz no lo mandaba.
+   * Sem isso, um cérebro externo só conhece o agendamento pelo histórico, e na
+   * edição cloud isso acabou em um segundo agendamento para quem não chegou à
+   * primeira e em «tu demo es hoy a las 10:30» dito à tarde. A Nea lê este
+   * bloco tal como está; a raiz não o mandava.
    */
   const ctxConCita = await bot(`/api/bot/context?conversationId=${convA.id}`);
   const proxima = ctxConCita.json?.booking?.next;
@@ -2212,12 +2212,12 @@ async function agendaChecks() {
     JSON.stringify({ meetingLink: proxima?.meetingLink, linkPending: proxima?.linkPending })
   );
 
-  // GARANTÍA 2: la carrera. B tenía el mismo hueco ofrecido y llega tarde.
+  // GARANTIA 2: a corrida. B tinha o mesmo vão ofertado e chega tarde.
   const ofertaB = await bot(
     `/api/bot/availability?conversationId=${convB.id}&limit=12&perDay=3&days=5`
   );
-  // Se le ofrece a B exactamente el hueco que A acaba de tomar: se simula la
-  // oferta previa a la reserva de A, que es como ocurre en la vida real.
+  // Oferece-se a B exatamente o vão que A acabou de tomar: simula-se a
+  // oferta anterior à reserva de A, que é como acontece na vida real.
   const tomado = await bot("/api/bot/bookings", {
     method: "POST",
     body: JSON.stringify({ conversationId: convB.id, startUtc: elegido }),
@@ -2245,7 +2245,7 @@ async function agendaChecks() {
     `activas=${activasEnElHueco.length}`
   );
 
-  // Las alternativas del 409 ya son la oferta vigente: reservables de una.
+  // As alternativas do 409 já são a oferta vigente: reserváveis de imediato.
   const alternativa = (tomado.json?.slots ?? [])[0];
   if (alternativa) {
     const conAlternativa = await bot("/api/bot/bookings", {
@@ -2264,7 +2264,7 @@ async function agendaChecks() {
     ok("el 409 trajo alternativas frescas", false, "lista vacía");
   }
 
-  // Reprogramar por la superficie del bot: 200, no 201.
+  // Remarcar pela superfície do bot: 200, não 201.
   const ofertaMover = await bot(
     `/api/bot/availability?conversationId=${convA.id}&limit=12&perDay=3&days=5`
   );
@@ -2292,18 +2292,18 @@ async function agendaChecks() {
   }
 
   /**
-   * El agujero de INTEGRACIÓN del issue #50.
+   * A falha de INTEGRAÇÃO do issue #50.
    *
-   * Todo lo de arriba entra por `/api/bot/*`, donde quien llama YA tiene el
-   * ISO. El agente EMBEBIDO no lo tenía: al modelo solo le llegaban el prompt
-   * y el historial de TEXTO, con las etiquetas que leyó el cliente y sin año,
-   * zona ni fecha de hoy. Acertar el instante era suerte, el rechazo caía en
-   * `slot_not_offered` —de texto fijo— y la conversación repetía la lista
-   * para siempre.
+   * Tudo o de cima entra por `/api/bot/*`, onde quem chama JÁ tem o
+   * ISO. O agente INCORPORADO não o tinha: ao modelo só chegavam o prompt
+   * e o histórico de TEXTO, com os rótulos que o cliente leu e sem ano,
+   * fuso nem data de hoje. Acertar o instante era sorte, a recusa caía em
+   * `slot_not_offered` —de texto fixo— e a conversa repetia a lista
+   * para sempre.
    *
-   * Y por eso este self-test no lo cazaba: el resto de 015 ejercita el
-   * gateway, nunca la conversación. Aquí hay que ENCENDER el agente
-   * in-process a propósito, y apagarlo después para no alterar lo que sigue.
+   * E por isso este self-test não a pegava: o resto de 015 exercita o
+   * gateway, nunca a conversa. Aqui é preciso LIGAR o agente
+   * in-process de propósito, e desligá-lo depois para não alterar o que vem.
    */
   console.log("\n== 015: el agente reserva desde la conversación (#50) ==");
   {
@@ -2319,13 +2319,13 @@ async function agendaChecks() {
     );
 
     /**
-     * Contacto NUEVO en cada corrida.
+     * Contato NOVO em cada execução.
      *
-     * Con un teléfono fijo, la segunda ejecución arrastra la conversación y —
-     * sobre todo— las OFERTAS de la anterior: el mapa ya está ahí desde el
-     * primer mensaje y el agente reserva antes de ofrecer, así que el check
-     * mide otra cosa. El resto del guion asume base recién sembrada; esta
-     * sección no puede permitírselo porque compara ANTES y DESPUÉS.
+     * Com um telefone fixo, a segunda execução arrasta a conversa e —
+     * sobretudo— as OFERTAS da anterior: o mapa já está ali desde a
+     * primeira mensagem e o agente reserva antes de ofertar, então a checagem
+     * mede outra coisa. O resto do roteiro assume base recém-semeada; esta
+     * seção não pode se dar a esse luxo porque compara ANTES e DEPOIS.
      */
     const CORRIDA = Date.now().toString().slice(-6);
     const LEAD_C = `5214627${CORRIDA}`;
@@ -2337,9 +2337,9 @@ async function agendaChecks() {
           from: LEAD_C,
           name: "Lead agenda C",
           text: texto,
-          // Único por corrida: con un id fijo, la segunda ejecución lo
-          // deduplica en la ingesta y no entra NADA — el agente no llega a
-          // correr y el check falla sin que haya nada roto.
+          // Único por execução: com um id fixo, a segunda execução o
+          // deduplica na ingestão e não entra NADA — o agente não chega a
+          // rodar e a checagem falha sem que haja nada quebrado.
           waMessageId: `wamid.e2e.015.c.${CORRIDA}.${n}`,
         }),
       });
@@ -2362,7 +2362,7 @@ async function agendaChecks() {
         return msgs.filter((m) => m.direction === "out");
       };
 
-      // El agente tiene que RESPONDER; cuánto tarde no es asunto del check.
+      // O agente tem que RESPONDER; quanto demore não é assunto da checagem.
       await hasta(async () => (await salientesDe()).length > 0);
       const trasOferta = await salientesDe();
       ok(
@@ -2386,11 +2386,11 @@ async function agendaChecks() {
       );
 
       /**
-       * Aquí había una tercera comprobación —«confirma en vez de volver a
-       * ofrecer»— y se quitó: pasaba TAMBIÉN con el bug puesto, porque bajo el
-       * fallo el agente responde cualquier otra cosa que tampoco contiene
-       * «estos horarios». Una comprobación que no distingue el fallo del
-       * acierto solo da confianza falsa. Lo que decide es la cita creada.
+       * Aqui havia uma terceira verificação —«confirma em vez de voltar a
+       * ofertar»— e foi removida: passava TAMBÉM com o bug, porque sob a
+       * falha o agente responde qualquer outra coisa que também não contém
+       * «estes horários». Uma verificação que não distingue a falha do
+       * acerto só dá confiança falsa. O que decide é o agendamento criado.
        */
     }
 
@@ -2417,11 +2417,11 @@ async function agendaChecks() {
   );
 
   /**
-   * Y el contexto dice que se CANCELÓ, y quién.
+   * E o contexto diz que foi CANCELADO, e por quem.
    *
-   * En la edición cloud, sin esto, el agente le contestó a un cliente cuya
-   * demo canceló el equipo «no quedó guardada, por alguna razón»: veía la
-   * cita en el historial y no en el contexto, e inventó el motivo.
+   * Na edição cloud, sem isso, o agente respondeu a um cliente cuja
+   * demo a equipe cancelou «no quedó guardada, por alguna razón»: via o
+   * agendamento no histórico e não no contexto, e inventou o motivo.
    */
   const ctxCancelada = (await bot(`/api/bot/context?conversationId=${convA.id}`)).json
     ?.booking;
@@ -2450,7 +2450,7 @@ async function agendaChecks() {
     `status=${reintentoInvalido.res.status}`
   );
 
-  // El conector caído: la cita SE CREA igual, con el enlace pendiente.
+  // O conector caído: o agendamento É CRIADO mesmo assim, com o link pendente.
   await api("/api/calendar/settings", {
     method: "PUT",
     body: JSON.stringify({ connector: "zoom" }),
@@ -2488,7 +2488,7 @@ async function agendaChecks() {
     );
   }
 
-  // Se restaura el conector soberano para no dejar la instancia a medias.
+  // Restaura-se o conector soberano para não deixar a instância pela metade.
   await api("/api/calendar/settings", {
     method: "PUT",
     body: JSON.stringify({ connector: "enlace-fijo" }),
@@ -2567,7 +2567,7 @@ async function agendaChecks() {
         JSON.stringify(estado.meetings)
       );
 
-      // Cancelar borra la reunión en el proveedor.
+      // Cancelar apaga a reunião no provedor.
       await api(`/api/bookings/${conZoom.json.bookingId}`, {
         method: "PATCH",
         body: JSON.stringify({ action: "cancel" }),
@@ -2589,24 +2589,24 @@ async function agendaChecks() {
 
   await huecosPorFechaChecks();
 
-  // El sandbox del Laboratorio (una cita de prueba jamás llega a un conector)
-  // NO se verifica aquí: las conversaciones del Laboratorio no son alcanzables
-  // desde la API pública —a propósito—, así que desde fuera solo podría
-  // observarse por ausencia, que es una prueba débil. Vive en
-  // `tests/unit/agenda-sandbox.test.ts`, que afirma lo que de verdad importa:
-  // que el conector no se llama, ni al crear, ni al reprogramar, ni al
+  // O sandbox do Laboratório (um agendamento de teste jamais chega a um conector)
+  // NÃO é verificado aqui: as conversas do Laboratório não são alcançáveis
+  // pela API pública —de propósito—, então de fora só poderia
+  // ser observado por ausência, que é uma prova fraca. Vive em
+  // `tests/unit/agenda-sandbox.test.ts`, que afirma o que de fato importa:
+  // que o conector não é chamado, nem ao criar, nem ao remarcar, nem ao
   // cancelar.
 }
 
 /* ============================================================
- * R10 — Huecos por fecha (tests/e2e/us-agenda.md, US3b)
+ * R10 — Horários livres por data (tests/e2e/us-agenda.md, US3b)
  *
- * El fallo que lo motivó, en la prueba de punta a punta raíz + Nea: a
- * «¿tienen algo mañana en la tarde?» el cerebro solo recibía las tres
- * primeras horas de mañana y contestó que solo había mañana. Aquí se pide el
- * día con `date`, se reserva una hora de la TARDE y se comprueba que el
- * reparto sin `date` conserva su forma. Corre al final de 015 con un lead
- * propio: no toca la oferta de los demás.
+ * A falha que o motivou, na prova de ponta a ponta raiz + Nea: a
+ * «¿tienen algo mañana en la tarde?» o cérebro só recebia as três
+ * primeiras horas da manhã e respondeu que só havia manhã. Aqui se pede o
+ * dia com `date`, reserva-se um horário da TARDE e confere-se que a
+ * divisão sem `date` conserva sua forma. Roda no final de 015 com um lead
+ * próprio: não toca a oferta dos outros.
  * ============================================================ */
 async function huecosPorFechaChecks() {
   console.log("\n== R10: huecos por fecha (la tarde de mañana) ==");
@@ -2631,7 +2631,7 @@ async function huecosPorFechaChecks() {
       phoneNumberId: PN,
       from: `5214629${SUF}`,
       name: "Lead R10 tarde",
-      // Sin palabras que disparen al agente incluido a ofrecer o reservar.
+      // Sem palavras que disparem o agente incluído a ofertar ou reservar.
       text: "¿tienen algo mañana en la tarde?",
       waMessageId: `wamid.e2e.r10.${SUF}.1`,
     }),
@@ -2646,7 +2646,7 @@ async function huecosPorFechaChecks() {
   if (!conv) return;
   const q = `/api/bot/availability?conversationId=${conv.id}&limit=12&perDay=3&days=5`;
 
-  // Sin date: la forma de siempre (+ query), y el porqué del fallo a la vista.
+  // Sem date: a forma de sempre (+ query), e o porquê da falha à vista.
   const reparto = await bot(q);
   const rSlots = reparto.json?.slots ?? [];
   ok(
@@ -2668,7 +2668,7 @@ async function huecosPorFechaChecks() {
     JSON.stringify(reparto.json?.query)
   );
 
-  // Con date: TODO mañana, tarde incluida.
+  // Com date: TODO o dia de amanhã, inclusive a tarde.
   const delDia = await bot(`${q}&date=${manana}`);
   const dSlots = delDia.json?.slots ?? [];
   ok(
@@ -2690,7 +2690,7 @@ async function huecosPorFechaChecks() {
     JSON.stringify(dSlots.map((s) => s.time))
   );
 
-  // Consultas que no encuentran nada NO borran la oferta vigente.
+  // Consultas que não encontram nada NÃO apagam a oferta vigente.
   const lejos = diaEn(8);
   const fuera = await bot(`${q}&date=${lejos}`);
   ok(
@@ -2736,16 +2736,16 @@ main().catch((err) => {
 });
 
 /* ============================================================
- * 016 — Atribución de anuncios y Conversions API (tests/e2e/us-atribucion.md)
+ * 016 — Atribuição de anúncios e Conversions API (tests/e2e/us-atribucion.md)
  *
- * Cubre las dos configuraciones de la bandera, la conexión del dataset, la
- * captura del anuncio, los dos eventos con la FORMA de su payload, el dedup,
- * y —lo que más importa— que un fallo de Meta jamás cuesta el movimiento del
+ * Cobre as duas configurações da flag, a conexão do dataset, a
+ * captura do anúncio, os dois eventos com o FORMATO do seu payload, o dedup,
+ * e —o que mais importa— que uma falha da Meta jamais custa a movimentação do
  * lead.
  *
- * Los contactos llevan un sufijo por corrida: el dedup de conversiones es
- * permanente por diseño, así que re-correr el arnés contra la MISMA base
- * tiene que estrenar leads o estaría midiendo los de la corrida anterior.
+ * Os contatos levam um sufixo por execução: o dedup de conversões é
+ * permanente por design, então rodar o harness de novo contra a MESMA base
+ * tem que estrear leads ou estaria medindo os da execução anterior.
  * ============================================================ */
 
 async function atribucionChecks() {
@@ -2783,9 +2783,9 @@ async function atribucionChecks() {
       `status=${page.status}`
     );
 
-    // Y un mensaje que SÍ viene de un anuncio se atiende como cualquier otro:
-    // la instancia que no atribuye no se entera del referral, pero tampoco se
-    // rompe con él.
+    // E uma mensagem que VEM de um anúncio é atendida como qualquer outra:
+    // a instância que não atribui não fica sabendo do referral, mas também não
+    // quebra com ele.
     const inb = await api("/api/dev/wa-mock/inbound", {
       method: "POST",
       body: JSON.stringify({
@@ -2798,7 +2798,7 @@ async function atribucionChecks() {
       }),
     });
     ok("inbound con anuncio entregado igual", inb.res.ok);
-    // Con `preview` ya entró el mensaje, y el anuncio se guarda antes que él.
+    // Com `preview` a mensagem já entrou, e o anúncio é salvo antes dela.
     let convOff = null;
     await hasta(async () => {
       const convs = (await api("/api/conversations")).json?.conversations ?? [];
@@ -2808,8 +2808,8 @@ async function atribucionChecks() {
       return !!convOff;
     });
     ok("la conversación del anuncio existe (la ingesta no se rompe)", !!convOff);
-    // 018 — La bandera ya no esconde DE QUÉ anuncio llegó: eso se ve siempre.
-    // Lo que apaga es el identificador de clic, que ni se guarda.
+    // 018 — A flag já não esconde DE QUAL anúncio chegou: isso se vê sempre.
+    // O que desliga é o identificador de clique, que nem é salvo.
     ok(
       "el origen del anuncio se ve igual con la bandera apagada (018)",
       convOff?.anuncio?.headline === "Anuncio de prueba",
@@ -2830,11 +2830,11 @@ async function atribucionChecks() {
     return;
   }
 
-  /* ---------------- US2: conectar el dataset ---------------- */
+  /* ---------------- US2: conectar o dataset ---------------- */
 
   console.log("\n== 016: conectar el dataset (US2) ==");
-  // Se parte de desconectado: así el primer check afirma lo que dice afirmar
-  // aunque el arnés se re-corra sobre la misma base.
+  // Parte-se do desconectado: assim a primeira checagem afirma o que diz
+  // afirmar, mesmo que o harness seja rerrodado sobre a mesma base.
   await api("/api/settings/capi", { method: "DELETE" });
   const vacio = await api("/api/settings/capi");
   ok(
@@ -2887,7 +2887,7 @@ async function atribucionChecks() {
     JSON.stringify(cfg)
   );
 
-  /* ---------------- US3 + US4: capturar y calificar ---------------- */
+  /* ---------------- US3 + US4: capturar e qualificar ---------------- */
 
   console.log("\n== 016: del anuncio al lead calificado (US3/US4) ==");
   await api("/api/dev/wa-mock/capi-events", { method: "DELETE" });
@@ -2908,7 +2908,7 @@ async function atribucionChecks() {
   });
   await sleep(1400);
 
-  // Segundo mensaje con OTRO referral: el primero gana y no se sobreescribe.
+  // Segunda mensagem com OUTRO referral: o primeiro vence e não é sobrescrito.
   await api("/api/dev/wa-mock/inbound", {
     method: "POST",
     body: JSON.stringify({
@@ -2965,7 +2965,7 @@ async function atribucionChecks() {
     JSON.stringify(evento1?.customData)
   );
 
-  // Dedup: sacarlo y volverlo a meter no re-reporta.
+  // Dedup: tirá-lo e colocá-lo de novo não reenvia.
   await api(`/api/pipeline/leads/${leadAd.id}`, {
     method: "PATCH",
     body: JSON.stringify({ stageId: etapaInicial.id }),
@@ -2985,7 +2985,7 @@ async function atribucionChecks() {
     `${califsDeEste.length} filas`
   );
 
-  /* ---------------- US5: la venta ---------------- */
+  /* ---------------- US5: a venda ---------------- */
 
   console.log("\n== 016: la venta (US5) ==");
   const venta = await api(`/api/pipeline/leads/${leadAd.id}`, {
@@ -3033,11 +3033,11 @@ async function atribucionChecks() {
     `${comprasDeEste.length} filas`
   );
 
-  /* ---------------- Los caminos infelices ---------------- */
+  /* ---------------- Os caminhos infelizes ---------------- */
 
   console.log("\n== 016: caminos infelices ==");
 
-  // Un lead que no vino de un anuncio: se registra el motivo y nada falla.
+  // Um lead que não veio de um anúncio: registra-se o motivo e nada falha.
   const NOMBRE_ORG = nom("Lead organico");
   await api("/api/dev/wa-mock/inbound", {
     method: "POST",
@@ -3065,7 +3065,7 @@ async function atribucionChecks() {
     JSON.stringify(omitido)
   );
 
-  // Meta rechazando: el 200 mentiroso (events_received: 0).
+  // Meta recusando: o 200 mentiroso (events_received: 0).
   const NOMBRE_FAIL = nom("Lead con Meta caido");
   await api("/api/settings/capi", {
     method: "PUT",
@@ -3114,7 +3114,7 @@ async function atribucionChecks() {
     JSON.stringify(fallido)
   );
 
-  // Desconectar: deja de reportarse, pero la bitácora de lo ya dicho se queda.
+  // Desconectar: deixa de ser reportado, mas o registro do que já foi dito fica.
   const del = await api("/api/settings/capi", { method: "DELETE" });
   ok("se puede desconectar", del.res.ok);
   const trasBorrar = (await api("/api/settings/capi")).json;
@@ -3128,16 +3128,16 @@ async function atribucionChecks() {
 }
 
 /* ============================================================
- * 018 — De qué anuncio llegó cada conversación (tests/e2e/us-atribucion.md)
+ * 018 — De qual anúncio chegou cada conversa (tests/e2e/us-atribucion.md)
  *
- * Corre con la bandera ATRIBUCION apagada Y encendida: el origen del anuncio
- * se ve siempre, y lo único que cambia es si Meta identificó el clic. Puerto
- * de las secciones 1-4b del guion de la spec 212 de Vocero Cloud, sin las
- * comprobaciones entre organizaciones (aquí hay una).
+ * Roda com a flag ATRIBUCION desligada E ligada: a origem do anúncio
+ * se vê sempre, e a única coisa que muda é se a Meta identificou o clique. Porta
+ * das seções 1-4b do roteiro da spec 212 do Vocero Cloud, sem as
+ * verificações entre organizações (aqui há uma).
  *
- * Los creativos los sirve el wa-mock (`/api/dev/wa-mock/media-file/creativo-*`),
- * en el origen de META_GRAPH_BASE_URL: el único que la copia acepta fuera de
- * los hosts de Meta, y solo con los mocks habilitados.
+ * Os criativos são servidos pelo wa-mock (`/api/dev/wa-mock/media-file/creativo-*`),
+ * na origem de META_GRAPH_BASE_URL: a única que a cópia aceita fora dos
+ * hosts da Meta, e só com os mocks habilitados.
  * ============================================================ */
 
 async function anuncioDeOrigenChecks() {
@@ -3151,7 +3151,7 @@ async function anuncioDeOrigenChecks() {
   try {
     origenMock = new URL(process.env.META_GRAPH_BASE_URL).origin;
   } catch {
-    /* sin META_GRAPH_BASE_URL: el propio BASE */
+    /* sem META_GRAPH_BASE_URL: o próprio BASE */
   }
   const creativo = (id) => `${origenMock}/api/dev/wa-mock/media-file/${id}`;
   const referralCtwa = ({ id, titular, imagen, tipo = "ad" }) => ({
@@ -3176,9 +3176,9 @@ async function anuncioDeOrigenChecks() {
         ...(referral ? { referral } : {}),
       }),
     });
-  // El webhook procesa en `after()`: la conversación existe un instante antes
-  // que su anuncio y su mensaje. Con `preview` ya hay mensaje, y el anuncio se
-  // guarda ANTES que el mensaje: a partir de ahí lo que diga la lista es final.
+  // O webhook processa em `after()`: a conversa existe um instante antes
+  // que seu anúncio e sua mensagem. Com `preview` já há mensagem, e o anúncio
+  // é salvo ANTES da mensagem: a partir daí o que a lista diz é final.
   const conversacionDe = async (n) => {
     let hallada = null;
     await hasta(async () => {
@@ -3203,12 +3203,12 @@ async function anuncioDeOrigenChecks() {
   console.log(
     `\n== 018: de qué anuncio llegó (ATRIBUCION ${atribuye ? "encendida" : "apagada"}) ==`
   );
-  // En `next dev` una ruta se compila en su primera petición y eso puede tardar
-  // más que la espera de la copia: se calientan antes de medir.
+  // No `next dev` uma rota é compilada na sua primeira requisição, e isso pode demorar
+  // mais que a espera da cópia: aquecem-se antes de medir.
   await fetch(creativo("creativo-calentamiento")).catch(() => null);
   await api("/api/media/calentamiento").catch(() => null);
 
-  /* ---------- 1 · el primer mensaje trae su anuncio ---------- */
+  /* ---------- 1 · a primeira mensagem traz seu anúncio ---------- */
   const R1 = referralCtwa({ id: 1, titular: `Diagnóstico gratis ${RUN}`, imagen: creativo(`creativo-azul-${RUN}`) });
   const R2 = referralCtwa({ id: 2, titular: `Segundo anuncio ${RUN}`, imagen: creativo(`creativo-rojo-${RUN}`) });
   const inb1 = await entra(1, `Hola, vi su anuncio ${RUN}`, R1);
@@ -3266,19 +3266,19 @@ async function anuncioDeOrigenChecks() {
     ok("sin sesión no se sirve", sinSesion.status === 401, `status=${sinSesion.status}`);
   }
 
-  /* ---------- 2 · el primer anuncio gana y nada se duplica ---------- */
+  /* ---------- 2 · o primeiro anúncio vence e nada se duplica ---------- */
   const entrantes = async () =>
     conv1
       ? ((await api(`/api/conversations/${conv1.id}/messages`)).json?.messages ?? [])
           .filter((m) => m.direction === "in").length
       : -1;
   const antes = await entrantes();
-  // Reentrega exacta del primer mensaje, como hace Meta, y un segundo mensaje
-  // de la misma persona desde OTRO anuncio.
+  // Reentrega exata da primeira mensagem, como faz a Meta, e uma segunda mensagem
+  // da mesma pessoa a partir de OUTRO anúncio.
   await entra(1, `Hola, vi su anuncio ${RUN}`, R1);
   await entra(1, `Vi otro anuncio ${RUN}`, R2, `wamid.e2e.018.${RUN}.1b`);
   await hasta(async () => (await entrantes()) >= antes + 1);
-  await sleep(600); // por si la reentrega llegara a colarse después
+  await sleep(600); // por via das dúvidas, caso a reentrega consiga entrar depois
   const despues = await entrantes();
   const conv1b = await conversacionDe(1);
   ok(
@@ -3292,7 +3292,7 @@ async function anuncioDeOrigenChecks() {
     `entrantes antes ${antes}, después ${despues} (se esperaba +1)`
   );
 
-  /* ---------- 3 · la imagen se copia una vez por anuncio ---------- */
+  /* ---------- 3 · a imagem é copiada uma vez por anúncio ---------- */
   await entra(3, `Otra persona, mismo anuncio ${RUN}`, { ...R1, ctwa_clid: `clid-otro-${RUN}` });
   const conv3 = await conversacionDe(3);
   const imagen3 = conv3 ? await imagenDe(conv3.contact.id) : null;
@@ -3302,7 +3302,7 @@ async function anuncioDeOrigenChecks() {
     `imagen ${imagen3} vs ${imagenR1}`
   );
 
-  /* ---------- 4 · lo que no se descarga no rompe la ingesta ---------- */
+  /* ---------- 4 · o que não é baixado não quebra a ingestão ---------- */
   const casos = [
     { n: 4, nombre: "host que no es de Meta", imagen: "https://example.com/creativo.png" },
     { n: 5, nombre: "redirección a otro host", imagen: creativo("creativo-redirige") },
@@ -3315,7 +3315,7 @@ async function anuncioDeOrigenChecks() {
     ok(`${caso.nombre}: el mensaje y el anuncio entran`, !!conv?.anuncio, JSON.stringify(conv?.anuncio));
     caso.contactId = conv?.contact?.id;
   }
-  await sleep(3000); // la copia en segundo plano termina (o no)
+  await sleep(3000); // a cópia em segundo plano termina (ou não)
   for (const caso of casos) {
     const d = caso.contactId ? await detalle(caso.contactId) : null;
     ok(
@@ -3352,16 +3352,16 @@ async function anuncioDeOrigenChecks() {
     `lista ${JSON.stringify(convPub?.anuncio)}, fuente ${JSON.stringify(dPub?.contact?.source)}`
   );
 
-  /* ---------- 4b · un tropiezo de red no deja la tarjeta sin imagen ---------- */
-  // La primera petición tarda más que la espera de la copia: el reintento la trae.
+  /* ---------- 4b · um tropeço de rede não deixa o cartão sem imagem ---------- */
+  // A primeira requisição demora mais que a espera da cópia: a nova tentativa a traz.
   await entra(13, `Creativo lento ${RUN}`, referralCtwa({ id: 40, titular: `Lento ${RUN}`, imagen: creativo(`creativo-lento-${RUN}`) }));
   const convLento = await conversacionDe(13);
   const imagenLenta = convLento ? await imagenDe(convLento.contact.id, 25000) : null;
   ok("una descarga que se cuelga una vez se reintenta y llega", !!imagenLenta, "la imagen no llegó tras el reintento");
 
-  // Falla la copia y su reintento (503 dos veces): la repara abrir el contacto.
+  // Falha a cópia e sua nova tentativa (503 duas vezes): a repara abrir o contato.
   await entra(14, `Creativo que falla ${RUN}`, referralCtwa({ id: 41, titular: `Falla ${RUN}`, imagen: creativo(`creativo-falla-${RUN}`) }));
-  const convFalla = await conversacionDe(14); // la lista no repara nada
+  const convFalla = await conversacionDe(14); // a lista não repara nada
   await sleep(4000);
   const primera = convFalla ? await detalle(convFalla.contact.id) : null;
   ok(
@@ -3374,24 +3374,24 @@ async function anuncioDeOrigenChecks() {
 }
 
 /* ============================================================
- * R11 — Robustez de la API del bot (sección autocontenida)
+ * R11 — Robustez da API do bot (seção autocontida)
  *
- * Cada parte dice qué rompía antes. Todo lleva un sufijo por corrida:
- * re-correr contra la misma base (o dentro de la ventana del limitador) no
- * puede medir lo de la corrida anterior.
+ * Cada parte diz o que quebrava antes. Tudo leva um sufixo por execução:
+ * rerrodar contra a mesma base (ou dentro da janela do limitador) não
+ * pode medir o que é da execução anterior.
  * ============================================================ */
 async function r11BotChecks() {
   const RUN = Date.now().toString().slice(-6);
 
   /*
-   * 1. Una inundación sin key desde UNA IP no le quita el turno al cerebro.
-   *    Antes: un cubo global contado ANTES de autenticar → 429 para Nea el
-   *    resto de la ventana, y clientes sin respuesta.
+   * 1. Uma inundação sem key a partir de UMA IP não tira o turno do cérebro.
+   *    Antes: um balde global contado ANTES de autenticar → 429 para a Nea pelo
+   *    resto da janela, e clientes sem resposta.
    */
   console.log("\n== R11: 700 requests sin key desde una IP vs. el cerebro ==");
   const deReferencia = ((await api("/api/conversations")).json?.conversations ?? [])[0];
   ok("hay una conversación para que el cerebro pregunte", Boolean(deReferencia));
-  // Una IP por corrida: la de la corrida anterior puede seguir frenada.
+  // Um IP por execução: o da execução anterior pode seguir freado.
   const IP = `10.${Number(RUN.slice(0, 2))}.${Number(RUN.slice(2, 4))}.${Number(RUN.slice(4, 6))}`;
   const intento = (key, ip = IP) =>
     fetch(`${BASE}/api/bot/context?conversationId=${deReferencia?.id}`, {
@@ -3403,8 +3403,8 @@ async function r11BotChecks() {
     const fallidos = Array.from({ length: 50 }, (_, i) =>
       intento(i % 2 ? "clave-equivocada-0123456789" : undefined)
     );
-    // El cerebro pregunta EN MEDIO de la inundación, desde otra IP y desde
-    // la misma (mismo proxy, o sin proxy donde todo es "local").
+    // O cérebro pergunta NO MEIO da inundação, desde outro IP e desde
+    // o mesmo (mesmo proxy, ou sem proxy onde tudo é "local").
     const cerebro = lote === 7 ? [intento(BOT_KEY, "10.255.0.1"), intento(BOT_KEY)] : [];
     const [estados, deCerebro] = await Promise.all([
       Promise.all(fallidos),
@@ -3433,9 +3433,9 @@ async function r11BotChecks() {
   ok("otra IP sin key sigue en 401 (el freno es por IP, no global)", otraIp === 401, `status=${otraIp}`);
 
   /*
-   * 2. Quien escribió primero CON teléfono y luego llega solo con BSUID: el
-   *    contexto por `bsuid:<id>` es su contacto. Antes: 404, y el cerebro
-   *    no podía contestarle.
+   * 2. Quem escreveu primeiro COM telefone e depois chega só com BSUID: o
+   *    contexto por `bsuid:<id>` é o seu contato. Antes: 404, e o cérebro
+   *    não conseguia responder.
    */
   console.log("\n== R11: contexto por BSUID de quien escribió con teléfono ==");
   const inbound = (body) =>
@@ -3463,7 +3463,7 @@ async function r11BotChecks() {
   const conv = await convDe(CANON);
   ok("el contacto nace con el teléfono como identidad", Boolean(conv));
 
-  // Meta ya no manda el teléfono: solo el BSUID.
+  // A Meta não envia mais o telefone: só o BSUID.
   await inbound({
     fromUserId: BSU,
     name: NOMBRE,
@@ -3500,9 +3500,9 @@ async function r11BotChecks() {
   ok("un BSUID que nadie tiene sigue en 404", nadie.res.status === 404, `status=${nadie.res.status}`);
 
   /*
-   * 3. Pedir cita con la agenda apagada no termina en "Error del proveedor
-   *    de IA": el ai-mock ya no ofrece horarios que el prompt no le enseñó
-   *    (el esquema del turno los rechazaba y el agente traspasaba).
+   * 3. Pedir horário com a agenda desligada não termina em "Erro do provedor
+   *    de IA": o ai-mock não oferece mais horários que o prompt não lhe ensinou
+   *    (o esquema do turno os rejeitava e o agente transferia).
    */
   const agenda = /^(on|1|true|si|sí|yes)$/i.test((process.env.AGENDA ?? "").trim());
   console.log(`\n== R11: pedir cita con la agenda ${agenda ? "encendida" : "apagada"} ==`);

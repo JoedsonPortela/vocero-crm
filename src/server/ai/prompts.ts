@@ -3,7 +3,7 @@ import type { schema } from "@/lib/db";
 type AgentProfile = typeof schema.agentProfile.$inferSelect;
 type KbEntry = typeof schema.kbEntry.$inferSelect;
 
-/** Marcador del prompt del juez: el ai-mock lo usa para despachar veredictos. */
+/** Marcador do prompt do juiz: o ai-mock o usa para despachar veredictos. */
 export const JUDGE_MARKER = "[JUEZ]";
 
 export function renderKb(entries: KbEntry[]): string {
@@ -19,25 +19,25 @@ export function renderKb(entries: KbEntry[]): string {
 }
 
 /**
- * 029 — Va al final de los mensajes del turno, después del historial. Las
- * respuestas anteriores del agente llegan como texto plano, y con ellas a la
- * vista el modelo contestaba en texto plano: cada turno después del primero
- * gastaba un reintento para conseguir el JSON.
+ * 029 — Vai no fim das mensagens do turno, depois do histórico. As
+ * respostas anteriores do agente chegam como texto simples, e com elas à
+ * vista o modelo respondia em texto simples: cada turno depois do primeiro
+ * gastava uma nova tentativa para conseguir o JSON.
  */
 export const TURN_FORMAT_REMINDER =
   'Responde ahora con UN objeto JSON de acción (por ejemplo {"action":"reply","text":"..."}), aunque tus mensajes anteriores aparezcan como texto plano.';
 
 /**
- * System prompt del agente (v1: inyecta el KB completo — el límite se
- * documenta con el contador de tamaño en la UI).
+ * System prompt do agente (v1: injeta a base de conhecimento completa — o limite
+ * é documentado com o contador de tamanho na UI).
  */
 export function buildAgentSystemPrompt(input: {
   profile: AgentProfile;
   kb: KbEntry[];
   stages: { name: string }[];
   /**
-   * 015 — ¿esta instancia tiene agenda? Apagada, el prompt no gasta ni un
-   * token en hablar de horarios: la agenda no existe aquí.
+   * 015 — esta instância tem agenda? Desligada, o prompt não gasta nenhum
+   * token falando de horários: a agenda não existe aqui.
    */
   agenda?: boolean;
 }): string {
@@ -68,7 +68,7 @@ export function buildAgentSystemPrompt(input: {
     `Etapas del pipeline disponibles: ${stageNames}`,
     [
       "En cada turno respondes ÚNICAMENTE un objeto JSON con UNA acción:",
-      // 029 — Sin condición, el modelo callaba ante «Hola prueba 1» (8 de 8).
+      // 029 — Sem condição, o modelo calava diante de «Oi teste 1» (8 de 8).
       '- {"action":"none"} — no enviar nada. SOLO cuando el último mensaje del cliente cierra la conversación sin pedir nada («ok», «gracias», un emoji) y lo que preguntó ya tiene respuesta.',
       '- {"action":"reply","text":"..."} — responder al cliente.',
       '- {"action":"update_lead","note":"...","reply":"..."} — guardar una nota del lead (si el cliente espera respuesta, incluye reply).',
@@ -88,7 +88,7 @@ export function buildAgentSystemPrompt(input: {
     .join("\n\n");
 }
 
-/** Prompt del juez del Laboratorio: UNA llamada por conversación (FR-032). */
+/** Prompt do juiz do Laboratório: UMA chamada por conversa (FR-032). */
 export function buildJudgePrompt(input: {
   persona: string;
   transcript: { role: "cliente" | "agente"; text: string }[];

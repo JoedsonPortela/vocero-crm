@@ -6,20 +6,20 @@ import { cn } from "@/lib/utils";
 export type TimePoint = {
   bucket: string;
   value: number;
-  /** Lo que dice el tooltip de esa barra, después del valor. */
+  /** O que diz o tooltip dessa barra, depois do valor. */
   detail?: string;
 };
 
 /**
- * 019 — Una serie en el tiempo, en barras. UNA magnitud por gráfica: Cloud
- * pintaba prospectos (barras) y dinero (línea) con dos escalas en el mismo
- * lienzo, y dos ejes en una gráfica hacen que el ojo compare alturas que no
- * se pueden comparar. Aquí son dos gráficas, cada una con su escala.
+ * 019 — Uma série no tempo, em barras. UMA grandeza por gráfico: o Cloud
+ * desenhava prospects (barras) e dinheiro (linha) com duas escalas no mesmo
+ * espaço, e dois eixos num gráfico fazem o olho comparar alturas que não
+ * são comparáveis. Aqui são dois gráficos, cada um com sua escala.
  *
- * HTML y no SVG escalado: con `viewBox` el texto se encoge con el ancho y en
- * un teléfono las fechas quedaban de 5 px. Las barras miden a lo sumo 24 px,
- * redondeadas arriba y rectas en la base; el valor de cada una sale al pasar
- * el puntero, y la tabla equivalente queda para el lector de pantalla.
+ * HTML e não SVG escalado: com `viewBox` o texto encolhe com a largura e num
+ * celular as datas ficavam com 5 px. As barras medem no máximo 24 px,
+ * arredondadas em cima e retas na base; o valor de cada uma aparece ao passar
+ * o ponteiro, e a tabela equivalente fica para o leitor de tela.
  */
 export function TimeBars({
   title,
@@ -31,7 +31,7 @@ export function TimeBars({
   title: string;
   points: TimePoint[];
   format: (v: number) => string;
-  /** Qué cuenta la serie, para la tabla accesible ("prospectos", "ventas"). */
+  /** O que a série conta, para a tabela acessível ("prospectos", "ventas"). */
   unit: string;
   emptyText?: string;
 }) {
@@ -62,7 +62,7 @@ export function TimeBars({
             onPointerLeave={() => setActivo(null)}
             aria-hidden
           >
-            {/* Una sola referencia de escala, recesiva: el tope, y la base. */}
+            {/* Uma única referência de escala, discreta: o topo e a base. */}
             <div className="absolute inset-x-0 top-0 border-t border-border" />
             <span className="absolute right-0 top-0 -translate-y-full pb-0.5 text-[10px] leading-none text-text-3">
               {format(tope)}
@@ -167,9 +167,9 @@ function Tooltip({
 }
 
 /**
- * Dónde se ancla algo que va sobre la barra `i` de `n`: centrado, salvo en las
- * orillas, donde se recarga hacia adentro para no salirse de la tarjeta (y no
- * ensanchar la página en un teléfono).
+ * Onde se ancora algo que fica sobre a barra `i` de `n`: centralizado, exceto nas
+ * bordas, onde é empurrado para dentro para não sair do cartão (e não
+ * alargar a página no celular).
  */
 function anclaje(i: number, n: number): React.CSSProperties {
   const centro = ((i + 0.5) / n) * 100;
@@ -179,8 +179,8 @@ function anclaje(i: number, n: number): React.CSSProperties {
 }
 
 /**
- * El tope de la escala, redondeado a un número limpio (1, 2, 5 × 10ⁿ) que
- * cubre el máximo: una referencia de "37" no se lee; una de "40", sí.
+ * O topo da escala, arredondado para um número limpo (1, 2, 5 × 10ⁿ) que
+ * cobre o máximo: uma referência de "37" não se lê; uma de "40", sim.
  */
 export function escalaLimpia(max: number): number {
   if (max <= 0) return 1;

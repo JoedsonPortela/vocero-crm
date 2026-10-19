@@ -2,11 +2,11 @@ import { and, eq, type SQL } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
 
 /**
- * Scope de tenant obligatorio (Constitución III).
+ * Escopo de tenant obrigatório (Constituição III).
  *
- * Toda query de dominio se construye con `scoped(...)`: exige el
- * organization_id explícito y lo combina con el resto de condiciones,
- * de modo que un WHERE sin tenant no compile de forma natural.
+ * Toda query de domínio é construída com `scoped(...)`: exige o
+ * organization_id explícito e o combina com o restante das condições,
+ * de modo que um WHERE sem tenant não compile de forma natural.
  */
 export function scoped(
   organizationColumn: PgColumn,

@@ -8,12 +8,12 @@ import { clearZoomTokenCache } from "@/server/agenda/connectors/zoom-credentials
 import { clearGoogleTokenCache } from "@/server/agenda/connectors/google-credentials";
 
 /**
- * 015 — La suite de contrato de conectores.
+ * 015 — A suíte de contrato de conectores.
  *
- * Es la misma para todos a propósito: agregar un conector en un fork significa
- * pasar ESTAS pruebas, no inventarse las suyas. Lo que se fija aquí son las
- * cuatro operaciones y las dos reglas que el motor da por hechas: borrar es
- * idempotente, y mover conserva el enlace.
+ * É a mesma para todos de propósito: acrescentar um conector num fork significa
+ * passar ESTES testes, não inventar os seus. O que se fixa aqui são as
+ * quatro operações e as duas regras que o motor dá por certas: apagar é
+ * idempotente, e mover conserva o link.
  */
 
 vi.mock("@/lib/env", () => ({
@@ -42,8 +42,8 @@ describe("el catálogo", () => {
   });
 
   it("existe al menos un conector SIN dependencias externas", () => {
-    // Es la condición constitucional: el camino soberano tiene que existir,
-    // o los conectores externos no serían opcionales de verdad.
+    // É a condição constitucional: o caminho soberano tem que existir,
+    // senão os conectores externos não seriam opcionais de verdade.
     expect(CONNECTOR_ORDER.some((id) => !CONNECTOR_META[id].external)).toBe(true);
   });
 
@@ -66,7 +66,7 @@ describe("enlace-fijo", () => {
   });
 
   it("sin sala configurada entrega null en vez de fallar", async () => {
-    // La cita se crea igual: nadie promete un enlace que no existe.
+    // O agendamento é criado do mesmo jeito: ninguém promete um link que não existe.
     const out = await enlaceFijoConnector.createMeeting({ meetingLink: null }, REQ);
     expect(out.joinUrl).toBeNull();
   });
@@ -123,8 +123,8 @@ describe("zoom", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("la guía de scopes incluye el de leer usuario, que usa la prueba de conexión", () => {
-    // El tropiezo real: documentar solo los de reunión hace que conectar falle
-    // con credenciales que en realidad sirven.
+    // O tropeço real: documentar só os de reunião faz com que conectar falhe
+    // com credenciais que na verdade servem.
     expect(ZOOM_SCOPES).toContain("user:read:user");
     expect(ZOOM_SCOPES).toContain("meeting:write:meeting");
   });
@@ -141,7 +141,7 @@ describe("zoom", () => {
     expect(body.type).toBe(2);
     expect(body.topic).toBe("Cita — Ana");
     expect(body.timezone).toBe("America/Mexico_City");
-    // Zoom rechaza los milisegundos.
+    // O Zoom recusa os milissegundos.
     expect(body.start_time).toBe("2026-08-05T15:00:00Z");
   });
 
@@ -163,7 +163,7 @@ describe("zoom", () => {
     const body = patch?.body as Record<string, unknown>;
     expect(body.start_time).toBe("2026-08-06T16:00:00Z");
     expect(body.duration).toBe(45);
-    // No re-manda el tema ni los ajustes: solo se movió de hora.
+    // Não reenvia o tema nem os ajustes: só se moveu o horário.
     expect(body.topic).toBeUndefined();
   });
 
@@ -225,7 +225,7 @@ describe("google", () => {
   };
   const calls: { url: string; method: string }[] = [];
   let fetchMock: ReturnType<typeof vi.fn>;
-  /** Lecturas del evento antes de que la conferencia esté lista. */
+  /** Leituras do evento antes de a conferência estar pronta. */
   let pendingReads = 0;
 
   beforeEach(() => {
@@ -240,7 +240,7 @@ describe("google", () => {
         return Response.json({ access_token: "tk", expires_in: 3600 });
       }
       if (method === "POST") {
-        // Como Google de verdad: el evento nace SIN enlace de Meet.
+        // Como o Google de verdade: o evento nasce SEM link do Meet.
         return Response.json({
           id: "evt_1",
           conferenceData: { createRequest: { status: { statusCode: "pending" } } },
@@ -274,8 +274,8 @@ describe("google", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("crear re-lee el evento hasta que aparece el enlace de Meet", async () => {
-    // La conferencia es ASÍNCRONA: quedarse con la respuesta del insert
-    // dejaría todas las citas sin enlace.
+    // A conferência é ASSÍNCRONA: ficar com a resposta do insert
+    // deixaria todos os agendamentos sem link.
     pendingReads = 1;
     const out = await googleConnector.createMeeting(creds, REQ);
     expect(out.externalId).toBe("evt_1");
@@ -284,8 +284,8 @@ describe("google", () => {
   });
 
   it("si la conferencia sigue pendiente, devuelve el evento SIN enlace en vez de fallar", async () => {
-    // El motor lo traduce a "cita sin enlace, reintentable": la cita no se
-    // pierde por una demora del proveedor.
+    // O motor traduz isso como "agendamento sem link, pode repetir": o agendamento não se
+    // perde por um atraso do provedor.
     pendingReads = 99;
     const out = await googleConnector.createMeeting(creds, REQ);
     expect(out.externalId).toBe("evt_1");
@@ -296,7 +296,7 @@ describe("google", () => {
     const out = await googleConnector.refreshMeeting!(creds, "evt_1");
     expect(out.externalId).toBe("evt_1");
     expect(out.joinUrl).toBe("https://meet.google.test/abc");
-    // Ni un solo POST a events: el del token no cuenta.
+    // Nem um só POST a events: o do token não conta.
     expect(
       calls.some((c) => c.method === "POST" && c.url.includes("/events"))
     ).toBe(false);
@@ -322,7 +322,7 @@ describe("google", () => {
       (err: unknown) =>
         err instanceof ConnectorError &&
         err.isAuthError &&
-        // El mensaje nombra la causa más común: la app OAuth en modo prueba.
+        // A mensagem nomeia a causa mais comum: o app OAuth em modo de teste.
         /modo prueba/.test(err.message)
     );
   });

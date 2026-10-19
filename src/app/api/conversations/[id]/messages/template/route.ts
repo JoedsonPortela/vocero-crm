@@ -13,7 +13,7 @@ type Params = { params: Promise<{ id: string }> };
 
 const bodySchema = z.object({
   templateId: z.string().min(1),
-  /** Valores de {{1}}..{{n}} en orden. `variable` sigue vivo por compatibilidad. */
+  /** Valores de {{1}}..{{n}} em ordem. `variable` continua ativo por compatibilidade. */
   variables: z.array(z.string().trim().max(500)).max(10).optional(),
   variable: z.string().trim().max(500).optional(),
 });

@@ -20,9 +20,9 @@ const SEND_ERROR_STATUS: Record<SendError["code"], number> = {
 };
 
 /**
- * 008 — Envía un adjunto de archivo por la conversación (multipart):
- * `file` (binario, requerido) + `caption` (opcional). La validación de tipo y
- * tamaño ocurre ANTES de tocar Graph (413/415 con el límite en el mensaje).
+ * 008 — Envia um anexo de arquivo pela conversa (multipart):
+ * `file` (binário, obrigatório) + `caption` (opcional). A validação de tipo e
+ * tamanho acontece ANTES de tocar no Graph (413/415 com o limite na mensagem).
  */
 export const POST = withAuth(async (session, req: Request, ctx: Params) => {
   const { id } = await ctx.params;

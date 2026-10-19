@@ -1,37 +1,37 @@
 import type { LossReason, SourceValue, StageDto } from "@/lib/types";
 
 /**
- * 019 — Contratos y aritmética de la pantalla Resultados.
+ * 019 — Contratos e aritmética da tela Resultados.
  *
- * Portado de Vocero Cloud (101 W6 + la tabla por anuncio de 212) SIN gasto
- * publicitario: fuera la carga manual, el costo por prospecto y el retorno
- * (decisión del dueño, spec 019 D1). Lo de origen y anuncios viaja en conteos.
+ * Portado do Vocero Cloud (101 W6 + a tabela por anúncio de 212) SEM gasto
+ * publicitário: fora a carga manual, o custo por prospect e o retorno
+ * (decisão do dono, spec 019 D1). O de origem e anúncios trafega em contagens.
  *
- * Vive en `lib/` y no en `server/` porque las secciones se pintan en el
- * cliente y no pueden arrastrar la BD al bundle — mismo criterio que
+ * Vive em `lib/` e não em `server/` porque as seções são desenhadas no
+ * cliente e não podem arrastar o BD para o bundle — mesmo critério que
  * `lib/money.ts`.
  */
 
 export type StageKind = StageDto["kind"];
 
-/** Debajo de esta muestra, un porcentaje es una anécdota. */
+/** Abaixo desta amostra, uma porcentagem é uma anedota. */
 export const MIN_SAMPLE = 10;
 
 /**
- * Toda tasa de la pantalla pasa por aquí.
+ * Toda taxa da tela passa por aqui.
  *
- * Hay más de diez repartidas en cuatro bloques, y cada una es una oportunidad
- * de dividir entre cero, de presentar un 100 % sostenido en un solo caso, o de
- * enseñar el porcentaje sin el número absoluto que lo hace interpretable. Un
- * solo helper convierte esas tres reglas en algo que no se puede olvidar.
- * **La UI no divide.**
+ * São mais de dez distribuídas em quatro blocos, e cada uma é uma oportunidade
+ * de dividir por zero, de apresentar um 100 % sustentado em um único caso, ou de
+ * mostrar a porcentagem sem o número absoluto que a torna interpretável. Um
+ * único helper transforma essas três regras em algo que não se pode esquecer.
+ * **A UI não divide.**
  */
 export type RateDto = {
-  /** Porcentaje entero 0-100, o `null` si no hay denominador. */
+  /** Porcentagem inteira 0-100, ou `null` se não houver denominador. */
   value: number | null;
-  /** El denominador: se muestra SIEMPRE junto al porcentaje. */
+  /** O denominador: é mostrado SEMPRE junto à porcentagem. */
   sample: number;
-  /** false = muestra chica; la UI lo marca en vez de presentarlo como firme. */
+  /** false = amostra pequena; a UI marca isso em vez de apresentar como firme. */
   reliable: boolean;
 };
 
@@ -44,35 +44,35 @@ export function rate(numerator: number, denominator: number): RateDto {
   };
 }
 
-/** Un número del periodo y el mismo número del periodo anterior. */
+/** Um número do período e o mesmo número do período anterior. */
 export type Comparable = { current: number; previous: number };
 
 export function comparable(current: number, previous: number): Comparable {
   return { current, previous };
 }
 
-/** Variación porcentual; `null` cuando no hay base con la cual comparar. */
+/** Variação percentual; `null` quando não há base para comparar. */
 export function delta(c: Comparable): number | null {
   if (c.previous === 0) return null;
   return Math.round(((c.current - c.previous) / c.previous) * 100);
 }
 
 export type PeriodDto = {
-  /** `YYYY-MM-DD` en la zona del negocio. */
+  /** `YYYY-MM-DD` no fuso horário do negócio. */
   from: string;
   to: string;
   previousFrom: string;
   previousTo: string;
   timezone: string;
-  /** Cómo se agrupa la serie: por día en rangos cortos, por mes en largos. */
+  /** Como a série é agrupada: por dia em intervalos curtos, por mês em longos. */
   granularity: "day" | "month";
   days: number;
 };
 
 /**
- * Todas las cubetas del periodo, en orden. Un día sin movimientos es un cero en
- * la gráfica, no un hueco: sin él, las barras del martes y del viernes quedarían
- * juntas y la serie mentiría sobre el ritmo.
+ * Todos os baldes do período, em ordem. Um dia sem movimentos é um zero no
+ * gráfico, não um buraco: sem ele, as barras de terça e de sexta ficariam
+ * juntas e a série mentiria sobre o ritmo.
  */
 export function bucketsDelPeriodo(
   p: Pick<PeriodDto, "from" | "to" | "granularity">
@@ -83,7 +83,7 @@ export function bucketsDelPeriodo(
     let m = Number(p.from.slice(5, 7));
     const ty = Number(p.to.slice(0, 4));
     const tm = Number(p.to.slice(5, 7));
-    // Tope defensivo: el rango máximo es de 366 días (13 meses a lo sumo).
+    // Limite defensivo: o intervalo máximo é de 366 dias (13 meses no máximo).
     while ((y < ty || (y === ty && m <= tm)) && out.length < 24) {
       out.push(`${y}-${String(m).padStart(2, "0")}`);
       m += 1;
@@ -105,15 +105,15 @@ export function bucketsDelPeriodo(
   return out;
 }
 
-/* ── Ventas y embudo ────────────────────────────────────────────── */
+/* ── Vendas e funil ────────────────────────────────────────────── */
 
 export type FunnelStepDto = {
   stageId: string | null;
   name: string;
   kind: StageKind;
-  /** Leads que ALCANZARON esta etapa, contados una sola vez por lead. */
+  /** Leads que ALCANÇARAM esta etapa, contados uma única vez por lead. */
   reached: number;
-  /** Qué proporción de los que llegaron aquí pasó a la siguiente. */
+  /** Qual proporção dos que chegaram aqui passou para a seguinte. */
   advanceRate: RateDto | null;
 };
 
@@ -141,14 +141,14 @@ export type SalesBlockDto = {
     avgTicketCents: number | null;
   };
   /**
-   * El embudo de HOY, no del periodo. Sin «dinero esperado»: la probabilidad
-   * de cierre que lo calcula en Cloud no existe en el raíz (spec 019, D5).
+   * O funil de HOJE, não do período. Sem «dinheiro esperado»: a probabilidade
+   * de fechamento que é calculada no Cloud não existe na raiz (spec 019, D5).
    */
   pipeline: {
     openCents: number;
-    /** Leads en etapas abiertas que aún no tienen monto capturado. */
+    /** Leads em etapas abertas que ainda não têm valor registrado. */
     withoutAmount: number;
-    /** Leads excluidos del total por estar en otra moneda. */
+    /** Leads excluídos do total por estarem em outra moeda. */
     otherCurrency: number;
   };
   series: { bucket: string; newLeads: number; won: number; wonCents: number }[];
@@ -156,41 +156,41 @@ export type SalesBlockDto = {
   timing: StageTimingDto[];
   timeToWinDays: number | null;
   /**
-   * Fecha desde la que el historial es completo. Antes de ella hay eventos
-   * sembrados por la migración y los tiempos no se calculan. `null` si nunca
-   * hubo eventos sembrados: entonces no hay nada que advertir.
+   * Data desde a qual o histórico é completo. Antes dela há eventos
+   * semeados pela migração e os tempos não são calculados. `null` se nunca
+   * houve eventos semeados: então não há nada a advertir.
    */
   completeFrom: string | null;
   lossReasons: LossReasonRowDto[];
-  /** true = no hubo NADA en el periodo; la UI lo dice en vez de pintar ceros. */
+  /** true = NÃO houve NADA no período; a UI diz isso em vez de desenhar zeros. */
   empty: boolean;
 };
 
-/* ── Origen y anuncios (solo conteos) ───────────────────────────── */
+/* ── Origem e anúncios (somente contagens) ───────────────────────── */
 
 export type SourceKey = SourceValue | "desconocida";
 
 export type SourceRowDto = {
   value: SourceKey;
   label: string;
-  /** Conversaciones que EMPEZARON en el periodo. */
+  /** Conversas que COMEÇARAM no período. */
   conversations: number;
-  /** Prospectos (leads) creados en el periodo. */
+  /** Prospects (leads) criados no período. */
   leads: number;
-  /** De esos prospectos, cuántos están hoy en Ganado. */
+  /** Desses prospects, quantos estão hoje em Ganado. */
   won: number;
   winRate: RateDto;
 };
 
-/** 018 — Prospectos del periodo por el anuncio que los trajo. */
+/** 018 — Prospects do período pelo anúncio que os trouxe. */
 export type AdRowDto = {
-  /** `source_id`, o el id de la fila de origen si Meta no mandó ninguno. */
+  /** `source_id`, ou o id da linha de origem se a Meta não enviou nenhum. */
   key: string;
   sourceId: string | null;
-  /** `post` si fue una publicación y no un anuncio. */
+  /** `post` se foi uma publicação e não um anúncio. */
   sourceType: string | null;
   headline: string | null;
-  /** Imagen del creativo, servida por `/api/media/{id}`. */
+  /** Imagem do criativo, servida por `/api/media/{id}`. */
   imageAssetId: string | null;
   conversations: number;
   leads: number;
@@ -200,16 +200,16 @@ export type AdRowDto = {
 
 export type AdsBlockDto = {
   period: PeriodDto;
-  /** Conversaciones que empezaron en el periodo, contra el anterior. */
+  /** Conversas que começaram no período, em comparação com o anterior. */
   conversations: Comparable;
-  /** Qué parte de esas conversaciones llegó con origen «anuncio». */
+  /** Qual parte dessas conversas chegou com origem «anúncio». */
   adShare: RateDto;
   sources: SourceRowDto[];
   ads: AdRowDto[];
   empty: boolean;
 };
 
-/* ── El trabajo del agente ──────────────────────────────────────── */
+/* ── O trabalho do agente ──────────────────────────────────────── */
 
 export type LabeledCountDto = { key: string; label: string; count: number };
 
@@ -223,30 +223,30 @@ export type SessionsDto = {
 
 export type BotBlockDto = {
   period: PeriodDto;
-  /** Conversaciones que empezaron en el periodo. */
+  /** Conversas que começaram no período. */
   conversations: number;
-  /** De las que tienen mensaje del cliente, en cuántas contestó el agente. */
+  /** Das que têm mensagem do cliente, em quantas o agente respondeu. */
   aiReplyRate: RateDto;
-  /** Mediana en segundos; `null` si no hubo ninguna respuesta que medir. */
+  /** Mediana em segundos; `null` se não houve nenhuma resposta a medir. */
   firstResponseSeconds: number | null;
   firstResponseSample: number;
-  /** De las conversaciones del periodo, las que pasaron a un humano. */
+  /** Das conversas do período, as que passaram para um humano. */
   handoffs: LabeledCountDto[];
   handoffRate: RateDto;
-  /** `null` con la bandera AGENDA apagada: sin agenda no hay citas que contar. */
+  /** `null` com a flag AGENDA desligada: sem agenda não há agendamentos a contar. */
   sessions: SessionsDto | null;
   /**
-   * Cuántos contactos tienen ficha. `null` cuando el perfil del agente no la
-   * escribe: no es 0 %, es que esa medida no aplica en esta instalación.
+   * Quantos contatos têm ficha. `null` quando o perfil do agente não a
+   * escreve: não é 0 %, é que essa medida não se aplica nesta instalação.
    */
   fichaCoverage: RateDto | null;
   empty: boolean;
 };
 
-/* ── Higiene (el ahora, sin rango) ──────────────────────────────── */
+/* ── Higiene (o agora, sem intervalo) ──────────────────────────── */
 
 export type HygieneBlockDto = {
-  /** Los primeros de la lista; `silentCount` dice cuántos son en total. */
+  /** Os primeiros da lista; `silentCount` diz quantos são no total. */
   silent: {
     leadId: string;
     contactId: string;
@@ -255,7 +255,7 @@ export type HygieneBlockDto = {
     amountCents: number | null;
   }[];
   silentCount: number;
-  /** Dinero de TODOS los leads en silencio, en la moneda del negocio. */
+  /** Dinheiro de TODOS os leads em silêncio, na moeda do negócio. */
   silentAmountCents: number;
   failedMessages: { error: string; count: number; lastAt: string }[];
   closingWindows: {
@@ -267,9 +267,9 @@ export type HygieneBlockDto = {
   clean: boolean;
 };
 
-/* ── Etiquetas ──────────────────────────────────────────────────── */
+/* ── Rótulos ──────────────────────────────────────────────────── */
 
-/** Mismas palabras que la ficha del contacto y el panel de la bandeja. */
+/** As mesmas palavras da ficha do contato e do painel da bandeja. */
 export const HANDOFF_LABEL: Record<string, string> = {
   cliente: "El cliente pidió un humano",
   modelo: "El agente decidió escalar",

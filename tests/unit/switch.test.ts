@@ -8,14 +8,14 @@ import { Switch } from "@/components/ui/switch";
 /**
  * El interruptor compartido (#53).
  *
- * El del Agente y el de «IA en esta conversación» eran dos copias a mano y
- * divergieron dos veces: primero el pomo perdió su sombra; después el del
- * Agente quedó `absolute` sin `left`, arrancaba del CENTRO de la pista y
- * encendido se salía. Aquí se fija la geometría —con las clases de Tailwind,
- * una unidad son 4 px— y que no vuelva a aparecer otra copia.
+ * O do Agente e o de «IA nesta conversa» eram duas cópias à mão e
+ * divergiram duas vezes: primeiro o botão perdeu sua sombra; depois o do
+ * Agente ficou `absolute` sem `left`, começava no CENTRO da pista e
+ * quando ligado saía para fora. Aqui se fixa a geometria —com as classes do Tailwind,
+ * uma unidade são 4 px— e que não volte a aparecer outra cópia.
  *
- * Si estás leyendo esto porque se puso rojo: no copies el interruptor,
- * extiende `components/ui/switch.tsx`.
+ * Se você está lendo isto porque ficou vermelho: não copie o interruptor,
+ * estenda `components/ui/switch.tsx`.
  */
 
 const SRC = path.resolve(import.meta.dirname, "..", "..", "src");
@@ -44,7 +44,7 @@ function dibujar(props: Partial<Props> = {}): string {
   );
 }
 
-/** Clases de la pista (el `<button>`) y del pomo (su `<span>`). */
+/** Classes da pista (o `<button>`) e da bolinha (seu `<span>`). */
 function clases(html: string): { pista: string[]; pomo: string[] } {
   const de = (re: RegExp) => re.exec(html)?.[1]?.split(/\s+/) ?? [];
   return {
@@ -53,7 +53,7 @@ function clases(html: string): { pista: string[]; pomo: string[] } {
   };
 }
 
-/** `w-11` → 44 px, `px-0.5` → 2 px, `translate-x-5` → 20 px; sin la clase, 0. */
+/** `w-11` → 44 px, `px-0.5` → 2 px, `translate-x-5` → 20 px; sem a classe, 0. */
 function px(lista: string[], prefijo: string): number {
   const c = lista.find((x) => x.startsWith(prefijo));
   return c ? Number(c.slice(prefijo.length)) * 4 : 0;
@@ -65,9 +65,9 @@ describe("interruptor: el pomo no se sale de la pista (#53)", () => {
       const apagado = clases(dibujar({ size, checked: false }));
       const encendido = clases(dibujar({ size, checked: true }));
 
-      // El pomo se acomoda con flex desde el borde interior izquierdo. Uno
-      // `absolute` dentro de un <button> sin `left` arranca del centro: es
-      // exactamente el bug que se reportó.
+      // A bolinha se acomoda com flex a partir da borda interna esquerda. Uma
+      // `absolute` dentro de um <button> sem `left` começa do centro: é
+      // exatamente o bug que foi relatado.
       expect(apagado.pista).toEqual(expect.arrayContaining(["inline-flex", "items-center"]));
       expect(apagado.pomo).not.toContain("absolute");
 
@@ -77,10 +77,10 @@ describe("interruptor: el pomo no se sale de la pista (#53)", () => {
       expect(pista).toBeGreaterThan(0);
       expect(margen).toBeGreaterThan(0);
 
-      // Apagado: sin desplazamiento, el pomo queda a `margen` del borde.
+      // Desligado: sem deslocamento, a bolinha fica a `margem` da borda.
       expect(px(apagado.pomo, "translate-x-")).toBe(0);
-      // Encendido: se desplaza justo lo que le sobra a la pista y queda a
-      // `margen` del borde derecho. Ni un píxel afuera.
+      // Ligado: desloca-se exatamente o que sobra à pista e fica a
+      // `margem` da borda direita. Nem um pixel para fora.
       expect(margen + pomo + px(encendido.pomo, "translate-x-") + margen).toBe(pista);
 
       // Y cabe a lo alto.
@@ -106,9 +106,9 @@ describe("interruptor: accesible", () => {
   });
 
   it("tiene anillo de foco visible para quien usa el teclado", () => {
-    // El acento sólido, que por construcción contrasta ≥ 3:1 con el fondo en
-    // los dos temas (ver resolveAccentSet), separado de la pista: encendida
-    // ya es del color del acento. El suave (`ring-brand-soft`) no llega.
+    // O acento sólido, que por construção contrasta ≥ 3:1 com o fundo nos
+    // dois temas (ver resolveAccentSet), separado da pista: ligada
+    // já é da cor do acento. O suave (`ring-brand-soft`) não chega.
     const { pista } = clases(dibujar({ checked: true }));
     expect(pista).toEqual(
       expect.arrayContaining([

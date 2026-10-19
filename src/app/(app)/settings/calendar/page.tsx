@@ -5,7 +5,7 @@ import { agendaEnabled } from "@/server/agenda/flag";
 export const dynamic = "force-dynamic";
 
 export default function AgendaSettingsPage() {
-  // Sin la bandera esta pantalla no existe en esta instancia.
+  // Sem a flag, esta tela não existe nesta instância.
   if (!agendaEnabled()) notFound();
   return <AgendaClient />;
 }

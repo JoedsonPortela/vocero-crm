@@ -9,13 +9,13 @@ import { PriorityPicker } from "./priority-picker";
 import type { PriorityValue } from "@/lib/types";
 
 /**
- * Monto y prioridad de un trato: los dos datos que el dueño ajusta desde el
- * tablero sin abrir nada más.
+ * Valor e prioridade de um negócio: os dois dados que o dono ajusta pelo
+ * painel sem abrir mais nada.
  *
- * Acepta lo que el dueño escriba —"12,500", "$12 500.50"— porque nadie teclea
- * centavos, y guarda centavos enteros. Vacío BORRA el monto: un trato sin
- * número no vale cero, simplemente no se sabe, y esa diferencia se nota en el
- * total de la columna.
+ * Aceita o que o dono escrever —"12,500", "$12 500.50"— porque ninguém digita
+ * centavos, e guarda centavos inteiros. Vazio APAGA o valor: um negócio sem
+ * número não vale zero, simplesmente não se sabe, e essa diferença aparece no
+ * total da coluna.
  */
 export function AmountDialog({
   leadName,
@@ -30,7 +30,7 @@ export function AmountDialog({
   currency: string;
   amountCents: number | null;
   priority: PriorityValue | null;
-  /** Se guarda al instante: es un clic, no un formulario. */
+  /** Salva na hora: é um clique, não um formulário. */
   onPriorityChange: (value: PriorityValue | null) => void;
   onCancel: () => void;
   onSave: (cents: number | null) => void;

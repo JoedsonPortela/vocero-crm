@@ -31,19 +31,19 @@ import {
 } from "@/server/zernio/webhooks";
 
 /**
- * 023 — Las conexiones por Zernio de una organización, en una sola forma.
+ * 023 — As conexões pela Zernio de uma organização, numa só forma.
  *
- * Cada canal guarda sus credenciales en su tabla (014, 017, 022), pero para
- * Zernio los tres son lo mismo: una cuenta, una llave y un secreto de firma.
- * Lo que es UNO en Zernio —el webhook y su secreto— se resuelve aquí, una vez,
- * en lugar de tres veces casi iguales.
+ * Cada canal guarda suas credenciais na sua tabela (014, 017, 022), mas para
+ * a Zernio os três são a mesma coisa: uma conta, uma chave e um segredo de assinatura.
+ * O que é UM na Zernio —o webhook e seu segredo— se resolve aqui, uma vez,
+ * em vez de três vezes quase iguais.
  */
 
 export const ZERNIO_CHANNELS = CHANNEL_ORDER.filter(
   (c): c is ZernioChannel => c !== "whatsapp"
 );
 
-/** Segmento de la ruta del webhook de cada canal. */
+/** Segmento da rota do webhook de cada canal. */
 const WEBHOOK_PATH: Record<ZernioChannel, WebhookChannel> = {
   instagram: "ig",
   messenger: "messenger",
@@ -52,13 +52,13 @@ const WEBHOOK_PATH: Record<ZernioChannel, WebhookChannel> = {
 
 export type ZernioConnection = {
   channel: ZernioChannel;
-  /** Id de la fila de credenciales. */
+  /** Id da linha de credenciais. */
   id: string;
   organizationId: string;
   accountRef: string;
   token: string;
   webhookSecret: string | null;
-  /** Nombre con el que una persona reconoce la cuenta. */
+  /** Nome pelo qual uma pessoa reconhece a conta. */
   name: string | null;
   status: "connected" | "reconnect_required";
 };
@@ -119,7 +119,7 @@ function comun(c: {
   };
 }
 
-/** Las conexiones por Zernio de los canales ENCENDIDOS de esa organización. */
+/** As conexões pela Zernio dos canais LIGADOS dessa organização. */
 export async function zernioConnectionsOfOrg(
   organizationId: string
 ): Promise<ZernioConnection[]> {
@@ -132,9 +132,9 @@ export async function zernioConnectionsOfOrg(
 type EventAccount = { id?: string; accountId?: string; profileId?: string };
 
 /**
- * La conexión a la que va un evento de Zernio. SOLO LECTURA: se llama antes de
- * verificar la firma, así que no puede cambiar nada. `viaProfile` dice que la
- * fila guardó el id del perfil en vez del de la cuenta.
+ * A conexão para a qual vai um evento da Zernio. SOMENTE LEITURA: é chamada antes de
+ * verificar a assinatura, então não pode mudar nada. `viaProfile` diz que a
+ * linha guardou o id do perfil em vez do da conta.
  */
 export async function findZernioConnection(
   channel: ZernioChannel,
@@ -149,7 +149,7 @@ export async function findZernioConnection(
   return porPerfil ? { connection: porPerfil, viaProfile: true } : null;
 }
 
-/** 030 — El secreto se escribe cifrado (`columnasDelSecreto`), nunca en claro. */
+/** 030 — O segredo é gravado criptografado (`columnasDelSecreto`), nunca em texto claro. */
 async function update(
   channel: ZernioChannel,
   id: string,
@@ -181,9 +181,9 @@ async function update(
 }
 
 /**
- * Corrige una fila que guardó el id del perfil. Se llama DESPUÉS de verificar
- * la firma: es un cambio de estado, y uno que mueve por dónde salen los
- * mensajes (el envío usa el mismo campo).
+ * Corrige uma linha que guardou o id do perfil. É chamada DEPOIS de verificar
+ * a assinatura: é uma mudança de estado, e uma que altera por onde saem as
+ * mensagens (o envio usa o mesmo campo).
  */
 export async function healZernioAccountRef(
   channel: ZernioChannel,
@@ -198,24 +198,24 @@ export async function healZernioAccountRef(
   );
 }
 
-/** Los secretos de firma guardados en los canales por Zernio de esa organización. */
+/** Os segredos de assinatura guardados nos canais pela Zernio dessa organização. */
 export async function storedZernioSecrets(organizationId: string): Promise<string[]> {
   const conns = await zernioConnectionsOfOrg(organizationId);
   return [...new Set(conns.map((c) => c.webhookSecret).filter((s): s is string => !!s))];
 }
 
 /**
- * Puro: qué cuentas lleva el webhook de UNA llave.
+ * Puro: quais contas leva o webhook de UMA chave.
  *
- * No son «las conexiones guardadas con esa llave», sino todas las conexiones
- * de la organización cuya cuenta ve esa llave. La diferencia importa cuando
- * dos canales quedaron guardados con llaves distintas de la MISMA cuenta de
- * Zernio (se rotó la llave y solo se reconectó un canal): las dos llaves ven
- * el mismo webhook, y si cada una lo dejara solo con «sus» cuentas, la segunda
- * le quitaría las de la primera y ese canal dejaría de recibir en silencio.
+ * Não são «as conexões guardadas com essa chave», mas todas as conexões
+ * da organização cuja conta essa chave enxerga. A diferença importa quando
+ * dois canais ficaram guardados com chaves diferentes da MESMA conta da
+ * Zernio (rotacionou-se a chave e só se reconectou um canal): as duas chaves veem
+ * o mesmo webhook, e se cada uma o deixasse só com «as suas» contas, a segunda
+ * tiraria as da primeira e aquele canal deixaria de receber em silêncio.
  *
- * Si la llave no ve ninguna (una lista de cuentas que aún no refleja la
- * conexión), se mandan las del grupo y que Zernio decida.
+ * Se a chave não enxerga nenhuma (uma lista de contas que ainda não reflete a
+ * conexão), mandam-se as do grupo e que a Zernio decida.
  */
 export function webhookAccountIds(
   all: readonly { accountRef: string }[],
@@ -231,16 +231,16 @@ export type EnsureWebhookResult =
   | { ok: false; code: string; message: string };
 
 /**
- * Da de alta (o actualiza) en Zernio el webhook de esta instancia para las
- * cuentas conectadas a esa organización, y deja el mismo secreto en todos sus
- * canales. Nunca lanza: guardar una conexión no puede fallar porque Zernio
- * tuvo un hipo al registrar el webhook.
+ * Cadastra (ou atualiza) na Zernio o webhook desta instância para as
+ * contas conectadas a essa organização, e deixa o mesmo segredo em todos os seus
+ * canais. Nunca lança: salvar uma conexão não pode falhar porque a Zernio
+ * teve um soluço ao registrar o webhook.
  *
- * Una instancia es un negocio (constitución): el límite de cuentas del webhook
- * es el de ESTA organización.
+ * Uma instância é um negócio (constituição): o limite de contas do webhook
+ * é o de ESTA organização.
  *
- * `secret` es el que alguien acaba de dar a propósito al guardar una conexión:
- * manda sobre los que ya hubiera, y queda en todos los canales y en Zernio.
+ * `secret` é o que alguém acabou de informar de propósito ao salvar uma conexão:
+ * prevalece sobre os que já houvesse, e fica em todos os canais e na Zernio.
  */
 export async function ensureWebhookForOrg(
   organizationId: string,
@@ -256,8 +256,8 @@ export async function ensureWebhookForOrg(
   }
 
   const env = getEnv();
-  // Zernio tiene que alcanzar la URL desde fuera. `ZERNIO_BASE_URL` solo se
-  // define en pruebas (el simulador), y ahí la URL local sí vale.
+  // A Zernio precisa alcançar a URL de fora. `ZERNIO_BASE_URL` só é
+  // definido em testes (o simulador), e aí a URL local vale.
   const url = webhookUrl(WEBHOOK_PATH[conns[0]!.channel]);
   if (!url.startsWith("https://") && !process.env.ZERNIO_BASE_URL) {
     return {
@@ -275,8 +275,8 @@ export async function ensureWebhookForOrg(
   );
 
   try {
-    // Un secreto para todo: el que se acaba de dar; si no, el que ya esté
-    // guardado; si no, el del webhook que ya apunta aquí; si no, uno nuevo.
+    // Um segredo para todos: o que acabou de ser informado; senão, o que já esteja
+    // guardado; senão, o do webhook que já aponta para cá; senão, um novo.
     let secret =
       opts.secret ||
       (conns.map((c) => c.webhookSecret).find((s): s is string => !!s) ?? null);
@@ -287,8 +287,8 @@ export async function ensureWebhookForOrg(
         randomBytes(24).toString("hex");
     }
 
-    // Lo normal es una sola llave; si cada canal usa una cuenta de Zernio
-    // distinta, cada llave lleva su webhook con sus cuentas.
+    // O normal é uma só chave; se cada canal usa uma conta da Zernio
+    // diferente, cada chave leva seu webhook com suas contas.
     const porLlave = new Map<string, ZernioConnection[]>();
     for (const c of conns) porLlave.set(c.token, [...(porLlave.get(c.token) ?? []), c]);
 

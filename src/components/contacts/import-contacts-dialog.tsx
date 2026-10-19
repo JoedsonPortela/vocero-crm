@@ -15,10 +15,10 @@ type Preview = { valid: ImportRow[]; problems: ImportProblem[]; total: number };
 type Result = { created: number; existing: number; paused: number };
 
 /**
- * Importar una lista que ya existe en otro lado (clientes, miembros de una
- * comunidad, un export de contactos). El archivo se lee en el navegador para
- * enseñar qué va a entrar ANTES de escribir nada: un CSV mal armado se
- * descubre en la vista previa, no con doscientos contactos basura creados.
+ * Importar uma lista que já existe em outro lugar (clientes, membros de uma
+ * comunidade, um export de contatos). O arquivo é lido no navegador para
+ * mostrar o que vai entrar ANTES de gravar qualquer coisa: um CSV malfeito é
+ * descoberto na pré-visualização, não com duzentos contatos lixo criados.
  */
 export function ImportContactsDialog({
   onClose,

@@ -13,17 +13,17 @@ type Params = { params: Promise<{ id: string }> };
 
 const patchSchema = z.object({
   /**
-   * Opcionales desde que el lead tiene monto: capturar dinero es un gesto
-   * distinto de mover la tarjeta, y exigir la etapa para guardar un importe
-   * obligaría al cliente a reenviar dónde estaba —con el riesgo de moverlo sin
-   * querer si el tablero venía desfasado—. Sin `stageId` no se mueve nada.
+   * Opcionais desde que o lead tem valor: capturar dinheiro é um gesto
+   * diferente de mover o cartão, e exigir a etapa para salvar um valor
+   * obrigaria o cliente a reenviar onde estava — com o risco de movê-lo sem
+   * querer se o quadro estivesse defasado. Sem `stageId` nada é movido.
    */
   stageId: z.string().min(1).optional(),
   position: z.number().int().min(0).optional(),
   /**
-   * Obligatorio al ENTRAR a una etapa perdida. No se valida aquí sino en la
-   * puerta: la regla es del dominio, no de esta ruta, y hay más caminos que
-   * mueven tarjetas.
+   * Obrigatório ao ENTRAR em uma etapa perdida. Não é validado aqui, mas na
+   * porta: a regra é do domínio, não desta rota, e há mais caminhos que
+   * movem cartões.
    */
   lossReason: z
     .enum([
@@ -37,13 +37,13 @@ const patchSchema = z.object({
     .optional(),
   lossNote: z.string().max(500).optional(),
   /**
-   * Monto en centavos enteros. `null` explícito lo borra; ausente lo deja como
-   * estaba — capturar el monto y mover la tarjeta son dos gestos distintos y
-   * uno no debe pisar al otro.
+   * Valor em centavos inteiros. `null` explícito o apaga; ausente o deixa como
+   * estava — capturar o valor e mover o cartão são gestos distintos, e um
+   * não deve sobrescrever o outro.
    */
   amountCents: z.number().int().min(0).max(1_000_000_000_00).nullable().optional(),
   currency: z.string().length(3).nullable().optional(),
-  /** `null` explícito la quita; ausente la deja como estaba. */
+  /** `null` explícito o remove; ausente o deixa como estava. */
   priority: z.enum(["alta", "media", "baja"]).nullable().optional(),
 });
 
@@ -52,14 +52,14 @@ export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
   const body = await parseBody(req, patchSchema);
   if (!body.ok) return body.response;
 
-  // El monto viaja en el MISMO update que el movimiento: capturarlo mientras
-  // se arrastra la tarjeta no debe costar dos viajes ni dejar un estado a
-  // medias si el segundo falla.
+  // O valor viaja no MESMO update que a movimentação: capturá-lo enquanto
+  // se arrasta o cartão não deve custar duas viagens nem deixar um estado pela
+  // metade se a segunda falhar.
   const extra: Record<string, unknown> = {};
   if (body.data.amountCents !== undefined) {
     extra.amountCents = body.data.amountCents;
-    // Sin monto no hay moneda que guardar: dejarla apuntando a un importe
-    // borrado haría que el tablero contara un lead que ya no tiene número.
+    // Sem valor não há moeda para guardar: deixá-la apontando para um valor
+    // apagado faria o quadro contar um lead que não tem mais número.
     extra.currency =
       body.data.amountCents === null
         ? null
@@ -68,14 +68,14 @@ export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
 
   if (body.data.priority !== undefined) {
     extra.priority = body.data.priority;
-    // La fecha acompaña al valor: sirve para saber si la decisión es de hoy o
-    // de hace tres semanas, que es lo que vuelve útil mirarla.
+    // A data acompanha o valor: serve para saber se a decisão é de hoje ou
+    // de três semanas atrás, que é o que torna útil consultá-la.
     extra.priorityUpdatedAt = body.data.priority === null ? null : new Date();
   }
 
-  // Sin etapa: solo se actualizan los campos del lead. No pasa por la puerta
-  // de la bitácora porque no hay movimiento que registrar — y el guardarraíl
-  // sigue contento: aquí jamás se escribe `stageId`.
+  // Sem etapa: só os campos do lead são atualizados. Não passa pela porta
+  // do histórico porque não há movimentação a registrar — e a guarda
+  // continua satisfeita: aqui jamais se escreve `stageId`.
   if (!body.data.stageId) {
     if (Object.keys(extra).length === 0) {
       return apiError(422, "nothing_to_update", "Não há nada para atualizar");
@@ -115,8 +115,8 @@ export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
     if (res.reason === "stage_not_found") {
       return apiError(422, "invalid_stage", "Etapa inexistente");
     }
-    // El tablero abre su diálogo con este código: perder un trato sin decir
-    // por qué deja el embudo sin la mitad que importa.
+    // O quadro abre o seu diálogo com este código: perder um negócio sem dizer
+    // por quê deixa o funil sem a metade que importa.
     return apiError(
       422,
       "loss_reason_required",
@@ -125,8 +125,8 @@ export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
   }
 
   const db = getDb();
-  // Notifica a la bandeja para que la etapa se refleje en vivo (panel de
-  // detalles y punto de etapa de la lista) sin recargar.
+  // Notifica a bandeja para que a etapa seja refletida ao vivo (painel de
+  // detalhes e ponto de etapa da lista) sem recarregar.
   const convRows = await db
     .select({ id: schema.conversation.id })
     .from(schema.conversation)

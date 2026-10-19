@@ -1,13 +1,13 @@
 import { chatCompletionsUrl, modelsUrl } from "@/lib/ai/presets";
 
 /**
- * Sonda del proveedor para Ajustes → IA: «Probar conexión» y «Traer modelos».
+ * Sonda do provedor para Ajustes → IA: «Probar conexión» e «Traer modelos».
  *
- * Vive en `lib/ai` porque es la única frontera con el LLM (Constitución II).
- * Nunca lanza: todo fallo vuelve tipado, con el código HTTP cuando lo hubo,
- * para que la pantalla diga QUÉ pasó («llave rechazada», «sin saldo», «ese
- * modelo no existe») en vez de «error». Y nada se guarda desde aquí: probar
- * es probar.
+ * Vive em `lib/ai` porque é a única fronteira com o LLM (Constituição II).
+ * Nunca lança exceção: toda falha volta tipada, com o código HTTP quando houve,
+ * para que a tela diga O QUE aconteceu («llave rechazada», «sin saldo», «ese
+ * modelo no existe») em vez de «error». E nada é salvo daqui: testar
+ * é testar.
  */
 
 export type ProbeErrorCode =
@@ -32,13 +32,13 @@ export type ProbeResult =
 const PROBE_TIMEOUT_MS = 20_000;
 const MAX_BODY = 2000;
 
-/** Una llamada mínima: un turno de pocos tokens con el modelo elegido. */
+/** Uma chamada mínima: um turno de poucos tokens com o modelo escolhido. */
 export async function probeProvider(input: {
   baseUrl: string;
   model: string;
   token: string;
   timeoutMs?: number;
-  /** Solo para tests. */
+  /** Somente para testes. */
   fetchImpl?: typeof fetch;
 }): Promise<ProbeResult> {
   let url: string;
@@ -67,7 +67,7 @@ export async function probeProvider(input: {
     const res = await (input.fetchImpl ?? fetch)(url, {
       method: "POST",
       headers: {
-        // El token jamás se loguea; solo viaja en este header.
+        // O token jamais é logado; só trafega neste header.
         Authorization: `Bearer ${input.token}`,
         "Content-Type": "application/json",
       },
@@ -115,7 +115,7 @@ export async function probeProvider(input: {
   }
 }
 
-/** Qué significa un código del proveedor, en el idioma del dueño. */
+/** O que significa um código do provedor, na linguagem do dono. */
 export function clasificarFallo(
   status: number,
   body: string
@@ -161,7 +161,7 @@ export function clasificarFallo(
   };
 }
 
-/** El `error.message` del cuerpo si lo trae, truncado; si no, nada. */
+/** O `error.message` do corpo, se vier, truncado; se não, nada. */
 function resumenDelCuerpo(body: string): string {
   if (!body) return "";
   let texto = body;
@@ -170,7 +170,7 @@ function resumenDelCuerpo(body: string): string {
     if (typeof json?.error === "string") texto = json.error;
     else if (typeof json?.error?.message === "string") texto = json.error.message;
   } catch {
-    // no era JSON: se usa el texto tal cual
+    // não era JSON: usa-se o texto como está
   }
   texto = texto.replace(/\s+/g, " ").trim();
   if (!texto) return "";
@@ -189,16 +189,16 @@ export type ModelsResult =
 const MAX_MODELS = 1000;
 
 /**
- * `GET {base}/v1/models` con la llave. OpenRouter y OpenAI lo publican con la
- * misma forma (`{ data: [{ id, name? }] }`); un proveedor que no lo tenga
- * contesta 404 o algo que no es esa lista, y aquí se dice sin romper: el
- * modelo se puede escribir a mano.
+ * `GET {base}/v1/models` com a chave. OpenRouter e OpenAI o publicam com a
+ * mesma forma (`{ data: [{ id, name? }] }`); um provedor que não o tenha
+ * responde 404 ou algo que não é essa lista, e aqui isso é dito sem quebrar: o
+ * modelo pode ser digitado à mão.
  */
 export async function listModels(input: {
   baseUrl: string;
   token: string;
   timeoutMs?: number;
-  /** Solo para tests. */
+  /** Somente para testes. */
   fetchImpl?: typeof fetch;
 }): Promise<ModelsResult> {
   let url: string;

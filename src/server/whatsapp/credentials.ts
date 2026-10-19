@@ -34,7 +34,7 @@ function toCredentials(row: Row): Credentials {
   };
 }
 
-/** Resuelve la conexión por phone_number_id (enrutamiento del webhook). */
+/** Resolve a conexão por phone_number_id (roteamento do webhook). */
 export async function getCredentialsByPhoneNumberId(
   phoneNumberId: string
 ): Promise<Credentials | null> {
@@ -47,7 +47,7 @@ export async function getCredentialsByPhoneNumberId(
   return rows[0] ? toCredentials(rows[0]) : null;
 }
 
-/** Resuelve la conexión por WABA ID (eventos a nivel WABA, ej. plantillas). */
+/** Resolve a conexão por WABA ID (eventos em nível de WABA, ex.: templates). */
 export async function getCredentialsByWabaId(
   wabaId: string
 ): Promise<Credentials | null> {
@@ -113,10 +113,10 @@ export async function saveCredentials(input: {
 }
 
 /**
- * Desconectar el número: borra las credenciales cifradas de la organización.
+ * Desconectar o número: apaga as credenciais criptografadas da organização.
  *
- * No toca conversaciones, contactos ni leads — son de la organización, no de
- * la conexión. Idempotente: sin fila, no hay nada que borrar.
+ * Não toca conversas, contatos nem leads — são da organização, não da
+ * conexão. Idempotente: sem linha, não há nada a apagar.
  */
 export async function desconectarCanal(organizationId: string): Promise<void> {
   const db = getDb();
@@ -125,7 +125,7 @@ export async function desconectarCanal(organizationId: string): Promise<void> {
     .where(scoped(schema.metaCredentials.organizationId, organizationId));
 }
 
-/** Marca la conexión como vencida (token inválido detectado en runtime). */
+/** Marca a conexão como vencida (token inválido detectado em tempo de execução). */
 export async function markReconnectRequired(
   organizationId: string
 ): Promise<void> {
@@ -136,7 +136,7 @@ export async function markReconnectRequired(
     .where(scoped(schema.metaCredentials.organizationId, organizationId));
 }
 
-/** Últimos 4 caracteres del token para mostrar en UI (jamás el token). */
+/** Últimos 4 caracteres do token para mostrar na UI (jamais o token). */
 export function tokenLast4(token: string): string {
   return token.slice(-4);
 }

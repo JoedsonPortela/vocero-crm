@@ -3,18 +3,18 @@ import { CHANNEL_LABEL } from "@/lib/channels";
 import { cn } from "@/lib/utils";
 
 /**
- * 014 — Distintivo de bandeja.
+ * 014 — Distintivo da Bandeja.
  *
- * Se dibuja como el ícono de la aplicación (mosaico de color con el glifo en
- * blanco) y no como un texto "WA"/"IG": el ícono se reconoce de un vistazo
- * mientras se recorre la lista, la sigla hay que leerla.
+ * É desenhado como o ícone do aplicativo (mosaico colorido com o glifo em
+ * branco) e não como um texto "WA"/"IG": o ícone é reconhecido de relance
+ * enquanto a lista é percorrida; a sigla precisa ser lida.
  *
- * Solo aparece cuando la instancia tiene más de un canal encendido. Con un
- * solo canal no hay nada que distinguir, y marcar cada renglón con el mismo
- * sello sería ruido — la misma razón por la que un canal apagado no tiene
- * pantalla ni webhook (ADR-001).
+ * Só aparece quando a instância tem mais de um canal ligado. Com um
+ * único canal não há nada a distinguir, e marcar cada linha com o mesmo
+ * selo seria ruído — a mesma razão pela qual um canal desligado não tem
+ * tela nem webhook (ADR-001).
  *
- * Los trazos son las marcas oficiales de simple-icons (CC0).
+ * Os traços são as marcas oficiais do simple-icons (CC0).
  */
 
 const WHATSAPP_PATH =
@@ -35,20 +35,20 @@ const MARK: Record<Channel, { path: string; tile: string }> = {
     path: INSTAGRAM_PATH,
     tile: "bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]",
   },
-  // 017: el degradado azul-violeta-rosa del icono de Messenger.
+  // 017: o degradê azul-violeta-rosa do ícone do Messenger.
   messenger: {
     path: MESSENGER_PATH,
     tile: "bg-gradient-to-tr from-[#0099ff] via-[#a033ff] to-[#ff5280]",
   },
-  // 022: el negro del icono de TikTok, con el glifo en blanco como los demás.
+  // 022: o preto do ícone do TikTok, com o glifo em branco como os demais.
   tiktok: { path: TIKTOK_PATH, tile: "bg-[#010101]" },
 };
 
 /**
- * La marca de un canal, o null si no la tiene. Separada del componente para
- * poder afirmar en una prueba que TODO canal del catalogo tiene glifo: sin
- * eso, agregar un canal y olvidar su dibujo no rompe nada — el distintivo
- * simplemente no aparece y la bandeja se ve como si no tuviera canal.
+ * A marca de um canal, ou null se não tiver. Separada do componente para
+ * poder afirmar num teste que TODO canal do catálogo tem glifo: sem
+ * isso, adicionar um canal e esquecer o seu desenho não quebra nada — o distintivo
+ * simplesmente não aparece e a bandeja parece não ter canal.
  */
 export function channelMark(channel: Channel) {
   return MARK[channel] ?? null;
@@ -59,10 +59,10 @@ export function ChannelBadge({
   className,
 }: {
   channel: Channel;
-  /** Para ajustar el tamaño del mosaico donde haga falta (encabezados). */
+  /** Para ajustar o tamanho do mosaico onde for preciso (cabeçalhos). */
   className?: string;
 }) {
-  // Un canal desconocido (fila vieja, dato ajeno) no debe tumbar la bandeja.
+  // Um canal desconhecido (linha antiga, dado estranho) não deve derrubar a bandeja.
   const mark = channelMark(channel);
   if (!mark) return null;
   const label = CHANNEL_LABEL[channel] ?? channel;

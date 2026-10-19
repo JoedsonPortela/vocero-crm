@@ -6,31 +6,31 @@ import { normalizeMx } from "@/lib/meta/client";
 import type { WebhookMessage, WebhookValue } from "@/server/inbox/webhook";
 
 /**
- * Identidad resiliente de contacto (003).
+ * Identidade resiliente de contato (003).
  *
- * Meta está migrando la identidad de WhatsApp de teléfono a Business-Scoped
- * User IDs (BSUID): `wa_id`/`from` pasan a ser opcionales y aparecen
- * `from_user_id` (mensaje) y `user_id` (contacts[]). Este módulo resuelve la
- * identidad del remitente sin asumir teléfono, y reconcilia para que un mismo
- * humano no genere dos contactos.
+ * A Meta está migrando a identidade do WhatsApp de telefone para Business-Scoped
+ * User IDs (BSUID): `wa_id`/`from` passam a ser opcionais e aparecem
+ * `from_user_id` (mensagem) e `user_id` (contacts[]). Este módulo resolve a
+ * identidade do remetente sem presumir telefone, e reconcilia para que um mesmo
+ * humano não gere dois contatos.
  */
 
 export const BSUID_PREFIX = "bsuid:";
-/** 014: identidad de Instagram, analoga al BSUID de WhatsApp. */
+/** 014: identidade do Instagram, análoga ao BSUID do WhatsApp. */
 export const IG_PREFIX = "ig:";
-/** 017: identidad de Messenger: el Page-Scoped ID (PSID) del remitente. */
+/** 017: identidade do Messenger: o Page-Scoped ID (PSID) do remetente. */
 export const FB_PREFIX = "fb:";
-/** 022: identidad de TikTok: el id del remitente que entrega Zernio. */
+/** 022: identidade do TikTok: o id do remetente que a Zernio entrega. */
 export const TT_PREFIX = "tt:";
 
-// El tipo vive en lib/ porque la interfaz tambien lo necesita; se reexporta
-// aqui para no tocar a quien ya lo importaba de este modulo.
+// O tipo vive em lib/ porque a interface também o precisa; reexporta-se
+// aqui para não tocar em quem já o importava deste módulo.
 export type { Channel };
 
 export type ResolvedIdentity = {
-  /** Llave estable de resolución: teléfono normalizado o `bsuid:<id>`. */
+  /** Chave estável de resolução: telefone normalizado ou `bsuid:<id>`. */
   identity: string;
-  /** 014: canal del contacto. Ausente = whatsapp (compatibilidad). */
+  /** 014: canal do contato. Ausente = whatsapp (compatibilidade). */
   channel?: Channel;
   phone: string | null;
   waUserId: string | null;
@@ -38,9 +38,9 @@ export type ResolvedIdentity = {
 };
 
 /**
- * Extrae la identidad utilizable de un mensaje del webhook.
- * Devuelve null si el mensaje no trae NINGUNA identidad (se descarta con log,
- * jamás se revienta el webhook).
+ * Extrai a identidade utilizável de uma mensagem do webhook.
+ * Devolve null se a mensagem não trouxer NENHUMA identidade (descarta-se com log,
+ * jamais derruba o webhook).
  */
 export function resolveIdentity(
   msg: WebhookMessage,
@@ -76,10 +76,10 @@ export function resolveIdentity(
 }
 
 /**
- * El contacto de WhatsApp al que la ingesta asignaría esta identidad, SIN
- * crearlo: por `wa_identity`, por BSUID (en `wa_user_id` o como identidad
- * `bsuid:`) o por teléfono. Es LA regla de reconciliación: la usan la ingesta
- * y el cerebro externo, para que los dos hablen del mismo humano.
+ * O contato de WhatsApp ao qual a ingestão atribuiria esta identidade, SEM
+ * criá-lo: por `wa_identity`, por BSUID (em `wa_user_id` ou como identidade
+ * `bsuid:`) ou por telefone. É A regra de reconciliação: a usam a ingestão
+ * e o cérebro externo, para que os dois falem do mesmo humano.
  */
 export async function findWhatsappContact(
   organizationId: string,
@@ -112,9 +112,9 @@ export async function findWhatsappContact(
 }
 
 /**
- * La identidad que manda un cerebro externo, leída como la lee la ingesta:
- * `bsuid:<id>` es un BSUID y lo demás, un teléfono (normalizado igual que
- * `from`). Las de otros canales (`ig:`, `fb:`) no se reconcilian: null.
+ * A identidade que envia um cérebro externo, lida como a lê a ingestão:
+ * `bsuid:<id>` é um BSUID e o resto, um telefone (normalizado igual a
+ * `from`). As de outros canais (`ig:`, `fb:`) não se reconciliam: null.
  */
 export function parseIdentity(identity: string): ResolvedIdentity | null {
   if (
@@ -134,14 +134,14 @@ export function parseIdentity(identity: string): ResolvedIdentity | null {
 }
 
 /**
- * El contacto de una identidad para `/api/bot/*`. Primero la llave exacta (de
- * cualquier canal); si no existe, la reconciliación de la ingesta.
+ * O contato de uma identidade para `/api/bot/*`. Primeiro a chave exata (de
+ * qualquer canal); se não existir, a reconciliação da ingestão.
  *
- * El caso que la motiva: Meta migra a BSUID. Quien escribió primero CON
- * teléfono tiene `wa_identity` = teléfono (estable de por vida) y su BSUID en
- * `wa_user_id`; cuando después llega solo con BSUID, la ingesta lo reconcilia
- * a ese contacto, pero el cerebro pregunta por `bsuid:<id>` y recibía 404: el
- * cliente se quedaba sin respuesta.
+ * O caso que a motiva: a Meta migra para BSUID. Quem escreveu primeiro COM
+ * telefone tem `wa_identity` = telefone (estável para sempre) e seu BSUID em
+ * `wa_user_id`; quando depois chega só com BSUID, a ingestão o reconcilia
+ * com esse contato, mas o cérebro pergunta por `bsuid:<id>` e recebia 404: o
+ * cliente ficava sem resposta.
  */
 export async function findContactByIdentity(
   organizationId: string,
@@ -163,12 +163,12 @@ export async function findContactByIdentity(
 }
 
 /**
- * Resuelve o crea el contacto para una identidad, reconciliando:
- * - Si llegan teléfono Y BSUID, encuentra al contacto por cualquiera de los
- *   dos y adquiere la señal que le faltaba (el `wa_identity` NO cambia:
- *   es estable de por vida).
- * - Reactiva contactos archivados (el nombre editado por el operador se
- *   respeta).
+ * Resolve ou cria o contato para uma identidade, reconciliando:
+ * - Se chegarem telefone E BSUID, encontra o contato por qualquer um dos
+ *   dois e adquire o sinal que lhe faltava (o `wa_identity` NÃO muda:
+ *   é estável para sempre).
+ * - Reativa contatos arquivados (o nome editado pelo operador
+ *   é respeitado).
  */
 export async function getOrCreateContactByIdentity(
   organizationId: string,
@@ -178,10 +178,10 @@ export async function getOrCreateContactByIdentity(
 
   const channel: Channel = resolved.channel ?? "whatsapp";
 
-  // 014/017: los canales de Meta (Instagram, Messenger) no comparten espacio
-  // de identidades con WhatsApp. La reconciliacion telefono<->BSUID es
-  // exclusiva de WhatsApp, asi que en ellos la busqueda es directa por
-  // identidad dentro de su canal.
+  // 014/017: os canais da Meta (Instagram, Messenger) não compartilham espaço
+  // de identidades com o WhatsApp. A reconciliação telefone<->BSUID é
+  // exclusiva do WhatsApp, então neles a busca é direta por
+  // identidade dentro do seu canal.
   if (channel !== "whatsapp") {
     const found = await db
       .select()
@@ -248,14 +248,14 @@ export async function getOrCreateContactByIdentity(
       patch.waUserId = resolved.waUserId;
     if (resolved.phone && !existing.phone) patch.phone = resolved.phone;
     /**
-     * El nombre del perfil se mantiene al dia (#51).
+     * O nome do perfil é mantido atualizado (#51).
      *
-     * Se actualizaba SOLO al crear el contacto, asi que quien cambiaba su
-     * nombre de WhatsApp seguia apareciendo con el viejo para siempre.
+     * Era atualizado SOMENTE ao criar o contato, então quem mudava seu
+     * nome do WhatsApp continuava aparecendo com o antigo para sempre.
      *
-     * No se toca si lo escribio una persona: el operador que renombro a
-     * alguien como "Juan - obra Polanco" no puede perder ese trabajo con el
-     * siguiente mensaje. Esa es toda la razon de que exista `nameSource`.
+     * Não se toca se foi escrito por uma pessoa: o operador que renomeou
+     * alguém como "Juan - obra Polanco" não pode perder esse trabalho com a
+     * próxima mensagem. Essa é toda a razão de existir o `nameSource`.
      */
     const delPerfil = resolved.profileName?.trim();
     if (
@@ -297,7 +297,7 @@ export async function getOrCreateContactByIdentity(
     .returning();
   if (inserted[0]) return { contact: inserted[0], isNew: true };
 
-  // Carrera: otro request lo creó entre el SELECT y el INSERT.
+  // Corrida: outra requisição o criou entre o SELECT e o INSERT.
   const raced = await db
     .select()
     .from(schema.contact)
@@ -313,15 +313,15 @@ export async function getOrCreateContactByIdentity(
   return { contact, isNew: false };
 }
 
-/** Nombre de respaldo cuando no hay nombre de perfil: nunca el BSUID crudo. */
+/** Nome de reserva quando não há nome de perfil: nunca o BSUID cru. */
 function displayFallback(resolved: ResolvedIdentity): string {
   if (resolved.phone) return resolved.phone;
   return "Contacto de WhatsApp";
 }
 
 /**
- * Respaldo para los canales cuyo webhook no trae nombre: nunca el IGSID ni el
- * PSID crudos, que en la bandeja no le dicen nada al operador.
+ * Reserva para os canais cujo webhook não traz nome: nunca o IGSID nem o
+ * PSID crus, que na caixa de entrada não dizem nada ao operador.
  */
 function channelFallback(channel: Channel): string {
   return `Contacto de ${CHANNEL_LABEL[channel] ?? channel}`;

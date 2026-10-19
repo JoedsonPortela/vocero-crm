@@ -9,13 +9,13 @@ export const dynamic = "force-dynamic";
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
- * 015 — Los huecos libres, para el operador.
+ * 015 — As janelas livres, para o operador.
  *
- * A diferencia de la superficie del bot, esta NO registra oferta: es la vista
- * de quien ya está mirando la agenda y elige de lo que ve.
+ * Diferentemente da superfície do bot, esta NÃO registra oferta: é a visão
+ * de quem já está olhando a agenda e escolhe entre o que vê.
  *
- * Sin huecos responde `{"slots":[]}` con 200: agenda llena es una respuesta,
- * no un error.
+ * Sem janelas, responde `{"slots":[]}` com 200: agenda cheia é uma resposta,
+ * não um erro.
  */
 export const GET = withAuth(async (session, req: Request) => {
   if (!agendaEnabled()) return agendaDisabledResponse();

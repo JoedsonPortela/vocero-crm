@@ -6,7 +6,7 @@ import {
   SOURCE_VALUES,
 } from "@/server/contact-source";
 
-/* Fuente del prospecto: lo capturado manda, lo demás queda sin identificar. */
+/* Fonte do prospect: o que foi capturado manda, o resto fica sem identificar. */
 
 describe("fuente efectiva", () => {
   it("lo que capturó el dueño se marca como capturado", () => {
@@ -17,8 +17,8 @@ describe("fuente efectiva", () => {
   });
 
   it("sin captura queda desconocida, y se dice que fue deducida", () => {
-    // No se inventa: un contacto que solo escribió por WhatsApp no dice de
-    // dónde salió, y presentarlo como dato sería mentir en el reporte.
+    // Não se inventa: um contato que só escreveu pelo WhatsApp não diz de
+    // onde saiu, e apresentá-lo como dado seria mentir no relatório.
     expect(effectiveSource(null)).toEqual({
       value: "desconocida",
       source: "deducida",

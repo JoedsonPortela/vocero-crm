@@ -15,7 +15,7 @@ import { resolveZernioAccount } from "@/server/zernio/guardar";
 
 export const dynamic = "force-dynamic";
 
-/** 014 — Estado de la conexión de Instagram (el token nunca sale entero). */
+/** 014 — Estado da conexão do Instagram (o token nunca sai inteiro). */
 export const GET = withAuth(async (session) => {
   if (!isChannelEnabled("instagram")) return channelDisabledResponse();
   const creds = await getInstagramCredentialsByOrg(session.organizationId);
@@ -34,9 +34,9 @@ export const GET = withAuth(async (session) => {
 
 const putSchema = z.object({
   source: z.enum(["zernio", "meta"]),
-  /** Con Meta, obligatorio. Con Zernio sale de la cuenta (023). */
+  /** Com a Meta, obrigatório. Com a Zernio, sai da conta (023). */
   igUserId: z.string().trim().min(1).nullish(),
-  /** Con Zernio: opcional si la llave tiene una sola cuenta de Instagram. */
+  /** Com a Zernio: opcional se a chave tiver uma única conta do Instagram. */
   accountRef: z.string().trim().min(1).nullish(),
   username: z.string().trim().nullish(),
   token: z.string().trim().min(1),
@@ -44,10 +44,10 @@ const putSchema = z.object({
 });
 
 /**
- * Guarda la conexión validando ANTES contra la plataforma, igual que el
- * wizard de WhatsApp: un token que no sirve no llega a la base. Solo el
- * propietario de la organización puede hacerlo (023: esta ruta no lo
- * revisaba; Messenger y TikTok sí).
+ * Salva a conexão validando ANTES na plataforma, igual ao
+ * wizard do WhatsApp: um token que não funciona não chega ao banco. Só o
+ * proprietário da organização pode fazê-lo (023: esta rota não verificava
+ * isso; o Messenger e o TikTok verificam).
  */
 export const PUT = withAuth(async (session, req: Request) => {
   if (!isChannelEnabled("instagram")) return channelDisabledResponse();
@@ -59,15 +59,15 @@ export const PUT = withAuth(async (session, req: Request) => {
   const data = body.data;
 
   const previa = await getInstagramCredentialsByOrg(session.organizationId);
-  // Sin secreto nuevo se conserva el que había: reconectar no debe apagar la
-  // verificación de firma.
+  // Sem segredo novo, mantém-se o que havia: reconectar não deve desligar a
+  // verificação de assinatura.
   const webhookSecret =
     data.webhookSecret ??
     (previa?.source === data.source ? previa.webhookSecret : null) ??
     null;
 
   if (data.source === "zernio") {
-    // 023: la cuenta se resuelve contra Zernio, no se guarda a ciegas.
+    // 023: a conta é resolvida na Zernio, não é salva às cegas.
     const cuenta = await resolveZernioAccount(data.token, data.accountRef, "instagram");
     if (!cuenta.ok) return cuenta.response;
     const username = cuenta.account.username?.replace(/^@/, "") || data.username || null;
@@ -123,7 +123,7 @@ type Check =
   | { ok: true; username: string | null }
   | { ok: false; status: number; code: string; message: string };
 
-/** Fuente Meta: el token tiene que ser de ESA cuenta de Instagram. */
+/** Fonte Meta: o token precisa ser DESSA conta do Instagram. */
 async function verify(data: { token: string; igUserId: string }): Promise<Check> {
   const url = `${process.env.IG_GRAPH_BASE_URL ?? "https://graph.instagram.com"}/${
     process.env.META_GRAPH_API_VERSION ?? "v25.0"

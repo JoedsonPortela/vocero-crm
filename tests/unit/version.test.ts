@@ -3,9 +3,9 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * La versión que enseña la app tiene que ser la del código que corre. Si se
- * desincroniza, es peor que no tenerla: alguien va a depurar media hora un bug
- * ya arreglado porque la etiqueta le dijo que el build sí había llegado.
+ * A versão que a app exibe tem que ser a do código que está rodando. Se ela
+ * dessincronizar, é pior que não tê-la: alguém vai depurar meia hora um bug
+ * já corrigido porque a etiqueta disse que o build tinha chegado.
  */
 
 const RAIZ = path.resolve(import.meta.dirname, "..", "..");
@@ -22,22 +22,22 @@ describe("versión de la app", () => {
     const config = readFileSync(path.join(RAIZ, "next.config.ts"), "utf8");
     expect(config).toContain("package.json");
     expect(config).toContain("NEXT_PUBLIC_APP_VERSION");
-    // Una versión escrita a mano en el config es exactamente cómo se
-    // desincroniza; si aparece un literal tipo "1.2.3", esto se pone rojo.
+    // Uma versão escrita à mão no config é exatamente como se
+    // dessincroniza; se aparecer um literal tipo "1.2.3", isto fica vermelho.
     expect(config).not.toMatch(/["']\d+\.\d+\.\d+["']/);
   });
 
   it("la insignia no cablea el nombre del producto", () => {
-    // Esto es white-label: una instancia rebautizada que dice "Vocero" en el
-    // tooltip delata el producto de debajo justo donde el operador la mira
-    // todos los días.
+    // Isto é white-label: uma instância renomeada que diz "Vocero" no
+    // tooltip denuncia o produto de baixo justo onde o operador olha
+    // todos os dias.
     const nav = readFileSync(
       path.join(RAIZ, "src", "components", "app-nav.tsx"),
       "utf8"
     );
-    // Se busca la llamada real. Antes buscaba `versionLabel()`, que no existe
-    // en el componente (se llama con el commit): el índice era -1 y la prueba
-    // miraba, por casualidad, el final del archivo.
+    // Procura-se a chamada real. Antes buscava `versionLabel()`, que não existe
+    // no componente (chama-se com o commit): o índice era -1 e o teste
+    // olhava, por acaso, o final do arquivo.
     const llamada = nav.indexOf("versionLabel(version.commit)");
     expect(llamada).toBeGreaterThan(0);
     const insignia = nav.slice(llamada - 600, llamada + 300);
@@ -46,10 +46,10 @@ describe("versión de la app", () => {
   });
 
   it("docker compose arranca por defecto la imagen de esta misma versión", () => {
-    // El compose es el único otro lugar con la versión escrita: fija la imagen
-    // publicada. Si package.json sube y el compose no, `docker compose up -d`
-    // corre la versión anterior mientras el código y el CHANGELOG hablan de
-    // la nueva.
+    // O compose é o único outro lugar com a versão escrita: fixa a imagem
+    // publicada. Se o package.json sobe e o compose não, `docker compose up -d`
+    // roda a versão anterior enquanto o código e o CHANGELOG falam da
+    // nova.
     const compose = readFileSync(path.join(RAIZ, "docker-compose.yml"), "utf8");
     const imagen = compose.match(/image:\s*\S+:\$\{VOCERO_CRM_VERSION:-([^}\s]+)\}/);
     expect(imagen?.[1]).toBe(pkg.version);
@@ -58,17 +58,17 @@ describe("versión de la app", () => {
   it("el Dockerfile acepta el commit sin exigirlo", () => {
     const dockerfile = readFileSync(path.join(RAIZ, "Dockerfile"), "utf8");
     expect(dockerfile).toContain("ARG SOURCE_COMMIT");
-    // Con default vacío: quien construya sin pasarlo no debe ver un build roto.
+    // Com default vazio: quem constrói sem passá-lo não deve ver um build quebrado.
     expect(dockerfile).toMatch(/ARG SOURCE_COMMIT=""/);
   });
 });
 
 describe("versionLabel", () => {
   it("resuelve el commit de la plataforma cuando el build no lo trajo… SIN verificar", async () => {
-    // Hay plataformas que publican `SOURCE_COMMIT` en el contenedor sin
-    // pasarlo al build. Sin este respaldo la insignia enseña solo la versión,
-    // que no se mueve entre despliegues del mismo release. Pero ese commit es
-    // la palabra de la plataforma: si nadie lo actualiza, miente (#50).
+    // Há plataformas que publicam `SOURCE_COMMIT` no contêiner sem
+    // passá-lo ao build. Sem este respaldo, a insígnia mostra só a versão,
+    // que não muda entre implantações do mesmo release. Mas esse commit é
+    // a palavra da plataforma: se ninguém o atualiza, mente (#50).
     process.env.NEXT_PUBLIC_APP_VERSION = "1.4.2";
     process.env.NEXT_PUBLIC_BUILD_COMMIT = "";
     process.env.SOURCE_COMMIT = "abcdef1234567890";
@@ -78,8 +78,8 @@ describe("versionLabel", () => {
   });
 
   it("el del build MANDA sobre el de la plataforma, y es el único verificado", async () => {
-    // Si los dos existen, el congelado en la imagen es el que de verdad
-    // corresponde al código que corre.
+    // Se os dois existem, o congelado na imagem é o que de fato
+    // corresponde ao código que roda.
     process.env.NEXT_PUBLIC_APP_VERSION = "1.4.2";
     process.env.NEXT_PUBLIC_BUILD_COMMIT = "1111111aaaa";
     process.env.SOURCE_COMMIT = "2222222bbbb";
@@ -97,8 +97,8 @@ describe("versionLabel", () => {
   });
 
   it("con commit muestra los dos; sin commit, solo la versión", async () => {
-    // El módulo lee `process.env` al importarse, así que cada caso necesita su
-    // propio import fresco.
+    // O módulo lê `process.env` ao ser importado, então cada caso precisa do
+    // seu próprio import fresco.
     process.env.NEXT_PUBLIC_APP_VERSION = "1.4.2";
     process.env.NEXT_PUBLIC_BUILD_COMMIT = "8e62d0bdfe5a7fb";
     const conCommit = await import(`@/lib/version?con=${Date.now()}`);
@@ -111,16 +111,16 @@ describe("versionLabel", () => {
 });
 
 /**
- * #50, punto 4 — La insignia puede mentir en silencio.
+ * #50, ponto 4 — A insígnia pode mentir em silêncio.
  *
- * Una instancia mostraba `v1.3.0 · 52c5034` y corría `73e93c1`, 14 commits
- * por delante: el `SOURCE_COMMIT` estaba escrito a mano en la plataforma y
- * nadie lo actualizaba, y el respaldo de ejecución lo presentaba igual que uno
- * congelado en el build. Ahora dice lo que es.
+ * Uma instância mostrava `v1.3.0 · 52c5034` e rodava `73e93c1`, 14 commits
+ * à frente: o `SOURCE_COMMIT` estava escrito à mão na plataforma e
+ * ninguém o atualizava, e o respaldo de execução o apresentava igual a um
+ * congelado no build. Agora diz o que é.
  */
 describe("un commit que no salió del build se presenta como NO verificado", () => {
   const ENV_ORIGINAL = { ...process.env };
-  // El módulo lee `process.env` al importarse: cada caso, un import fresco.
+  // O módulo lê `process.env` ao ser importado: cada caso, um import fresco.
   beforeEach(() => {
     vi.resetModules();
   });
@@ -138,7 +138,7 @@ describe("un commit que no salió del build se presenta como NO verificado", () 
     expect(titulo).toContain("52c5034");
     expect(titulo).toContain("no viene del build");
     expect(titulo).toContain("build arg SOURCE_COMMIT");
-    // White-label también aquí: el nombre es el de la marca.
+    // White-label também aqui: o nome é o da marca.
     expect(titulo.startsWith("Clínica Sur 1.3.0")).toBe(true);
     expect(titulo).not.toContain("Vocero");
   });
@@ -166,11 +166,11 @@ describe("un commit que no salió del build se presenta como NO verificado", () 
   });
 
   describe("/api/health", () => {
-    // Aquí solo importa el commit: la forma completa (con `features` y
-    // `mediaWritable`, #82) se prueba en tests/unit/health.test.ts.
-    // Cada caso re-importa la ruta con `resetModules` (lee el entorno al
-    // importarse): en una corrida cargada eso puede pasar de los 5 s de
-    // serie, y una prueba que expira sigue corriendo detrás de la siguiente.
+    // Aqui só importa o commit: a forma completa (com `features` e
+    // `mediaWritable`, #82) é testada em tests/unit/health.test.ts.
+    // Cada caso reimporta a rota com `resetModules` (lê o ambiente ao
+    // ser importada): numa execução carregada isso pode passar dos 5 s de
+    // série, e um teste que expira segue rodando por trás do seguinte.
     const IMPORT_FRESCO_MS = 30_000;
 
     async function salud(env: Record<string, string | undefined>) {
@@ -197,7 +197,7 @@ describe("un commit que no salió del build se presenta como NO verificado", () 
     }, IMPORT_FRESCO_MS);
 
     it("commit solo del entorno → sale, pero con commitVerified: false", async () => {
-      // `commit` se conserva: hay scripts que ya lo leen y no se les rompe.
+      // `commit` se mantém: há scripts que já o leem e não se quebram.
       expect(
         await salud({
           NEXT_PUBLIC_APP_VERSION: "1.3.0",

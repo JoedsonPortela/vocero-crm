@@ -10,7 +10,7 @@ import { TimeBars } from "./time-bars";
 
 const plural = (n: number, uno: string, varios: string) => `${n} ${n === 1 ? uno : varios}`;
 
-/** 019 — Ventas: los indicadores, la serie, el embudo y las pérdidas. */
+/** 019 — Vendas: os indicadores, a série, o funil e as perdas. */
 export function SalesSection({
   data,
   loading,

@@ -1,12 +1,12 @@
 import { ptBR } from "./pt-br";
 
 /**
- * Idioma de la interfaz. Hoy solo pt-BR: el lang del HTML y los formatos de
- * fecha, número y moneda salen de aquí.
+ * Idioma da interface. Hoje só pt-BR: o lang do HTML e os formatos de
+ * data, número e moeda saem daqui.
  */
 export const LOCALE = "pt-BR";
 
-/** Todas las claves hoja del diccionario, con puntos: `nav.inbox`. */
+/** Todas as chaves folha do dicionário, com pontos: `nav.inbox`. */
 type Leaves<T, P extends string = ""> = {
   [K in keyof T & string]: T[K] extends string
     ? `${P}${K}`
@@ -16,9 +16,9 @@ type Leaves<T, P extends string = ""> = {
 export type TextKey = Leaves<typeof ptBR>;
 
 /**
- * Resuelve una clave con puntos en el diccionario. Si la clave no existe,
- * devuelve la clave misma: un texto faltante se nota en pantalla y no tumba
- * la página.
+ * Resolve uma chave com pontos no dicionário. Se a chave não existir,
+ * devolve a própria chave: um texto faltando aparece na tela e não derruba
+ * a página.
  */
 export function t(key: TextKey, vars?: Record<string, string | number>): string {
   const value = key.split(".").reduce<unknown>((node, part) => {

@@ -12,10 +12,10 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * «Probar conexión»: una llamada mínima al proveedor con lo escrito en el
- * formulario, SIN guardar nada. Sin llave en el body se prueba la guardada;
- * si el proveedor la acepta y estaba pausada, vuelve a `active` — el camino
- * de «recargué saldo» sin pegar la misma llave otra vez.
+ * «Testar conexão»: uma chamada mínima ao provedor com o que foi digitado no
+ * formulário, SEM salvar nada. Sem chave no body, testa-se a salva;
+ * se o provedor a aceitar e ela estava pausada, volta para `active` — o caminho
+ * de «recarreguei o saldo» sem colar a mesma chave outra vez.
  */
 export const POST = withAuth(async (session, req: Request) => {
   const body = await parseBody(req, aiProbeSchema);
@@ -49,8 +49,8 @@ export const POST = withAuth(async (session, req: Request) => {
   let reactivada = false;
   if (llave.guardada) {
     const cred = await getAiCredentialPublic(session.organizationId);
-    // Solo cuenta si se probó CONTRA EL MISMO proveedor que está guardado:
-    // que otra base URL acepte la llave no dice nada de la pausada.
+    // Só conta se foi testado CONTRA O MESMO provedor que está salvo:
+    // que outra base URL aceite a chave não diz nada sobre a pausada.
     if (
       cred &&
       cred.status !== "active" &&

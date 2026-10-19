@@ -46,17 +46,17 @@ describe("capacidades por canal", () => {
   });
 
   it("el límite de Instagram es en BYTES: los acentos cuentan doble", () => {
-    // 600 acentos = 1200 bytes. Contando caracteres esto pasaría, y Meta
-    // rechazaría el envío con un 400 que el operador no sabría leer.
+    // 600 acentos = 1200 bytes. Contando caracteres isto passaria, e a Meta
+    // recusaria o envio com um 400 que o operador não saberia ler.
     expect(textFits("instagram", "é".repeat(600))).toBe(false);
     expect(textFits("instagram", "a".repeat(600))).toBe(true);
     expect(textFits("instagram", "a".repeat(1001))).toBe(false);
   });
 
   it("WhatsApp declara su límite de 4,096 caracteres, que antes vivía en el esquema de la API", () => {
-    // 022: el tope dejó de ser uno global para todos los canales (TikTok
-    // admite 6,000), así que el de WhatsApp se declara aquí. Se cuenta en
-    // caracteres: 4,096 acentos son 8,192 bytes y caben.
+    // 022: o teto deixou de ser um só para todos os canais (o TikTok
+    // admite 6.000), então o do WhatsApp é declarado aqui. Conta-se em
+    // caracteres: 4.096 acentos são 8.192 bytes e cabem.
     expect(textFits("whatsapp", "a".repeat(4096))).toBe(true);
     expect(textFits("whatsapp", "é".repeat(4096))).toBe(true);
     expect(textFits("whatsapp", "a".repeat(5000))).toBe(false);
@@ -65,8 +65,8 @@ describe("capacidades por canal", () => {
 
 describe("distintivo de bandeja", () => {
   it("todo canal del catálogo tiene su marca dibujada", () => {
-    // Sin esto, agregar un canal y olvidar su glifo no rompe nada: el
-    // distintivo devuelve null y la bandeja se ve como si no tuviera canal.
+    // Sem isto, acrescentar um canal e esquecer seu glifo não quebra nada: o
+    // distintivo devolve null e a bandeja aparece como se não tivesse canal.
     for (const ch of CHANNEL_ORDER) {
       expect(channelMark(ch)).not.toBeNull();
     }

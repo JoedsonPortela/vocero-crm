@@ -4,14 +4,14 @@ import { describe, expect, it } from "vitest";
 import { envSchema } from "@/lib/env";
 
 /**
- * #88 — Un manifest por plataforma (Render, Fly, Railway) para desplegar la
- * imagen publicada fuera de Coolify con un comando. Cada uno declara lo que
- * su plataforma le deja declarar (puerto 3000, healthcheck /api/health,
- * volumen en /data, imagen fijada a la versión) y documenta, en comentarios,
- * lo que queda a mano. Las variables obligatorias salen del mismo esquema
- * que valida el arranque (src/lib/env.ts): si alguien agrega una nueva,
- * esto se pone rojo hasta que los tres manifests la lleven, declarada o en
- * el comando que la fija.
+ * #88 — Um manifest por plataforma (Render, Fly, Railway) para implantar a
+ * imagem publicada fora do Coolify com um comando. Cada um declara o que
+ * sua plataforma permite declarar (porta 3000, healthcheck /api/health,
+ * volume em /data, imagem fixada na versão) e documenta, em comentários,
+ * o que fica por conta própria. As variáveis obrigatórias saem do mesmo esquema
+ * que valida o arranque (src/lib/env.ts): se alguém acrescentar uma nova,
+ * isto fica vermelho até que os três manifests a tragam, declarada ou no
+ * comando que a fixa.
  */
 
 const RAIZ = path.resolve(import.meta.dirname, "..", "..");
@@ -20,19 +20,19 @@ const pkg = JSON.parse(
 ) as { version: string };
 const IMAGEN = `ghcr.io/kevinrivm/vocero-crm:${pkg.version}`;
 
-// Un checkout de Windows con autocrlf deja CRLF: se normaliza para que las
-// expresiones con `\n` lean lo mismo en cualquier máquina.
+// Um checkout do Windows com autocrlf deixa CRLF: normaliza-se para que as
+// expressões com `\n` leiam o mesmo em qualquer máquina.
 const leer = (nombre: string) =>
   readFileSync(path.join(RAIZ, nombre), "utf8").replace(/\r\n?/g, "\n");
-/** Solo lo que la plataforma lee: sin las líneas de comentario. */
+/** Só o que a plataforma lê: sem as linhas de comentário. */
 const sinComentarios = (texto: string) =>
   texto
     .split("\n")
     .filter((linea) => !/^\s*#/.test(linea))
     .join("\n");
 
-// Obligatoria = sin `.optional()` ni `.default()`. `isOptional()` solo prueba
-// `undefined` contra el tipo: no lee el entorno ni deja nada cacheado.
+// Obrigatória = sem `.optional()` nem `.default()`. `isOptional()` apenas testa
+// `undefined` contra o tipo: não lê o ambiente nem deixa nada em cache.
 const OBLIGATORIAS = Object.entries(envSchema.shape)
   .filter(([, tipo]) => !tipo.isOptional())
   .map(([clave]) => clave);
@@ -41,7 +41,7 @@ const render = leer("render.yaml");
 const fly = leer("fly.toml");
 const railway = leer("railway.toml");
 
-/** El bloque YAML de una variable de render.yaml: desde su `- key:` hasta el siguiente. */
+/** O bloco YAML de uma variável do render.yaml: desde o seu `- key:` até o próximo. */
 function bloqueRender(clave: string): string {
   const m = render.match(
     new RegExp(`^\\s*- key: ${clave}\\n((?:(?!\\s*- key:).*\\n)*)`, "m")
@@ -78,9 +78,9 @@ describe.each([
   });
 
   it("fija la imagen publicada a la versión de package.json", () => {
-    // Como el compose (tests/unit/version.test.ts): una etiqueta vieja en un
-    // manifest instala la versión anterior mientras el CHANGELOG habla de
-    // la nueva.
+    // Como o compose (tests/unit/version.test.ts): uma etiqueta antiga num
+    // manifest instala a versão anterior enquanto o CHANGELOG fala da
+    // nova.
     expect(texto).toContain(IMAGEN);
     expect(texto).not.toMatch(/vocero-crm:latest/);
   });
@@ -92,15 +92,15 @@ describe.each([
   });
 
   it("no define MEDIA_DIR: la imagen ya trae /data/media dentro del volumen", () => {
-    // Definirla en la plataforma es exactamente cómo se mandan los adjuntos
-    // fuera del volumen (INSTALL-IA.md, «Diagnóstico rápido»).
+    // Defini-la na plataforma é exatamente como se enviam os anexos
+    // fora do volume (INSTALL-IA.md, «Diagnóstico rápido»).
     expect(sinComentarios(texto)).not.toMatch(/MEDIA_DIR\s*[=:]/);
   });
 
   it("genera cada secreto con el comando que pide .env.example", () => {
-    // ENCRYPTION_KEY son 32 bytes en base64; el verify token va en la URL del
-    // webhook, así que es hex (sin `/`). O lo genera la plataforma con ese
-    // mismo formato, o el comando documentado lo hace.
+    // ENCRYPTION_KEY são 32 bytes em base64; o verify token vai na URL do
+    // webhook, então é hex (sem `/`). Ou a plataforma o gera nesse
+    // mesmo formato, ou o comando documentado o faz.
     expect(texto).toMatch(/ENCRYPTION_KEY[\s\S]{0,200}(openssl rand -base64 32|generateValue: true)/);
     expect(texto).toMatch(/META_WEBHOOK_VERIFY_TOKEN[\s\S]{0,300}openssl rand -hex 32/);
   });
@@ -171,7 +171,7 @@ describe("fly.toml: lo que cabe en el archivo y los comandos de lo que no", () =
   it("los secretos van por `fly secrets set` y DATABASE_URL por `attach`", () => {
     for (const clave of ["BETTER_AUTH_SECRET", "ENCRYPTION_KEY", "META_WEBHOOK_VERIFY_TOKEN"]) {
       expect(fly).toMatch(new RegExp(`fly secrets set[\\s\\S]{0,300}${clave}=`));
-      // Y no en [env], que es visible en el fly.toml del repo.
+      // E não em [env], que é visível no fly.toml do repo.
       expect(activo, clave).not.toMatch(new RegExp(`^\\s*${clave} =`, "m"));
     }
     expect(fly).toMatch(/fly postgres attach vocero-db --app vocero-crm/);

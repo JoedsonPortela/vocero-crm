@@ -2,19 +2,19 @@ import { JUDGE_MARKER } from "@/server/ai/prompts";
 import { CABECERA_HUECOS } from "@/server/agenda/offers";
 
 /**
- * Proveedor LLM determinista para el self-test (contrato mocks.md).
- * Despacha por contenido del último mensaje `user` (o del system si es el
- * juez). JAMÁS es fallback en runtime: solo responde si OPENROUTER_BASE_URL
- * apunta explícitamente a él y el gate de mocks está activo.
+ * Provedor LLM determinista para o self-test (contrato mocks.md).
+ * Despacha pelo conteúdo da última mensagem `user` (ou do system se for o
+ * juiz). JAMAIS é fallback em runtime: só responde se OPENROUTER_BASE_URL
+ * aponta explicitamente para ele e o gate de mocks está ativo.
  */
 
 type InMessage = { role: string; content: string };
 
 /**
- * Sufijos de la llave que el mock rechaza, con el código que daría el
- * proveedor real: `-invalid` → 401 (llave rechazada) y `-sin-saldo` → 402.
- * Es lo que permite ejercitar la pausa de Ajustes → IA en el self-test sin
- * un proveedor de verdad. Cualquier otra llave se acepta.
+ * Sufixos da chave que o mock rejeita, com o código que daria o
+ * provedor real: `-invalid` → 401 (chave recusada) e `-sin-saldo` → 402.
+ * É o que permite exercitar a pausa de Configurações → IA no self-test sem
+ * um provedor de verdade. Qualquer outra chave é aceita.
  */
 export function aiMockAuthFailure(
   authorization: string | null
@@ -32,7 +32,7 @@ export function aiMockAuthFailure(
   return null;
 }
 
-/** La lista de `GET /v1/models` del mock: suficiente para «Traer modelos». */
+/** A lista de `GET /v1/models` do mock: suficiente para «Buscar modelos». */
 export function aiMockModels(): { id: string; name: string }[] {
   return [
     { id: "mock/agente", name: "Modelo de prueba (agente)" },
@@ -41,12 +41,12 @@ export function aiMockModels(): { id: string; name: string }[] {
 }
 
 /**
- * 025 — Lo que el guion necesita para probar el turno del agente incluido.
+ * 025 — O que o roteiro precisa para testar o turno do agente incluído.
  *
- * `demoraMs` hace que el modelo «piense»: es lo que deja meter un mensaje con
- * el turno en curso. Y se guarda lo que se le preguntó, porque la respuesta
- * sola no dice en qué ORDEN leyó la conversación — y ese orden es justo lo que
- * decide si atiende el mensaje que entró mientras pensaba.
+ * `demoraMs` faz o modelo «pensar»: é o que deixa inserir uma mensagem com
+ * o turno em curso. E guarda-se o que lhe foi perguntado, porque a resposta
+ * sozinha não diz em que ORDEM leu a conversa — e essa ordem é justamente o que
+ * decide se atende a mensagem que entrou enquanto pensava.
  */
 type Peticion = { at: string; mensajes: InMessage[] };
 type EstadoIa = { demoraMs: number; peticiones: Peticion[] };
@@ -58,7 +58,7 @@ function estadoIa(): EstadoIa {
   return globalForIa.__voceroAiMock;
 }
 
-/** Consulta o configura el mock: `?demoraMs=3000`, `?reset=1`. */
+/** Consulta ou configura o mock: `?demoraMs=3000`, `?reset=1`. */
 export function aiMockEstado(params: URLSearchParams): EstadoIa {
   const e = estadoIa();
   const demoraMs = params.get("demoraMs");
@@ -70,15 +70,15 @@ export function aiMockEstado(params: URLSearchParams): EstadoIa {
 }
 
 /**
- * Anota la petición y espera lo configurado. El juez del Laboratorio no se
- * anota ni se demora: lo que se observa es la charla con el cliente.
+ * Anota a requisição e espera o configurado. O juiz do Laboratório não se
+ * anota nem se demora: o que se observa é a conversa com o cliente.
  */
 export async function aiMockRegistrar(messages: InMessage[]): Promise<void> {
   if (messages.some((m) => m.role === "system" && m.content.includes(JUDGE_MARKER))) {
     return;
   }
   const e = estadoIa();
-  // Sin el prompt de sistema: es largo, y lo que se comprueba es la charla.
+  // Sem o prompt de sistema: é longo, e o que se verifica é a conversa.
   e.peticiones.push({
     at: new Date().toISOString(),
     mensajes: messages.filter((m) => m.role !== "system"),
@@ -92,9 +92,9 @@ export function aiMockCompletion(messages: InMessage[]): string {
   const lastUser =
     [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
 
-  // Juez del Laboratorio: veredicto determinista por persona. Para cerrar el
-  // loop del self-test, la persona fuera_de_kb pasa a verde si el CONOCIMIENTO
-  // configurado ya cubre garantías/devoluciones (sugerencia aplicada).
+  // Juiz do Laboratório: veredito determinista por pessoa. Para fechar o
+  // loop do self-test, a pessoa fora_de_kb passa a verde se o CONHECIMENTO
+  // configurado já cobrir garantias/devoluções (sugestão aplicada).
   if (system.includes(JUDGE_MARKER)) {
     const kbSection =
       lastUser
@@ -124,25 +124,25 @@ export function aiMockCompletion(messages: InMessage[]): string {
   const text = lastUser.toLowerCase();
 
   /**
-   * 015 — La agenda, ejercitando el camino REAL.
+   * 015 — A agenda, exercitando o caminho REAL.
    *
-   * El mock reserva copiando el `startUtc` del mapa de huecos, igual que tiene
-   * que hacer un modelo de verdad. Si ese mapa deja de llegar, aquí no hay de
-   * dónde sacar el instante y la reserva falla — que es exactamente el fallo
-   * que se vivió en producción (#50), en vez de un test que lo simula.
+   * O mock reserva copiando o `startUtc` do mapa de horários, igual ao que tem
+   * que fazer um modelo de verdade. Se esse mapa deixar de chegar, aqui não há de
+   * onde tirar o instante e a reserva falha — que é exatamente a falha que se viveu
+   * em produção (#50), em vez de um teste que a simula.
    *
-   * Se buscan TODOS los mensajes `system`, no solo el primero: el mapa va al
-   * final, después del historial.
+   * Procuram-se TODAS as mensagens `system`, não só a primeira: o mapa vai ao
+   * final, depois do histórico.
    */
   const huecos = messages
     .filter((m) => m.role === "system" && m.content.includes(CABECERA_HUECOS))
     .flatMap((m) => m.content.match(/\d{4}-\d{2}-\d{2}T[\d:.]+Z/g) ?? []);
 
   /**
-   * Solo ofrece horarios si el prompt le ENSEÑÓ `offer_slots`, como un modelo
-   * real. Con la agenda apagada el prompt no la trae (ni el esquema del turno
-   * la acepta), y el mock la contestaba igual: la conversación acababa en
-   * "Error del proveedor de IA", algo que en producción no pasa (R11).
+   * Só oferece horários se o prompt lhe MOSTROU `offer_slots`, como um modelo
+   * real. Com a agenda desligada o prompt não a traz (nem o esquema do turno
+   * a aceita), e o mock a respondia mesmo assim: a conversa acabava em
+   * "Erro do provedor de IA", algo que em produção não acontece (R11).
    */
   const agendaEnseñada = messages.some(
     (m) => m.role === "system" && m.content.includes('"action":"offer_slots"')
@@ -163,13 +163,13 @@ export function aiMockCompletion(messages: InMessage[]): string {
     });
   }
 
-  // Persona pide_humano (el regex de respaldo captura la frase canónica; esta
-  // rama cubre variantes que llegan al modelo).
+  // Persona pede_humano (o regex de reserva captura a frase canônica; esta
+  // rama cobre variantes que chegam ao modelo).
   if (text.includes("humano") || text.includes("asesor")) {
     return JSON.stringify({ action: "handoff", reason: "cliente" });
   }
 
-  // Intención de compra → mover a Interesado.
+  // Intenção de compra → mover para Interessado.
   if (
     text.includes("lo compro") ||
     text.includes("quiero comprar") ||

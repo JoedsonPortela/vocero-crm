@@ -3,23 +3,23 @@ import type { MessengerCredentials } from "@/server/messenger/credentials";
 import { sendZernioMessage } from "@/server/zernio";
 
 /**
- * 017 — Frontera de salida del canal de Messenger (Constitución II: todo
- * request a una plataforma pasa por un único módulo).
+ * 017 — Fronteira de saída do canal do Messenger (Constituição II: toda
+ * requisição a uma plataforma passa por um único módulo).
  *
- * Dos transportes, misma firma: Zernio (API unificada) y Meta directo. El de
- * Meta habla por `graph.facebook.com`, el MISMO host que WhatsApp, así que
- * reutiliza el cliente de Graph que ya existe (`graphRequest`): misma versión
- * de API, mismo `META_GRAPH_BASE_URL` (y por tanto el mismo mock en pruebas) y
- * los mismos errores tipados que el resto del CRM ya interpreta.
+ * Dois transportes, mesma assinatura: a Zernio (API unificada) e a Meta direto. O da
+ * Meta fala com `graph.facebook.com`, o MESMO host do WhatsApp, então
+ * reutiliza o cliente do Graph que já existe (`graphRequest`): mesma versão
+ * de API, mesmo `META_GRAPH_BASE_URL` (e portanto o mesmo mock nos testes) e
+ * os mesmos erros tipados que o resto do CRM já interpreta.
  */
 
 export type MessengerSendResult = { platformMessageId: string };
 
 /**
- * Cuerpo del envío por Meta. Separado para poder afirmarlo en una prueba sin
- * red: la etiqueta de agente humano es lo único que distingue un envío dentro
- * de la ventana de uno fuera, y equivocarla no da error de compilación — da un
- * 400 de Meta en producción a las 2 de la mañana.
+ * Corpo do envio pela Meta. Separado para poder afirmá-lo num teste sem
+ * rede: a etiqueta de agente humano é o único que distingue um envio dentro
+ * da janela de um fora dela, e errá-la não dá erro de compilação — dá um
+ * 400 da Meta em produção às 2 da manhã.
  */
 export function buildMessengerSendBody(input: {
   recipient: string;
@@ -29,8 +29,8 @@ export function buildMessengerSendBody(input: {
   const body: Record<string, unknown> = {
     recipient: { id: input.recipient },
     message: { text: input.text },
-    // RESPONSE dentro de la ventana estándar de 24 h. Fuera, Messenger no
-    // tiene plantillas: la única vía es la etiqueta HUMAN_AGENT (7 días).
+    // RESPONSE dentro da janela padrão de 24 h. Fora, o Messenger não
+    // tem templates: a única via é a etiqueta HUMAN_AGENT (7 dias).
     messaging_type: input.humanAgentTag ? "MESSAGE_TAG" : "RESPONSE",
   };
   if (input.humanAgentTag) body.tag = "HUMAN_AGENT";
@@ -38,10 +38,10 @@ export function buildMessengerSendBody(input: {
 }
 
 /**
- * Envía texto por el transporte que corresponda.
+ * Envia texto pelo transporte correspondente.
  *
- * `recipient` es el PSID (sin el prefijo `fb:`); `threadRef` es el
- * conversationId opaco de Zernio, que solo hace falta en ese transporte.
+ * `recipient` é o PSID (sem o prefixo `fb:`); `threadRef` é o
+ * conversationId opaco da Zernio, que só é necessário nesse transporte.
  */
 export async function sendMessengerText(input: {
   credentials: MessengerCredentials;
@@ -49,7 +49,7 @@ export async function sendMessengerText(input: {
   threadRef: string | null;
   text: string;
   humanAgentTag?: boolean;
-  /** Id del mensaje en Vocero: llave natural de idempotencia en Zernio. */
+  /** Id da mensagem no Vocero: chave natural de idempotência na Zernio. */
   idempotencyKey?: string;
 }): Promise<MessengerSendResult> {
   if (input.credentials.source === "zernio") {
@@ -66,9 +66,9 @@ export async function sendMessengerText(input: {
 }
 
 /**
- * Meta responde `{ recipient_id, message_id }`; el mock de Graph del entorno
- * de pruebas responde con la forma de WhatsApp (`messages[0].id`), y se
- * aceptan las dos para que el mismo código sirva en ambos.
+ * A Meta responde `{ recipient_id, message_id }`; o mock do Graph do ambiente
+ * de testes responde com o formato do WhatsApp (`messages[0].id`), e
+ * aceitam-se os dois para que o mesmo código sirva em ambos.
  */
 async function sendViaMeta(input: {
   credentials: MessengerCredentials;
@@ -103,12 +103,12 @@ async function sendViaMeta(input: {
 }
 
 /**
- * Nombre visible de quien escribe. El webhook de Messenger de Meta no trae
- * nombre —solo el PSID—, y un contacto llamado "8371…" en la bandeja es
- * inservible para el operador. Se consulta al perfil con el token de la
- * página; si Meta no lo da (permiso ausente, perfil restringido) se devuelve
- * null y la ingesta cae al nombre de respaldo: nunca se bloquea un mensaje por
- * un nombre. En modo Zernio no hace falta — el evento ya trae el nombre.
+ * Nome visível de quem escreve. O webhook do Messenger da Meta não traz
+ * nome —só o PSID—, e um contato chamado "8371…" na caixa de entrada é
+ * inútil para o operador. Consulta-se o perfil com o token da
+ * página; se a Meta não der (permissão ausente, perfil restrito) devolve-se
+ * null e a ingestão cai no nome de reserva: nunca se bloqueia uma mensagem por
+ * um nome. No modo Zernio não é preciso — o evento já traz o nome.
  */
 export async function fetchMessengerProfileName(
   credentials: MessengerCredentials,

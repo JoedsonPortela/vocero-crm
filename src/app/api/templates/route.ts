@@ -25,7 +25,7 @@ export const GET = withAuth(async (session) => {
 
 const createSchema = z.object({
   name: z.string().trim().min(1).max(60),
-  // Solo los idiomas que Meta acepta: uno fuera de la lista es rechazo seguro.
+  // Só os idiomas que a Meta aceita: um fora da lista é recusa segura.
   language: z
     .string()
     .trim()

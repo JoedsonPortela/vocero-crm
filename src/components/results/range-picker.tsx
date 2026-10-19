@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 export type Range = { from: string; to: string };
 
 /**
- * 019 — Selector de rango. Los atajos cubren casi todas las consultas reales;
- * las fechas sueltas están para la excepción. Todo se interpreta en la zona
- * del negocio del lado del servidor: aquí solo viajan fechas de calendario.
+ * 019 — Seletor de intervalo. Os atalhos cobrem quase todas as consultas reais;
+ * as datas avulsas existem para a exceção. Tudo é interpretado no fuso
+ * horário do negócio, do lado do servidor: aqui só trafegam datas de calendário.
  */
 export function RangePicker({
   value,
@@ -19,7 +19,7 @@ export function RangePicker({
 }: {
   value: Range;
   onChange: (r: Range) => void;
-  /** `YYYY-MM-DD` de hoy en la zona del negocio. */
+  /** `YYYY-MM-DD` de hoje no fuso horário do negócio. */
   today: string;
   timezone: string;
 }) {
@@ -74,10 +74,10 @@ export function RangePicker({
 }
 
 /**
- * Los atajos se calculan sobre el "hoy" del NEGOCIO, que llega resuelto del
- * servidor: con la fecha del navegador, un dueño revisando de noche desde
- * otra zona pediría un rango que no es el suyo, y el servidor y el cliente
- * pintarían atajos distintos en el primer render.
+ * Os atalhos são calculados sobre o "hoje" do NEGÓCIO, que chega resolvido do
+ * servidor: com a data do navegador, um dono revisando à noite de outro
+ * fuso pediria um intervalo que não é o seu, e o servidor e o cliente
+ * desenhariam atalhos diferentes na primeira renderização.
  */
 export function shortcuts(hoy: string): { label: string; range: Range }[] {
   const menos = (n: number) => addDaysISO(hoy, -n);
@@ -94,7 +94,7 @@ export function shortcuts(hoy: string): { label: string; range: Range }[] {
   ];
 }
 
-/** El rango por defecto: últimos 30 días. */
+/** O intervalo padrão: últimos 30 dias. */
 export function defaultRange(hoy: string): Range {
   return shortcuts(hoy)[1]!.range;
 }

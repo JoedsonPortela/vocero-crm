@@ -60,7 +60,7 @@ const CATEGORY: Record<Category, { label: string; description: string }> = {
   },
 };
 
-/** Puntos de partida: rellenan el formulario, el dueño los ajusta a su negocio. */
+/** Pontos de partida: preenchem o formulário, o dono os ajusta ao seu negócio. */
 const STARTERS: {
   title: string;
   name: string;
@@ -91,7 +91,7 @@ const STARTERS: {
   },
 ];
 
-/** Meta solo acepta minúsculas, números y guion bajo en el nombre. */
+/** A Meta aceita apenas minúsculas, números e underline no nome. */
 function normalizeName(value: string): string {
   return value
     .toLowerCase()
@@ -118,10 +118,10 @@ export function TemplatesClient() {
   }, []);
 
   /**
-   * `silent`: sincronización automática al abrir la pantalla. Meta entrega
-   * `message_template_status_update` al callback A NIVEL APP, que en modo
-   * agencia no es el de esta instancia — sin este pull la plantilla se queda
-   * "Pendiente de Meta" para siempre aunque ya esté aprobada.
+   * `silent`: sincronização automática ao abrir a tela. A Meta entrega
+   * `message_template_status_update` ao callback NO NÍVEL DO APP, que no modo
+   * agência não é o desta instância — sem este pull o modelo fica
+   * "Pendiente de Meta" para sempre mesmo já estando aprovado.
    */
   const sync = useCallback(
     async ({ silent = false } = {}) => {
@@ -144,7 +144,7 @@ export function TemplatesClient() {
         }
         if (!silent || data.updated > 0) void refetch();
       } else if (!silent) {
-        // El auto-sync falla en silencio: la lista local ya se pintó.
+        // O auto-sync falha em silêncio: a lista local já foi desenhada.
         const data = (await res?.json().catch(() => null)) as {
           error?: { message?: string };
         } | null;
@@ -253,10 +253,10 @@ export function TemplatesClient() {
   );
 }
 
-/** La explicación: para qué sirven, cómo se aprueban y dónde se usan. */
+/** A explicação: para que servem, como são aprovados e onde são usados. */
 function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
-  // Se abre sola la primera vez que la lista llega vacía.
+  // Abre sozinha na primeira vez que a lista chega vazia.
   useEffect(() => {
     if (defaultOpen) setOpen(true);
   }, [defaultOpen]);
@@ -353,7 +353,7 @@ function CreateForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Misma validación que el servidor: avisa antes de gastar una llamada a Meta.
+  // Mesma validação do servidor: avisa antes de gastar uma chamada à Meta.
   const bodyError = body.trim() ? validateBodyVariables(body) : null;
   const variableCount = bodyError ? 0 : countVariables(body);
   const warnings = bodyError ? [] : templateWarnings(body);
@@ -370,7 +370,7 @@ function CreateForm({
     setError(null);
   }
 
-  /** Inserta la siguiente variable donde está el cursor. */
+  /** Insere a próxima variável onde está o cursor. */
   function insertVariable() {
     const next = `{{${countVariables(body) + 1}}}`;
     const el = document.getElementById("tpl-body") as HTMLTextAreaElement | null;

@@ -15,15 +15,15 @@ import {
 import { ZernioConnect } from "@/components/settings/zernio-connect";
 
 /**
- * 022 — Conexión del canal de TikTok.
+ * 022 — Conexão do canal do TikTok.
  *
- * Una sola fuente: Zernio (TikTok no entrega mensajes a una app propia). Misma
- * forma que los demás canales: la llave se prueba contra la plataforma ANTES
- * de guardar, se cifra, y hacia fuera solo se enseña su cola. La pantalla solo
- * existe si el canal está encendido con `CHANNELS` (ADR-001).
+ * Uma única fonte: Zernio (o TikTok não entrega mensagens a um app próprio). Mesma
+ * forma dos demais canais: a chave é testada na plataforma ANTES
+ * de salvar, é cifrada, e para fora só se mostra a sua cauda. A tela só
+ * existe se o canal estiver ligado com `CHANNELS` (ADR-001).
  *
- * TikTok impone reglas que ningún otro canal tiene. Se dicen aquí, antes de
- * conectar, para que nadie las descubra con un mensaje rechazado.
+ * O TikTok impõe regras que nenhum outro canal tem. Elas são ditas aqui, antes de
+ * conectar, para que ninguém as descubra com uma mensagem recusada.
  */
 
 type Connection = {

@@ -1,10 +1,10 @@
-/** DTOs que viajan por la API interna (lado cliente). */
+/** DTOs que trafegam pela API interna (lado cliente). */
 
 import type { Channel } from "@/lib/channels";
 
 export type ConversationDto = {
   id: string;
-  /** 014: canal de la conversacion, para el distintivo de la bandeja. */
+  /** 014: canal da conversa, para o distintivo da bandeja. */
   channel: Channel;
   contact: { id: string; name: string; phone: string | null };
   stageName: string | null;
@@ -17,44 +17,44 @@ export type ConversationDto = {
   windowOpen: boolean;
   windowRemainingMs: number;
   /**
-   * 024 — La ventana humana del canal (Instagram y Messenger:
-   * hasta 7 días con la etiqueta de agente humano). `null` en un canal que no
-   * la tiene. `open` = la ventana normal ya cerró pero una persona todavía
-   * puede contestar; `remainingMs` es lo que le queda.
+   * 024 — A janela humana do canal (Instagram e Messenger:
+   * até 7 dias com a etiqueta de agente humano). `null` em um canal que não
+   * a tem. `open` = a janela normal já fechou, mas uma pessoa ainda
+   * pode responder; `remainingMs` é o que lhe resta.
    */
   humanWindow: { open: boolean; remainingMs: number } | null;
   /**
-   * 028 — Lo que el compositor puede ofrecer en este canal: adjuntos, y
-   * ubicación o contacto. El servidor rechaza lo demás igual.
+   * 028 — O que o compositor pode oferecer neste canal: anexos, e
+   * localização ou contato. O servidor rejeita o resto igualmente.
    */
   composer: { media: boolean; structured: boolean };
   preview: string | null;
-  /** 018: el anuncio que abrió la conversación, para la marca de la lista. */
+  /** 018: o anúncio que abriu a conversa, para a marca da lista. */
   anuncio: {
     headline: string | null;
     sourceId: string | null;
-    /** `post` si fue una publicación y no un anuncio. */
+    /** `post` se foi uma publicação e não um anúncio. */
     sourceType: string | null;
   } | null;
 };
 
-/** 018 — De qué anuncio llegó un contacto, como lo ve la bandeja. */
+/** 018 — De qual anúncio veio um contato, como a bandeja o vê. */
 export type AnuncioDto = {
   sourceId: string | null;
   sourceType: string | null;
-  /** Solo https. */
+  /** Somente https. */
   sourceUrl: string | null;
   headline: string | null;
   body: string | null;
   mediaType: string | null;
-  /** Imagen del creativo, servida por `/api/media/{id}`. */
+  /** Imagem do criativo, servida por `/api/media/{id}`. */
   imageAssetId: string | null;
-  /** Si Meta mandó identificador de clic. El valor no sale del servidor. */
+  /** Se a Meta enviou identificador de clique. O valor não sai do servidor. */
   hasCtwaClid: boolean;
   capturedAt: string;
 };
 
-/** 008 — Adjunto de un mensaje, para previsualización en el hilo. */
+/** 008 — Anexo de uma mensagem, para pré-visualização na conversa. */
 export type MessageMediaDto = {
   assetId: string;
   kind:
@@ -70,7 +70,7 @@ export type MessageMediaDto = {
   fileSize: number | null;
   caption: string | null;
   fetchStatus: "available" | "pending" | "failed";
-  /** location {latitude, longitude, name?, address?} / contacts (subset). */
+  /** location {latitude, longitude, name?, address?} / contacts (subconjunto). */
   payload: unknown;
 };
 
@@ -81,10 +81,10 @@ export type MessageDto = {
   type: string;
   text: string | null;
   status: "pending" | "sent" | "delivered" | "read" | "failed";
-  /** Motivo del fallo en lenguaje llano cuando status = "failed". */
+  /** Motivo da falha em linguagem simples quando status = "failed". */
   error: string | null;
   aiGenerated: boolean;
-  /** 008 — Origen del saliente (en entrantes viene 'operator' y se ignora). */
+  /** 008 — Origem da saída (nas entradas vem 'operator' e é ignorado). */
   origin: "ai" | "operator" | "manual" | "template";
   media: MessageMediaDto | null;
   createdAt: string;
@@ -107,41 +107,41 @@ export type StageDto = {
   kind: "open" | "won" | "lost";
 };
 
-/** Un dato de la ficha. Escalar a propósito: ver `server/bot/ficha`. */
+/** Um dado da ficha. Escalar de propósito: ver `server/bot/ficha`. */
 export type FichaValue = string | number | boolean;
 
 /**
- * Ficha de calificación del lead. Claves libres: cada negocio califica
- * distinto, así que las define quien pregunta —el agente o el dueño— y el CRM
- * no las cablea.
+ * Ficha de qualificação do lead. Chaves livres: cada negócio qualifica
+ * de forma diferente, então quem pergunta — o agente ou o dono — as define e o CRM
+ * não as fixa.
  */
 export type FichaDto = Record<string, FichaValue>;
 
 export type ContactDto = {
   id: string;
   name: string;
-  /** null en contactos que llegaron solo con BSUID (003). */
+  /** null em contatos que chegaram só com BSUID (003). */
   phone: string | null;
   notes: string | null;
-  /** Etapa del embudo del lead asociado; null si el contacto no tiene lead. */
+  /** Etapa do funil do lead associado; null se o contato não tiver lead. */
   stageName: string | null;
   archivedAt: string | null;
-  /** De dónde salió el prospecto, capturada o deducida. */
+  /** De onde saiu o prospect, capturada ou deduzida. */
   source?: SourceDto;
-  /** Prioridad del lead asociado; null si nadie la fijó. */
+  /** Prioridade do lead associado; null se ninguém a definiu. */
   priority?: PriorityValue | null;
-  /** Lo que se sabe del lead. `{}` mientras nadie haya calificado. */
+  /** O que se sabe do lead. `{}` enquanto ninguém tenha qualificado. */
   ficha?: FichaDto;
-  /** 027 — El agente no le responde a esta persona: la atiende el dueño. */
+  /** 027 — O agente não responde a esta pessoa: quem atende é o dono. */
   aiPaused?: boolean;
 };
 
 /* ============================================================
- * Bitácora de etapas
+ * Registro de etapas
  * ============================================================ */
 
-/** Por qué se perdió un trato. Lista corta a propósito: una taxonomía larga
- *  se responde "otro" y deja de informar. */
+/** Por que um negócio foi perdido. Lista curta de propósito: uma taxonomia longa
+ *  acaba respondida com "outro" e deixa de informar. */
 export type LossReason =
   | "precio"
   | "no_es_perfil"
@@ -159,11 +159,11 @@ export const LOSS_REASON_LABEL: Record<LossReason, string> = {
   otro: "Otro",
 };
 
-/** Quién provocó un movimiento de etapa. */
+/** Quem provocou uma movimentação de etapa. */
 export type StageChangeSource = "dueno" | "bot" | "sistema" | "migracion";
 
 /* ============================================================
- * Fuente del prospecto
+ * Origem do prospect
  * ============================================================ */
 
 export type SourceValue =
@@ -174,15 +174,15 @@ export type SourceValue =
   | "otro";
 
 export type SourceDto = {
-  /** "desconocida" cuando nadie la capturó y no se pudo deducir. */
+  /** "desconocida" quando ninguém a capturou e não foi possível deduzir. */
   value: SourceValue | "desconocida";
-  /** `deducida` = la infirió el sistema; `capturada` = la puso el dueño. */
+  /** `deducida` = foi inferida pelo sistema; `capturada` = foi definida pelo dono. */
   source: "capturada" | "deducida";
 };
 
 /* ============================================================
- * Prioridad del lead
+ * Prioridade do lead
  * ============================================================ */
 
-/** La fija el dueño; NULL = nadie la ha decidido (no es "media"). */
+/** Definida pelo dono; NULL = ninguém a decidiu (não é "média"). */
 export type PriorityValue = "alta" | "media" | "baja";

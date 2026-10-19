@@ -7,9 +7,9 @@ import {
 } from "@/lib/nav";
 
 /**
- * #87 — El menú agrupado y Ajustes en tres secciones. Lo que aparece y lo
- * que no lo deciden las banderas (`AGENDA`, `CHANNELS`, `ATRIBUCION`) y el
- * rol; aquí se afirma sobre el modelo, sin dibujar nada.
+ * #87 — O menu agrupado e Ajustes em três seções. O que aparece e o que
+ * não aparece é decidido pelas flags (`AGENDA`, `CHANNELS`, `ATRIBUCION`) e o
+ * papel; aqui se afirma sobre o modelo, sem desenhar nada.
  */
 
 const labels = (groups: { items: { label: string }[] }[]) =>
@@ -53,7 +53,7 @@ describe("barra lateral agrupada", () => {
     expect(todos.filter((i) => i.badge).map((i) => i.href)).toEqual(["/inbox"]);
     expect(todos.map((i) => i.href)).not.toContain("/settings");
     expect(SETTINGS_ITEM.href).toBe("/settings");
-    // Cada entrada trae su icono: el renglón lo pinta sin condicionar.
+    // Cada entrada traz seu ícone: a linha o pinta sem condicionar.
     for (const item of [...todos, SETTINGS_ITEM]) expect(item.icon).toBeDefined();
   });
 
@@ -81,7 +81,7 @@ describe("ajustes en tres secciones", () => {
   });
 
   it("cada bandera añade su enlace en su sección y en ninguna otra", () => {
-    // 023: con un canal social, "Status" abre la sección.
+    // 023: com um canal social, "Status" abre a seção.
     expect(links(settingsSections({ messenger: true }))).toEqual({
       Canais: ["Status", "WhatsApp", "Messenger"],
       Agente: ["IA"],

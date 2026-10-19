@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * 019 — Barras horizontales para distribuciones (motivos de escalamiento).
- * Horizontales porque las etiquetas son frases ("Ventana de 24 h cerrada") y
- * en vertical se cortarían o se girarían. El número va escrito: la barra
- * compara, no informa.
+ * 019 — Barras horizontais para distribuições (motivos de escalonamento).
+ * Horizontais porque os rótulos são frases ("Ventana de 24 h cerrada") e
+ * na vertical seriam cortados ou girados. O número vai escrito: a barra
+ * compara, não informa.
  */
 export function BarChart({
   items,

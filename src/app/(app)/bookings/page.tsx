@@ -11,19 +11,19 @@ export const dynamic = "force-dynamic";
 type Params = { vista?: string; fecha?: string; desde?: string; hasta?: string };
 
 /**
- * 215 — Citas en calendario. La vista y la fecha viven en la URL
- * (`?vista=semana&fecha=2026-09-18`, o `desde`/`hasta` en la Lista) para que
- * recargar o compartir el enlace abra en el mismo sitio.
+ * 215 — Visões de calendário. A visão e a data ficam na URL
+ * (`?vista=semana&fecha=2026-09-18`, ou `desde`/`hasta` na Lista) para que
+ * recarregar ou compartilhar o link abra no mesmo lugar.
  *
- * "Hoy" se decide aquí, en la zona del NEGOCIO: el navegador de quien mira
- * puede estar en otra.
+ * "Hoje" é decidido aqui, no fuso horário do NEGÓCIO: o navegador de quem olha
+ * pode estar em outro.
  */
 export default async function BookingsPage({
   searchParams,
 }: {
   searchParams: Promise<Params>;
 }) {
-  // Sin la bandera esta pantalla no existe en esta instancia.
+  // Sem a flag, esta tela não existe nesta instância.
   if (!agendaEnabled()) notFound();
   const session = await getSessionOrNull();
   if (!session) redirect("/login");

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * FR-031 / FR-082: una conversación de prueba del Laboratorio JAMÁS alcanza
- * la API de WhatsApp — sendText lanza antes de cualquier llamada Graph.
+ * FR-031 / FR-082: uma conversa de teste do Laboratório JAMAIS alcança
+ * a API do WhatsApp — sendText lança antes de qualquer chamada Graph.
  */
 
 const graphRequest = vi.fn();
@@ -65,7 +65,7 @@ describe("sandbox del Laboratorio en el sender", () => {
 
     expect(graphRequest).not.toHaveBeenCalled();
 
-    // sanity: el error es del tipo tipado
+    // sanity: o erro é do tipo tipado
     try {
       selectRows.push([
         {

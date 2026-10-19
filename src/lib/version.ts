@@ -1,59 +1,59 @@
 /**
- * Qué versión está corriendo.
+ * Qual versão está rodando.
  *
- * Existe para responder una pregunta que hoy no tiene respuesta desde la app:
- * "¿ya se desplegó mi cambio?". Sin esto hay que ir al servidor a comparar
- * commits, y en la práctica nadie lo hace — se asume que sí, y se depura
- * durante media hora un bug que ya estaba arreglado en un build que nunca
- * llegó.
+ * Existe para responder a uma pergunta que hoje não tem resposta pelo app:
+ * "já foi implantada a minha mudança?". Sem isso é preciso ir ao servidor comparar
+ * commits, e na prática ninguém faz isso — assume-se que sim, e depura-se
+ * por meia hora um bug que já estava corrigido num build que nunca
+ * chegou.
  *
- * Lo que se congela al CONSTRUIR (ver `next.config.ts`) va dentro del binario
- * y no cambia en tiempo de ejecución: la versión de `package.json` siempre, y
- * el commit SOLO si llegó al build (build arg `SOURCE_COMMIT`).
+ * O que é congelado na CONSTRUÇÃO (ver `next.config.ts`) fica dentro do binário
+ * e não muda em tempo de execução: a versão de `package.json` sempre, e
+ * o commit SOMENTE se chegou ao build (build arg `SOURCE_COMMIT`).
  *
- * Si no llegó, el servidor enseña el `SOURCE_COMMIT` que encuentre en el
- * entorno al arrancar — pero ese es la palabra de la plataforma, no del
- * código, y puede estar desfasado: una variable escrita a mano una vez se
- * queda quieta mientras la app se sigue actualizando debajo (#50). Por eso
- * viaja marcado como NO verificado, en la insignia y en `/api/health`, en vez
- * de presentarse como si saliera del build.
+ * Se não chegou, o servidor mostra o `SOURCE_COMMIT` que encontrar no
+ * ambiente na inicialização — mas esse é a palavra da plataforma, não do
+ * código, e pode estar defasado: uma variável escrita à mão uma vez fica
+ * parada enquanto o app continua sendo atualizado por baixo (#50). Por isso
+ * viaja marcado como NÃO verificado, no selo e em `/api/health`, em vez
+ * de se apresentar como se saísse do build.
  */
 
-/** SemVer de `package.json`. Cambia cuando alguien publica, no en cada push. */
+/** SemVer do `package.json`. Muda quando alguém publica, não a cada push. */
 export const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0";
 
 /**
- * Commit del que salió el build, corto. Vacío si quien construyó no lo pasó
+ * Commit do qual saiu o build, curto. Vazio se quem construiu não o passou
  * como build arg (`--build-arg SOURCE_COMMIT=...`).
  *
- * Es el que de verdad zanja la duda: dos despliegues seguidos de `main` sin
- * tocar la versión se ven idénticos por SemVer y distintos por commit.
+ * É o que de fato encerra a dúvida: dois deploys seguidos de `main` sem
+ * mexer na versão aparecem idênticos pelo SemVer e diferentes pelo commit.
  */
 export const BUILD_COMMIT = (process.env.NEXT_PUBLIC_BUILD_COMMIT ?? "").slice(0, 7);
 
 export type ResolvedCommit = {
-  /** Commit corto; vacío si no hay ninguno por ningún lado. */
+  /** Commit curto; vazio se não houver nenhum em lugar nenhum. */
   commit: string;
   /**
-   * `true` SOLO si salió del build. El que anuncia la plataforma en tiempo de
-   * ejecución no lo es: el binario no tiene cómo comprobar que ese commit sea
-   * el de su propio código.
+   * `true` SOMENTE se saiu do build. O que a plataforma anuncia em tempo de
+   * execução não é: o binário não tem como verificar que esse commit seja
+   * o do seu próprio código.
    */
   verified: boolean;
 };
 
 /**
- * Commit resuelto EN EL SERVIDOR, con su procedencia.
+ * Commit resolvido NO SERVIDOR, com a sua procedência.
  *
- * Primero el que se congeló al construir. Si quien construyó no lo pasó, el
- * `SOURCE_COMMIT` del entorno: hay plataformas que lo publican en el
- * contenedor sin pasarlo al build, y sin este respaldo la insignia enseñaría
- * solo la versión — que no se mueve entre despliegues del mismo release. Pero
- * ese respaldo sale como NO verificado: si la plataforma no lo actualiza en
- * cada despliegue, dice un commit que no es (#50).
+ * Primeiro o que foi congelado ao construir. Se quem construiu não o passou, o
+ * `SOURCE_COMMIT` do ambiente: há plataformas que o publicam no
+ * contêiner sem passá-lo ao build, e sem este respaldo o selo mostraria
+ * apenas a versão — que não se move entre deploys da mesma release. Mas
+ * esse respaldo sai como NÃO verificado: se a plataforma não o atualiza em
+ * cada deploy, diz um commit que não é (#50).
  *
- * Solo tiene sentido llamarla desde el servidor: en el cliente, `process.env`
- * únicamente lleva las variables `NEXT_PUBLIC_`.
+ * Só faz sentido chamá-la a partir do servidor: no cliente, `process.env`
+ * traz apenas as variáveis `NEXT_PUBLIC_`.
  */
 export function resolveCommit(): ResolvedCommit {
   if (BUILD_COMMIT) return { commit: BUILD_COMMIT, verified: true };
@@ -64,23 +64,23 @@ export function resolveCommit(): ResolvedCommit {
 }
 
 /**
- * `v1.1.0 · 8e62d0b`, o solo `v1.1.0` si no hay commit por ningún lado.
- * El `commit` se pasa cuando lo resolvió el servidor.
+ * `v1.1.0 · 8e62d0b`, ou só `v1.1.0` se não houver commit em lugar nenhum.
+ * O `commit` é passado quando o servidor o resolveu.
  */
 export function versionLabel(commit: string = BUILD_COMMIT): string {
   return commit ? `v${APP_VERSION} · ${commit}` : `v${APP_VERSION}`;
 }
 
-/** Lo que acompaña, en la insignia, a un commit que no salió del build. */
+/** O que acompanha, no selo, um commit que não saiu do build. */
 export const UNVERIFIED_COMMIT_NOTE = "commit sin verificar";
 
 /**
- * El tooltip de la insignia. El nombre llega de la marca y no de una
- * constante: esto es white-label, y una instancia rebautizada que dice
- * "Vocero" aquí delata el producto de debajo.
+ * O tooltip do selo. O nome vem da marca e não de uma constante: isto é
+ * white-label, e uma instância renomeada que diz "Vocero" aqui denuncia o
+ * produto de baixo.
  *
- * Con un commit sin verificar dice de dónde salió y cómo arreglarlo: quien lo
- * lee está justo dudando de qué código corre.
+ * Com um commit não verificado diz de onde saiu e como corrigir: quem o lê
+ * está justamente em dúvida sobre qual código roda.
  */
 export function versionTitle(name: string, resolved: ResolvedCommit): string {
   if (!resolved.commit) return `${name} ${APP_VERSION}`;

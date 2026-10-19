@@ -9,12 +9,12 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * 015 — Zoom de mentira para el self-test. Tras `mockGuard()`: 404
- * incondicional en producción, indistinguible de una ruta inexistente.
+ * 015 — Zoom de mentira para o self-test. Atrás de `mockGuard()`: 404
+ * incondicional em produção, indistinguível de uma rota inexistente.
  *
- * Imita lo que el conector realmente usa —token, crear, mover, borrar y
- * `users/me`— y además expone `_state` y `_reset` para que el arnés pueda
- * afirmar sobre lo que recibió.
+ * Imita o que o conector realmente usa — token, criar, mover, apagar e
+ * `users/me` — e ainda expõe `_state` e `_reset` para que o arnês possa
+ * afirmar sobre o que recebeu.
  */
 
 type Ctx = { params: Promise<{ path: string[] }> };
@@ -29,8 +29,8 @@ export async function POST(req: Request, ctx: Ctx) {
 
   if (route === "oauth/token") {
     if (mockCredentialsAreBad(req.headers.get("authorization"))) {
-      // Igual que Zoom: el endpoint de token responde 400 cuando el secreto no
-      // sirve.
+      // Igual ao Zoom: o endpoint de token responde 400 quando o segredo não
+      // serve.
       return Response.json(
         { reason: "Invalid client_id or client_secret", error: "invalid_client" },
         { status: 400 }
@@ -104,7 +104,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
     start_time?: string;
     duration?: number;
   };
-  // Mismo id ⇒ mismo joinUrl: es la misma reunión, movida de hora.
+  // Mesmo id ⇒ mesmo joinUrl: é a mesma reunião, movida de horário.
   if (body.start_time) meeting.startTime = body.start_time;
   if (body.duration) meeting.duration = body.duration;
   meeting.updates += 1;
@@ -121,7 +121,7 @@ export async function DELETE(req: Request, ctx: Ctx) {
   const id = meetingIdFrom(path);
   const state = zoomMockState();
   if (!id || !state.meetings.has(id)) {
-    // Zoom devuelve 404 y el conector lo trata como éxito.
+    // O Zoom devolve 404 e o conector trata isso como sucesso.
     return new Response(null, { status: 404 });
   }
   state.meetings.delete(id);

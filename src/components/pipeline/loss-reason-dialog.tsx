@@ -9,10 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 const REASONS = Object.keys(LOSS_REASON_LABEL) as LossReason[];
 
 /**
- * Motivo de pérdida. Se pide al ENTRAR a la etapa perdida y es
- * obligatorio: sin él el trato no se marca como perdido, ni aquí ni en la API,
- * ni en la base (hay un CHECK). Es la métrica que dice qué cambiar en la oferta
- * o en el anuncio, y solo se puede capturar en el momento en que se sabe.
+ * Motivo de perda. É pedido ao ENTRAR na etapa perdida e é
+ * obrigatório: sem ele o negócio não é marcado como perdido, nem aqui nem na API,
+ * nem no banco (há um CHECK). É a métrica que diz o que mudar na oferta
+ * ou no anúncio, e só pode ser registrado no momento em que se sabe.
  */
 export function LossReasonDialog({
   leadName,

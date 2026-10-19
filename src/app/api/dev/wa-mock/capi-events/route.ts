@@ -4,9 +4,9 @@ import { getWaMockState } from "@/server/dev/wa-mock-state";
 export const dynamic = "force-dynamic";
 
 /**
- * 016 — Lo que el CRM le mandó a la Conversions API del mock. Existe para que
- * el self-test pueda afirmar sobre la FORMA del evento (nombre, ctwa_clid,
- * `custom_data`, valor en unidades) y no solo sobre "no hubo error".
+ * 016 — O que o CRM enviou para a Conversions API do mock. Existe para que
+ * o self-test possa afirmar sobre a FORMA do evento (nome, ctwa_clid,
+ * `custom_data`, valor em unidades) e não só sobre "não houve erro".
  */
 export async function GET() {
   const guard = mockGuard();
