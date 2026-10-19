@@ -167,7 +167,7 @@ export function AgendaClient() {
     <div className="max-w-2xl space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Horario de atención</CardTitle>
+          <CardTitle>{t("settings.hoursTitle")}</CardTitle>
           <CardDescription>
             En qué franjas puede agendarte un cliente. Las horas son las de tu
             zona; un día sin franjas está cerrado.
@@ -240,11 +240,11 @@ export function AgendaClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Cómo se generan los huecos</CardTitle>
+          <CardTitle>{t("settings.slotsTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="slot">Duración de la cita (min)</Label>
+            <Label htmlFor="slot">{t("settings.appointmentDuration")}</Label>
             <Input
               id="slot"
               type="number"
@@ -266,7 +266,7 @@ export function AgendaClient() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="notice">Aviso mínimo (horas)</Label>
+            <Label htmlFor="notice">{t("settings.minNotice")}</Label>
             <Input
               id="notice"
               type="number"
@@ -277,7 +277,7 @@ export function AgendaClient() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="ahead">Agenda abierta (días)</Label>
+            <Label htmlFor="ahead">{t("settings.openDays")}</Label>
             <Input
               id="ahead"
               type="number"
@@ -301,7 +301,7 @@ export function AgendaClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Cómo se entrega la reunión</CardTitle>
+          <CardTitle>{t("settings.meetingTitle")}</CardTitle>
           <CardDescription>
             El enlace fijo no depende de nadie. Los demás conectan con tu propia
             cuenta del proveedor y, si alguna vez falla, la cita se agenda igual
@@ -382,7 +382,7 @@ export function AgendaClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Próximos huecos</CardTitle>
+          <CardTitle>{t("settings.nextSlots")}</CardTitle>
           <CardDescription>
             Lo que se le ofrecería a un cliente ahora mismo.
           </CardDescription>

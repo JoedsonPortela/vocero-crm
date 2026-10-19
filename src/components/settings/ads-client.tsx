@@ -195,7 +195,7 @@ export function AdsClient() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="capi-stage">¿Qué etapa es un lead calificado?</Label>
+            <Label htmlFor="capi-stage">{t("settings.capiStage")}</Label>
             <select
               id="capi-stage"
               value={qualifiedStageId}
@@ -265,7 +265,7 @@ export function AdsClient() {
                     <th className="py-2 pr-3 font-medium">Evento</th>
                     <th className="py-2 pr-3 font-medium">Contacto</th>
                     <th className="py-2 pr-3 font-medium">Estado</th>
-                    <th className="py-2 pr-3 font-medium">Cuándo</th>
+                    <th className="py-2 pr-3 font-medium">{t("settings.thWhen")}</th>
                     <th className="py-2 font-medium">Detalle</th>
                   </tr>
                 </thead>

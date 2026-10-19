@@ -275,7 +275,7 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
     {
       icon: Send,
       title: "Úsala",
-      text: "En la Bandeja, cuando la ventana de 24 h está cerrada, elígela, llena las variables y envía. Para escribirle primero a alguien, usa «Escribir primero» en Contactos.",
+      text: t("settings.usageInBandeja"),
     },
   ];
 
@@ -289,7 +289,7 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
       >
         <Sparkles className="h-5 w-5 shrink-0 text-primary" />
         <span className="flex-1">
-          <span className="block text-sm font-semibold">¿Para qué sirven las plantillas?</span>
+          <span className="block text-sm font-semibold">{t("settings.whatTemplatesFor")}</span>
           <span className="block text-xs text-muted-foreground">
             Son el único mensaje que WhatsApp te deja enviar pasadas 24 horas.
           </span>
@@ -323,7 +323,7 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
               <li>No empieces ni termines el mensaje con una variable, y no pongas dos variables juntas.</li>
               <li>Di quién escribe y por qué: «Hola {"{{1}}"}, soy Ana de Clínica Sol…».</li>
               <li>Escribe ejemplos reales para cada variable: es lo que ve quien la revisa.</li>
-              <li>Utilidad es solo para dar seguimiento a algo que el cliente pidió. Si el mensaje promociona algo, Meta la cambia a Marketing, que cuesta más por conversación.</li>
+              <li>{t("settings.utilityExplain")}</li>
               <li>El idioma que elijas debe ser el del texto.</li>
             </ul>
           </details>
@@ -469,7 +469,7 @@ function CreateForm({
         </div>
 
         <fieldset className="space-y-1.5">
-          <legend className="text-sm font-medium">¿Para qué es?</legend>
+          <legend className="text-sm font-medium">{t("settings.whatTemplateFor")}</legend>
           <div className="grid gap-2 sm:grid-cols-2">
             {(Object.keys(CATEGORY) as Category[]).map((c) => (
               <label
@@ -556,7 +556,7 @@ function CreateForm({
 
         {body.trim() && !bodyError && (
           <div className="space-y-1.5">
-            <p className="text-sm font-medium">Así lo verá tu cliente</p>
+            <p className="text-sm font-medium">{t("settings.customerWillSee")}</p>
             <div className="rounded-lg bg-chat p-4">
               <div className="ml-auto max-w-[85%] rounded-lg border border-bubble-out-border bg-bubble-out px-3 py-2 text-sm text-bubble-out-text shadow-sm">
                 <p className="whitespace-pre-wrap">{preview}</p>

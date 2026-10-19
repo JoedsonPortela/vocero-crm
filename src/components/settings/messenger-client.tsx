@@ -187,7 +187,7 @@ export function MessengerClient() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>¿De dónde llegan los mensajes?</Label>
+            <Label>{t("settings.messengerWhere")}</Label>
             <div className="flex flex-wrap gap-2">
               {(["zernio", "meta"] as const).map((s) => (
                 <button
@@ -226,7 +226,7 @@ export function MessengerClient() {
             <>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="fb-page-id">ID de la página</Label>
+                  <Label htmlFor="fb-page-id">{t("settings.pageId")}</Label>
                   <Input
                     id="fb-page-id"
                     value={pageId}
@@ -236,7 +236,7 @@ export function MessengerClient() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="fb-token">Token de la página</Label>
+                  <Label htmlFor="fb-token">{t("settings.pageToken")}</Label>
                   <Input
                     id="fb-token"
                     type="password"
@@ -298,7 +298,7 @@ export function MessengerClient() {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>Token de verificación</Label>
+                <Label>{t("settings.verifyToken")}</Label>
                 <div className="flex gap-2">
                   <Input readOnly value={webhook.verifyToken} className="font-mono text-xs" />
                   <Button

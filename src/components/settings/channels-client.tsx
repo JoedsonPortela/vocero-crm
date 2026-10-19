@@ -216,7 +216,7 @@ export function ChannelsClient() {
                         <span className="text-text-2"> · {fecha(r.lastInboundAt)}</span>
                       </>
                     ) : (
-                      <span className="text-text-2">Todavía no entra ninguno por este canal</span>
+                      <span className="text-text-2">{t("settings.noChannelYet")}</span>
                     )}
                   </dd>
 

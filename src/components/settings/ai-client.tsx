@@ -462,7 +462,7 @@ function EstadoGuardado({ cred, vista }: { cred: Credencial; vista: Vista }) {
 function AyudaLlave({ provider }: { provider: AiProviderId }) {
   return (
     <details className="rounded-lg border p-3 text-sm">
-      <summary className="cursor-pointer font-medium">¿Cómo consigo mi llave?</summary>
+      <summary className="cursor-pointer font-medium">{t("settings.howGetKey")}</summary>
       {provider === "openrouter" ? (
         <ol className="mt-3 list-decimal space-y-2 pl-5 text-muted-foreground">
           <li>
@@ -486,7 +486,7 @@ function AyudaLlave({ provider }: { provider: AiProviderId }) {
             </a>{" "}
             → Create key y copia la llave.
           </li>
-          <li>Pégala aquí, pulsa «Probar conexión» y luego «Guardar».</li>
+          <li>{t("settings.pasteKeyStep")}</li>
         </ol>
       ) : (
         <ol className="mt-3 list-decimal space-y-2 pl-5 text-muted-foreground">

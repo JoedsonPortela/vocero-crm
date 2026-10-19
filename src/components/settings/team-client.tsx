@@ -103,7 +103,7 @@ export function TeamClient() {
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="team-password">Contraseña temporal</Label>
+            <Label htmlFor="team-password">{t("settings.teamTempPassword")}</Label>
             <div className="flex gap-2">
               <Input
                 id="team-password"

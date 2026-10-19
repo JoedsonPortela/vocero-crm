@@ -187,7 +187,7 @@ export function InstagramClient() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>¿De dónde llegan los mensajes?</Label>
+            <Label>{t("settings.messengerWhere")}</Label>
             <div className="flex flex-wrap gap-2">
               {(["zernio", "meta"] as const).map((s) => (
                 <button
@@ -305,7 +305,7 @@ export function InstagramClient() {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>Token de verificación</Label>
+                <Label>{t("settings.verifyToken")}</Label>
                 <div className="flex gap-2">
                   <Input readOnly value={webhook.verifyToken} className="font-mono text-xs" />
                   <Button

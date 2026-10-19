@@ -75,7 +75,7 @@ export function OnboardingClient({
             <span className="font-medium">
               {done} de {total} listos
             </span>
-            {guide.complete && <span className="text-success-text">¡Completo!</span>}
+            {guide.complete && <span className="text-success-text">{t("settings.complete")}</span>}
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
             <div
