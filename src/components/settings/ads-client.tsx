@@ -148,10 +148,7 @@ export function AdsClient() {
         <CardHeader>
           <CardTitle>Conversiones de anuncios</CardTitle>
           <CardDescription>
-            Meta sabe qué conversaciones empezaron desde un anuncio, pero no
-            cuáles sirvieron. Conecta tu dataset y el CRM le avisará cuándo un
-            lead se califica y cuándo se cierra la venta, para que optimice
-            hacia quien compra y no hacia quien solo escribe.
+            A Meta sabe quais conversas começaram a partir de um anúncio, mas não quais deram resultado. Conecte seu dataset e o CRM avisará quando um lead for qualificado e quando a venda for fechada, para que ela otimize para quem compra e não para quem só escreve.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -174,8 +171,8 @@ export function AdsClient() {
               placeholder="1708105527110154"
             />
             <p className="text-xs text-muted-foreground">
-              Administrador de eventos de Meta → tu conjunto de datos. Suele ser
-              el de tu propia cuenta de WhatsApp.
+              Gerenciador de Eventos da Meta → seu conjunto de dados. Costuma ser
+              o da sua própria conta do WhatsApp.
             </p>
           </div>
 
@@ -189,8 +186,7 @@ export function AdsClient() {
               autoComplete="off"
             />
             <p className="text-xs text-muted-foreground">
-              El token de tu conexión de WhatsApp ya suele poder publicar en el
-              dataset. Solo pega uno si Meta te dio otro distinto.
+              O token da sua conexão do WhatsApp normalmente já consegue publicar no dataset. Cole um novo só se a Meta tiver lhe dado outro diferente.
             </p>
           </div>
 
@@ -212,7 +208,7 @@ export function AdsClient() {
                 ))}
             </select>
             <p className="text-xs text-muted-foreground">
-              La venta se reporta sola cuando el trato entra a tu etapa ganada.
+              A venda é reportada sozinha quando o negócio entra na sua etapa ganha.
             </p>
           </div>
 
@@ -227,7 +223,7 @@ export function AdsClient() {
 
           <div className="flex gap-2">
             <Button onClick={save} disabled={saving || !datasetId.trim()}>
-              {saving ? t("settings.saving") : "Guardar"}
+              {saving ? t("settings.saving") : t("common.save")}
             </Button>
             {capi ? (
               <Button variant="outline" onClick={disconnect} disabled={saving}>
@@ -242,8 +238,7 @@ export function AdsClient() {
         <CardHeader>
           <CardTitle>Actividad reciente</CardTitle>
           <CardDescription>
-            Lo último que se le reportó a Meta. Si algo no salió, aquí dice por
-            qué — es la forma de saber si esto funciona, sin salir del CRM.
+            O último envio reportado à Meta. Se algo não saiu, aqui aparece o motivo — é a forma de saber se isto funciona, sem sair do CRM.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -251,11 +246,10 @@ export function AdsClient() {
             Actualizar
           </Button>
           {activity === null ? (
-            <p className="text-sm text-muted-foreground">Cargando…</p>
+            <p className="text-sm text-muted-foreground">Carregando…</p>
           ) : activity.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Todavía no hay conversiones. Aparecerán cuando un lead que llegó
-              por un anuncio avance de etapa.
+              Ainda não há conversões. Elas aparecerão quando um lead que chegou por um anúncio avançar de etapa.
             </p>
           ) : (
             <div className="overflow-x-auto">

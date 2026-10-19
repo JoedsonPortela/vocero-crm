@@ -62,7 +62,7 @@ export function TiktokClient() {
     void refetch();
   }, [refetch]);
 
-  if (!loaded) return <p className="text-sm text-muted-foreground">Cargando…</p>;
+  if (!loaded) return <p className="text-sm text-muted-foreground">Carregando…</p>;
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -71,11 +71,10 @@ export function TiktokClient() {
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
           <div>
             <p className="font-medium text-danger-text">
-              La API key de Zernio expiró o fue revocada.
+              A API key do Zernio expirou ou foi revogada.
             </p>
             <p className="text-danger-text opacity-80">
-              Los envíos por TikTok están pausados. Pega una nueva abajo para
-              reconectar.
+              Os envios pelo TikTok estão pausados. Cole uma nova abaixo para reconectar.
             </p>
           </div>
         </div>
@@ -86,25 +85,24 @@ export function TiktokClient() {
           <CheckCircle2 className="h-5 w-5 text-success" />
           <div className="flex-1 text-sm">
             <p className="font-medium text-success-text">
-              Conectado por Zernio
+              Conectado pelo Zernio
               {connection.username ? `: @${connection.username}` : ""}
             </p>
             <p className="text-success-text opacity-80">
-              Cuenta {connection.accountRef} · llave que termina en ····
+              Cuenta {connection.accountRef} · chave que termina em ····
               {connection.tokenLast4}
-              {connection.hasWebhookSecret ? " · firma del webhook activa" : ""}
+              {connection.hasWebhookSecret ? " · assinatura do webhook ativa" : ""}
             </p>
           </div>
-          <Badge variant="success">TikTok activo</Badge>
+          <Badge variant="success">TikTok ativo</Badge>
         </div>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>Antes de conectar: lo que TikTok exige</CardTitle>
+          <CardTitle>Antes de conectar: o que o TikTok exige</CardTitle>
           <CardDescription>
-            No son límites de este CRM: los pone TikTok a los mensajes directos
-            de una cuenta de negocio.
+            Não são limites deste CRM: o TikTok define para as mensagens diretas de uma conta de negócios.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -120,9 +118,9 @@ export function TiktokClient() {
         <CardHeader>
           <CardTitle>{connection ? "Reconectar TikTok" : "Conectar TikTok"}</CardTitle>
           <CardDescription>
-            Los mensajes directos de tu cuenta entran a la misma bandeja que
-            WhatsApp, con su distintivo de canal. Llegan por Zernio, con tu
-            propia cuenta de Zernio.
+            As mensagens diretas da sua conta entram na mesma caixa de entrada que
+            WhatsApp, com o distintivo do canal. Chegam pelo Zernio, com a sua
+            própria conta do Zernio.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -134,7 +132,7 @@ export function TiktokClient() {
 
           <ZernioConnect
             endpoint="/api/settings/tiktok"
-            what="tu cuenta de TikTok"
+            what="sua conta do TikTok"
             idPrefix="tt"
             onSaved={() => void refetch()}
           />
@@ -144,10 +142,10 @@ export function TiktokClient() {
       <p className="flex items-start gap-2 text-xs text-text-2">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         <span>
-          El webhook lo da de alta Vocero en tu Zernio al conectar, limitado a
-          tus cuentas. Si un día dejan de llegar mensajes, revisa{" "}
+          O webhook é cadastrado pelo Vocero no seu Zernio ao conectar, limitado a
+          suas contas. Se um dia as mensagens deixarem de chegar, verifique{" "}
           <Link href="/settings/channels" className="font-semibold underline">
-            el estado de los canales
+            o status dos canais
           </Link>
           .
         </span>

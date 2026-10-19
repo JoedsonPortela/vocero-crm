@@ -108,7 +108,7 @@ export function BrandingClient({
     router.refresh();
   }
 
-  if (!loaded) return <p className="text-sm text-text-3">Cargando…</p>;
+  if (!loaded) return <p className="text-sm text-text-3">Carregando…</p>;
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -116,8 +116,8 @@ export function BrandingClient({
         <CardHeader>
           <CardTitle>Marca del CRM</CardTitle>
           <CardDescription>
-            Este CRM es tuyo: ponle el nombre de tu negocio y tu color. Se
-            reflejan en toda la interfaz y en la pantalla de inicio de sesión.
+            Este CRM é seu: coloque o nome do seu negócio e a sua cor. Se
+            refletem em toda a interface e na tela de entrada.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -152,7 +152,7 @@ export function BrandingClient({
               ))}
             </select>
             <p className="text-xs text-text-3">
-              Es la única que el Pipeline suma. Los montos capturados en otra
+              É a única que o Funil soma. Os valores registrados em outra
               moneda se muestran, pero quedan fuera del total de su columna.
             </p>
           </div>
@@ -196,8 +196,8 @@ export function BrandingClient({
               </label>
             </div>
             <p className="text-xs text-text-3">
-              Con un color personalizado, los tonos derivados (hover, fondos
-              suaves) se calculan solos y se ajusta el contraste.
+              Com uma cor personalizada, os tons derivados (hover, fundos
+              suaves) são calculados automaticamente e o contraste é ajustado.
             </p>
           </div>
 
@@ -229,7 +229,7 @@ export function BrandingClient({
               style={accentVars(previewSet)}
             >
               <span className="rounded-full bg-brand px-3.5 py-1.5 text-xs font-semibold text-brand-fg shadow-sm">
-                Botón de ejemplo
+                Botão de exemplo
               </span>
             </div>
           </div>
@@ -237,7 +237,7 @@ export function BrandingClient({
           {error && <p className="text-sm text-destructive">{error}</p>}
           {saved && <p className="text-sm" style={{ color: previewSet.text }}>Marca guardada ✓</p>}
           <Button disabled={saving || !name.trim()} onClick={() => void save()}>
-            {saving ? t("settings.saving") : "Guardar marca"}
+            {saving ? t("settings.saving") : "Salvar marca"}
           </Button>
         </CardContent>
       </Card>

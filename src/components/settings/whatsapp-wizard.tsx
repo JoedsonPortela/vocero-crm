@@ -67,7 +67,7 @@ export function WhatsappWizard() {
   }, [refetch]);
 
   if (!loaded) {
-    return <p className="text-sm text-muted-foreground">Cargando…</p>;
+    return <p className="text-sm text-muted-foreground">Carregando…</p>;
   }
 
   return (
@@ -77,11 +77,10 @@ export function WhatsappWizard() {
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
           <div className="min-w-[12rem] flex-1">
             <p className="font-medium text-danger-text">
-              El token de WhatsApp expiró o fue revocado.
+              O token do WhatsApp expirou ou foi revogado.
             </p>
             <p className="text-danger-text opacity-80">
-              Los envíos están pausados. Pega un token nuevo abajo y prueba la
-              conexión para reconectar.
+              Os envios estão pausados. Cole um novo token abaixo e teste a conexão para reconectar.
             </p>
           </div>
           <Desconectar
@@ -181,7 +180,7 @@ function Desconectar({ onHecho }: { onHecho: () => void }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-xs text-muted-foreground">
-        Dejarás de recibir y enviar. Tus conversaciones se quedan.
+        Você deixará de receber e enviar. Suas conversas continuam salvas.
       </span>
       <Button
         variant="outline"
@@ -295,8 +294,8 @@ function ConnectForm({
           {existing ? t("settings.reconnectNumber") : t("settings.connectWhatsapp")}
         </CardTitle>
         <CardDescription>
-          Pega las credenciales de WhatsApp Cloud API. El token se valida
-          contra Meta ANTES de guardarse y se almacena cifrado. Al guardar, el
+          Cole as credenciais do WhatsApp Cloud API. O token é validado
+          na Meta ANTES de ser salvo e é armazenado cifrado. Ao salvar, o
           webhook se registra en Meta por ti.
         </CardDescription>
       </CardHeader>
@@ -310,19 +309,16 @@ function ConnectForm({
                 El negocio tiene su propia app en{" "}
                 <span className="text-foreground">developers.facebook.com</span>:
                 usa un token de <span className="text-foreground">usuario del sistema</span>{" "}
-                (no expira) con permisos de WhatsApp. En este modo conviene
-                configurar también el App Secret para la firma del webhook.
+                (não expira) com permissões do WhatsApp. Neste modo, convém configurar também o App Secret para a assinatura do webhook.
               </p>
             </div>
             <div className="rounded-md border p-3">
-              <p className="mb-1 font-medium text-primary">Modo agencia (Tech Provider)</p>
+              <p className="mb-1 font-medium text-primary">Modo agência (Tech Provider)</p>
               <p className="text-muted-foreground">
-                Tu agencia hace el Embedded Signup en SU plataforma y su
-                backend obtiene el token del cliente; te lo entrega para
-                pegarlo aquí. Al guardar, el webhook se registra en el número
-                (<span className="text-foreground">override del número</span>),
-                igual que en modo directo; si tu agencia ya enruta la cuenta a
-                su propio backend, se respeta.
+                Sua agência faz o Embedded Signup NA PLATAFORMA DELA e a sua
+                backend obtém o token do cliente e o entrega para colá-lo aqui. Ao salvar, o webhook é registrado no número
+                (<span className="text-foreground">override do número</span>),
+                igual ao modo direto; se a sua agência já direciona a conta para o próprio backend, isso é respeitado.
               </p>
             </div>
           </div>
@@ -367,7 +363,7 @@ function ConnectForm({
             className={`text-sm ${testResult.ok ? "text-success" : "text-destructive"}`}
           >
             {testResult.ok
-              ? `✓ Token válido para ${testResult.display}. Ya puedes guardar.`
+              ? `✓ Token válido para ${testResult.display}. Já pode salvar.`
               : testResult.message}
           </p>
         )}
@@ -414,10 +410,9 @@ function RegistrationNotice({
       <p className="flex items-start gap-2 text-sm text-muted-foreground">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
         <span>
-          Tu cuenta de WhatsApp ya enruta sus webhooks a{" "}
+          Sua conta do WhatsApp já direciona seus webhooks para{" "}
           <span className="text-foreground">{registration.host}</span> (un
-          cerebro externo o el backend de tu agencia). Se respeta: el número
-          queda sin webhook propio y los mensajes siguen llegando ahí.
+          cérebro externo ou o backend da sua agência). É respeitado: o número fica sem webhook próprio e as mensagens continuam chegando ali.
         </span>
       </p>
     );
@@ -426,8 +421,7 @@ function RegistrationNotice({
     return (
       <p className="flex items-start gap-2 text-sm text-success">
         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-        Webhook registrado en Meta: los mensajes de este número llegan aquí.
-        No hace falta pegar nada en el panel de tu app.
+        Webhook registrado na Meta: as mensagens deste número chegam aqui. Não é preciso colar nada no painel do seu app.
       </p>
     );
   }
@@ -437,17 +431,13 @@ function RegistrationNotice({
       <span>
         {registration.ok ? (
           <>
-            Webhook registrado en el número, pero Meta no reporta ningún
-            webhook en tu app. Si no llegan mensajes: en developers.facebook.com
-            → tu app → WhatsApp → Configuración, verifica una callback URL
-            (sirve la de abajo) y suscribe el campo{" "}
-            <code>messages</code>. Es una sola vez por app.
+            Webhook registrado no número, mas a Meta não informa nenhum webhook no seu app. Se as mensagens não chegarem: em developers.facebook.com → seu app → WhatsApp → Configurações, verifique uma callback URL (serve a de baixo) e assine o campo{" "}
+            <code>messages</code>. Basta fazer uma vez por app.
           </>
         ) : (
           <>
-            {afterSave ? "La conexión se guardó, pero no" : "No"} pudimos
-            registrar el webhook en Meta. {registration.message} Reintenta con
-            «Registrar en Meta» o pega la URL y el verify token a mano.
+            {afterSave ? "A conexão foi salva, mas não" : "Não"} conseguimos
+            registrar o webhook na Meta. {registration.message} Tente de novo com «Registrar na Meta» ou cole a URL e o verify token manualmente.
           </>
         )}
       </span>
@@ -502,10 +492,7 @@ function WebhookCard({
       <CardHeader>
         <CardTitle>Webhook de WhatsApp</CardTitle>
         <CardDescription>
-          Al guardar la conexión, esta dirección se registra en Meta por ti, en
-          el número (override). Estos valores son para el backend de tu agencia
-          o para pegarlos a mano en el panel de Meta solo si el registro
-          automático falla.
+          Ao salvar a conexão, este endereço é registrado na Meta por você, no número (override). Estes valores são para o backend da sua agência ou para colá-los manualmente no painel da Meta somente se o registro automático falhar.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -525,8 +512,8 @@ function WebhookCard({
         {!webhook.isHttps && (
           <p className="flex items-start gap-2 rounded-md border border-warning-soft bg-warning-tint p-3 text-xs text-warning-text">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            La URL configurada no es https: Meta exige https para los webhooks.
-            Ajusta APP_BASE_URL con tu dominio público.
+            A URL configurada não é https: a Meta exige https para os webhooks.
+            Ajuste APP_BASE_URL com seu domínio público.
           </p>
         )}
         <div className="space-y-1.5">
@@ -548,8 +535,7 @@ function WebhookCard({
             )}
           </div>
           <p className="text-xs text-muted-foreground">
-            La URL contiene el token secreto en la ruta: trátala como una
-            contraseña.
+            A URL contém o token secreto no caminho: trate-a como uma senha.
           </p>
         </div>
         <div className="space-y-1.5">
@@ -573,16 +559,15 @@ function WebhookCard({
         </div>
         {webhook.signatureLayer ? (
           <p className="flex items-center gap-2 text-xs text-success">
-            <ShieldCheck className="h-4 w-4" /> Verificación de firma activa
-            (META_APP_SECRET configurado): cada evento se valida con
-            x-hub-signature-256.
+            <ShieldCheck className="h-4 w-4" /> Verificação de assinatura ativa
+            (META_APP_SECRET configurado): cada evento é validado com x-hub-signature-256.
           </p>
         ) : (
           <p className="flex items-start gap-2 text-xs text-muted-foreground">
             <Info className="mt-0.5 h-4 w-4 shrink-0" /> Sin App Secret
-            configurado: el webhook queda protegido por la URL secreta (normal
-            en modo agencia). Para la capa extra de firma, agrega
-            META_APP_SECRET a la instancia.
+            configurado: o webhook fica protegido pela URL secreta (normal
+            no modo agência). Para a camada extra de assinatura, adicione
+            META_APP_SECRET à instância.
           </p>
         )}
       </CardContent>

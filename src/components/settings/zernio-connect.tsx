@@ -99,14 +99,14 @@ export function ZernioConnect({
           autoComplete="off"
         />
         <p className="text-xs text-text-2">
-          Con esa llave Vocero encuentra {what} en Zernio: no hace falta copiar
+          Com essa chave o Vocero encontra {what} no Zernio: não é preciso copiar
           ningún id.
         </p>
       </div>
 
       {manual && (
         <div className="space-y-1.5 sm:max-w-md">
-          <Label htmlFor={`${idPrefix}-account`}>accountId de la cuenta en Zernio</Label>
+          <Label htmlFor={`${idPrefix}-account`}>accountId da conta no Zernio</Label>
           <Input
             id={`${idPrefix}-account`}
             value={accountRef}
@@ -129,7 +129,7 @@ export function ZernioConnect({
 
       {candidates.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold text-text-2">Cuentas de este canal en esa llave:</p>
+          <p className="text-xs font-semibold text-text-2">Contas deste canal nessa chave:</p>
           <div className="flex flex-wrap gap-2">
             {candidates.map((c) => (
               <button
@@ -156,7 +156,7 @@ export function ZernioConnect({
             onClick={() => setManual(true)}
             className="text-xs font-semibold text-text-2 underline-offset-2 hover:underline"
           >
-            Pegar el accountId a mano
+            Colar o accountId manualmente
           </button>
         )}
       </div>
@@ -170,16 +170,16 @@ export function ZernioConnect({
           {saved.webhook?.ok && (
             <p className="text-success-text opacity-80">
               {saved.webhook.created
-                ? "Vocero dio de alta su webhook en tu Zernio, limitado a tus cuentas conectadas."
+                ? "O Vocero cadastrou o webhook no seu Zernio, limitado às suas contas conectadas."
                 : t("settings.zernioWebhookUpdated")}
             </p>
           )}
           {saved.health && saved.health.level !== "ok" && <Aviso>{saved.health.message}</Aviso>}
           {saved.webhook && !saved.webhook.ok && (
             <Aviso>
-              {saved.webhook.message ?? "No se pudo dar de alta el webhook en Zernio."}{" "}
+              {saved.webhook.message ?? "Não foi possível cadastrar o webhook no Zernio."}{" "}
               <Link href="/settings/channels" className="font-semibold underline">
-                Ver el estado de los canales
+                Ver o status dos canais
               </Link>
             </Aviso>
           )}

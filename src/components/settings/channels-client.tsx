@@ -63,7 +63,7 @@ function hace(iso: string, now: number): string {
   if (min < 60) return `hace ${min} min`;
   const h = Math.round(min / 60);
   if (h < 48) return `hace ${h} h`;
-  return `hace ${Math.round(h / 24)} días`;
+  return `há ${Math.round(h / 24)} dias`;
 }
 
 function fecha(iso: string): string {
@@ -132,11 +132,11 @@ export function ChannelsClient() {
     if (!res?.ok) {
       setNotice({
         ok: false,
-        text: data?.error?.message ?? "No se pudo dar de alta el webhook. Intenta de nuevo.",
+        text: data?.error?.message ?? "Não foi possível cadastrar o webhook. Tente novamente.",
       });
       return;
     }
-    const cuentas = data?.accounts === 1 ? "tu cuenta conectada" : `tus ${data?.accounts} cuentas conectadas`;
+    const cuentas = data?.accounts === 1 ? "sua conta conectada" : `suas ${data?.accounts} contas conectadas`;
     setNotice({
       ok: true,
       text: data?.created
@@ -149,7 +149,7 @@ export function ChannelsClient() {
   if (!rows) {
     return (
       <p className="text-sm text-muted-foreground">
-        {failed ? "No se pudo cargar el estado de los canales." : "Cargando…"}
+        {failed ? "Não foi possível carregar o status dos canais." : "Carregando…"}
       </p>
     );
   }
@@ -162,11 +162,9 @@ export function ChannelsClient() {
       <Card>
         <CardHeader className="flex-row items-start justify-between gap-4 space-y-0">
           <div className="space-y-1.5">
-            <CardTitle>Estado de los canales</CardTitle>
+            <CardTitle>Status dos canais</CardTitle>
             <CardDescription>
-              Los canales encendidos en esta instancia: si están conectados,
-              cuándo entró el último mensaje de un cliente y, si llegan por
-              Zernio, cómo están la cuenta y el webhook.
+              Os canais ativos nesta instância: se estão conectados, quando chegou a última mensagem de um cliente e, se chegam pelo Zernio, como estão a conta e o webhook.
             </CardDescription>
           </div>
           <Button
@@ -250,10 +248,10 @@ export function ChannelsClient() {
           <CardHeader>
             <CardTitle>Webhook de Zernio</CardTitle>
             <CardDescription>
-              Es el aviso con el que Zernio le entrega cada mensaje a esta
-              instancia. Vocero lo da de alta al conectar un canal, con el evento{" "}
-              <code>message.received</code> y limitado a tus cuentas conectadas.
-              Si se desactivó o quedó sin una cuenta, aquí se repara.
+              É o aviso pelo qual o Zernio entrega cada mensagem a esta
+              instância. O Vocero o cadastra ao conectar um canal, com o evento{" "}
+              <code>message.received</code> e limitado às suas contas conectadas.
+              Se foi desativado ou ficou sem uma conta, é reparado aqui.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -266,12 +264,12 @@ export function ChannelsClient() {
                 {repairing
                   ? "Hablando con Zernio…"
                   : webhookMal
-                    ? "Reparar el webhook en Zernio"
-                    : "Volver a dar de alta el webhook"}
+                    ? "Reparar o webhook no Zernio"
+                    : "Cadastrar o webhook novamente"}
               </Button>
             ) : (
               <p className="text-sm text-text-2">
-                Solo el propietario puede cambiar el webhook.
+                Somente o proprietário pode alterar o webhook.
               </p>
             )}
             {notice && (
@@ -289,10 +287,10 @@ export function ChannelsClient() {
                 </summary>
                 <div className="mt-3 space-y-2">
                   <p className="text-xs text-text-2">
-                    En Zernio → Webhooks, da de alta esta URL con el evento{" "}
-                    <code>message.received</code> y limítalo a tus cuentas. El
+                    No Zernio → Webhooks, cadastre esta URL com o evento{" "}
+                    <code>message.received</code> e limite-o às suas contas. O
                     secreto de firma lo lee Vocero de Zernio: no hay que
-                    copiarlo aquí.
+                    copiá-lo aqui.
                   </p>
                   <div className="flex gap-2">
                     <Input readOnly value={webhookUrl} className="font-mono text-xs" />

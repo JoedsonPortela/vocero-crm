@@ -50,7 +50,7 @@ export function FaviconCard({ branding }: { branding: Branding }) {
       const data = (await res?.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo subir el icono");
+      setError(data?.error?.message ?? "Não foi possível enviar o ícone");
       return;
     }
     const data = (await res.json()) as { favicon: Branding["favicon"] };
@@ -67,7 +67,7 @@ export function FaviconCard({ branding }: { branding: Branding }) {
     }).catch(() => null);
     setSubiendo(false);
     if (!res?.ok) {
-      setError("No se pudo quitar el icono");
+      setError("Não foi possível remover o ícone");
       return;
     }
     setActual(null);
@@ -80,13 +80,13 @@ export function FaviconCard({ branding }: { branding: Branding }) {
       <CardHeader>
         <CardTitle>Logo del negocio</CardTitle>
         <p className="text-sm text-text-3">
-          Se ve en la pestaña del navegador y en la barra lateral del CRM.
+          Aparece na aba do navegador e na barra lateral do CRM.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4">
           {/* Sin next/image a propósito: es un archivo servido por una ruta
-              propia, de 64 px y ya optimizado. Pasarlo por el optimizador
+              própria, de 64 px e já otimizado. Passá-lo pelo otimizador
               sería trabajo de servidor para no ahorrar nada. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -98,12 +98,12 @@ export function FaviconCard({ branding }: { branding: Branding }) {
           />
           <div className="min-w-0 flex-1">
             <p className="text-sm">
-              {actual ? "Logo propio" : "Generado con tu marca"}
+              {actual ? "Logo próprio" : "Gerado com a sua marca"}
             </p>
             <p className="mt-0.5 text-xs text-text-3">
               {actual
                 ? t("settings.faviconHint")
-                : "La inicial sobre tu color de acento. Sube tu logo para reemplazarla."}
+                : "A inicial sobre a sua cor de destaque. Envie seu logo para substituí-la."}
             </p>
           </div>
         </div>
@@ -141,7 +141,7 @@ export function FaviconCard({ branding }: { branding: Branding }) {
         <p className="text-xs text-text-3">
           PNG, SVG, ICO, JPEG o WebP, hasta{" "}
           {Math.round(MAX_FAVICON_BYTES / 1024)} KB. Cuadrado y con fondo
-          transparente se ve mejor: se dibuja sobre tu color de acento.
+          transparente fica melhor: é desenhado sobre a sua cor de destaque.
         </p>
 
         {error && <p className="text-sm text-destructive">{error}</p>}

@@ -47,7 +47,7 @@ const FIELDS: Record<ExternalConnector, Field[]> = {
       name: "refreshToken",
       label: "Refresh token",
       secret: true,
-      help: "Se obtiene una sola vez autorizando tu propia app.",
+      help: "Obtém-se uma única vez autorizando o seu próprio app.",
     },
     {
       name: "calendarId",
@@ -61,7 +61,7 @@ const FIELDS: Record<ExternalConnector, Field[]> = {
 /** Lo que hay que saber ANTES de pegar nada. Son los tropiezos reales. */
 const HELP: Record<ExternalConnector, { title: string; items: string[] }> = {
   zoom: {
-    title: "Crea una app Server-to-Server OAuth en el Marketplace de Zoom",
+    title: "Crie um app Server-to-Server OAuth no Marketplace do Zoom",
     items: [
       t("settings.googleStep1"),
       t("settings.zoomStep3"),
@@ -69,10 +69,10 @@ const HELP: Record<ExternalConnector, { title: string; items: string[] }> = {
     ],
   },
   google: {
-    title: "Crea un proyecto en Google Cloud con la API de Calendar activada",
+    title: "Crie um projeto no Google Cloud com a API do Calendar ativada",
     items: [
-      "Necesitas Client ID, Client Secret y un refresh token con el permiso de eventos de calendario (calendar.events).",
-      "IMPORTANTE: publica tu app OAuth «en producción». Si la dejas en modo prueba, Google revoca el permiso a los 7 días y las citas dejarán de crear su enlace sin previo aviso.",
+      "Você precisa de Client ID, Client Secret e um refresh token com a permissão de eventos de calendário (calendar.events).",
+      "IMPORTANTE: publique seu app OAuth «em produção». Se deixá-lo em modo de teste, o Google revoga a permissão em 7 dias e os agendamentos deixam de criar o link sem aviso prévio.",
     ],
   },
 };
@@ -135,7 +135,7 @@ export function ConnectorCredentials({
         kind: "error",
         text:
           data?.error?.message ??
-          `No se pudo conectar con ${meta.label}. Revisa las credenciales.`,
+          `Não foi possível conectar com ${meta.label}. Verifique as credenciais.`,
       });
       return;
     }
@@ -174,7 +174,7 @@ export function ConnectorCredentials({
 
         {connection?.status === "error" && (
           <p className="rounded-sm border border-danger-soft bg-danger-tint px-3 py-2 text-sm text-danger-text">
-            {meta.label} rechazó las últimas credenciales. Las citas se siguen
+            {meta.label} recusou as últimas credenciais. Os agendamentos continuam
             agendando, pero sin enlace hasta que vuelvas a conectar.
           </p>
         )}

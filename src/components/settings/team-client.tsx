@@ -62,7 +62,7 @@ export function TeamClient() {
       const data = (await res?.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo crear la cuenta");
+      setError(data?.error?.message ?? "Não foi possível criar a conta");
       return;
     }
     setCreated({ email, password: tempPassword });
@@ -76,10 +76,9 @@ export function TeamClient() {
     <div className="max-w-2xl space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Crear cuenta de equipo</CardTitle>
+          <CardTitle>Criar conta de equipe</CardTitle>
           <CardDescription>
-            Sin correos ni invitaciones: comparte tú mismo la contraseña
-            temporal con tu compañero (se muestra UNA sola vez).
+            Sem e-mails nem convites: compartilhe você mesmo a senha temporária com seu colega (ela é mostrada UMA única vez).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -121,9 +120,9 @@ export function TeamClient() {
             <div className="rounded-md border border-success-soft bg-success-tint p-3 text-sm">
               <p className="font-medium text-success-text">Cuenta creada ✓</p>
               <p className="mt-1 text-success-text opacity-90">
-                Comparte estos datos ahora (no se volverán a mostrar):
+                Compartilhe estes dados agora (não serão mostrados novamente):
                 <br />
-                <code>{created.email}</code> · contraseña{" "}
+                <code>{created.email}</code> · senha{" "}
                 <code>{created.password}</code>
               </p>
             </div>
@@ -135,7 +134,7 @@ export function TeamClient() {
             onClick={() => void create()}
           >
             <UserPlus className="h-4 w-4" />
-            {saving ? "Creando…" : "Crear cuenta"}
+            {saving ? "Criando…" : "Criar conta"}
           </Button>
         </CardContent>
       </Card>

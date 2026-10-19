@@ -54,11 +54,11 @@ const HELP: Record<Source, { title: string; items: string[] }> = {
     ],
   },
   meta: {
-    title: "Crea una app en developers.facebook.com con el producto Instagram",
+    title: "Crie um app em developers.facebook.com com o produto Instagram",
     items: [
-      "La cuenta tiene que estar en modo profesional (Empresa o Creador).",
-      "Genera el token con los permisos instagram_business_basic e instagram_business_manage_messages.",
-      "Sin App Review, la cuenta solo recibe mensajes de perfiles con un rol en la app (administradores, desarrolladores, testers).",
+      "A conta precisa estar em modo profissional (Empresa ou Criador).",
+      "Gere o token com as permissões instagram_business_basic e instagram_business_manage_messages.",
+      "Sem App Review, a conta só recebe mensagens de perfis com algum papel no app (administradores, desenvolvedores, testers).",
     ],
   },
 };
@@ -113,7 +113,7 @@ export function InstagramClient() {
       const data = (await res?.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo conectar la cuenta");
+      setError(data?.error?.message ?? "Não foi possível conectar a conta");
       return;
     }
     const data = (await res.json()) as { username?: string | null };
@@ -132,7 +132,7 @@ export function InstagramClient() {
     }
   }
 
-  if (!loaded) return <p className="text-sm text-muted-foreground">Cargando…</p>;
+  if (!loaded) return <p className="text-sm text-muted-foreground">Carregando…</p>;
 
   const help = HELP[source];
   const canSaveMeta = token.trim().length > 0 && igUserId.trim().length > 0;
@@ -149,7 +149,7 @@ export function InstagramClient() {
                 : t("settings.tokenExpired")}
             </p>
             <p className="text-danger-text opacity-80">
-              Los envíos por Instagram están pausados. Vuelve a conectar abajo.
+              Os envios pelo Instagram estão pausados. Conecte de novo abaixo.
             </p>
           </div>
         </div>
@@ -167,7 +167,7 @@ export function InstagramClient() {
               {connection.source === "zernio"
                 ? `Cuenta ${connection.accountRef}`
                 : `Cuenta ${connection.igUserId}`}{" "}
-              · {connection.source === "zernio" ? "llave" : "token"} que termina en ····
+              · {connection.source === "zernio" ? "chave" : "token"} que termina en ····
               {connection.tokenLast4}
             </p>
           </div>
@@ -181,7 +181,7 @@ export function InstagramClient() {
             {connection ? "Reconectar Instagram" : "Conectar Instagram"}
           </CardTitle>
           <CardDescription>
-            Los mensajes directos de tu cuenta entran a la misma bandeja que
+            As mensagens diretas da sua conta entram na mesma caixa de entrada que
             WhatsApp, con su distintivo de canal. {help.title}.
           </CardDescription>
         </CardHeader>
@@ -218,7 +218,7 @@ export function InstagramClient() {
             <ZernioConnect
               endpoint="/api/settings/instagram"
               extraBody={{ source: "zernio" }}
-              what="tu cuenta de Instagram"
+              what="sua conta do Instagram"
               idPrefix="ig"
               onSaved={() => void refetch()}
             />
@@ -226,7 +226,7 @@ export function InstagramClient() {
             <>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="ig-user-id">ID de la cuenta de Instagram</Label>
+                  <Label htmlFor="ig-user-id">ID da conta do Instagram</Label>
                   <Input
                     id="ig-user-id"
                     value={igUserId}
@@ -259,9 +259,7 @@ export function InstagramClient() {
 
           <p className="flex items-start gap-2 text-xs text-text-2">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            A la bandeja entran los mensajes directos; los comentarios de tus
-            publicaciones no. Instagram no necesita una página de Facebook
-            vinculada: eso solo lo pide Messenger.
+            Na caixa de entrada chegam as mensagens diretas; os comentários das suas publicações não. O Instagram não precisa de uma página do Facebook vinculada: isso só é exigido pelo Messenger.
           </p>
         </CardContent>
       </Card>
@@ -270,10 +268,10 @@ export function InstagramClient() {
         <p className="flex items-start gap-2 text-xs text-text-2">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>
-            El webhook lo da de alta Vocero en tu Zernio al conectar, limitado a
-            tus cuentas. Si un día dejan de llegar mensajes, revisa{" "}
+            O webhook é cadastrado pelo Vocero no seu Zernio ao conectar, limitado a
+            suas contas. Se um dia as mensagens deixarem de chegar, verifique{" "}
             <Link href="/settings/channels" className="font-semibold underline">
-              el estado de los canales
+              o status dos canais
             </Link>
             .
           </span>
@@ -284,9 +282,8 @@ export function InstagramClient() {
             <CardHeader>
               <CardTitle>Webhook de Instagram</CardTitle>
               <CardDescription>
-                En tu app de Meta: Instagram → Configuración → Webhooks. Objeto{" "}
-                <code>instagram</code>, campo <code>messages</code>. Pega esta
-                URL y este token de verificación.
+                No seu app da Meta: Instagram → Configurações → Webhooks. Objeto{" "}
+                <code>instagram</code>, campo <code>messages</code>. Cole esta URL e este token de verificação.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -321,7 +318,7 @@ export function InstagramClient() {
               <p className="flex items-start gap-2 text-xs text-text-2">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 {webhook.signatureLayer
-                  ? "Cada entrega se verifica con la firma del App Secret de tu app."
+                  ? "Cada entrega é verificada com a assinatura do App Secret do seu app."
                   : t("settings.appSecretHint")}
               </p>
             </CardContent>

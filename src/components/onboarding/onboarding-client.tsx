@@ -28,9 +28,9 @@ export function OnboardingClient({
   const done = guide.steps.filter((s) => s.done).length;
   const current = guide.steps.find((s) => !s.done)?.key ?? null;
   // Antes del paso 1 el nombre es el de fábrica («Asistente») y se lee como
-  // una palabra suelta, no como el nombre de alguien: se dice «tu agente».
+  // una palabra suelta, no como el nombre de alguien: se dice «seu agente».
   const agentReady = guide.steps.find((s) => s.key === "agent")?.done ?? false;
-  const agente = (agentReady && agentName) || "tu agente";
+  const agente = (agentReady && agentName) || "seu agente";
 
   async function encender() {
     setBusy(true);
@@ -59,14 +59,13 @@ export function OnboardingClient({
       <div className="mx-auto max-w-3xl space-y-6 p-4 sm:p-8">
         <header>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Guía de inicio
+            Guia de início
           </p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-            Deja listo tu CRM en {total} pasos
+            Deixe seu CRM pronto em {total} passos
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Hazlos en orden: cada botón te lleva a la pantalla que toca. Al
-            volver aquí verás tu avance.
+            Faça-os em ordem: cada botão leva à tela correspondente. Ao voltar aqui você verá o seu progresso.
           </p>
         </header>
 
@@ -157,23 +156,23 @@ export function OnboardingClient({
             <>
               <h2 className="font-semibold">
                 {agentReady && agentName
-                  ? `${agentName} ya está contestando`
+                  ? `${agentName} já está respondendo`
                   : t("onboarding.agentAnswering")}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                El agente está encendido y atiende a tus clientes por WhatsApp.
-                Puedes apagarlo cuando quieras desde Agente.
+                O agente está ligado e atende seus clientes pelo WhatsApp.
+                Puedes desligá-lo quando quiser em Agente.
               </p>
               <Link href="/inbox" className={cn(buttonVariants({ size: "sm" }), "mt-3")}>
-                Ir a la Bandeja <ArrowRight className="h-4 w-4" />
+                Ir para a Caixa de entrada <ArrowRight className="h-4 w-4" />
               </Link>
             </>
           ) : guide.complete ? (
             <>
-              <h2 className="font-semibold">¡Todo listo! Enciende a {agente}</h2>
+              <h2 className="font-semibold">Tudo pronto! Ligue o {agente}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Desde ese momento contestará a tus clientes por WhatsApp. Puedes
-                apagarlo cuando quieras desde Agente.
+                A partir desse momento ele responderá aos seus clientes pelo WhatsApp. Você pode
+                desligá-lo quando quiser em Agente.
               </p>
               <Button className="mt-3" disabled={busy} onClick={() => void encender()}>
                 <Power className="h-4 w-4" />
@@ -193,9 +192,7 @@ export function OnboardingClient({
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Tu agente empieza apagado: mientras no lo enciendas no le
-                contesta a nadie y los mensajes que lleguen los atiendes tú desde
-                la Bandeja. Cuando completes los {total} pasos, aquí aparece el
-                botón para encenderlo.
+                responde a ninguém, e as mensagens que chegarem você atende diretamente da Caixa de entrada. Quando concluir os {total} passos, aqui aparece o botão para ligá-lo.
               </p>
             </>
           )}

@@ -45,7 +45,7 @@ const STATUS_BADGE: Record<
 > = {
   draft: { label: t("settings.tplDraft"), variant: "secondary", hint: t("settings.tplDraftHint") },
   pending: { label: t("settings.tplPending"), variant: "warning", hint: t("settings.tplPendingHint") },
-  approved: { label: "Aprobada", variant: "success", hint: "Lista para usar desde la Bandeja o desde Contactos." },
+  approved: { label: "Aprovada", variant: "success", hint: "Pronta para usar pela Caixa de entrada ou por Contatos." },
   rejected: { label: t("settings.tplRejected"), variant: "destructive", hint: t("settings.tplRejectedHint") },
 };
 
@@ -79,7 +79,7 @@ const STARTERS: {
     title: "Recordatorio de cita",
     name: "recordatorio_cita",
     category: "UTILITY",
-    body: "Hola {{1}}, te recordamos tu cita del {{2}} a las {{3}}. Si necesitas cambiarla, responde a este mensaje.",
+    body: "Olá {{1}}, lembramos da sua consulta do dia {{2}} às {{3}}. Se precisar alterá-la, responda a esta mensagem.",
     examples: ["Ana", "martes 14 de octubre", "10:30"],
   },
   {
@@ -87,7 +87,7 @@ const STARTERS: {
     name: "retomar_conversacion",
     category: "MARKETING",
     body: t("settings.tplResumeBody"),
-    examples: ["Ana", "la limpieza dental"],
+    examples: ["Ana", "a limpeza dental"],
   },
 ];
 
@@ -201,14 +201,14 @@ export function TemplatesClient() {
         )}
 
         {templates === null ? (
-          <p className="text-sm text-muted-foreground">Cargando plantillas…</p>
+          <p className="text-sm text-muted-foreground">Carregando modelos…</p>
         ) : empty ? (
           !creating && (
             <EmptyState
               icon={FileText}
               className="rounded-lg border border-dashed"
               title={t("settings.tplNone")}
-              description="Crea la primera para poder escribirle a un cliente cuando pasen las 24 horas. Puedes empezar con un ejemplo."
+              description="Crie o primeiro para poder escrever a um cliente depois de 24 horas. Você pode começar com um exemplo."
               action={
                 <Button size="sm" onClick={() => setCreating(true)}>
                   <Plus className="h-4 w-4" />
@@ -269,8 +269,8 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
     },
     {
       icon: Clock3,
-      title: "Meta la revisa",
-      text: "Tarda de unos minutos a 24 horas. El estado cambia solo a «Aprobada» o «Rechazada», con el motivo.",
+      title: "A Meta analisa",
+      text: "Leva de alguns minutos a 24 horas. El estado cambia solo a «Aprovada» o «Rechazada», con el motivo.",
     },
     {
       icon: Send,
@@ -291,7 +291,7 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
         <span className="flex-1">
           <span className="block text-sm font-semibold">{t("settings.whatTemplatesFor")}</span>
           <span className="block text-xs text-muted-foreground">
-            Son el único mensaje que WhatsApp te deja enviar pasadas 24 horas.
+            São a única mensagem que o WhatsApp deixa enviar depois de 24 horas.
           </span>
         </span>
         <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform", open && "rotate-180")} />
@@ -299,10 +299,7 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
       {open && (
         <div className="space-y-4 border-t p-4 text-sm">
           <p className="text-muted-foreground">
-            WhatsApp solo te deja escribir con libertad durante las 24 horas
-            que siguen al último mensaje de tu cliente. Pasado ese tiempo —o
-            para escribirle a alguien que nunca te ha escrito— necesitas un
-            mensaje que Meta haya aprobado antes: una plantilla.
+            O WhatsApp só deixa você escrever livremente durante as 24 horas seguintes à última mensagem do seu cliente. Passado esse tempo — ou para escrever a alguém que nunca falou com você — você precisa de uma mensagem que a Meta tenha aprovado antes: um modelo.
           </p>
           <ol className="grid gap-3 sm:grid-cols-3">
             {steps.map((s, i) => (
@@ -318,18 +315,18 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
             ))}
           </ol>
           <details className="rounded-md bg-subtle p-3">
-            <summary className="cursor-pointer font-medium">Consejos para que Meta la apruebe</summary>
+            <summary className="cursor-pointer font-medium">Dicas para a Meta aprovar</summary>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
-              <li>No empieces ni termines el mensaje con una variable, y no pongas dos variables juntas.</li>
-              <li>Di quién escribe y por qué: «Hola {"{{1}}"}, soy Ana de Clínica Sol…».</li>
-              <li>Escribe ejemplos reales para cada variable: es lo que ve quien la revisa.</li>
+              <li>Não comece nem termine a mensagem com uma variável, e não coloque duas variáveis juntas.</li>
+              <li>Diga quem escreve e por quê: «Olá {"{{1}}"}, sou a Ana da Clínica Sol…».</li>
+              <li>Escreva exemplos reais para cada variável: é o que quem analisa vê.</li>
               <li>{t("settings.utilityExplain")}</li>
-              <li>El idioma que elijas debe ser el del texto.</li>
+              <li>O idioma escolhido deve ser o do texto.</li>
             </ul>
           </details>
           <p className="flex flex-wrap gap-4 text-xs">
             <Link className="inline-flex items-center gap-1 underline" href="/inbox">
-              <Inbox className="h-3.5 w-3.5" /> Ir a la Bandeja
+              <Inbox className="h-3.5 w-3.5" /> Ir para a Caixa de entrada
             </Link>
             <Link className="inline-flex items-center gap-1 underline" href="/contacts">
               <Send className="h-3.5 w-3.5" /> Ir a Contactos
@@ -406,7 +403,7 @@ function CreateForm({
       const data = (await res?.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo crear la plantilla");
+      setError(data?.error?.message ?? "Não foi possível criar o modelo");
       return;
     }
     onCreated();
@@ -417,8 +414,7 @@ function CreateForm({
       <CardHeader>
         <CardTitle>Nueva plantilla</CardTitle>
         <CardDescription>
-          Se envía a revisión de Meta al crearla. Mientras la revisan puedes
-          seguir usando el CRM.
+          É enviado para análise da Meta ao ser criado. Enquanto ele é analisado, você pode continuar usando o CRM.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -444,7 +440,7 @@ function CreateForm({
               maxLength={60}
             />
             <p className="text-xs text-muted-foreground">
-              Solo minúsculas, números y guion bajo. Tus clientes no lo ven.
+              Apenas minúsculas, números e sublinhado. Seus clientes não veem isso.
             </p>
           </div>
           <div className="space-y-1.5">
@@ -513,7 +509,7 @@ function CreateForm({
             <p className="text-xs text-destructive">{bodyError}</p>
           ) : (
             <p className="text-xs text-muted-foreground">
-              Las variables se llenan al enviar: {"{{1}}"} puede ser el nombre
+              As variáveis são preenchidas ao enviar: {"{{1}}"} pode ser o nome
               del cliente, {"{{2}}"} una fecha…
             </p>
           )}
@@ -529,7 +525,7 @@ function CreateForm({
           <div className="space-y-2">
             <p className="text-sm font-medium">Ejemplo de cada variable</p>
             <p className="text-xs text-muted-foreground">
-              Meta los usa para revisar la plantilla. No se envían a tus clientes.
+              A Meta usa para analisar o modelo. Não são enviados aos seus clientes.
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
               {Array.from({ length: variableCount }, (_, i) => (
@@ -580,7 +576,7 @@ function CreateForm({
         </div>
         <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
           <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          Cuando Meta la apruebe aparecerá en la Bandeja, lista para enviar.
+          Quando a Meta aprovar, ele aparecerá na Caixa de entrada, pronto para enviar.
         </p>
       </CardContent>
     </Card>

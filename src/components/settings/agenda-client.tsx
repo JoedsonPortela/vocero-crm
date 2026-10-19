@@ -161,7 +161,7 @@ export function AgendaClient() {
     void refreshPreview();
   }
 
-  if (!settings) return <p className="text-sm text-text-3">Cargando…</p>;
+  if (!settings) return <p className="text-sm text-text-3">Carregando…</p>;
 
   return (
     <div className="max-w-2xl space-y-4">
@@ -169,8 +169,7 @@ export function AgendaClient() {
         <CardHeader>
           <CardTitle>{t("settings.hoursTitle")}</CardTitle>
           <CardDescription>
-            En qué franjas puede agendarte un cliente. Las horas son las de tu
-            zona; un día sin franjas está cerrado.
+            Em quais faixas um cliente pode agendar com você. As horas são as do seu fuso; um dia sem faixas fica fechado.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -303,9 +302,7 @@ export function AgendaClient() {
         <CardHeader>
           <CardTitle>{t("settings.meetingTitle")}</CardTitle>
           <CardDescription>
-            El enlace fijo no depende de nadie. Los demás conectan con tu propia
-            cuenta del proveedor y, si alguna vez falla, la cita se agenda igual
-            y el enlace queda pendiente de reintentar.
+            O link fixo não depende de ninguém. Os demais se conectam com a sua própria conta do provedor e, se algum dia falhar, o agendamento é feito igual e o link fica pendente de nova tentativa.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -351,9 +348,7 @@ export function AgendaClient() {
           <CardHeader>
             <CardTitle>Tu sala de siempre</CardTitle>
             <CardDescription>
-              Se comparte tal cual al confirmar una cita. Si lo dejas vacío, las
-              citas se agendan igual y sin enlace — nadie promete un enlace que
-              no existe.
+              É compartilhado exatamente como está ao confirmar um agendamento. Se deixar vazio, os agendamentos são feitos igual e sem link — ninguém promete um link que não existe.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -368,7 +363,7 @@ export function AgendaClient() {
 
       <div className="flex items-center gap-3">
         <Button onClick={save} disabled={saving}>
-          {saving ? t("settings.saving") : "Guardar"}
+          {saving ? t("settings.saving") : t("common.save")}
         </Button>
         {saved && <span className="text-sm text-brand-text">Guardado</span>}
         {error && <span className="text-sm text-destructive">{error}</span>}
@@ -384,15 +379,14 @@ export function AgendaClient() {
         <CardHeader>
           <CardTitle>{t("settings.nextSlots")}</CardTitle>
           <CardDescription>
-            Lo que se le ofrecería a un cliente ahora mismo.
+            O que seria oferecido a um cliente agora mesmo.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {slots === null && <p className="text-sm text-text-3">Calculando…</p>}
           {slots?.length === 0 && (
             <p className="text-sm text-text-3">
-              Sin huecos: revisa el horario, el aviso mínimo o si ya está todo
-              ocupado.
+              Sem horários livres: verifique o horário, o aviso mínimo ou se já está tudo ocupado.
             </p>
           )}
           {slots && slots.length > 0 && (

@@ -55,7 +55,7 @@ const HELP: Record<Source, { title: string; items: string[] }> = {
     ],
   },
   meta: {
-    title: "Crea una app en developers.facebook.com con el producto Messenger",
+    title: "Crie um app em developers.facebook.com com o produto Messenger",
     items: [
       t("settings.msStep2"),
       t("settings.msStep3"),
@@ -134,7 +134,7 @@ export function MessengerClient() {
     }
   }
 
-  if (!loaded) return <p className="text-sm text-muted-foreground">Cargando…</p>;
+  if (!loaded) return <p className="text-sm text-muted-foreground">Carregando…</p>;
 
   const help = HELP[source];
   const canSave = token.trim().length > 0 && pageId.trim().length > 0;
@@ -146,11 +146,10 @@ export function MessengerClient() {
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
           <div>
             <p className="font-medium text-danger-text">
-              El token expiró o fue revocado.
+              O token expirou ou foi revogado.
             </p>
             <p className="text-danger-text opacity-80">
-              Los envíos por Messenger están pausados. Pega uno nuevo abajo para
-              reconectar.
+              Os envios pelo Messenger estão pausados. Cole um novo abaixo para reconectar.
             </p>
           </div>
         </div>
@@ -168,7 +167,7 @@ export function MessengerClient() {
               {connection.source === "zernio"
                 ? `Cuenta ${connection.accountRef}`
                 : `Página ${connection.pageId}`}{" "}
-              · token que termina en ····{connection.tokenLast4}
+              · token que termina em ····{connection.tokenLast4}
             </p>
           </div>
           <Badge variant="success">Messenger activo</Badge>
@@ -181,8 +180,7 @@ export function MessengerClient() {
             {connection ? "Reconectar Messenger" : "Conectar Messenger"}
           </CardTitle>
           <CardDescription>
-            Los mensajes que la gente le escribe a tu página entran a la misma
-            bandeja que WhatsApp, con su distintivo de canal. {help.title}.
+            As mensagens que as pessoas enviam para a sua página entram na mesma caixa de entrada do WhatsApp, com o distintivo do canal. {help.title}.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -263,10 +261,10 @@ export function MessengerClient() {
         <p className="flex items-start gap-2 text-xs text-text-2">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>
-            El webhook lo da de alta Vocero en tu Zernio al conectar, limitado a
-            tus cuentas. Si un día dejan de llegar mensajes, revisa{" "}
+            O webhook é cadastrado pelo Vocero no seu Zernio ao conectar, limitado a
+            suas contas. Se um dia as mensagens deixarem de chegar, verifique{" "}
             <Link href="/settings/channels" className="font-semibold underline">
-              el estado de los canales
+              o status dos canais
             </Link>
             .
           </span>
@@ -277,9 +275,8 @@ export function MessengerClient() {
             <CardHeader>
               <CardTitle>Webhook de Messenger</CardTitle>
               <CardDescription>
-                En tu app de Meta: Messenger → Configuración → Webhooks. Objeto{" "}
-                <code>page</code>, campo <code>messages</code>. Pega esta URL y
-                este token de verificación, y suscribe la página a la app.
+                No seu app da Meta: Messenger → Configurações → Webhooks. Objeto{" "}
+                <code>page</code>, campo <code>messages</code>. Cole esta URL e este token de verificação, e assine a página no app.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -314,7 +311,7 @@ export function MessengerClient() {
               <p className="flex items-start gap-2 text-xs text-text-2">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 {webhook.signatureLayer
-                  ? "Cada entrega se verifica con la firma del App Secret de tu app."
+                  ? "Cada entrega é verificada com a assinatura do App Secret do seu app."
                   : t("settings.appSecretHint")}
               </p>
             </CardContent>
