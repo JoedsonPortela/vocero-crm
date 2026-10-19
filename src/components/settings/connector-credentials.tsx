@@ -206,7 +206,7 @@ export function ConnectorCredentials({
             Testar
           </Button>
           <Button onClick={() => submit("save")} disabled={busy}>
-            {connection ? "Actualizar" : "Conectar"}
+            {connection ? "Atualizar" : "Conectar"}
           </Button>
           {connection && (
             <button

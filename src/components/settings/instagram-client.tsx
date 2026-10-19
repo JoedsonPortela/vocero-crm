@@ -182,7 +182,7 @@ export function InstagramClient() {
           </CardTitle>
           <CardDescription>
             As mensagens diretas da sua conta entram na mesma caixa de entrada que
-            WhatsApp, con su distintivo de canal. {help.title}.
+            WhatsApp, com o distintivo do canal. {help.title}.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

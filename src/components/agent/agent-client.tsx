@@ -304,7 +304,7 @@ function KbSection({
           </div>
           {kbSize && (
             <Badge variant={kbSize.warning ? "warning" : "secondary"}>
-              {kbSize.chars.toLocaleString("es-MX")} caracteres
+              {kbSize.chars.toLocaleString("pt-BR")} caracteres
             </Badge>
           )}
         </div>

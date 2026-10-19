@@ -100,7 +100,7 @@ export function ZernioConnect({
         />
         <p className="text-xs text-text-2">
           Com essa chave o Vocero encontra {what} no Zernio: não é preciso copiar
-          ningún id.
+          nenhum id.
         </p>
       </div>
 

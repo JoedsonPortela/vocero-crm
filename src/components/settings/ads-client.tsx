@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 /**
- * 016 — Ajustes → Anuncios: conectar el dataset de Meta, decir qué etapa
+ * 016 — Ajustes → Anúncios: conectar el dataset de Meta, decir qué etapa
  * significa "lead calificado" y ver qué se le ha reportado.
  */
 
@@ -198,7 +198,7 @@ export function AdsClient() {
               onChange={(e) => setQualifiedStageId(e.target.value)}
               className="h-9 w-full rounded-md border border-input bg-card px-2 text-sm"
             >
-              <option value="">No reportar leads calificados</option>
+              <option value="">Não reportar leads qualificados</option>
               {stages
                 .filter((s) => s.kind === "open")
                 .map((s) => (
@@ -236,14 +236,14 @@ export function AdsClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Actividad reciente</CardTitle>
+          <CardTitle>Atividade recente</CardTitle>
           <CardDescription>
             O último envio reportado à Meta. Se algo não saiu, aqui aparece o motivo — é a forma de saber se isto funciona, sem sair do CRM.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Button variant="outline" onClick={() => void loadActivity()}>
-            Actualizar
+            Atualizar
           </Button>
           {activity === null ? (
             <p className="text-sm text-muted-foreground">Carregando…</p>
@@ -258,7 +258,7 @@ export function AdsClient() {
                   <tr>
                     <th className="py-2 pr-3 font-medium">Evento</th>
                     <th className="py-2 pr-3 font-medium">Contacto</th>
-                    <th className="py-2 pr-3 font-medium">Estado</th>
+                    <th className="py-2 pr-3 font-medium">Status</th>
                     <th className="py-2 pr-3 font-medium">{t("settings.thWhen")}</th>
                     <th className="py-2 font-medium">Detalle</th>
                   </tr>

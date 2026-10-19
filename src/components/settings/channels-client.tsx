@@ -19,7 +19,7 @@ import { CHANNEL_LABEL, type Channel } from "@/lib/channels";
 import { cn } from "@/lib/utils";
 
 /**
- * 023 — Ajustes → Canales → Estado.
+ * 023 — Ajustes → Canales → Status.
  *
  * Una fila por canal encendido con las tres cosas que alguien pregunta cuando
  * «no me llegan los mensajes»: ¿está conectado?, ¿cuándo entró el último? y,
@@ -67,7 +67,7 @@ function hace(iso: string, now: number): string {
 }
 
 function fecha(iso: string): string {
-  return new Date(iso).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" });
+  return new Date(iso).toLocaleString("pt-BR", { dateStyle: "medium", timeStyle: "short" });
 }
 
 export function ChannelsClient() {
@@ -175,7 +175,7 @@ export function ChannelsClient() {
             className="shrink-0"
           >
             <RefreshCw className={cn("mr-1.5 h-3.5 w-3.5", loading && "animate-spin")} />
-            Actualizar
+            Atualizar
           </Button>
         </CardHeader>
         <CardContent className="divide-y p-0">
@@ -184,7 +184,7 @@ export function ChannelsClient() {
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <ChannelBadge channel={r.channel} className="h-6 w-6" />
                 <span className="text-[14.5px] font-bold">{CHANNEL_LABEL[r.channel]}</span>
-                <Estado row={r} />
+                <Status row={r} />
                 <Link
                   href={SETTINGS_HREF[r.channel]}
                   className="ml-auto text-xs font-semibold text-brand-text underline-offset-2 hover:underline"
@@ -317,7 +317,7 @@ export function ChannelsClient() {
  * El distintivo dice lo peor que le pasa al canal: «Conectado» en verde encima
  * de una cuenta que Zernio pide reconectar sería la pantalla mintiendo.
  */
-function Estado({ row }: { row: Row }) {
+function Status({ row }: { row: Row }) {
   if (!row.connected) return <Badge variant="secondary">Não conectado</Badge>;
   if (row.status === "reconnect_required") {
     return <Badge variant="destructive">É preciso reconectar</Badge>;

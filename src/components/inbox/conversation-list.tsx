@@ -131,12 +131,12 @@ export function ConversationList({
     searched.filter((c) => c.channel === ch).length;
   const unreadCount = inInbox.filter((c) => c.unreadCount > 0).length;
   // 018: las que abrió un anuncio (o una publicación con botón de WhatsApp).
-  const deAnuncios = inInbox.filter((c) => c.anuncio !== null);
+  const deAnúncios = inInbox.filter((c) => c.anuncio !== null);
   const visible =
     filter === "unread"
       ? inInbox.filter((c) => c.unreadCount > 0)
       : filter === "anuncios"
-        ? deAnuncios
+        ? deAnúncios
         : inInbox;
   // Sin ninguna conversación de anuncio el filtro no aparece: a quien no
   // anuncia no se le pinta un botón que siempre dice 0. Si está elegido, se
@@ -145,8 +145,8 @@ export function ConversationList({
     { id: "all", label: "Todas", count: inInbox.length },
     { id: "unread", label: t("inbox.unreadFilter"), count: unreadCount },
   ];
-  if (deAnuncios.length > 0 || filter === "anuncios") {
-    filtros.push({ id: "anuncios", label: "Anuncios", count: deAnuncios.length });
+  if (deAnúncios.length > 0 || filter === "anuncios") {
+    filtros.push({ id: "anuncios", label: "Anúncios", count: deAnúncios.length });
   }
   // Con un solo canal encendido no hay bandejas que distinguir: ni marca en
   // los renglones ni filtro. La pantalla queda exactamente como antes de 014.

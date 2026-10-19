@@ -6,12 +6,12 @@ export function formatTime(iso: string | null): string {
   const now = new Date();
   const sameDay = d.toDateString() === now.toDateString();
   if (sameDay) {
-    return d.toLocaleTimeString("es-MX", {
+    return d.toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
     });
   }
-  return d.toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+  return d.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
 }
 
 /** 024 — Lo mismo, para plazos de días: «5 días», «1 día 3h», «7h 20m». */

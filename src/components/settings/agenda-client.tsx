@@ -191,7 +191,7 @@ export function AgendaClient() {
                   {day.label}
                 </button>
                 <div className="flex-1 space-y-1.5">
-                  {!open && <span className="text-sm text-text-3">Cerrado</span>}
+                  {!open && <span className="text-sm text-text-3">Fechado</span>}
                   {intervals.map((iv, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <Input
@@ -227,7 +227,7 @@ export function AgendaClient() {
                       onClick={() => addInterval(day.key)}
                       className="text-xs text-brand-text hover:underline"
                     >
-                      + otra franja
+                      + outra faixa
                     </button>
                   )}
                 </div>
@@ -254,7 +254,7 @@ export function AgendaClient() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="buffer">Respiro entre citas (min)</Label>
+            <Label htmlFor="buffer">Intervalo entre consultas (min)</Label>
             <Input
               id="buffer"
               type="number"
@@ -287,7 +287,7 @@ export function AgendaClient() {
             />
           </div>
           <div className="col-span-2 space-y-1.5">
-            <Label htmlFor="tz">Zona horaria</Label>
+            <Label htmlFor="tz">Fuso horário</Label>
             <Input
               id="tz"
               value={settings.timezone}
@@ -330,7 +330,7 @@ export function AgendaClient() {
                   {meta.label}
                   {!meta.external && (
                     <span className="ml-2 text-[11px] font-normal text-text-3">
-                      sin dependencias
+                      sem dependências
                     </span>
                   )}
                 </span>

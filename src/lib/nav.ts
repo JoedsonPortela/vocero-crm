@@ -108,7 +108,7 @@ export function settingsSections({
   tiktok = false,
 }: {
   agenda?: boolean;
-  /** 016 — "Anuncios" existe solo con la bandera ATRIBUCION. */
+  /** 016 — "Anúncios" existe solo con la bandera ATRIBUCION. */
   atribucion?: boolean;
   /** 023 — "Instagram" solo si el canal está encendido con CHANNELS. */
   instagram?: boolean;
@@ -118,10 +118,10 @@ export function settingsSections({
   tiktok?: boolean;
 }): SettingsSection[] {
   const canales: SettingsLink[] = [];
-  // 023 — "Estado" reúne todos los canales; con WhatsApp solo no aporta nada
+  // 023 — "Status" reúne todos los canales; con WhatsApp solo no aporta nada
   // que su pantalla no diga, así que no existe (ADR-001).
   if (instagram || messenger || tiktok) {
-    canales.push({ href: "/settings/channels", label: "Estado" });
+    canales.push({ href: "/settings/channels", label: "Status" });
   }
   canales.push({ href: "/settings/whatsapp", label: "WhatsApp" });
   if (instagram) canales.push({ href: "/settings/instagram", label: "Instagram" });
@@ -137,7 +137,7 @@ export function settingsSections({
     { href: "/settings/templates", label: "Modelos" },
     { href: "/settings/team", label: "Equipe" },
   ];
-  if (atribucion) negocio.push({ href: "/settings/ads", label: "Anuncios" });
+  if (atribucion) negocio.push({ href: "/settings/ads", label: "Anúncios" });
 
   return [
     { title: "Canais", links: canales },

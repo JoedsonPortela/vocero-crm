@@ -81,20 +81,20 @@ describe("ajustes en tres secciones", () => {
   });
 
   it("cada bandera añade su enlace en su sección y en ninguna otra", () => {
-    // 023: con un canal social, "Estado" abre la sección.
+    // 023: con un canal social, "Status" abre la sección.
     expect(links(settingsSections({ messenger: true }))).toEqual({
-      Canais: ["Estado", "WhatsApp", "Messenger"],
+      Canais: ["Status", "WhatsApp", "Messenger"],
       Agente: ["IA"],
       Negócio: ["Marca", "Modelos", "Equipe"],
     });
     expect(links(settingsSections({ instagram: true })).Canais).toEqual([
-      "Estado",
+      "Status",
       "WhatsApp",
       "Instagram",
     ]);
     expect(
       links(settingsSections({ instagram: true, messenger: true, tiktok: true })).Canais
-    ).toEqual(["Estado", "WhatsApp", "Instagram", "Messenger", "TikTok"]);
+    ).toEqual(["Status", "WhatsApp", "Instagram", "Messenger", "TikTok"]);
     expect(links(settingsSections({ agenda: true }))).toEqual({
       Canais: ["WhatsApp"],
       Agente: ["IA", "Agenda"],
@@ -103,7 +103,7 @@ describe("ajustes en tres secciones", () => {
     expect(links(settingsSections({ atribucion: true }))).toEqual({
       Canais: ["WhatsApp"],
       Agente: ["IA"],
-      Negócio: ["Marca", "Modelos", "Equipe", "Anuncios"],
+      Negócio: ["Marca", "Modelos", "Equipe", "Anúncios"],
     });
   });
 
