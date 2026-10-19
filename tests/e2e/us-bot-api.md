@@ -1,167 +1,165 @@
-# E2E — API de servicio para un cerebro externo (`/api/bot/*`)
+# E2E — API de serviço para um cérebro externo (`/api/bot/*`)
 
-Precondición: app corriendo con mocks (`WA_MOCK_ENABLED=true`,
-`META_GRAPH_BASE_URL` → wa-mock), organización creada, conexión WhatsApp
-guardada y `BOT_API_KEY` configurada (≥16 caracteres).
+Pré-condição: app rodando com mocks (`WA_MOCK_ENABLED=true`,
+`META_GRAPH_BASE_URL` → wa-mock), organização criada, conexão WhatsApp salva e
+`BOT_API_KEY` configurada (≥16 caracteres).
 
-Esta superficie NO la usa el navegador: la usa un bot propio del operador que
-quiere conducir la conversación sin que el token de WhatsApp salga del CRM. El
-agente in-process de Vocero puede quedar apagado.
+Esta superfície NÃO é usada pelo navegador: é usada por um bot próprio do
+operador que quer conduzir a conversa sem que o token do WhatsApp saia do CRM. O
+agente in-process do Vocero pode ficar desligado.
 
-## Autorización
+## Autorização
 
-1. `GET /api/bot/media/media123` SIN header `X-API-Key` → **401** `unauthorized`.
-2. Lo mismo con una key equivocada → **401** (mismo cuerpo: no filtra si la key
-   existe o no).
+1. `GET /api/bot/media/media123` SEM o header `X-API-Key` → **401** `unauthorized`.
+2. O mesmo com uma chave errada → **401** (mesmo corpo: não revela se a chave
+   existe ou não).
 
-## Presencia: marcar leído + "escribiendo…"
+## Presença: marcar como lido + "digitando…"
 
-3. Provocar un inbound (`POST /api/dev/wa-mock/inbound`) y tomar el
+3. Provocar uma entrada (`POST /api/dev/wa-mock/inbound`) e pegar o
    `conversationId` de `GET /api/conversations`.
-4. `POST /api/bot/typing {conversationId}` con la key → **200** `{ok: true}`.
-5. `GET /api/dev/wa-mock/outbox` → el conteo NO cambió: marcar leído y el
-   indicador no son mensajes salientes y no contaminan la bandeja.
-6. Pausar la IA de esa conversación (toggle del panel, o
-   `PATCH /api/conversations/{id} {aiEnabled:false}`) y repetir typing →
-   **200** `{ok:false, reason:"ai_paused"}` y Meta ni se toca: con un humano
-   atendiendo, "escribiendo…" le mentiría al cliente.
-7. Conversación del Laboratorio (`is_test`) → `{ok:false, reason:"sandbox"}`.
+4. `POST /api/bot/typing {conversationId}` com a chave → **200** `{ok: true}`.
+5. `GET /api/dev/wa-mock/outbox` → a contagem NÃO mudou: marcar como lido e o
+   indicador não são mensagens de saída e não contaminam a bandeja.
+6. Pausar a IA dessa conversa (alternância do painel, ou
+   `PATCH /api/conversations/{id} {aiEnabled:false}`) e repetir o typing →
+   **200** `{ok:false, reason:"ai_paused"}` e a Meta nem é tocada: com um humano
+   atendendo, "digitando…" mentiria ao cliente.
+7. Conversa do Laboratório (`is_test`) → `{ok:false, reason:"sandbox"}`.
 
-## Media proxy
+## Proxy de mídia
 
-8. `GET /api/bot/media/media123` con la key → **200**, `content-type: image/*`
-   y cuerpo no vacío. El token de WhatsApp nunca viajó al bot.
-9. `GET /api/bot/media/media-inexistente` cuando Graph responde 404 → **404**
-   `media_meta_failed` (no 500).
+8. `GET /api/bot/media/media123` com a chave → **200**, `content-type: image/*`
+   e corpo não vazio. O token do WhatsApp nunca viajou ao bot.
+9. `GET /api/bot/media/media-inexistente` quando o Graph responde 404 → **404**
+   `media_meta_failed` (não 500).
 
-## Reinicio de la conversación de pruebas
+## Reinício da conversa de testes
 
-10. Con la conversación en handoff (`aiEnabled:false`), `POST /api/bot/reset
-    {conversationId}` con la key → **200** `{ok:true}`.
-11. `GET /api/conversations` → esa conversación vuelve con `aiEnabled: true` y
-    sin `handoffAt`; el lead está en la PRIMERA etapa del pipeline.
-12. El historial de mensajes del inbox sigue completo: el reset es de estado,
-    no borra auditoría.
-13. `POST /api/bot/reset` sin key → **401**.
+10. Com a conversa em handoff (`aiEnabled:false`), `POST /api/bot/reset
+    {conversationId}` com a chave → **200** `{ok:true}`.
+11. `GET /api/conversations` → essa conversa volta com `aiEnabled: true` e sem
+    `handoffAt`; o lead está na PRIMEIRA etapa do pipeline.
+12. O histórico de mensagens da bandeja continua completo: o reset é de estado,
+    não apaga a auditoria.
+13. `POST /api/bot/reset` sem chave → **401**.
 
-## Perfil del agente y knowledge base
+## Perfil do agente e base de conhecimento
 
-El bot externo no adivina el negocio: lo lee de las mismas dos pantallas que
-edita el dueño (Agente y su knowledge base). Este endpoint es el contrato.
+O bot externo não adivinha o negócio: lê das mesmas duas telas que o dono edita
+(Agente e a base de conhecimento). Este endpoint é o contrato.
 
-14. `GET /api/bot/profile` con la key → **200** con la forma exacta
+14. `GET /api/bot/profile` com a chave → **200** com a forma exata
     `{profile: {name, tone, instructions, escalationRules, greeting}, kb, resources}`.
-    Los cinco campos del perfil coinciden con lo guardado en la pantalla Agente;
-    los opcionales vacíos viajan como `null`, no como cadena vacía.
-15. `kb` es el knowledge base ya renderizado (`P:`/`R:` para las preguntas,
-    los bloques tal cual, en el orden de la pantalla). Con el KB vacío viaja
-    la cadena canónica `(knowledge base vacío)`, no `null`: el bot puede
-    inyectarla en su prompt sin ramificar.
-16. `profile.enabled` NO viene, ni con la IA in-process encendida ni apagada:
-    ese flag gobierna el agente de Vocero, no al cerebro externo, que se pausa
-    por conversación (`aiEnabled` y los handoffs).
-17. Editar el tono en la pantalla Agente y volver a pedir el perfil → el cambio
-    ya está: la respuesta no se cachea.
+    Os cinco campos do perfil coincidem com o salvo na tela Agente; os opcionais
+    vazios viajam como `null`, não como string vazia.
+15. `kb` é a base de conhecimento já renderizada (`P:`/`R:` para as perguntas,
+    os blocos tal como estão, na ordem da tela). Com a base vazia viaja a string
+    canônica `(base de conhecimento vazia)`, não `null`: o bot pode injetá-la no
+    seu prompt sem ramificar.
+16. `profile.enabled` NÃO vem, nem com a IA in-process ligada nem desligada: esse
+    flag governa o agente do Vocero, não o cérebro externo, que é pausado por
+    conversa (`aiEnabled` e os handoffs).
+17. Editar o tom na tela Agente e pedir o perfil de novo → a mudança já está: a
+    resposta não é cacheada.
 
-## Contexto de la conversación
+## Contexto da conversa
 
-Lo que solo el CRM sabe: quién es la persona, si un humano tomó el control y si
-la ventana de 24 h sigue abierta. El historial de mensajes NO viaja: esa memoria
-es del bot.
+O que só o CRM sabe: quem é a pessoa, se um humano assumiu o controle e se a
+janela de 24 h ainda está aberta. O histórico de mensagens NÃO viaja: essa
+memória é do bot.
 
-18. `GET /api/bot/context?conversationId={id}` con la key → **200** con
+18. `GET /api/bot/context?conversationId={id}` com a chave → **200** com
     `contact` (id, name, waIdentity, phone), `conversation`
-    (id, aiEnabled, handoffAt, windowOpen, windowRemainingMs) y `lead`
+    (id, aiEnabled, handoffAt, windowOpen, windowRemainingMs) e `lead`
     (id, stageName).
-19. `GET /api/bot/context?waIdentity={identidad}` → la MISMA conversación. Es el
-    camino que usa el bot cuando le llega un mensaje y solo tiene el remitente.
-20. Tras un entrante reciente, `windowOpen: true` y `windowRemainingMs` > 0.
-21. Con la conversación en handoff, `aiEnabled` viene en **false** aunque el
-    flag de la fila siga en true: para el bot hay una sola verdad.
-22. Una conversación del Laboratorio no se resuelve nunca por `waIdentity`: el
-    bot de producción no debe hablarle a un cliente simulado.
+19. `GET /api/bot/context?waIdentity={identidade}` → a MESMA conversa. É o caminho
+    que o bot usa quando chega uma mensagem e só tem o remetente.
+20. Depois de uma entrada recente, `windowOpen: true` e `windowRemainingMs` > 0.
+21. Com a conversa em handoff, `aiEnabled` vem em **false** mesmo que o flag da
+    linha continue true: para o bot há uma só verdade.
+22. Uma conversa do Laboratório nunca é resolvida por `waIdentity`: o bot de
+    produção não deve falar com um cliente simulado.
 
-**Las citas del contacto (015).** Con `AGENDA=on` el contexto trae además
-`booking`: `timezone`, `next` (la próxima agendada), `unresolved` (la que ya
-empezó y nadie cerró, hasta 7 días) y `lastClosed` (la última cerrada en 7
-días). Con la agenda apagada `booking` **no viene**, ni vacío. Es aditivo: un
-bot que no lo lee no cambia. Las citas de prueba no aparecen nunca. La forma
-completa está en
+**As consultas do contato (015).** Com `AGENDA=on` o contexto traz também
+`booking`: `timezone`, `next` (a próxima agendada), `unresolved` (a que já
+começou e ninguém fechou, até 7 dias) e `lastClosed` (a última fechada em 7
+dias). Com a agenda desligada `booking` **não vem**, nem vazio. É aditivo: um
+bot que não o lê não muda. As consultas de teste nunca aparecem. A forma
+completa está em
 [`specs/015-motor-agenda-universal/contracts/agenda.md`](../../specs/015-motor-agenda-universal/contracts/agenda.md);
-los casos con citas, en [`us-agenda.md`](us-agenda.md).
+os casos com consultas, em [`us-agenda.md`](us-agenda.md).
 
-## Ficha de calificación
+## Ficha de qualificação
 
-Lo que el bot va descubriendo del lead. Las claves las define el negocio: el
-CRM no impone un cuestionario.
+O que o bot vai descobrindo do lead. As chaves quem define é o negócio: o CRM
+não impõe um questionário.
 
-23. `PUT /api/bot/ficha {conversationId, ficha}` con la key → **200** con la
-    ficha COMPLETA resultante (no solo el parche), y esa misma ficha aparece en
-    `contact.ficha` del contexto del siguiente turno.
-24. Un segundo PUT con otras claves las **suma**: lo que no viene se conserva.
-    Un `null` explícito **borra** esa clave.
-25. Valores que el CRM no puede guardar —objetos, arreglos, cadenas vacías,
-    números no finitos— se ignoran en silencio y el resto sí se guarda: un 422
-    le tiraría al bot datos de calificación que ya costaron una conversación.
-26. Conversación inexistente → **404**. Cuerpo sin `ficha` → **422**.
+23. `PUT /api/bot/ficha {conversationId, ficha}` com a chave → **200** com a ficha
+    COMPLETA resultante (não só o patch), e essa mesma ficha aparece em
+    `contact.ficha` do contexto do turno seguinte.
+24. Um segundo PUT com outras chaves **as soma**: o que não vem é preservado. Um
+    `null` explícito **apaga** essa chave.
+25. Valores que o CRM não consegue guardar — objetos, arrays, strings vazias,
+    números não finitos — são ignorados em silêncio e o resto é salvo: um 422
+    jogaria fora, para o bot, dados de qualificação que já custaram uma conversa.
+26. Conversa inexistente → **404**. Corpo sem `ficha` → **422**.
 
-## El bot envía a través del CRM
+## O bot envia pelo CRM
 
-27. `POST /api/bot/messages {conversationId, text}` con la key → **200**
-    `{messageId}`, el mensaje aparece en la bandeja marcado como IA
-    (`aiGenerated: true`, `origin: "ai"`) y sale por el canal de WhatsApp. El
-    token de Meta nunca viajó al bot.
-28. Con la IA pausada (handoff), el mismo envío → **409** `ai_paused` y el
-    outbox NO cambia: el rechazo ocurre antes de tocar Meta.
-29. Con la ventana de 24 h cerrada → **409** `window_closed`. El bot no puede
-    esquivar la regla de Meta; para eso está el envío de plantilla desde la app.
-30. En una conversación del Laboratorio → **409** `sandbox_violation`.
+27. `POST /api/bot/messages {conversationId, text}` com a chave → **200**
+    `{messageId}`, a mensagem aparece na bandeja marcada como IA
+    (`aiGenerated: true`, `origin: "ai"`) e sai pelo canal do WhatsApp. O token da
+    Meta nunca viajou ao bot.
+28. Com a IA pausada (handoff), o mesmo envio → **409** `ai_paused` e a outbox
+    NÃO muda: a recusa acontece antes de tocar a Meta.
+29. Com a janela de 24 h fechada → **409** `window_closed`. O bot não consegue
+    contornar a regra da Meta; para isso existe o envio de modelo pelo app.
+30. Numa conversa do Laboratório → **409** `sandbox_violation`.
 
-## El bot pide un humano
+## O bot pede um humano
 
-31. `POST /api/bot/handoff {conversationId, reason}` con la key → **200**, la
-    conversación queda con `aiEnabled: false`, su `handoffAt` y el motivo. En la
-    bandeja se ve al instante, sin recargar (mismo evento que el toggle).
-32. Repetirlo es idempotente: no pisa la hora ni el motivo del primero.
-33. Un `reason` que no está en el catálogo —o ausente— **no tira el handoff**:
-    cae a `modelo` y la IA se pausa igual. Un 422 aquí dejaría al bot
-    vendiéndole a alguien que acaba de pedir un humano.
-34. Conversación inexistente → **404**.
+31. `POST /api/bot/handoff {conversationId, reason}` com a chave → **200**, a
+    conversa fica com `aiEnabled: false`, seu `handoffAt` e o motivo. Na bandeja
+    aparece na hora, sem recarregar (mesmo evento da alternância).
+32. Repetir é idempotente: não sobrescreve a hora nem o motivo do primeiro.
+33. Um `reason` que não está no catálogo — ou ausente — **não derruba o handoff**:
+    cai em `modelo` e a IA pausa do mesmo jeito. Um 422 aqui deixaria o bot
+    vendendo para alguém que acabou de pedir um humano.
+34. Conversa inexistente → **404**.
 
-## Camino infeliz
+## Caminho infeliz
 
-35. `GET /api/bot/profile` en una instancia sin perfil de agente → **404**
-    `no_profile` (condición esperada, no un 500: el bot cae a su brief local).
-36. `GET /api/bot/context` sin `waIdentity` ni `conversationId` → **422**;
-    con un `conversationId` que no existe → **404**.
-37. `POST /api/bot/messages` con texto vacío → **422**.
-38. `POST /api/bot/typing` con un `conversationId` inexistente → **404**.
-39. Con Meta caído (token `...-invalid` en el mock), typing → **200**
-    `{ok:false, reason:"meta_error"}`: es best-effort por contrato, al bot
-    jamás le vale reintentarlo.
+35. `GET /api/bot/profile` numa instância sem perfil de agente → **404**
+    `no_profile` (condição esperada, não um 500: o bot cai no seu brief local).
+36. `GET /api/bot/context` sem `waIdentity` nem `conversationId` → **422**; com um
+    `conversationId` que não existe → **404**.
+37. `POST /api/bot/messages` com texto vazio → **422**.
+38. `POST /api/bot/typing` com um `conversationId` inexistente → **404**.
+39. Com a Meta fora do ar (token `...-invalid` no mock), typing → **200**
+    `{ok:false, reason:"meta_error"}`: é best-effort por contrato, e ao bot jamais
+    vale tentar de novo.
 
-## Quién responde a tus clientes
+## Quem responde aos seus clientes
 
-La tarjeta de arriba de la pantalla Agente (`GET /api/agent/brain-status`).
-Para los pasos del `/health`, la app corre con `BRAIN_HEALTH_URL` apuntando a
-un puerto local donde el guion levanta una Nea falsa (con credenciales y query
-de prueba en la URL).
+O cartão no topo da tela Agente (`GET /api/agent/brain-status`). Para os passos
+do `/health`, a app roda com `BRAIN_HEALTH_URL` apontando para uma porta local
+onde o roteiro levanta uma Nea falsa (com credenciais e query de teste na URL).
 
-40. Sin sesión → **401**. Con sesión → `embedded`, `external` y `warning`;
-    `external.keyConfigured: true` (hay `BOT_API_KEY`).
-41. Una llamada a `/api/bot/*` con key equivocada NO mueve
-    `external.lastSeenAt`; `GET /api/bot/context` con la key sí, y el cerebro
-    externo queda `active: true`.
-42. Con la Nea falsa sana: `health.reachable: true` con `version`, `mode` y
-    `relay.pendientes`; `health.host` es solo el host, y ni las credenciales
-    ni la query de la URL aparecen en la respuesta (a Nea sí le llegan, como
-    `Authorization: Basic`). Tres consultas seguidas = cero pedidos nuevos a
-    Nea (caché de 15 s).
-43. Con proveedor de IA (Ajustes → IA o entorno) y el agente incluido encendido → `warning:
-    "doble_respuesta"` y el aviso rojo en la tarjeta. Apagarlo lo quita.
-44. Con la Nea falsa colgada: en ≤ 4 s la consulta vuelve con
-    `reachable: false`, `problem: "timeout"`; la llamada reciente la sigue
-    contando como activa.
-45. En la bandeja, con el cerebro externo activo y el agente incluido
-    apagado, el panel dice «Responde tu cerebro externo (Nea)» en vez de
-    pedir la clave de IA.
+40. Sem sessão → **401**. Com sessão → `embedded`, `external` e `warning`;
+    `external.keyConfigured: true` (há `BOT_API_KEY`).
+41. Uma chamada a `/api/bot/*` com chave errada NÃO move
+    `external.lastSeenAt`; `GET /api/bot/context` com a chave sim, e o cérebro
+    externo fica `active: true`.
+42. Com a Nea falsa saudável: `health.reachable: true` com `version`, `mode` e
+    `relay.pendientes`; `health.host` é só o host, e nem as credenciais nem a
+    query da URL aparecem na resposta (à Nea elas chegam, como
+    `Authorization: Basic`). Três consultas seguidas = zero pedidos novos à Nea
+    (cache de 15 s).
+43. Com provedor de IA (Ajustes → IA ou ambiente) e o agente incluído ligado →
+    `warning: "doble_respuesta"` e o aviso vermelho no cartão. Desligá-lo tira o
+    aviso.
+44. Com a Nea falsa travada: em ≤ 4 s a consulta volta com `reachable: false`,
+    `problem: "timeout"`; a chamada recente continua contando como ativa.
+45. Na bandeja, com o cérebro externo ativo e o agente incluído desligado, o painel
+    diz «Responde seu cérebro externo (Nea)» em vez de pedir a chave de IA.

@@ -1,125 +1,125 @@
-# E2E — Atribución de anuncios y Conversions API (016)
+# E2E — Atribuição de anúncios e Conversions API (016)
 
-Guion de comportamiento observable. Automatizado en la sección `016` de
-`scripts/e2e-selftest.mjs`: con la app viva y los mocks encendidos,
-`pnpm test:e2e` lo conduce y sale distinto de cero si algo falla.
+Roteiro de comportamento observável. Automatizado na seção `016` de
+`scripts/e2e-selftest.mjs`: com a app no ar e os mocks ligados,
+`pnpm test:e2e` o conduz e sai diferente de zero se algo falhar.
 
-**Preparación**: app en `localhost` con `WA_MOCK_ENABLED=true`,
-`META_GRAPH_BASE_URL` → wa-mock, `BOT_API_KEY` y la BD migrada. La bandera
-`ATRIBUCION` decide qué mitad del guion corre: **las dos se ejercitan**, porque
-una feature opcional que solo se prueba encendida no está probada.
+**Preparação**: app em `localhost` com `WA_MOCK_ENABLED=true`,
+`META_GRAPH_BASE_URL` → wa-mock, `BOT_API_KEY` e a BD migrada. A bandeira
+`ATRIBUCION` decide qual metade do roteiro roda: **as duas são exercitadas**,
+porque uma funcionalidade opcional que só é testada ligada não está testada.
 
-Nada de esto toca Meta. No es comodidad: Meta valida el `ctwa_clid` contra un
-clic real y rechaza cualquier valor inventado (`code 100 / error_subcode
-2804087`), así que un evento sintético contra la API real es imposible por
-diseño. El mock imita las tres cosas que importan: el catálogo cerrado, la
-exigencia del clid, y el **200 que descarta el evento**.
+Nada disto toca a Meta. Não é comodidade: a Meta valida o `ctwa_clid` contra um
+clique real e recusa qualquer valor inventado (`code 100 / error_subcode
+2804087`), então um evento sintético contra a API real é impossível por
+desenho. O mock imita as três coisas que importam: o catálogo fechado, a
+exigência do clid e o **200 que descarta o evento**.
 
 ---
 
-## US1 — La instancia decide si esto existe
+## US1 — A instância decide se isto existe
 
-Con `ATRIBUCION` ausente:
+Com `ATRIBUCION` ausente:
 
-1. `GET`/`PUT`/`DELETE /api/settings/capi` y `GET /api/settings/capi/events`
-   responden **404** (no 403: aquí ese endpoint no existe).
-2. La pantalla `/settings/ads` responde 404 y Ajustes no la menciona.
-3. Un mensaje que **sí** viene de un anuncio se atiende como cualquier otro: la
-   conversación se crea y el mensaje se ve. Desde 018 **el origen del anuncio se
-   ve igual** (titular en la lista), pero se guarda **sin** `ctwa_clid`: el
-   detalle dice `hasCtwaClid: false` y el valor no aparece en ninguna respuesta.
+1. `GET`/`PUT`/`DELETE /api/settings/capi` e `GET /api/settings/capi/events`
+   respondem **404** (não 403: aqui esse endpoint não existe).
+2. A tela `/settings/ads` responde 404 e Ajustes não a menciona.
+3. Uma mensagem que **vem** de um anúncio é atendida como qualquer outra: a
+   conversa é criada e a mensagem aparece. Desde 018 **a origem do anúncio é
+   vista igual** (título na lista), mas é salva **sem** `ctwa_clid`: o detalhe
+   diz `hasCtwaClid: false` e o valor não aparece em nenhuma resposta.
 
-Con `ATRIBUCION=on`, las mismas rutas responden con normalidad.
+Com `ATRIBUCION=on`, as mesmas rotas respondem normalmente.
 
-## US2 — Conectar el dataset
+## US2 — Conectar o dataset
 
-1. Sin configurar, `GET /api/settings/capi` responde **200 con `capi: null`**:
-   no es un error, es una instancia que aún no conectó.
-2. Guardar **sin token** reusa el de la conexión de WhatsApp; el `GET` posterior
-   muestra solo los **últimos 4** y el token completo no aparece por ningún lado.
-3. Una `qualifiedStageId` que no es de este negocio se rechaza con
+1. Sem configurar, `GET /api/settings/capi` responde **200 com `capi: null`**:
+   não é erro, é uma instância que ainda não conectou.
+2. Salvar **sem token** reusa o da conexão do WhatsApp; o `GET` seguinte mostra
+   só os **últimos 4** caracteres e o token completo não aparece em lugar nenhum.
+3. Um `qualifiedStageId` que não é deste negócio é recusado com
    **`422 etapa_invalida`**.
-4. Desconectar borra la configuración pero **no** los eventos ya reportados: eso
-   ya se le dijo a Meta y sigue siendo cierto.
+4. Desconectar apaga a configuração mas **não** os eventos já reportados: isso já
+   foi dito à Meta e continua verdadeiro.
 
-## US3 — Capturar el anuncio
+## US3 — Capturar o anúncio
 
-1. Un inbound con `referral` deja el origen guardado junto a la conversación.
-2. Un segundo mensaje del mismo contacto con **otro** `ctwa_clid` no lo
-   sobreescribe: **el primer referral gana**, y se comprueba mirando con qué
-   clid salió el evento después.
+1. Uma entrada com `referral` deixa a origem salva junto da conversa.
+2. Uma segunda mensagem do mesmo contato com **outro** `ctwa_clid` não a
+   sobrescreve: **o primeiro referral vence**, e isso se confere olhando com qual
+   clid saiu o evento depois.
 
-## US4 — El lead calificado
+## US4 — O lead qualificado
 
-1. Mover el lead a la etapa marcada como calificada reporta `QualifiedLead`, y
-   la actividad lo muestra **enviado** con su `fbtrace_id`.
-2. El payload que recibió Meta lleva el `ctwa_clid` correcto y
-   `custom_data.lead_stage = "qualified"` — sin ese parámetro, ninguna
-   conversión personalizada de Meta podría casar jamás.
-3. La fila de actividad dice **de qué anuncio** vino (su titular).
-4. Sacar el lead de esa etapa y volverlo a meter **no** reporta dos veces.
+1. Mover o lead para a etapa marcada como qualificada reporta `QualifiedLead`, e
+   a atividade o mostra **enviado** com seu `fbtrace_id`.
+2. O payload que a Meta recebeu leva o `ctwa_clid` correto e
+   `custom_data.lead_stage = "qualified"` — sem esse parâmetro, nenhuma conversão
+   personalizada da Meta poderia casar.
+3. A linha de atividade diz **de qual anúncio** veio (seu título).
+4. Tirar o lead dessa etapa e voltar a colocá-lo **não** reporta duas vezes.
 
-## US5 — La venta
+## US5 — A venda
 
-1. Mover el trato a la etapa ganada con monto reporta `Purchase` con
-   `value: 450.5` y su moneda — **unidades, no centavos**.
-2. Re-ganar el mismo trato no manda una segunda compra.
+1. Mover o negócio para a etapa ganha, com valor, reporta `Purchase` com
+   `value: 450.5` e sua moeda — **unidades, não centavos**.
+2. Ganhar de novo o mesmo negócio não manda uma segunda compra.
 
-## Caminos infelices (los que de verdad importan)
+## Caminhos infelizes (os que realmente importam)
 
-1. **Lead sin anuncio**: la fila queda **omitida** con el motivo escrito
-   (`sin ctwa_clid…`) y nada falla.
-2. **Meta rechazando** (dataset `-fail`, que responde 200 con
-   `events_received: 0`): el lead **se mueve igual** y se queda en su etapa
-   nueva; la fila queda **fallida** con lo que dijo Meta. Ninguna conversión
-   vale un movimiento de lead bloqueado.
+1. **Lead sem anúncio**: a linha fica **omitida** com o motivo escrito
+   (`sin ctwa_clid…`) e nada falha.
+2. **A Meta recusando** (dataset `-fail`, que responde 200 com
+   `events_received: 0`): o lead **move-se igual** e fica na etapa nova; a linha
+   fica **com falha** com o que a Meta disse. Nenhuma conversão vale um
+   movimento de lead bloqueado.
 
 ---
 
-## 018 — De qué anuncio llegó cada conversación (siempre visible)
+## 018 — De qual anúncio veio cada conversa (sempre visível)
 
-Automatizado en la sección `018` de `scripts/e2e-selftest.mjs` (datos, con la
-bandera **apagada y encendida**) y en `scripts/e2e-anuncio-origen-ui.mjs`
-(navegador: claro y oscuro, 1440 y 390 px). Los creativos los sirve el wa-mock
-(`/api/dev/wa-mock/media-file/creativo-*`), en el origen de
-`META_GRAPH_BASE_URL`: el único que la copia acepta fuera de los hosts de Meta,
-y solo con los mocks habilitados.
+Automatizado na seção `018` de `scripts/e2e-selftest.mjs` (dados, com a bandeira
+**desligada e ligada**) e em `scripts/e2e-anuncio-origen-ui.mjs` (navegador: claro
+e escuro, 1440 e 390 px). As criativas são servidas pelo wa-mock
+(`/api/dev/wa-mock/media-file/creativo-*`), na origem de `META_GRAPH_BASE_URL`:
+a única que a cópia aceita fora dos hosts da Meta, e só com os mocks habilitados.
 
 ### Captura
 
-1. Un primer mensaje con `referral` deja el anuncio en la lista (titular, id,
-   tipo) y en el detalle del contacto (enlace, texto, tipo de medio, fecha).
-2. `hasCtwaClid` es `true` solo con la bandera encendida; el valor del
-   `ctwa_clid` no aparece en ninguna respuesta, encendida o apagada.
-3. Un contacto sin fuente capturada que llegó de un anuncio tiene fuente
-   **deducida «anuncio»**; una publicación (`source_type: "post"`) se enseña pero
-   no cuenta como anuncio.
-4. La reentrega del mismo mensaje no lo duplica, y un segundo mensaje con **otro**
-   anuncio no cambia el primero.
-5. Un `referral` sin `source_id`, `ctwa_clid`, `headline` ni `source_url` no crea
-   anuncio, y el mensaje entra.
+1. Uma primeira mensagem com `referral` deixa o anúncio na lista (título, id,
+   tipo) e no detalhe do contato (link, texto, tipo de mídia, data).
+2. `hasCtwaClid` é `true` só com a bandeira ligada; o valor do `ctwa_clid` não
+   aparece em nenhuma resposta, ligada ou desligada.
+3. Um contato sem origem capturada que chegou de um anúncio tem origem
+   **deduzida «anúncio»**; uma publicação (`source_type: "post"`) é mostrada mas
+   não conta como anúncio.
+4. A reentrega da mesma mensagem não a duplica, e uma segunda mensagem com
+   **outro** anúncio não muda o primeiro.
+5. Um `referral` sem `source_id`, `ctwa_clid`, `headline` nem `source_url` não
+   cria anúncio, e a mensagem entra.
 
-### La imagen
+### A imagem
 
-1. Se copia sola y se sirve como PNG por `/api/media/{id}` con sesión; sin
-   sesión, 401.
-2. Otra persona del mismo anuncio comparte la misma imagen.
-3. Un host que no es de Meta, una redirección a otro host, un SVG y una imagen de
-   más de 300 KB quedan **sin imagen**, con la tarjeta y el mensaje intactos.
-4. Una descarga que se cuelga una vez llega con el reintento; una que falla dos
-   veces llega sin imagen y **abrir el contacto la repara**.
+1. É copiada sozinha e servida como PNG por `/api/media/{id}` com sessão; sem
+   sessão, 401.
+2. Outra pessoa do mesmo anúncio compartilha a mesma imagem.
+3. Um host que não é da Meta, um redirecionamento para outro host, um SVG e uma
+   imagem de mais de 300 KB ficam **sem imagem**, com o cartão e a mensagem
+   intactos.
+4. Um download que trava uma vez chega com a nova tentativa; um que falha duas
+   vezes chega sem imagem e **abrir o contato a repara**.
 
-### En pantalla
+### Na tela
 
-1. El renglón dice «Anuncio · titular»; el orgánico, nada.
-2. El filtro **Anuncios** aparece y deja solo las conversaciones de anuncio.
-3. El panel enseña la tarjeta con la imagen **cargada** (no un ícono roto),
-   «Ver anuncio» con el enlace https de Meta, «con video» en un anuncio de
-   video, y «Meta identificó el clic» solo con la bandera encendida.
-4. Una conversación orgánica no enseña tarjeta.
-5. La misma tarjeta sale en el cajón del trato del pipeline.
-6. A 390 px, la bandeja y el panel con la tarjeta no se desbordan a lo ancho.
+1. A linha diz «Anúncio · título»; a orgânica, nada.
+2. O filtro **Anúncios** aparece e deixa só as conversas de anúncio.
+3. O painel mostra o cartão com a imagem **carregada** (não um ícone quebrado),
+   «Ver anúncio» com o link https da Meta, «com vídeo» num anúncio de vídeo, e
+   «A Meta identificou o clique» só com a bandeira ligada.
+4. Uma conversa orgânica não mostra cartão.
+5. O mesmo cartão sai na gaveta do negócio no pipeline.
+6. A 390 px, a bandeja e o painel com o cartão não estouram a largura.
 
-**Pendiente de verificación humana**: un clic real en un anuncio CTWA hacia un
-número conectado. El mock reproduce la forma del `referral` de la documentación
-de Meta, no un clic.
+**Pendente de verificação humana**: um clique real num anúncio CTWA para um
+número conectado. O mock reproduz a forma do `referral` da documentação da Meta,
+não um clique.

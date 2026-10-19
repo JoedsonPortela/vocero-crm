@@ -1,78 +1,77 @@
-# E2E — Eliminar una conversación (026)
+# E2E — Excluir uma conversa (026)
 
-Arnés: `scripts/e2e-eliminar.mjs`. Spec:
+Chicote: `scripts/e2e-eliminar.mjs`. Spec:
 [`specs/026-eliminar-conversacion/spec.md`](../../specs/026-eliminar-conversacion/spec.md).
 
-Precondición: app corriendo (`next dev`) sobre una base migrada, con
-`WA_MOCK_ENABLED=true`, `META_GRAPH_BASE_URL` → wa-mock y `MEDIA_DIR`.
+Pré-condição: app rodando (`next dev`) sobre uma base migrada, com
+`WA_MOCK_ENABLED=true`, `META_GRAPH_BASE_URL` → wa-mock e `MEDIA_DIR`.
 
-Dos modos, según cómo arrancó la app; el gate completo son las dos corridas:
+Dois modos, conforme a app foi iniciada; a execução completa são as duas:
 
-- **Con cerebro**: `BRAIN_DISPATCH_URL=http://127.0.0.1:<puerto>/vocero/dispatch`
-  y `BOT_API_KEY`. El arnés levanta ese cerebro en su propio proceso, verifica
-  la firma sobre el cuerpo crudo y guarda lo que recibe.
-- **Sin despacho**: no hay a quién avisar (`agente: "no_aplica"`).
+- **Com cérebro**: `BRAIN_DISPATCH_URL=http://127.0.0.1:<porta>/vocero/dispatch`
+  e `BOT_API_KEY`. O chicote levanta esse cérebro no seu próprio processo, verifica
+  a assinatura sobre o corpo cru e guarda o que recebe.
+- **Sem despacho**: não há a quem avisar (`agente: "no_aplica"`).
 
-Con `AGENDA=on` corre además la cita por venir.
+Com `AGENDA=on` roda também a consulta futura.
 
 ```bash
 node --env-file=.env scripts/e2e-eliminar.mjs
 ```
 
-## Quién puede (AC5)
+## Quem pode (AC5)
 
-1. Un miembro del equipo → 403, con y sin `?contacto=1`.
-2. Una conversación que no existe → 404.
-3. La conversación sigue en la bandeja, con su mensaje.
+1. Um membro da equipe → 403, com e sem `?contacto=1`.
+2. Uma conversa que não existe → 404.
+3. A conversa continua na bandeja, com a sua mensagem.
 
-## El hilo (AC1, AC2, AC3, AC10)
+## O fio (AC1, AC2, AC3, AC10)
 
-4. La conversación tiene un mensaje con imagen: se puede abrir
-   (`/api/media/{assetId}` → 200) y su archivo está en `MEDIA_DIR`. El contacto
-   tiene notas, ficha y etapa.
+4. A conversa tem uma mensagem com imagem: pode ser aberta
+   (`/api/media/{assetId}` → 200) e o seu arquivo está em `MEDIA_DIR`. O contato
+   tem notas, ficha e etapa.
 5. `DELETE /api/conversations/{id}` → 200 `{ ok, alcance: "hilo", agente }`.
-   Ya no sale en la bandeja y sus mensajes no existen.
-6. El contacto sigue, con su nota, en la misma etapa y con el mismo lead; su
-   ficha quedó vacía.
-7. El adjunto responde 404 y su archivo ya no está en el volumen.
-8. Por el SSE llega `conversation.deleted` con `conversationId`, `contactId` y
-   `contactDeleted: false`, y nada más.
-9. Eliminarla otra vez → 404.
+   Ela já não aparece na bandeja e as suas mensagens não existem.
+6. O contato continua, com a sua nota, na mesma etapa e com o mesmo lead; a sua
+   ficha ficou vazia.
+7. O anexo responde 404 e o seu arquivo já não está no volume.
+8. Pelo SSE chega `conversation.deleted` com `conversationId`, `contactId` e
+   `contactDeleted: false`, e nada mais.
+9. Excluí-la de novo → 404.
 
-## El aviso al cerebro (AC7, con cerebro)
+## O aviso ao cérebro (AC7, com cérebro)
 
-10. Llega **un** `conversation.deleted`, firmado como un turno, con
-    `x-vocero-event: conversation.deleted`, `x-vocero-organization` y sin
-    `x-vocero-dispatch-id`. Las claves van en el orden del contrato; dice la
-    conversación, el canal, el contacto y su identidad, con un `eventId`
-    propio y la hora. No lleva nada de lo borrado.
+10. Chega **um** `conversation.deleted`, assinado como um turno, com
+    `x-vocero-event: conversation.deleted`, `x-vocero-organization` e sem
+    `x-vocero-dispatch-id`. As chaves vêm na ordem do contrato; diz a conversa, o
+    canal, o contato e a sua identidade, com um `eventId` próprio e a hora. Não
+    leva nada do que foi apagado.
 
-## Si vuelve a escribir (AC9)
+## Se volta a escrever (AC9)
 
-11. La misma persona escribe: conversación nueva del mismo contacto, con otro
-    id y un solo mensaje. Al cerebro le llega como una conversación nueva.
+11. A mesma pessoa escreve: conversa nova do mesmo contato, com outro id e uma
+    única mensagem. Para o cérebro chega como uma conversa nova.
 
-## El contacto (AC4)
+## O contato (AC4)
 
-12. `DELETE …?contacto=1` → 200 `alcance: "contacto"`. El contacto responde
-    404 y no sale en Contactos ni en el Pipeline. Si la persona vuelve a
-    escribir, es otro contacto y otra conversación.
+12. `DELETE …?contacto=1` → 200 `alcance: "contacto"`. O contato responde 404 e não
+    aparece em Contatos nem no Pipeline. Se a pessoa voltar a escrever, é outro
+    contato e outra conversa.
 
-## El cerebro no confirma (AC8, con cerebro)
+## O cérebro não confirma (AC8, com cérebro)
 
-13. El cerebro contesta 500 → se elimina igual, `agente: "sin_confirmar"`, y no
-    se reintenta. Con el cerebro apagado → lo mismo, en menos de 10 segundos.
+13. O cérebro responde 500 → exclui-se igual, `agente: "sin_confirmar"`, e não se
+    tenta de novo. Com o cérebro desligado → o mesmo, em menos de 10 segundos.
 
-## Una cita por venir (AC6, con `AGENDA=on`)
+## Uma consulta futura (AC6, com `AGENDA=on`)
 
-14. Con una cita agendada por venir, eliminar el hilo o el contacto → 409
-    `cita_pendiente` que dice la fecha y manda a Citas. No se borra nada.
-15. Cancelada la cita, se elimina; la cita cancelada se queda en el historial
-    del contacto, sin conversación.
+14. Com uma consulta agendada futura, excluir a conversa ou o contato → 409
+    `cita_pendiente` que diz a data e manda para Consultas. Nada é apagado.
+15. Cancelada a consulta, a exclusão é feita; a consulta cancelada fica no
+    histórico do contato, sem conversa.
 
-## Interfaz (a mano, claro y oscuro)
+## Interface (à mão, claro e escuro)
 
-- En Detalles, al fondo: «Eliminar conversación…». Un miembro del equipo no la
-  ve.
-- El diálogo dice qué se va y qué se queda, y cambia con la casilla «Borrar
-  también el contacto y su lead». Escape cancela; Enter no confirma.
+- Em Detalhes, no fim: «Excluir conversa…». Um membro da equipe não a vê.
+- O diálogo diz o que vai e o que fica, e muda com a caixa «Apagar também o
+  contato e o seu lead». Escape cancela; Enter não confirma.

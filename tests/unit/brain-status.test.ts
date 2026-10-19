@@ -212,10 +212,10 @@ describe("textos compartidos", () => {
   it("«Nea» solo si su /health habla el contrato de Nea", () => {
     const conNea = status({ botKeyConfigured: true, health: EN_LINEA });
     expect(externalBrainName(conNea)).toBe("Nea");
-    expect(externalAnswerLabel(conNea)).toBe("Responde tu cerebro externo (Nea)");
+    expect(externalAnswerLabel(conNea)).toBe("Responde seu cérebro externo (Nea)");
     const sinNombre = status({ botKeyConfigured: true, lastSeenAt: HACE_3_MIN });
     expect(externalBrainName(sinNombre)).toBeNull();
-    expect(externalAnswerLabel(sinNombre)).toBe("Responde tu cerebro externo");
+    expect(externalAnswerLabel(sinNombre)).toBe("Responde seu cérebro externo");
   });
 
   it("«responde tu cerebro externo» solo si no está caído; el aviso doble no espera a eso", () => {

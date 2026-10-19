@@ -143,12 +143,12 @@ function healthKnown(h: BrainHealthDto | null): h is BrainHealthDto {
   return h !== null && h.problem !== "config";
 }
 
-/** «Responde tu cerebro externo (Nea)», ou sem parênteses se não se sabe quem é. */
+/** «Responde seu cérebro externo (Nea)», ou sem parênteses se não se sabe quem é. */
 export function externalAnswerLabel(status: BrainStatusDto): string {
   const name = externalBrainName(status);
   return name
-    ? `Responde tu cerebro externo (${name})`
-    : "Responde tu cerebro externo";
+    ? `Responde seu cérebro externo (${name})`
+    : "Responde seu cérebro externo";
 }
 
 /** «hace 3 min». Tolera relógios defasados: o futuro é «hace unos segundos». */

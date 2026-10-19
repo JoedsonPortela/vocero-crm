@@ -1,117 +1,115 @@
 # E2E — Motor de agenda universal (015)
 
-Guion de comportamiento observable. Automatizado en la sección `015` de
-`scripts/e2e-selftest.mjs`: con la app viva y los mocks encendidos,
-`pnpm test:e2e` lo conduce y sale distinto de cero si algo falla.
+Roteiro de comportamento observável. Automatizado na seção `015` de
+`scripts/e2e-selftest.mjs`: com a app no ar e os mocks ligados,
+`pnpm test:e2e` o conduz e sai diferente de zero se algo falhar.
 
-**Preparación**: app en `localhost` con `WA_MOCK_ENABLED=true`,
+**Preparação**: app em `localhost` com `WA_MOCK_ENABLED=true`,
 `META_GRAPH_BASE_URL` → wa-mock, `ZOOM_BASE_URL`/`ZOOM_OAUTH_BASE_URL` →
-zoom-mock, `BOT_API_KEY` y la BD migrada. La bandera `AGENDA` decide qué mitad
-del guion corre: ambas se ejercitan en la matriz de CI.
+zoom-mock, `BOT_API_KEY` e a BD migrada. A bandeira `AGENDA` decide qual metade
+do roteiro roda: as duas são exercitadas na matriz de CI.
 
 ---
 
-## US1 — La instancia decide si la agenda existe
+## US1 — A instância decide se a agenda existe
 
-Con `AGENDA` ausente:
+Com `AGENDA` ausente:
 
-1. `GET /api/calendar/settings`, `/api/calendar/availability` y `/api/bookings`
-   responden **404**.
-2. `GET /api/bot/availability` responde **404** — antes incluso de mirar la
-   llave: el endpoint no existe aquí.
-3. La pantalla `/bookings` responde 404 y la navegación no la menciona.
+1. `GET /api/calendar/settings`, `/api/calendar/availability` e `/api/bookings`
+   respondem **404**.
+2. `GET /api/bot/availability` responde **404** — antes mesmo de olhar a chave:
+   o endpoint não existe aqui.
+3. A tela `/bookings` responde 404 e a navegação não a menciona.
 
-4. `GET /api/bot/context` **no** trae `booking` — ni vacío: un bloque vacío en
-   una instancia sin agenda se leería como «este lead no tiene cita».
+4. `GET /api/bot/context` **não** traz `booking` — nem vazio: um bloco vazio numa
+   instância sem agenda seria lido como «este lead não tem consulta».
 
-Con `AGENDA=on`, las mismas rutas responden con normalidad, y el contexto trae
-`booking` (sin citas: `next`, `unresolved` y `lastClosed` en `null`).
+Com `AGENDA=on`, as mesmas rotas respondem normalmente, e o contexto traz
+`booking` (sem consultas: `next`, `unresolved` e `lastClosed` em `null`).
 
-## US2 — El negocio define cuándo atiende
+## US2 — O negócio define quando atende
 
-1. Una instancia recién encendida devuelve **defaults usables** (cita de 30
-   min, conector `enlace-fijo`) con 200, no un 404.
-2. Se guarda un horario y una sala fija; la disponibilidad devuelve huecos.
-3. Cada hueco trae el **día en palabras** además de la hora — la etiqueta corta
-   ya agendó una cita el día equivocado en producción.
-4. Una zona horaria inventada se rechaza con **422** en vez de guardarse y
-   romper el motor después.
+1. Uma instância recém-ligada devolve **padrões utilizáveis** (consulta de 30
+   min, conector `enlace-fijo`) com 200, não um 404.
+2. Salva-se um horário e uma sala fixa; a disponibilidade devolve vagas.
+3. Cada vaga traz o **dia por extenso** além da hora — a etiqueta curta já
+   agendou uma consulta no dia errado em produção.
+4. Um fuso horário inventado é recusado com **422** em vez de salvo e de quebrar
+   o motor depois.
 
-## US3 — Las dos garantías
+## US3 — As duas garantias
 
-1. **Solo se reserva lo que se ofreció**: un instante libre y válido, pero
-   nunca ofrecido a esa conversación, se rechaza con `409 slot_not_offered` y
-   la respuesta trae lo que sí se ofreció.
-2. **Camino feliz**: reservar un hueco ofrecido responde **201 Created** (no
-   200), con etiqueta y enlace; el hueco desaparece de la disponibilidad y la
-   cita aparece en Citas marcada como agendada por la IA.
-3. **La carrera**: un segundo intento sobre el mismo instante responde `409`
-   con el sobre **anidado** y `slots` como **hermano**; en la base queda **una
-   sola cita activa** en ese instante.
-4. Las alternativas del `409` ya son la oferta vigente: reservar una de ellas
-   responde 201 de inmediato.
-5. **Reprogramar** por la superficie del bot responde **200**, no 201.
-6. **El contexto del cerebro sabe de la cita**: tras reservar,
-   `GET /api/bot/context` trae `booking.next` con el id de ESA cita, su
-   `startUtc`/`endUtc`, `status: "agendada"`, la etiqueta con el día en
-   palabras en la zona del negocio (`booking.timezone`) y el enlace que se le
-   dio al cliente. Tras reprogramar, la misma cita en su instante nuevo. Sin
-   esto un cerebro solo conoce la cita por el historial: reserva una segunda
-   para quien no llegó a la primera, o da por vigente una que ya pasó.
+1. **Só se reserva o que foi oferecido**: um instante livre e válido, mas nunca
+   oferecido àquela conversa, é recusado com `409 slot_not_offered` e a resposta
+   traz o que de fato foi oferecido.
+2. **Caminho feliz**: reservar uma vaga oferecida responde **201 Created** (não
+   200), com etiqueta e link; a vaga some da disponibilidade e a consulta aparece
+   em Consultas marcada como agendada pela IA.
+3. **A corrida**: uma segunda tentativa no mesmo instante responde `409` com o
+   envelope **aninhado** e `slots` como **irmão**; no banco fica **uma única
+   consulta ativa** naquele instante.
+4. As alternativas do `409` já são a oferta vigente: reservar uma delas responde
+   201 de imediato.
+5. **Remarcar** pela superfície do bot responde **200**, não 201.
+6. **O contexto do cérebro sabe da consulta**: depois de reservar,
+   `GET /api/bot/context` traz `booking.next` com o id DESTA consulta, seu
+   `startUtc`/`endUtc`, `status: "agendada"`, a etiqueta com o dia por extenso no
+   fuso do negócio (`booking.timezone`) e o link que foi dado ao cliente. Depois
+   de remarcar, a mesma consulta no instante novo. Sem isso, um cérebro só
+   conhece a consulta pelo histórico: marca uma segunda para quem não chegou à
+   primeira, ou dá por vigente uma que já passou.
 
-## US3b — Un día concreto (huecos por fecha)
+## US3b — Um dia específico (vagas por data)
 
-Un lead propio, al final de la sección 015 del arnés, que pregunta «¿tienen
-algo mañana en la tarde?». En la prueba de punta a punta raíz + Nea, sin esto,
-el cerebro solo veía las tres primeras horas de mañana y contestó que solo
-había mañana.
+Um lead próprio, no final da seção 015 do arnês, que pergunta «tem algo amanhã à
+tarde?». Na prova de ponta a ponta raiz + Nea, sem isso o cérebro só via as
+três primeiras horas da manhã e respondeu que só havia manhã.
 
-1. **Sin `date`, la forma de siempre**: `slots` (con `startUtc`, `endUtc`,
-   `label`, `dayIso`, `dayLabel`, `time`) y `diasConAgenda`, más `query` con
-   `date: null`, `perDay: 3`, `coveredUntil` y `horizonEnd`.
-2. **Con `date` = mañana**: 200 con `query.date` = ese día y
-   `query.status: "available"`; solo horas de ese día, más de las tres del
-   reparto, y alguna de la tarde.
-3. Un día más allá del horizonte responde `beyond_horizon` sin horas, y una
-   fecha inexistente (`2026-02-31`) **422 `invalid_body`** — ninguna de las dos
-   borra la oferta vigente.
-4. **Reservar** una hora de la tarde ofrecida por fecha responde **201**, con
-   esa hora en la etiqueta, y deja de ofrecerse para ese día.
+1. **Sem `date`, a forma de sempre**: `slots` (com `startUtc`, `endUtc`,
+   `label`, `dayIso`, `dayLabel`, `time`) e `diasConAgenda`, mais `query` com
+   `date: null`, `perDay: 3`, `coveredUntil` e `horizonEnd`.
+2. **Com `date` = amanhã**: 200 com `query.date` = esse dia e
+   `query.status: "available"`; só horas desse dia, além das três do
+   revezamento, e alguma da tarde.
+3. Um dia além do horizonte responde `beyond_horizon` sem horas, e uma data
+   inexistente (`2026-02-31`) **422 `invalid_body`** — nenhuma das duas apaga a
+   oferta vigente.
+4. **Reservar** uma hora da tarde oferecida por data responde **201**, com essa
+   hora na etiqueta, e deixa de ser oferecida naquele dia.
 
-## US4 — El operador
+## US4 — O operador
 
-1. Cancelar dos veces no falla (idempotente). Cancelada desde el panel, el
-   contexto del cerebro ya **no** la da por vigente (`booking.next`) y la trae
-   en `booking.lastClosed` con `status: "cancelada"`, `cancelledBy: "equipo"`
-   y sin enlace: así el cerebro dice «se canceló» en vez de inventar un motivo.
-2. Reintentar el enlace de una cita que ya lo tiene responde 422.
-3. **El proveedor caído no cuesta la conversión**: con el conector externo sin
-   credenciales, reservar responde **201 igualmente**, con
-   `linkPending: true` y `meetingLink: null`, y la cita se ve como "sin enlace"
-   en Citas.
+1. Cancelar duas vezes não falha (idempotente). Cancelada pelo painel, o contexto
+   do cérebro já **não** a dá por vigente (`booking.next`) e a traz em
+   `booking.lastClosed` com `status: "cancelada"`, `cancelledBy: "equipo"` e sem
+   link: assim o cérebro diz «foi cancelada» em vez de inventar um motivo.
+2. Repetir o link de uma consulta que já o tem responde 422.
+3. **O provedor fora do ar não custa a conversão**: com o conector externo sem
+   credenciais, reservar responde **201 mesmo assim**, com `linkPending: true` e
+   `meetingLink: null`, e a consulta aparece como "sem link" em Consultas.
 
 ## US5 — Conector Zoom
 
-1. Unas credenciales que el proveedor rechaza responden 422 y **no se
-   guardan**: la conexión sigue sin existir.
-2. Unas válidas se guardan y hacia el navegador solo salen sus **últimos 4** —
-   el secreto no aparece en la respuesta.
-3. Agendar crea la reunión: el proveedor la recibe con su tema y su hora, y el
-   enlace vuelve en la respuesta.
-4. Cancelar la cita **borra** la reunión en el proveedor.
+1. Credenciais que o provedor recusa respondem 422 e **não são salvas**: a
+   conexão continua sem existir.
+2. Válidas são salvas e, para o navegador, só saem os **últimos 4** caracteres —
+   o segredo não aparece na resposta.
+3. Agendar cria a reunião: o provedor a recebe com seu tema e sua hora, e o link
+   volta na resposta.
+4. Cancelar a consulta **apaga** a reunião no provedor.
 
 ## US6 — Conector Google
 
-Cubierto por la suite de contrato (`tests/unit/connectors.test.ts`), que fija
-lo que su mock reproduce: el enlace de Meet **no** viene en la respuesta de
-crear el evento —la conferencia es asíncrona—, el conector re-lee, y si sigue
-pendiente entrega el evento sin enlace en vez de fallar. Reintentar re-lee ese
-mismo evento: **nunca** crea uno duplicado en el calendario del dueño.
+Coberto pela suíte de contrato (`tests/unit/connectors.test.ts`), que fixa o que
+o seu mock reproduz: o link do Meet **não** vem na resposta de criar o evento —
+a conferência é assíncrona —, o conector relê, e se ainda estiver pendente
+entrega o evento sem link em vez de falhar. Tentar de novo relê esse mesmo
+evento: **nunca** cria um duplicado na agenda do dono.
 
-## Sandbox del Laboratorio
+## Sandbox do Laboratório
 
-1. Una conversación de prueba **puede** agendar (201) y la cita queda marcada
-   como de prueba.
-2. Con un conector externo activo, el estado del mock queda **vacío**: el
-   proveedor jamás se entera de una cita de prueba. Se verifica por ausencia, y
-   vale igual para crear, reprogramar y cancelar.
+1. Uma conversa de teste **pode** agendar (201) e a consulta fica marcada como
+   de teste.
+2. Com um conector externo ativo, o estado do mock fica **vazio**: o provedor
+   jamais fica sabendo de uma consulta de teste. Verifica-se por ausência, e vale
+   igual para criar, remarcar e cancelar.

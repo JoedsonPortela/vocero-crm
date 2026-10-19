@@ -1,58 +1,58 @@
-# Guion E2E — Resultados: ventas, el agente, de dónde llegan y qué se cae
+# Roteiro E2E — Resultados: vendas, o agente, de onde chegam e o que se perde
 
-> Automatizado en `scripts/e2e-resultados.mjs` (`pnpm test:e2e:resultados`,
-> app viva con los mocks). Spec: [019](../../specs/019-resultados/spec.md).
-> Corre con la bandera `AGENDA` apagada o encendida: la lee del mismo entorno
-> que la app.
+> Automatizado em `scripts/e2e-resultados.mjs` (`pnpm test:e2e:resultados`,
+> app no ar com os mocks). Spec: [019](../../specs/019-resultados/spec.md).
+> Roda com a bandeira `AGENDA` desligada ou ligada: lê do mesmo ambiente que a
+> app.
 
-La instancia puede traer datos de otros guiones, así que el guion toma una
-foto de las cuatro secciones ANTES de sembrar y otra DESPUÉS, y compara la
-diferencia. Las filas por anuncio sí son exactas: sus `source_id` son de la
-corrida.
+A instância pode trazer dados de outros roteiros, então o roteiro tira uma foto
+das quatro seções ANTES de semear e outra DEPOIS, e compara a diferença. As linhas
+por anúncio são exatas: seus `source_id` são da execução.
 
-## Siembra (caminos reales)
+## Semeadura (caminhos reais)
 
-Diez personas escriben por el webhook del wa-mock: tres desde el anuncio R1
-(con creativo), una desde R2 (sin imagen), una desde una **publicación**, una
-que pide un humano, dos orgánicas, una dada de alta a mano como «referido» que
-luego escribe, y una que se lleva al periodo anterior. El agente contesta
-contra el ai-mock. Por la API del pipeline: una venta de $12,000, un trato
-perdido por precio, otro ganado-sacado-y-vuelto-a-ganar ($5,000), otro ganado
-y devuelto al embudo, un monto de $3,000 en un trato abierto. Meta rechaza un
-envío (130472). Por SQL, solo lo que el webhook no puede fabricar: fechas en
-el pasado (un lead en silencio 8 días, una ventana por cerrarse, el periodo
-anterior) y, con `AGENDA`, citas de cada desenlace más una de prueba.
+Dez pessoas escrevem pelo webhook do wa-mock: três pelo anúncio R1 (com criativo),
+uma pelo R2 (sem imagem), uma por uma **publicação**, uma que pede um humano, duas
+orgânicas, uma cadastrada à mão como «indicado» que depois escreve, e uma que é
+levada para o período anterior. O agente responde contra o ai-mock. Pela API do
+pipeline: uma venda de $12,000, um negócio perdido por preço, outro
+ganho-tirado-e-devolvido-a-ganho ($5,000), outro ganho e devolvido ao funil, um
+valor de $3,000 num negócio aberto. A Meta recusa um envio (130472). Por SQL, só o
+que o webhook não consegue fabricar: datas no passado (um lead em silêncio há 8
+dias, uma janela prestes a fechar, o período anterior) e, com `AGENDA`, consultas
+de cada desfecho mais uma de teste.
 
-## Camino verificado
+## Caminho verificado
 
-1. Sin rango, las cuatro secciones responden 200 con los últimos 30 días en la
-   zona del negocio. Un rango invertido, una fecha inventada, una que no
-   existe (31 de febrero) o de varios años → **422 con mensaje**.
-2. **Ventas**: +9 prospectos (+1 en el anterior), +2 ganados (el devuelto no
-   cuenta; el ganado dos veces, una), +1 perdido, +$17,000.00 ganados, tasa de
-   cierre con su denominador, «precio» +1, embudo (+9 en la primera etapa, +3
-   llegaron a Ganado), hoy en el embudo (+$3,000 abiertos, +6 sin monto), una
-   cubeta por día del periodo y la serie cuadra con los indicadores.
-3. **Origen y anuncios**: +9 conversaciones (+1 en el anterior); «Anuncio»
-   +4/+4/+2; la publicación cuenta como «Sin identificar», no como anuncio;
-   lo capturado («Referido») manda; ni una llave de gasto, costo o retorno. R1
-   = 3 conversaciones, 3 prospectos, 1 venta (33 % de 3, muestra chica), con
-   titular e imagen servida por `/api/media`; R2 = 1/1/1 sin imagen; la
-   publicación tiene su fila marcada `post`. El `ctwa_clid` no sale.
-4. **El agente**: +9 conversaciones; «contestó el agente» sobre las 9 con
-   mensaje del cliente; +9 primeras respuestas medidas (también la escalada:
-   el aviso «te comunico con una persona del equipo» es respuesta del agente,
-   con origen IA); +1 «El cliente pidió un humano»; la ficha se mide
-   sobre los contactos nuevos. Sin `AGENDA`: `sessions: null`. Con `AGENDA`:
-   +4 citas (la de prueba no cuenta), +1 realizada, +1 no llegó, +1 cancelada,
-   asistencia sobre las 2 con desenlace.
-5. **Qué se está cayendo**: +1 en silencio con sus $3,000 y 8 días; +1 mensaje
-   que no llegó con el código de Meta; la ventana por cerrarse con ~3 h.
-6. **El Laboratorio no existe para Resultados**: se corre el Laboratorio
-   completo y se le inventa un lead a uno de sus contactos; ningún número de
-   las cuatro secciones cambia.
-7. `/results` carga con sesión y el menú lleva ahí; sin sesión, las cuatro
-   rutas de analítica responden 401.
+1. Sem intervalo, as quatro seções respondem 200 com os últimos 30 dias no fuso do
+   negócio. Um intervalo invertido, uma data inventada, uma que não existe (31 de
+   fevereiro) ou de vários anos → **422 com mensagem**.
+2. **Vendas**: +9 prospectos (+1 no anterior), +2 ganhos (o devolvido não conta; o
+   ganho duas vezes, um), +1 perdido, +$17,000.00 ganhos, taxa de fechamento com o
+   seu denominador, «preço» +1, funil (+9 na primeira etapa, +3 chegaram a Ganho),
+   hoje no funil (+$3,000 abertos, +6 sem valor), um balde por dia do período e a
+   série bate com os indicadores.
+3. **Origem e anúncios**: +9 conversas (+1 no anterior); «Anúncio» +4/+4/+2; a
+   publicação conta como «Não identificado», não como anúncio; o capturado
+   («Indicado») manda; nem uma chave de gasto, custo ou retorno. R1 = 3 conversas,
+   3 prospectos, 1 venda (33 % de 3, amostra pequena), com título e imagem servida
+   por `/api/media`; R2 = 1/1/1 sem imagem; a publicação tem a sua linha marcada
+   `post`. O `ctwa_clid` não aparece.
+4. **O agente**: +9 conversas; «o agente respondeu» sobre as 9 com mensagem do
+   cliente; +9 primeiras respostas medidas (também a escalada: o aviso «vou
+   transferir para uma pessoa da equipe» é resposta do agente, com origem IA); +1
+   «O cliente pediu um humano»; a ficha é medida sobre os contatos novos. Sem
+   `AGENDA`: `sessions: null`. Com `AGENDA`: +4 consultas (a de teste não conta),
+   +1 realizada, +1 não compareceu, +1 cancelada, comparecimento sobre as 2 com
+   desfecho.
+5. **O que está se perdendo**: +1 em silêncio com os seus $3,000 e 8 dias; +1
+   mensagem que não chegou com o código da Meta; a janela prestes a fechar com ~3
+   h.
+6. **O Laboratório não existe para Resultados**: roda-se o Laboratório completo e
+   inventa-se um lead para um dos seus contatos; nenhum número das quatro seções
+   muda.
+7. `/results` carrega com sessão e o menu leva até lá; sem sessão, as quatro rotas
+   de análise respondem 401.
 
-La responsividad de `/results` (sin recorte a lo ancho en teléfono, tableta y
-escritorio) la cubre `scripts/e2e-responsive.mjs`.
+A responsividade de `/results` (sem corte na largura em celular, tablet e desktop)
+é coberta por `scripts/e2e-responsive.mjs`.

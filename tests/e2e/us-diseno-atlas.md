@@ -1,121 +1,122 @@
-# Guion E2E — 002: Rediseño Atlas + White-label
+# Roteiro E2E — 002: Redesenho Atlas + White-label
 
-> Conducido con Playwright (script) contra `pnpm dev` con mocks.
+> Conduzido com Playwright (script) contra `pnpm dev` com mocks.
 
-## Regresión funcional sobre el rediseño (ejecutado ✅)
+## Regressão funcional sobre o redesenho (executado ✅)
 
-1. Inbound mock → visible en la bandeja SIN recargar (SSE). ✅
-2. Abrir conversación → responder desde el composer nuevo (Enter envía). ✅
-3. Colapsar el panel de detalles (chevron) → reabrir desde el header del chat;
-   preferencia persistida en localStorage. ✅
-4. Conversación con ventana cerrada → aviso + selector de plantilla aprobada. ✅
-5. Stepper de etapas en el panel → clic en un paso mueve el lead (PATCH 200)
-   y el kanban lo refleja. ✅
-6. Filtros Todas/No leídas y búsqueda en la lista. ✅ (visual)
+1. Entrada mock → visível na bandeja SEM recarregar (SSE). ✅
+2. Abrir conversa → responder pelo compositor novo (Enter envia). ✅
+3. Recolher o painel de detalhes (chevron) → reabrir pelo cabeçalho do chat;
+   preferência persistida no localStorage. ✅
+4. Conversa com janela fechada → aviso + seletor de modelo aprovado. ✅
+5. Stepper de etapas no painel → clique num passo move o lead (PATCH 200) e o
+   kanban reflete. ✅
+6. Filtros Todas/Não lidas e busca na lista. ✅ (visual)
 
-## White-label (ejecutado ✅)
+## White-label (executado ✅)
 
-7. PUT nombre "El Martillo" + acento Verde apagado →
-   ✅ brand de la nav, `<title>` y variable CSS `--accent: #3f6b66` aplicados
-   (SSR, `router.refresh()`); el login PÚBLICO muestra la marca; restaurar a
-   defaults funciona.
-8. Solo el owner puede cambiar la marca (PUT con rol member → 403).
-9. Unit tests: presets exactos, derivación de color personalizado con ajuste
-   de contraste, normalización (vacío→default, hex inválido→default). ✅
+7. PUT nome «El Martillo» + acento Verde apagado →
+   ✅ marca da navegação, `<title>` e variável CSS `--accent: #3f6b66` aplicados
+   (SSR, `router.refresh()`); o login PÚBLICO mostra a marca; restaurar os
+   padrões funciona.
+8. Só o proprietário pode mudar a marca (PUT com papel de membro → 403).
+9. Testes unitários: predefinições exatas, derivação de cor personalizada com
+   ajuste de contraste, normalização (vazio→padrão, hex inválido→padrão). ✅
 
-## Tema oscuro
+## Tema escuro
 
-Conducido con Playwright (MCP). La preferencia es **por dispositivo** (cookie),
-no por cuenta: quien trabaja de noche en su portátil y de día en la oficina no
-quiere arrastrar la misma elección a los dos sitios.
+Conduzido com Playwright (MCP). A preferência é **por dispositivo** (cookie), não
+por conta: quem trabalha de noite no notebook e de dia no escritório não quer
+arrastar a mesma escolha para os dois lugares.
 
-10. **Alternar desde la barra lateral** cambia el tema y persiste al recargar.
-    ✅ Sin parpadeo: el layout raíz escribe `data-theme` en el HTML del
-    servidor, así que el tema ya viene resuelto en el primer byte. Resolverlo en
-    el cliente daría un destello blanco en cada carga, que en una app que se usa
-    de noche es exactamente lo que se venía a evitar.
-11. **El acento de la marca se aclara en oscuro.** Los presets están calculados
-    para fondo claro y sobre el fondo oscuro se hunden.
-    ✅ `resolveAccentSet(hex, "dark")` sube el color hasta **≥ 3.5:1** contra el
-    fondo del tema, y las variantes soft/tint se mezclan hacia el fondo oscuro,
-    no hacia blanco.
-    ✅ Sobre un acento ya aclarado, la tinta encima deja de ser blanca cuando no
-    se leería (`fg` cae a oscuro bajo 3:1).
-12. **Los dos temas viajan en el mismo CSS.** El servidor no siempre sabe cuál
-    se resolverá (preferencia "sistema"), así que emite ambos bloques.
-    ✅ Texto y superficies usan tokens semánticos, no colores sueltos: cambiar
-    de tema no deja ningún elemento con el color del otro.
+10. **Alternar pela barra lateral** muda o tema e persiste ao recarregar. ✅
+    Sem piscada: o layout raiz escreve `data-theme` no HTML do servidor, então o
+    tema já vem resolvido no primeiro byte. Resolver no cliente daria um flash
+    branco a cada carregamento, que num app usado de noite é exatamente o que se
+    queria evitar.
+11. **O acento da marca clareia no escuro.** As predefinições são calculadas para
+    fundo claro e sobre o fundo escuro afundam.
+    ✅ `resolveAccentSet(hex, "dark")` sobe a cor até **≥ 3.5:1** contra o fundo
+    do tema, e as variantes soft/tint se misturam para o fundo escuro, não para
+    o branco.
+    ✅ Sobre um acento já clareado, a tinta em cima deixa de ser branca quando não
+    seria legível (`fg` cai para escuro abaixo de 3:1).
+12. **Os dois temas viajam no mesmo CSS.** O servidor nem sempre sabe qual será
+    resolvido (preferência «sistema»), então emite os dois blocos.
+    ✅ Texto e superfícies usam tokens semânticos, não cores soltas: trocar de
+    tema não deixa nenhum elemento com a cor do outro.
 
-## Versión visible
+## Versão visível
 
-Automatizado en `tests/unit/version.test.ts`; la parte de despliegue se verifica
-con un `curl`. Responde "¿ya se desplegó mi cambio?" sin entrar al servidor.
+Automatizado em `tests/unit/version.test.ts`; a parte do deploy é verificada com
+um `curl`. Responde "já foi implantada a minha mudança?" sem entrar no servidor.
 
-13. **Abajo en la barra lateral**: `v1.2.0 · 8e62d0b`.
-    ✅ El nombre del tooltip sale de la **marca**, no cableado: una instancia
-    rebautizada no debe decir "Vocero" justo ahí.
-    ✅ Contraste ≥ 4.5:1 en claro y en oscuro — discreta, no ilegible.
-14. **También en `/api/health`**, para confirmar un despliegue desde un script o
-    desde la plataforma de hosting, sin abrir la app ni iniciar sesión.
+13. **Embaixo na barra lateral**: `v1.2.0 · 8e62d0b`.
+    ✅ O nome do tooltip sai da **marca**, não fixo: uma instância renomeada não
+    deve dizer "Vocero" justo ali.
+    ✅ Contraste ≥ 4.5:1 no claro e no escuro — discreta, mas não ilegível.
+14. **Também em `/api/health`**, para confirmar um deploy por script ou pela
+    plataforma de hospedagem, sem abrir o app nem fazer login.
     ✅ `{"ok":true,"version":"1.2.0","commit":"8e62d0b","commitVerified":true}`.
-15. **El commit se resuelve por dos caminos, y solo uno está verificado.** El
-    del build manda; si quien construyó no lo pasó, vale el que la plataforma
-    anuncia en ejecución — pero marcado como NO verificado (#50).
-    ✅ Construir SIN `SOURCE_COMMIT` y arrancar CON él en el entorno enseña el
-    commit igual: sin este respaldo la insignia se quedaba solo con la versión,
-    que no se mueve entre despliegues del mismo release.
-    ✅ …y lo enseña como lo que es: «commit sin verificar» en la insignia y
-    `"commitVerified":false` en `/api/health`. Una variable de entorno escrita a
-    mano una vez se queda quieta mientras la app avanza; presentarla como si
-    saliera del build es la insignia mintiendo (#50, punto 4).
-    ✅ Sin ninguno de los dos, se ve solo la versión. Nunca rompe el build.
+15. **O commit se resolve por dois caminhos, e só um está verificado.** O do build
+    manda; se quem construiu não o passou, vale o que a plataforma anuncia em
+    execução — mas marcado como NÃO verificado (#50).
+    ✅ Construir SEM `SOURCE_COMMIT` e iniciar COM ele no ambiente mostra o commit
+    igual: sem esse respaldo o distintivo ficava só com a versão, que não se move
+    entre deploys do mesmo release.
+    ✅ …e o mostra pelo que é: «commit não verificado» no distintivo e
+    `"commitVerified":false` em `/api/health`. Uma variável de ambiente escrita à
+    mão uma vez fica parada enquanto o app avança; apresentá-la como se viesse do
+    build é o distintivo mentindo (#50, ponto 4).
+    ✅ Sem nenhum dos dois, vê-se só a versão. Nunca quebra o build.
 
-## Icono de la pestaña
+## Ícone da aba
 
-Automatizado en `scripts/e2e-favicon.mjs`. Con cinco instancias abiertas en
-pestañas, el icono genérico del navegador las vuelve indistinguibles.
+Automatizado em `scripts/e2e-favicon.mjs`. Com cinco instâncias abertas em abas,
+o ícone genérico do navegador as torna indistinguíveis.
 
-16. **Toda instancia tiene icono sin configurar nada.**
-    ✅ `GET /api/branding/favicon` devuelve un SVG con la inicial sobre el
-    acento, y responde **sin sesión** — el login también tiene pestaña.
-    ✅ Si el archivo subido se perdiera (volumen sin montar), cae al generado
-    en vez de dejar la pestaña vacía: un 404 ahí se ve como instancia rota.
-17. **El dueño sube su logo** en Ajustes → Marca (PNG, SVG, ICO, JPEG, WebP).
-    ✅ Se sirve byte por byte con su tipo real.
-    ✅ Se puede **quitar** y volver al generado.
-    ✅ Guardar nombre o color **no** borra el logo: son formularios distintos.
-18. **No se cuela un documento disfrazado de imagen.** El tipo sale de los
-    BYTES, no del `content-type` que declare el cliente.
-    ✅ Declarar `image/png` y mandar HTML → **422**, y el icono bueno intacto.
-    ✅ Más de 256 KB → **413**. Cuerpo vacío → **422**.
-    ✅ Todo icono se sirve con `Content-Security-Policy: default-src 'none'` y
-    `nosniff`: un SVG subido no ejecuta nada si alguien navega a su URL.
-19. **El navegador suelta el icono viejo.** La URL lleva `?v=`.
-    ✅ Cambia al subir, al quitar y al cambiar nombre o acento.
-    ✅ Quitar y volver a subir **no repite** una URL ya cacheada.
+16. **Toda instância tem ícone sem configurar nada.**
+    ✅ `GET /api/branding/favicon` devolve um SVG com a inicial sobre o acento, e
+    responde **sem sessão** — o login também tem aba.
+    ✅ Se o arquivo enviado se perder (volume não montado), cai no gerado em vez
+    de deixar a aba vazia: um 404 ali parece instância quebrada.
+17. **O dono envia o seu logo** em Configurações → Marca (PNG, SVG, ICO, JPEG,
+    WebP).
+    ✅ É servido byte a byte com o seu tipo real.
+    ✅ Pode ser **removido** e voltar ao gerado.
+    ✅ Salvar nome ou cor **não** apaga o logo: são formulários diferentes.
+18. **Não entra um documento disfarçado de imagem.** O tipo sai dos BYTES, não do
+    `content-type` que o cliente declarar.
+    ✅ Declarar `image/png` e enviar HTML → **422**, e o ícone bom intacto.
+    ✅ Mais de 256 KB → **413**. Corpo vazio → **422**.
+    ✅ Todo ícone é servido com `Content-Security-Policy: default-src 'none'` e
+    `nosniff`: um SVG enviado não executa nada se alguém navegar até a sua URL.
+19. **O navegador solta o ícone velho.** A URL leva `?v=`.
+    ✅ Muda ao enviar, ao remover e ao trocar nome ou acento.
+    ✅ Remover e enviar de novo **não repete** uma URL já em cache.
 
-## Logo en la barra lateral
+## Logo na barra lateral
 
-Automatizado en `scripts/e2e-favicon.mjs`, en la misma corrida que el icono.
-El archivo que sube el dueño es UNO y sirve para las dos cosas: antes solo
-cambiaba la pestaña, y la barra lateral seguía con la inicial.
+Automatizado em `scripts/e2e-favicon.mjs`, na mesma execução do ícone. O arquivo
+que o dono envia é UM e serve para as duas coisas: antes só mudava a aba, e a
+barra lateral seguia com a inicial.
 
-20. **El logo subido se ve donde se ve la marca**: barra lateral, barra
-    superior del teléfono, login y vista previa de Ajustes → Marca.
-    ✅ El mosaico lo dibuja con la MISMA URL versionada que la pestaña
-    (`?v=u<versión>`): al cambiarlo, la barra no se queda con el anterior.
-    ✅ El login también lo muestra, sin sesión.
-    ✅ Quitarlo devuelve la inicial en la barra, sin imagen rota.
-    ✅ Gana aunque la instancia se llame Vocero: quien sube un archivo quiere
-    verlo en lugar de la "v".
-    ✅ La vista previa de Ajustes → Marca lo sigue al subir y al quitar, sin
-    recargar (la marca llega por prop del servidor, que se refresca).
-21. **Un logo que no es cuadrado no se deforma.** `object-contain` dentro del
-    mosaico; lo que sobra lo rellena el degradado del acento. La tarjeta, que
-    ahora se llama «Logo del negocio», lo advierte: cuadrado y con fondo
-    transparente se ve mejor. (Capturas, no automatizado.)
+20. **O logo enviado aparece onde a marca aparece**: barra lateral, barra
+    superior do telefone, login e prévia em Configurações → Marca.
+    ✅ O mosaico o desenha com a MESMA URL versionada da aba (`?v=u<versão>`): ao
+    trocá-lo, a barra não fica com o anterior.
+    ✅ O login também o mostra, sem sessão.
+    ✅ Removê-lo devolve a inicial na barra, sem imagem quebrada.
+    ✅ Vence mesmo que a instância se chame Vocero: quem envia um arquivo quer vê-lo
+    no lugar do "v".
+    ✅ A prévia de Configurações → Marca o acompanha ao enviar e ao remover, sem
+    recarregar (a marca chega por prop do servidor, que é atualizado).
+21. **Um logo que não é quadrado não é deformado.** `object-contain` dentro do
+    mosaico; o que sobra é preenchido pelo degradê do acento. O cartão, que agora
+    se chama «Logo do negócio», avisa: quadrado e com fundo transparente fica
+    melhor. (Capturas, não automatizado.)
 
-## Fidelidad visual (juicio humano pendiente)
+## Fidelidade visual (julgamento humano pendente)
 
-Capturas en `docs/screenshots/` comparadas contra el handoff: layout 4
-columnas, tokens, burbujas, stepper, chips. Revisión estética final: Kevin.
+Capturas em `docs/screenshots/` comparadas com o handoff: layout de 4 colunas,
+tokens, bolhas, stepper, chips. Revisão estética final: Kevin.

@@ -1,52 +1,49 @@
-# Guion E2E — US5: Conexión del número (wizard)
+# Roteiro E2E — US5: Conexão do número (assistente)
 
-> Conducido con Playwright (MCP) contra `pnpm dev` con wa-mock
+> Conduzido com Playwright (MCP) contra `pnpm dev` com wa-mock
 > (`META_GRAPH_BASE_URL` → wa-mock/graph).
 
-## Camino feliz
+## Caminho feliz
 
 1. Abrir `/settings/whatsapp`.
-   ✅ El wizard explica los DOS orígenes del token (modo directo / modo
-   agencia Tech Provider).
-2. Llenar WABA ID + Phone Number ID + token (sin sufijo `-invalid`) →
-   "Probar conexión".
-   ✅ "Token válido para +52 …". El botón Guardar se habilita SOLO tras la
-   prueba.
-3. Guardar.
-   ✅ Estado "Conectado" con display number y token …last4; el token quedó
-   cifrado en BD (unit test) y, como la WABA no tenía override, se suscribió
-   la app con subscribed_apps y se registró el webhook de la instancia en el
-   NÚMERO (override del número, con handshake de Meta). Bajo el formulario:
-   «Webhook registrado en Meta…». Automatizado en `scripts/e2e-selftest.mjs`
-   (sección "us5"), que lee lo registrado en `GET /api/dev/wa-mock/webhooks`.
-4. Sección Webhook:
-   ✅ URL COMPLETA con el verify token como segmento + botón copiar (respaldo
-   manual); botón «Registrar en Meta» que repite el registro con la conexión
-   guardada, sin volver a pegar el token; aviso informativo (no error) si
-   META_APP_SECRET no está configurado; nota de seguridad del token en la URL.
-4b. «Desconectar» en la tarjeta del número conectado → confirmación («Dejarás
-   de recibir y enviar. Tus conversaciones se quedan.») → Sí, desconectar.
-   ✅ La conexión desaparece, el override del número se quitó en Meta
-   (`phoneWebhooks` del mock sin el número) y la bandeja sigue intacta.
+   ✅ O assistente explica as DUAS origens do token (modo direto / modo agência
+   Tech Provider).
+2. Preencher WABA ID + Phone Number ID + token (sem o sufixo `-invalid`) →
+   "Testar conexão".
+   ✅ "Token válido para +52 …". O botão Salvar só se habilita DEPOIS do teste.
+3. Salvar.
+   ✅ Estado "Conectado" com número de exibição e token …last4; o token ficou
+   cifrado no banco (unit test) e, como a WABA não tinha override, o app foi
+   inscrito com `subscribed_apps` e o webhook da instância foi registrado no
+   NÚMERO (override do número, com o handshake da Meta). Embaixo do formulário:
+   «Webhook registrado na Meta…». Automatizado em `scripts/e2e-selftest.mjs`
+   (seção "us5"), que lê o registrado em `GET /api/dev/wa-mock/webhooks`.
+4. Seção Webhook:
+   ✅ URL COMPLETA com o verify token como segmento + botão copiar (apoio manual);
+   botão «Registrar na Meta» que repete o registro com a conexão salva, sem colar
+   o token de novo; aviso informativo (não erro) se META_APP_SECRET não estiver
+   configurado; nota de segurança sobre o token na URL.
+4b. «Desconectar» no cartão do número conectado → confirmação («Você deixará de
+   receber e enviar. Suas conversas ficam.») → Sim, desconectar.
+   ✅ A conexão desaparece, o override do número é removido na Meta
+   (`phoneWebhooks` do mock sem o número) e a bandeja segue intacta.
 
-## Caminos infelices
+## Caminhos infelizes
 
-5. Token con sufijo `-invalid` → "Probar conexión".
-   ✅ Error claro de token inválido; NO se guarda (la conexión previa queda
-   intacta).
-6. Webhook GET handshake con verify token correcto → challenge; segmento
-   incorrecto → 404 (cubierto también en guion US1).
-7. La WABA ya enruta a un override (cerebro externo como Nea, o el backend de
-   una agencia) → rotar el token y Guardar.
-   ✅ Guarda igual, y el override SIGUE en `GET {WABA}/subscribed_apps`: el CRM
-   lo consulta antes y no re-suscribe, porque en Meta un POST sin cuerpo borra
-   el override. Tampoco registra el webhook del número —ese gana al de la WABA
-   y dejaría sordo al cerebro externo—: si un guardado anterior lo había
-   dejado, lo quita, y el aviso dice a qué host se respeta. Automatizado en
-   `scripts/e2e-selftest.mjs` (sección "us5"), con un control de que el
-   wa-mock sí lo borra ante ese POST.
-8. Token con sufijo `-sin-gestion` (sin `whatsapp_business_management`) →
-   Guardar.
-   ✅ La conexión se guarda (200) y el aviso bajo el formulario dice que no se
-   pudo registrar el webhook y por qué; «Registrar en Meta» responde 422 con
-   el mismo motivo. Con un token normal, el botón vuelve a dejarlo registrado.
+5. Token com sufixo `-invalid` → "Testar conexão".
+   ✅ Erro claro de token inválido; NÃO é salvo (a conexão anterior fica intacta).
+6. Handshake GET do webhook com verify token correto → challenge; segmento
+   incorreto → 404 (coberto também no roteiro de US1).
+7. A WABA já roteia para um override (cérebro externo como a Nea, ou o backend de
+   uma agência) → girar o token e Salvar.
+   ✅ Salva do mesmo jeito, e o override CONTINUA em `GET {WABA}/subscribed_apps`:
+   o CRM consulta antes e não reinscreve, porque na Meta um POST sem corpo apaga o
+   override. Também não registra o webhook do número — esse vence o da WABA e
+   deixaria o cérebro externo surdo —: se um salvamento anterior o tinha deixado,
+   remove-o, e o aviso diz a qual host se respeita. Automatizado em
+   `scripts/e2e-selftest.mjs` (seção "us5"), com um controle de que o wa-mock
+   sim o apaga diante desse POST.
+8. Token com sufixo `-sin-gestion` (sem `whatsapp_business_management`) → Salvar.
+   ✅ A conexão é salva (200) e o aviso embaixo do formulário diz que não foi
+   possível registrar o webhook e por quê; «Registrar na Meta» responde 422 com o
+   mesmo motivo. Com um token normal, o botão volta a deixá-lo registrado.

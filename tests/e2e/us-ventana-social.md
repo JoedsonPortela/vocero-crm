@@ -1,59 +1,60 @@
-# E2E — Texto del agente en redes y ventana humana (024)
+# E2E — Texto do agente nas redes e janela humana (024)
 
-Arnés: `scripts/e2e-ventana-social.mjs`. Spec:
+Chicote: `scripts/e2e-ventana-social.mjs`. Spec:
 [`specs/024-texto-social-ventana-humana/spec.md`](../../specs/024-texto-social-ventana-humana/spec.md).
 
-Precondición: app corriendo (`next dev`) sobre una base migrada, **sin**
-`BRAIN_DISPATCH_URL`, con `CHANNELS=whatsapp,instagram,messenger,tiktok`,
+Pré-condição: app rodando (`next dev`) sobre uma base migrada, **sem**
+`BRAIN_DISPATCH_URL`, com `CHANNELS=whatsapp,instagram,messenger,tiktok`,
 simuladores (`WA_MOCK_ENABLED=true`, `META_GRAPH_BASE_URL` → wa-mock,
-`ZERNIO_BASE_URL` → zernio-mock, `OPENROUTER_BASE_URL` → ai-mock con
-`OPENROUTER_API_TOKEN` y `OPENROUTER_MODEL`), `BOT_API_KEY` y
+`ZERNIO_BASE_URL` → zernio-mock, `OPENROUTER_BASE_URL` → ai-mock com
+`OPENROUTER_API_TOKEN` e `OPENROUTER_MODEL`), `BOT_API_KEY` e
 `AGENT_COALESCE_MS=1500`.
 
-El arnés hace de **cliente** (entrega eventos firmados de Zernio; con `sentAt`
-viejo para envejecer la ventana), de **cerebro** (`POST /api/bot/messages`) y
-de **persona** (la bandeja), y lee lo que salió hacia cada plataforma
+O chicote faz de **cliente** (entrega eventos assinados do Zernio; com `sentAt`
+antigo para envelhecer a janela), de **cérebro** (`POST /api/bot/messages`) e de
+**pessoa** (a bandeja), e lê o que saiu para cada plataforma
 (`/api/dev/zernio-mock/_sent`, `/api/dev/wa-mock/outbox`).
 
 ```bash
 node --env-file=.env scripts/e2e-ventana-social.mjs
 ```
 
-## D1 — El texto de la IA sale plano en redes
+## D1 — O texto da IA sai liso nas redes
 
-1. Por Instagram, Messenger y TikTok: el cerebro manda un texto con negritas,
-   cursivas, tachado, viñetas y un enlace de Markdown → 200. A la plataforma
-   llega sin marcas, con `•` en las viñetas y el enlace como `texto: URL`. En
-   el hilo queda ese mismo texto, marcado como IA.
-2. Lo que escribe una persona en la bandeja, con asteriscos → sale tal cual.
-3. Por WhatsApp el mismo texto del cerebro sale con su formato y así se guarda.
+1. Pelo Instagram, Messenger e TikTok: o cérebro manda um texto com negrito,
+   itálico, tachado, marcadores e um link de Markdown → 200. Para a plataforma
+   chega sem marcas, com `•` nos marcadores e o link como `texto: URL`. No fio
+   fica esse mesmo texto, marcado como IA.
+2. O que uma pessoa escreve na bandeja, com asteriscos → sai tal como está.
+3. Pelo WhatsApp o mesmo texto do cérebro sai com a sua formatação e assim é
+   salvo.
 
-## D3 — Quién puede escribir pasadas 24 horas (Instagram y Messenger)
+## D3 — Quem pode escrever depois de 24 horas (Instagram e Messenger)
 
-4. **23 horas**: la bandeja la da por abierta; la respuesta sale sin etiqueta.
-5. **30 horas**: `windowOpen: false` y `humanWindow.open: true` con unos 6 días
-   por delante. La IA → 409 `window_closed` que dice que solo contesta una
-   persona, y a la plataforma no sale nada. Una persona → 200, con
-   `MESSAGE_TAG` / `HUMAN_AGENT`. Contestar no alarga el plazo.
-6. **8 días**: `humanWindow.open: false`. Ni la persona (409 `window_closed`
-   que dice 7 días) ni la IA. No sale nada.
-7. El cliente vuelve a escribir → la ventana se reabre y la IA contesta.
+4. **23 horas**: a bandeja a considera aberta; a resposta sai sem etiqueta.
+5. **30 horas**: `windowOpen: false` e `humanWindow.open: true` com uns 6 dias
+   pela frente. A IA → 409 `window_closed` que diz que só responde uma pessoa, e
+   para a plataforma não sai nada. Uma pessoa → 200, com `MESSAGE_TAG` /
+   `HUMAN_AGENT`. Responder não estende o prazo.
+6. **8 dias**: `humanWindow.open: false`. Nem a pessoa (409 `window_closed` que diz
+   7 dias) nem a IA. Não sai nada.
+7. O cliente volta a escrever → a janela reabre e a IA responde.
 
-## Los demás canales no cambian
+## Os outros canais não mudam
 
-8. TikTok a las 30 horas: `humanWindow: null`, su ventana de 48 horas sigue
-   abierta y la IA contesta. WhatsApp: `humanWindow: null`.
+8. TikTok às 30 horas: `humanWindow: null`, a sua janela de 48 horas segue aberta
+   e a IA responde. WhatsApp: `humanWindow: null`.
 
-## El agente incluido
+## O agente incluído
 
-9. Con el agente encendido, un cliente escribe por Instagram con asteriscos.
-   El simulador de IA repite lo que dijo: la respuesta del agente llega a
-   Instagram sin las marcas, y sin etiqueta.
+9. Com o agente ligado, um cliente escreve pelo Instagram com asteriscos. O
+   simulador de IA repete o que ele disse: a resposta do agente chega ao Instagram
+   sem as marcas, e sem etiqueta.
 
-## Interfaz (a mano, claro y oscuro)
+## Interface (à mão, claro e escuro)
 
-- Conversación de Instagram a las 30 horas: el cuadro de texto está, con el
-  aviso «Solo puede contestar una persona», el pie «Ventana humana · quedan 5
-  días» y el encabezado «ventana humana».
-- A los 8 días: aviso de ventana cerrada, sin cuadro de texto ni plantillas.
-- Dentro de 24 horas: como siempre, «Ventana abierta · quedan …».
+- Conversa do Instagram às 30 horas: a caixa de texto está, com o aviso «Só uma
+  pessoa pode responder», o rodapé «Janela humana · restam 5 dias» e o cabeçalho
+  «janela humana».
+- Aos 8 dias: aviso de janela fechada, sem caixa de texto nem modelos.
+- Dentro de 24 horas: como sempre, «Janela aberta · restam …».

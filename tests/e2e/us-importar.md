@@ -1,61 +1,61 @@
-# E2E — Importar contactos y «sin agente» (027)
+# E2E — Importar contatos e «sem agente» (027)
 
-Arnés: `scripts/e2e-importar.mjs`. Spec:
+Chicote: `scripts/e2e-importar.mjs`. Spec:
 [`specs/027-importar-contactos/spec.md`](../../specs/027-importar-contactos/spec.md).
 
-Precondición: app corriendo (`next dev`) sobre una base migrada, **sin**
-`BRAIN_DISPATCH_URL` (contesta el agente incluido), con simuladores
+Pré-condição: app rodando (`next dev`) sobre uma base migrada, **sem**
+`BRAIN_DISPATCH_URL` (responde o agente incluído), com simuladores
 (`WA_MOCK_ENABLED=true`, `META_GRAPH_BASE_URL` → wa-mock, `OPENROUTER_BASE_URL`
-→ ai-mock con `OPENROUTER_API_TOKEN` y `OPENROUTER_MODEL`) y
+→ ai-mock com `OPENROUTER_API_TOKEN` e `OPENROUTER_MODEL`) e
 `AGENT_COALESCE_MS=1500`.
 
-El arnés importa por la misma ruta que usa el diálogo (`POST
-/api/contacts/import`), hace escribir a los importados por WhatsApp y mira qué
-quedó en Contactos y en la bandeja.
+O chicote importa pela mesma rota que usa o diálogo (`POST
+/api/contacts/import`), faz os importados escreverem pelo WhatsApp e confere o
+que ficou em Contatos e na bandeja.
 
 ```bash
 node --env-file=.env scripts/e2e-importar.mjs
 ```
 
-## Un archivo de 50 renglones
+## Um arquivo de 50 linhas
 
-1. 50 renglones buenos, con los teléfonos como vienen en una hoja de cálculo
-   (`+52 1…`, con espacios, sin el 1), más cuatro que no sirven → 200,
-   `created: 50`, y los cuatro vuelven con su renglón y su motivo
-   (`sin_codigo_pais`, `repetido`, `telefono_invalido`, `sin_telefono`).
-2. Los 50 salen en Contactos, guardados como los guarda la ingesta (`52…` y
-   diez dígitos), con agente y fuera del Pipeline. No nace ninguna conversación.
-3. Importar otra vez el mismo archivo → `created: 0`, `existing: 50`. Siguen
-   siendo 50.
+1. 50 linhas boas, com os telefones como vêm numa planilha (`+52 1…`, com
+   espaços, sem o 1), mais quatro que não servem → 200, `created: 50`, e as quatro
+   voltam com a sua linha e o seu motivo (`sin_codigo_pais`, `repetido`,
+   `telefono_invalido`, `sin_telefono`).
+2. As 50 aparecem em Contatos, salvas como a ingestão as salva (`52…` e dez
+   dígitos), com agente e fora do Pipeline. Não nasce nenhuma conversa.
+3. Importar o mesmo arquivo de novo → `created: 0`, `existing: 50`. Continuam
+   sendo 50.
 
-## «El agente no les responde»
+## «O agente não responde a eles»
 
-4. Alguien que ya escribía (conversación con agente, que le contestó) entra en
-   un archivo importado con la casilla marcada, junto a una persona nueva y un
-   renglón sin nombre → `created: 2`, `existing: 1`, `paused: 3`.
-5. La persona nueva existe una sola vez, «sin agente», sin etapa y sin
-   conversación. A quien ya existía no se le cambió el nombre, y su
-   conversación quedó con la IA en pausa.
-6. El importado escribe: su conversación nace con la IA en pausa, cae en su
-   misma ficha, conserva el nombre del archivo (no el de su perfil de
-   WhatsApp) y queda sin leer. El agente no le contesta, ni a quien ya existía.
-7. El renglón sin nombre entró con el teléfono como nombre, y toma el de
-   WhatsApp en cuanto escribe.
-8. A un desconocido el agente sí le contesta.
-9. `PATCH /api/contacts/{id}` con `aiPaused: false` → el contacto deja de
-   estar «sin agente», su conversación vuelve a tener IA y al siguiente
-   mensaje el agente contesta. Editar otra cosa del contacto no toca la pausa.
+4. Alguém que já escrevia (conversa com agente, que lhe respondeu) entra num
+   arquivo importado com a caixa marcada, junto de uma pessoa nova e uma linha sem
+   nome → `created: 2`, `existing: 1`, `paused: 3`.
+5. A pessoa nova existe uma única vez, «sem agente», sem etapa e sem conversa. Em
+   quem já existia o nome não foi trocado, e a conversa dele ficou com a IA
+   pausada.
+6. O importado escreve: a conversa dele nasce com a IA pausada, cai na mesma ficha,
+   mantém o nome do arquivo (não o do perfil do WhatsApp) e fica não lida. O
+   agente não lhe responde, nem a quem já existia.
+7. A linha sem nome entrou com o telefone como nome, e pega o do WhatsApp assim
+   que escreve.
+8. A um desconhecido o agente sim responde.
+9. `PATCH /api/contacts/{id}` com `aiPaused: false` → o contato deixa de estar
+   «sem agente», a conversa dele volta a ter IA e na mensagem seguinte o agente
+   responde. Editar outra coisa do contato não mexe na pausa.
 
-## Lo que no se importa
+## O que não é importado
 
-10. Ningún teléfono válido → 422 `nothing_to_import`. Lista vacía → 422. Más
-    de 2,000 renglones → 422, sin importar ninguno. Sin sesión → 401.
+10. Nenhum telefone válido → 422 `nothing_to_import`. Lista vazia → 422. Mais de
+    2.000 linhas → 422, sem importar nenhuma. Sem sessão → 401.
 
-## Interfaz (a mano, claro y oscuro)
+## Interface (à mão, claro e escuro)
 
-- Contactos → «Importar»: un CSV como lo exporta Excel en español (BOM, punto y
-  coma, «Teléfono» con acento, apellidos en su columna, un nombre con coma
-  entre comillas). La vista previa dice cuántos entran, enseña los primeros y
-  lista los que se quedan fuera con su motivo.
-- Tras importar con la casilla marcada, la lista enseña «Sin agente».
-- «Editar» de un contacto trae la casilla «El agente no le responde».
+- Contatos → «Importar»: um CSV como o Excel em português o exporta (BOM,
+  ponto e vírgula, «Telefone» com acento, sobrenomes na sua coluna, um nome com
+  vírgula entre aspas). A prévia diz quantos entram, mostra os primeiros e lista
+  os que ficam de fora com o seu motivo.
+- Depois de importar com a caixa marcada, a lista mostra «Sem agente».
+- «Editar» de um contato traz a caixa «O agente não responde a ele».

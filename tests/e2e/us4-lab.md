@@ -1,35 +1,35 @@
-# Guion E2E — US4: Laboratorio (SIEMPRE contra ai-mock, determinista)
+# Roteiro E2E — US4: Laboratório (SEMPRE contra ai-mock, determinístico)
 
-> Conducido con Playwright (MCP) contra `pnpm dev` con ai-mock. El KB inicial
-> NO cubre garantías/devoluciones (hueco intencional del guion).
+> Conduzido com Playwright (MCP) contra `pnpm dev` com ai-mock. A base inicial
+> NÃO cobre garantias/devoluções (lacuna intencional do roteiro).
 
-## Preparación
+## Preparação
 
-1. `DELETE /api/dev/wa-mock/outbox` — el outbox debe seguir VACÍO al final.
-2. Agente configurado (US3) y proveedor de IA (mock) activo.
+1. `DELETE /api/dev/wa-mock/outbox` — a outbox deve continuar VAZIA no fim.
+2. Agente configurado (US3) e provedor de IA (mock) ativo.
 
-## Corrida 1
+## Execução 1
 
-3. En `/lab`: pulsar "Correr evaluación".
-   ✅ La UI muestra el subtítulo permanente "Sandbox interno — no envía
-   mensajes reales", progreso en vivo (n/6) sin bloquear la navegación.
-4. Al terminar:
-   ✅ Reporte con score global (5 verdes + 1 rojo ≈ 83), tarjeta de la persona
-   "Pregunta fuera del conocimiento" con hallazgo `fuera_de_kb`, evidencia y
-   sugerencia; transcript visible por persona.
-   ✅ La persona "Pide un humano" terminó en handoff (guion cortado).
-   ✅ `GET /api/dev/wa-mock/outbox` → VACÍO (ningún mensaje salió a WhatsApp).
-   ✅ Las conversaciones de prueba NO aparecen en la bandeja.
+3. Em `/lab`: apertar "Rodar avaliação".
+   ✅ A UI mostra o subtítulo permanente "Sandbox interno — não envia mensagens
+   reais", progresso ao vivo (n/6) sem bloquear a navegação.
+4. Ao terminar:
+   ✅ Relatório com score global (5 verdes + 1 vermelho ≈ 83), cartão da persona
+   "Pergunta fora do conhecimento" com achado `fuera_de_kb`, evidência e
+   sugestão; transcrição visível por persona.
+   ✅ A persona "Pede um humano" terminou em transferência (roteiro cortado).
+   ✅ `GET /api/dev/wa-mock/outbox` → VAZIO (nenhuma mensagem saiu para o WhatsApp).
+   ✅ As conversas de teste NÃO aparecem na bandeja.
 
-## Cerrar el loop
+## Fechar o loop
 
-5. En el hallazgo: "Agregar al conocimiento" → editar/confirmar → guardado en
-   el KB (visible en `/agent`).
-6. Re-correr la evaluación.
-   ✅ El historial muestra 2 corridas; la nueva con score 100 y delta +17.
+5. No achado: "Adicionar ao conhecimento" → editar/confirmar → salvo na base
+   (visível em `/agent`).
+6. Rodar a avaliação de novo.
+   ✅ O histórico mostra 2 execuções; a nova com score 100 e delta +17.
 
-## Caminos infelices
+## Caminhos infelizes
 
-7. Con una corrida en curso, `POST /api/lab/runs` → 409 `run_in_progress`.
-8. Corridas huérfanas: cubierto por `src/instrumentation.ts` al boot
-   (verificación en el checkpoint de compose, donde el server se reinicia).
+7. Com uma execução em curso, `POST /api/lab/runs` → 409 `run_in_progress`.
+8. Execuções órfãs: coberto por `src/instrumentation.ts` no boot (verificação no
+   checkpoint de compose, onde o servidor reinicia).

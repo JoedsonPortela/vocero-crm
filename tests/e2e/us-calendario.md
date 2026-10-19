@@ -1,61 +1,58 @@
-# E2E — Citas en calendario (215)
+# E2E — Consultas no calendário (215)
 
-Guion de comportamiento observable. Automatizado en
-`scripts/e2e-calendario.mjs`: con la app viva y los mocks encendidos,
-`pnpm test:e2e:calendario` lo conduce con Playwright y sale distinto de cero si
-algo falla.
+Roteiro de comportamento observável. Automatizado em
+`scripts/e2e-calendario.mjs`: com a app no ar e os mocks ligados,
+`pnpm test:e2e:calendario` o conduz com Playwright e sai diferente de zero se
+algo falhar.
 
-**Preparación**: app en `localhost` con `WA_MOCK_ENABLED=true`,
-`META_GRAPH_BASE_URL` → wa-mock y la BD migrada. El navegador corre en
-`Asia/Tokyo` y el negocio en `America/Mexico_City` (15 h de diferencia): todo
-lo que se pinta o se bloquea tiene que salir en la hora del NEGOCIO. La
-bandera `AGENDA` decide qué mitad corre.
+**Preparação**: app em `localhost` com `WA_MOCK_ENABLED=true`,
+`META_GRAPH_BASE_URL` → wa-mock e a BD migrada. O navegador roda em
+`Asia/Tokyo` e o negócio em `America/Mexico_City` (15 h de diferença): tudo o
+que é pintado ou bloqueado tem que sair na hora do NEGÓCIO. A bandeira `AGENDA`
+decide qual metade roda.
 
 ---
 
-## Con `AGENDA` apagada
+## Com `AGENDA` desligada
 
-1. `GET /api/bookings`, con o sin `from`/`to` (también mal formados), es
-   **404**.
-2. La pantalla `/bookings` es 404 y la navegación no ofrece «Citas».
+1. `GET /api/bookings`, com ou sem `from`/`to` (também malformados), é **404**.
+2. A tela `/bookings` é 404 e a navegação não oferece «Consultas».
 
-## La API por rango
+## A API por intervalo
 
-1. Sin parámetros, `GET /api/bookings` responde **exactamente** `{ bookings }`
-   (las últimas 200): es lo que lee el guion de 015.
-2. Con `?from=AAAA-MM-DD&to=AAAA-MM-DD` trae todas las citas que tocan esos
-   días del negocio, en orden, más `timezone`, `weeklyHours`, `range` y
+1. Sem parâmetros, `GET /api/bookings` responde **exatamente** `{ bookings }`
+   (as últimas 200): é o que lê o roteiro de 015.
+2. Com `?from=AAAA-MM-DD&to=AAAA-MM-DD` traz todas as consultas que tocam esses
+   dias do negócio, em ordem, mais `timezone`, `weeklyHours`, `range` e
    `truncated`.
-3. Uno solo de los dos, una fecha inexistente, el rango al revés o más de 92
-   días: **422** `invalid_range`. 92 días exactos sí caben.
-4. **Fallo 4** (antes, las últimas 200): con 205 bloqueos en junio, sin rango
-   siguen llegando 200 y el rango de junio trae los 205.
+3. Só um dos dois, uma data inexistente, o intervalo invertido ou mais de 92
+   dias: **422** `invalid_range`. 92 dias exatos cabem.
+4. **Falha 4** (antes, as últimas 200): com 205 bloqueios em junho, sem intervalo
+   continuam chegando 200 e o intervalo de junho traz os 205.
 
-## El calendario
+## O calendário
 
-1. `/bookings?vista=semana&fecha=D` pinta la semana; la cita de las 10:00
-   queda a la altura de las 10:00 del negocio (no de Tokio) y la esquina dice
-   «GMT-6».
-2. Una cita del Laboratorio (`is_test`) a la misma hora no se pinta; el
-   interruptor «Mostrar pruebas» la muestra y apagarlo la oculta.
-3. «Semana siguiente» mueve la fecha de la URL 7 días; «Hoy» vuelve al hoy del
-   negocio; Día, Mes (cuadrícula con «Ver el día N») y Lista (`desde`/`hasta`)
-   cambian la URL.
-4. Tocar la cita abre su panel con «Abrir conversación» (→
-   `/inbox?contact=…`), «Reprogramar», «Realizada», «No asistió» y «Cancelar
-   cita». Abrirlo NO pide disponibilidad.
-5. **Fallo 2** (antes, 12 huecos): «Reprogramar» pide la disponibilidad una
-   sola vez y ofrece los huecos de toda la ventana por día (≥ 5 días, > 12
-   huecos). Elegir uno mueve la cita, el panel dice la hora nueva y el
-   calendario muestra ese día. Escape cierra el panel.
-6. **Fallo 1** (antes, la hora del navegador): tocar el hueco vacío de las
-   15:10 abre «Bloquear horario» con ese día y las 15:00; al confirmar, el
-   bloqueo queda a las 15:00 de Ciudad de México (21:00 UTC), no a las 15:00
-   de Tokio, y se pinta rayado.
-7. **Fallo 3** (antes, cada evento recalculaba la disponibilidad): cinco
-   bloqueos creados desde fuera aparecen solos por SSE, sin una sola petición
-   de disponibilidad y con a lo más una consulta del rango por evento.
-8. En un celular sin preferencia guardada abre en «Día» y la página no
-   desborda a lo ancho.
+1. `/bookings?vista=semana&fecha=D` pinta a semana; a consulta das 10:00 fica na
+   altura das 10:00 do negócio (não de Tóquio) e o canto diz «GMT-6».
+2. Uma consulta do Laboratório (`is_test`) na mesma hora não é pintada; o
+   interruptor «Mostrar testes» a mostra e desligá-lo a oculta.
+3. «Semana seguinte» move a data da URL 7 dias; «Hoje» volta ao hoje do negócio;
+   Dia, Mês (grade com «Ver o dia N») e Lista (`desde`/`até`) mudam a URL.
+4. Tocar a consulta abre o painel com «Abrir conversa» (→
+   `/inbox?contact=…`), «Remarcar», «Realizada», «Não compareceu» e «Cancelar
+   consulta». Abri-lo NÃO pede disponibilidade.
+5. **Falha 2** (antes, 12 vagas): «Remarcar» pede a disponibilidade uma única vez
+   e oferece as vagas de toda a janela por dia (≥ 5 dias, > 12 vagas). Escolher
+   uma move a consulta, o painel diz a hora nova e o calendário mostra esse dia.
+   Escape fecha o painel.
+6. **Falha 1** (antes, a hora do navegador): tocar o espaço vazio das 15:10 abre
+   «Bloquear horário» com esse dia e as 15:00; ao confirmar, o bloqueio fica às
+   15:00 da Cidade do México (21:00 UTC), não às 15:00 de Tóquio, e aparece
+   listrado.
+7. **Falha 3** (antes, cada evento recalculava a disponibilidade): cinco
+   bloqueios criados de fora aparecem sozinhos por SSE, sem uma única requisição
+   de disponibilidade e com no máximo uma consulta do intervalo por evento.
+8. Num celular sem preferência salva abre em «Dia» e a página não estoura a
+   largura.
 
-Al terminar, cancela lo creado y borra la cita de prueba.
+Ao terminar, cancela o que foi criado e apaga a consulta de teste.

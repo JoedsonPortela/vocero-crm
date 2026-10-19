@@ -1,56 +1,59 @@
-# E2E 008 — Paridad WhatsApp del inbox
+# E2E 008 — Paridade do WhatsApp no inbox
 
-Guion de comportamiento (Constitución IX). La parte automatizada vive en la
-sección "008" de `scripts/e2e-selftest.mjs` (app con `WA_MOCK_ENABLED=true`,
-BD fresca, `MEDIA_DIR` local); esto documenta el mapeo a los AC del spec y
-los pasos visuales de Playwright.
+Roteiro de comportamento (Constituição IX). A parte automatizada vive na
+seção "008" de `scripts/e2e-selftest.mjs` (app com `WA_MOCK_ENABLED=true`,
+BD nova, `MEDIA_DIR` local); este documento registra o mapeamento para os AC da
+spec e os passos visuais do Playwright.
 
-## US1 — Echoes de coexistence (automatizado)
+## US1 — Echoes de coexistência (automatizado)
 
-| AC | Check del selftest |
+| AC | Check do selftest |
 |---|---|
-| AC-1 mensaje manual visible como saliente manual | "el mensaje manual aparece como saliente origin=manual" |
-| AC-2 IA pausada tras respuesta manual | "la IA quedó pausada con handoff manual_reply" + "el echo NO tocó la ventana" |
-| AC-3 reactivación desde el CRM | "reactivar la IA desde el CRM limpia el handoff" |
-| AC-4 echo duplicado no duplica | "echo duplicado (mismo wamid) no duplica el mensaje" |
-| AC-5 echo con adjunto previsualizable | "echo con imagen: manual + asset descargado" |
-| Edge: conversación nueva desde el teléfono | "echo a número nuevo crea contacto y conversación" |
-| Edge: payload bajo clave `messages` | "echo bajo la clave `messages` también se ingiere" |
+| AC-1 mensagem manual visível como saída manual | "el mensaje manual aparece como saliente origin=manual" |
+| AC-2 IA pausada após resposta manual | "la IA quedó pausada con handoff manual_reply" + "el echo NO tocó la ventana" |
+| AC-3 reativação pelo CRM | "reactivar la IA desde el CRM limpia el handoff" |
+| AC-4 echo duplicado não duplica | "echo duplicado (mismo wamid) no duplica el mensaje" |
+| AC-5 echo com anexo visualizável | "echo con imagen: manual + asset descargado" |
+| Borda: conversa nova a partir do telefone | "echo a número nuevo crea contacto y conversación" |
+| Borda: payload sob a chave `messages` | "echo bajo la clave `messages` también se ingiere" |
 
-## US2 — Envío de adjuntos (automatizado)
+Os textos entre aspas são os rótulos literais dos checks em `scripts/e2e-selftest.mjs`.
+
+## US2 — Envio de anexos (automatizado)
 
 | AC | Check |
 |---|---|
-| AC-1 imagen + caption + estados | "imagen con caption enviada (201)" + "asset disponible y origin=operator" + outbox `type=image` |
-| AC-2 ubicación | "ubicación enviada" + payload lat/long + outbox `type=location` |
-| AC-3 límite de tamaño ANTES de enviar | "imagen de 6 MB → 413 too_large" |
-| AC-4 ventana cerrada = misma regla que texto | cubierto por los checks de ventana existentes (el pre-flight es compartido: `prepareSend`) |
-| AC-5 fallo del canal → mensaje failed visible | unit `media-send.test.ts` (persistencia failed) + sandbox |
+| AC-1 imagem + legenda + estados | "imagen con caption enviada (201)" + "asset disponible y origin=operator" + outbox `type=image` |
+| AC-2 localização | "ubicación enviada" + payload lat/long + outbox `type=location` |
+| AC-3 limite de tamanho ANTES de enviar | "imagen de 6 MB → 413 too_large" |
+| AC-4 janela fechada = mesma regra do texto | coberto pelos checks de janela existentes (o pré-voo é compartilhado: `prepareSend`) |
+| AC-5 falha do canal → mensagem failed visível | unit `media-send.test.ts` (persistência failed) + sandbox |
 
-## US3 — Previews entrantes (automatizado)
+## US3 — Prévias de entrada (automatizado)
 
 | AC | Check |
 |---|---|
-| AC-1 foto ampliable | "imagen entrante queda disponible" + "el binario entrante se sirve" |
-| AC-2 nota de voz reproducible | mismo pipeline que imagen (kind audio); visual en Playwright |
-| AC-3 disponible tras expirar en Meta | el binario se sirve desde `MEDIA_DIR`, no desde Graph (la URL del mock solo se usa al descargar) |
-| AC-4 contenido no disponible degradado | "descarga fallida degrada a failed" + "410 gone" |
+| AC-1 foto ampliável | "imagen entrante queda disponible" + "el binario entrante se sirve" |
+| AC-2 nota de voz reproduzível | mesmo pipeline da imagem (kind audio); visual no Playwright |
+| AC-3 disponível após expirar na Meta | o binário é servido de `MEDIA_DIR`, não do Graph (a URL do mock só é usada no download) |
+| AC-4 conteúdo indisponível degradado | "descarga fallida degrada a failed" + "410 gone" |
 
-## Pasos visuales (Playwright, al cerrar la feature)
+## Passos visuais (Playwright, ao fechar a feature)
 
-1. Login → Inbox → conversación "Lead 008": el hilo muestra la burbuja manual
-   con badge 📱 "Celular", la imagen enviada con miniatura y caption, la
-   ubicación con enlace, y el adjunto roto con "contenido no disponible".
-2. Composer: clip 📎 abre el picker; imagen seleccionada muestra preview con
-   nombre/tamaño; el texto pasa a ser "pie del adjunto".
-3. Panel de contacto: la conversación pausada muestra "Respondiste desde el
-   teléfono — IA en pausa" y el botón de reactivar funciona.
+1. Login → Inbox → conversa "Lead 008": o fio mostra a bolha manual com o
+   selo 📱 "Celular", a imagem enviada com miniatura e legenda, a localização
+   com link, e o anexo quebrado com "conteúdo indisponível".
+2. Compositor: o clipe 📎 abre o seletor; a imagem escolhida mostra prévia com
+   nome/tamanho; o texto passa a ser "legenda do anexo".
+3. Painel do contato: a conversa pausada mostra "Você respondeu pelo telefone —
+   IA em pausa" e o botão de reativar funciona.
 
-## En vivo (producción, reglas Evolution)
+## Ao vivo (produção, regras Evolution)
 
-1. Responder desde la app de WhatsApp Business del teléfono a la conversación
-   de la línea de pruebas → aparece como manual en el CRM y la IA se pausa (probado con una instancia real en coexistence).
-2. Reactivar la IA desde el CRM → el agente vuelve a contestar.
-3. Enviar desde el CRM a la línea de pruebas: imagen con caption, un PDF y
-   una ubicación (pausas ≥8 s; verificar recepción en el teléfono).
-4. Desde la línea de pruebas enviar foto y nota de voz → previews en el CRM.
+1. Responder pelo app do WhatsApp Business do telefone à conversa da linha de
+   testes → aparece como manual no CRM e a IA pausa (testado com uma instância
+   real em coexistência).
+2. Reativar a IA pelo CRM → o agente volta a responder.
+3. Enviar pelo CRM para a linha de testes: imagem com legenda, um PDF e uma
+   localização (pausas de ≥8 s; verificar o recebimento no telefone).
+4. Da linha de testes enviar foto e nota de voz → prévias no CRM.

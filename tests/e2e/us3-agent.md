@@ -1,69 +1,70 @@
-# Guion E2E — US3: Agente de IA con acciones tipadas
+# Roteiro E2E — US3: Agente de IA com ações tipadas
 
-> Conducido con Playwright (MCP) contra `pnpm dev` con ai-mock
-> (`OPENROUTER_BASE_URL` → `/api/dev/ai-mock`) y `AGENT_COALESCE_MS=2000`.
+> Conduzido com Playwright (MCP) contra `pnpm dev` com ai-mock
+> (`OPENROUTER_BASE_URL` → `/api/dev/ai-mock`) e `AGENT_COALESCE_MS=2000`.
 
-## Preparación
+## Preparação
 
-1. En `/agent`: encender el toggle global y agregar una entrada P/R al KB
+1. Em `/agent`: ligar o interruptor global e adicionar uma entrada P/R à base
    ("¿Hacen envíos?" → "Sí, a todo México en 2-5 días").
-   ✅ El contador de tamaño del KB refleja la entrada.
+   ✅ O contador de tamanho da base reflete a entrada.
 
-## Camino feliz
+## Caminho feliz
 
-2. **Respuesta con IA (FR-021)**: inbound "¿hacen envíos a Guadalajara?".
-   ✅ Tras el debounce llega UNA respuesta del agente marcada "IA" en el hilo.
-3. **Agrupación (FR-024)**: enviar 2 mensajes seguidos (<2s entre ellos).
-   ✅ El agente responde UNA sola vez al conjunto.
-4. **move_stage (FR-021)**: inbound "me interesa, lo compro".
-   ✅ Respuesta del agente + el lead aparece en "Interesado" en el kanban.
-5. **Handoff por frase (FR-022/SC-006)**: inbound "quiero hablar con un humano".
-   ✅ El cliente recibe UN acuse («te comunico con una persona del equipo»),
-   marcado como IA, ANTES del traspaso — igual que el `farewell` del camino
-   del modelo. Sin él, quien pidió una persona se quedaba sin respuesta.
-   Automatizado en `scripts/e2e-selftest.mjs` (sección FR-022).
-   ✅ Badge de atención humana visible en la conversación; la IA queda
-   silenciada (mensajes posteriores NO reciben respuesta, ni otro acuse).
-   ✅ "Reactivar IA" desde el panel vuelve a activar al agente.
+2. **Resposta com IA (FR-021)**: entrada "¿hacen envíos a Guadalajara?".
+   ✅ Depois do debounce chega UMA resposta do agente marcada "IA" no fio.
+3. **Agrupamento (FR-024)**: enviar 2 mensagens seguidas (<2 s entre elas).
+   ✅ O agente responde UMA única vez ao conjunto.
+4. **move_stage (FR-021)**: entrada "me interesa, lo compro".
+   ✅ Resposta do agente + o lead aparece em "Interessado" no kanban.
+5. **Transferência por frase (FR-022/SC-006)**: entrada "quiero hablar con un humano".
+   ✅ O cliente recebe UM aviso («te comunico com uma pessoa da equipe»), marcado
+   como IA, ANTES da transferência — igual ao `farewell` do caminho do modelo. Sem
+   ele, quem pediu uma pessoa ficava sem resposta.
+   Automatizado em `scripts/e2e-selftest.mjs` (seção FR-022).
+   ✅ Selo de atenção humana visível na conversa; a IA fica silenciada (mensagens
+   posteriores NÃO recebem resposta, nem outro aviso).
+   ✅ "Reativar IA" no painel volta a ligar o agente.
 
-## Caminos infelices
+## Caminhos infelizes
 
-6. **Toggle global apagado (FR-023)**: apagar el agente → inbound → sin respuesta.
-7. **"somos 4 personas"**: NO produce handoff (cubierto por unit test del
-   patrón; verificado además con inbound en vivo).
-8. **Sin proveedor de IA (FR-026)**: pestañas Agente y Laboratorio muestran estado
-   vacío explicativo con acciones deshabilitadas y enlace a Ajustes → IA
-   (verificado en el checkpoint de compose, donde el entorno arranca sin token).
-   Con el agente encendido, además, el banner «Tu agente no puede contestar
-   todavía» se ve en toda la app.
+6. **Interruptor global desligado (FR-023)**: desligar o agente → entrada → sem
+   resposta.
+7. **"somos 4 personas"**: NÃO produz transferência (coberto pelo unit test do
+   padrão; verificado também com entrada ao vivo).
+8. **Sem provedor de IA (FR-026)**: as abas Agente e Laboratório mostram estado
+   vazio explicativo com ações desabilitadas e link para Ajustes → IA (verificado
+   no checkpoint de compose, onde o ambiente sobe sem token). Com o agente ligado,
+   além disso, o aviso «Seu agente ainda não consegue responder» aparece em todo o
+   app.
 
 ## Ajustes → IA (#85)
 
-> Con el ai-mock: una llave con sufijo `-invalid` responde 401 y una con
-> `-sin-saldo`, 402 (contrato mocks.md). Sin `OPENROUTER_API_TOKEN` en el
-> entorno, para ver el camino sin respaldo.
+> Com o ai-mock: uma chave com sufixo `-invalid` responde 401 e uma com
+> `-sin-saldo`, 402 (contrato mocks.md). Sem `OPENROUTER_API_TOKEN` no ambiente,
+> para ver o caminho sem reserva.
 
-9. **Configurar desde la interfaz**: en Ajustes → IA elegir «Otro compatible
-   con OpenAI», base URL `http://localhost:3000/api/dev/ai-mock`, modelo
-   `mock/agente` y una llave cualquiera (p. ej. `llave-de-prueba`).
-   ✅ «Probar conexión» → «Conexión correcta (N ms)» sin guardar nada
-   (`GET /api/settings/ai` sigue sin credencial).
-   ✅ «Traer modelos» rellena la lista con `mock/agente` y `mock/juez`.
-   ✅ «Guardar» → «Llave conectada ••••ueba · Activo»; el banner desaparece y
-   la pantalla Agente deja de pedir configuración. Un inbound recibe respuesta
-   del agente (el turno usa la fila, no el entorno).
-10. **Llave rechazada (401 → pausa)**: reemplazar la llave por `llave-invalid`
-    y guardar (vuelve a «Activo»: guardar siempre reactiva). Enviar un inbound.
-    ✅ Tras el turno, `GET /api/settings/ai` → `estado: paused_invalid_token`
-    con `motivo` del proveedor; la pestaña dice «Pausado: llave rechazada» y
-    el banner «Tu agente está pausado: el proveedor rechazó tu llave».
-    ✅ Otro inbound NO produce llamada al proveedor (el agente calla).
-    ✅ «Probar conexión» con la llave guardada → 422 `invalid_token`.
-11. **Sin saldo (402)**: igual con `llave-sin-saldo` → `paused_no_credit`,
-    «Pausado: sin saldo», y el banner pide recargar y probar la conexión.
-12. **Recuperación**: pegar una llave válida y guardar → `active`; o, con la
-    guardada, «Probar conexión» cuando el proveedor vuelva a aceptarla →
-    «Tu llave vuelve a estar activa».
-13. **Quitar**: «Quitar» borra la fila. Con `OPENROUTER_API_TOKEN` en el
-    entorno, la pantalla dice que hoy responde con las variables del entorno
-    (••••last4) y el agente sigue; sin él, vuelve el estado vacío.
+9. **Configurar pela interface**: em Ajustes → IA escolher «Outro compatível com
+   OpenAI», base URL `http://localhost:3000/api/dev/ai-mock`, modelo
+   `mock/agente` e uma chave qualquer (ex.: `llave-de-prueba`).
+   ✅ «Testar conexão» → «Conexão correta (N ms)» sem salvar nada
+   (`GET /api/settings/ai` segue sem credencial).
+   ✅ «Trazer modelos» preenche a lista com `mock/agente` e `mock/juez`.
+   ✅ «Salvar» → «Chave conectada ••••ueba · Ativo»; o aviso desaparece e a tela
+   Agente deixa de pedir configuração. Uma entrada recebe resposta do agente (o
+   turno usa a linha, não o ambiente).
+10. **Chave recusada (401 → pausa)**: trocar a chave por `llave-invalid` e salvar
+    (volta a «Ativo»: salvar sempre reativa). Enviar uma entrada.
+    ✅ Depois do turno, `GET /api/settings/ai` → `estado: paused_invalid_token`
+    com `motivo` do provedor; a aba diz «Pausado: chave recusada» e o aviso
+    «Seu agente está pausado: o provedor recusou sua chave».
+    ✅ Outra entrada NÃO gera chamada ao provedor (o agente se cala).
+    ✅ «Testar conexão» com a chave salva → 422 `invalid_token`.
+11. **Sem saldo (402)**: igual com `llave-sin-saldo` → `paused_no_credit`,
+    «Pausado: sem saldo», e o aviso pede para recarregar e testar a conexão.
+12. **Recuperação**: colar uma chave válida e salvar → `active`; ou, com a salva,
+    «Testar conexão» quando o provedor voltar a aceitá-la → «Sua chave voltou a
+    ficar ativa».
+13. **Remover**: «Remover» apaga a linha. Com `OPENROUTER_API_TOKEN` no ambiente, a
+    tela diz que hoje responde com as variáveis do ambiente (••••last4) e o agente
+    segue; sem ele, volta o estado vazio.

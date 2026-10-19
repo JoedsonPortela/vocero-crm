@@ -1,53 +1,53 @@
-# Guion E2E — Búsqueda de la Bandeja y filtro por etapa del embudo
+# Roteiro E2E — Busca da Bandeja e filtro por etapa do funil
 
-> Automatizado en `scripts/e2e-search-filters.mjs` (26 checks, Playwright
-> contra `pnpm dev` con wa-mock). Nace del reporte de Kevin del 2026-08-05:
+> Automatizado em `scripts/e2e-search-filters.mjs` (26 checks, Playwright
+> contra `pnpm dev` com wa-mock). Nasce do relato do Kevin de 2026-08-05:
 > «escribo Kevin en el buscador y no me da los resultados».
 
-## El fallo original: teclear mientras la página aún carga
+## A falha original: digitar enquanto a página ainda carrega
 
-La caja de búsqueda se pinta en el HTML del servidor, así que se puede
-escribir en ella antes de que hidrate React. Al montar, React la dejaba vacía
-y esas pulsaciones se perdían **en silencio**: el usuario veía la bandeja
-entera sin filtrar. Por eso el input es NO controlado (`defaultValue` + ref) y
-al montar se adopta lo que ya haya en el DOM.
+A caixa de busca é pintada no HTML do servidor, então dá para escrever nela antes
+de o React hidratar. Ao montar, o React a deixava vazia e essas teclas se
+perdiam **em silêncio**: o usuário via a bandeja inteira sem filtrar. Por isso o
+input é NÃO controlado (`defaultValue` + ref) e, ao montar, adota o que já
+estiver no DOM.
 
-1. Abrir `/inbox` y escribir en el buscador **antes** de que aparezcan las
-   conversaciones (`waitUntil: "commit"`).
-   ✅ El texto sigue en la caja tras hidratar.
-   ✅ La lista queda filtrada a esa persona.
+1. Abrir `/inbox` e escrever no buscador **antes** de aparecerem as conversas
+   (`waitUntil: "commit"`).
+   ✅ O texto continua na caixa depois da hidratação.
+   ✅ A lista fica filtrada por essa pessoa.
 
-## Búsqueda tolerante (Bandeja, cliente — `matchesQuery`)
+## Busca tolerante (Bandeja, cliente — `matchesQuery`)
 
-2. `jose` encuentra a «Josué Ramírez»; `RAMÍREZ` también.
-   ✅ Acentos y mayúsculas indistintos en ambos sentidos.
-3. Teléfono **como se ve en pantalla**: `+52 462 555 0101`, `462 555`,
+2. `jose` encontra «Josué Ramírez»; `RAMÍREZ` também.
+   ✅ Acentos e maiúsculas indiferentes nos dois sentidos.
+3. Telefone **como aparece na tela**: `+52 462 555 0101`, `462 555`,
    `462-555-0101`.
-   ✅ Coinciden — la comparación es por dígitos (la BD guarda `524625550101`).
-4. `vi su anuncio` (texto del último mensaje) → **no** coincide.
-   ✅ El buscador mira nombre y teléfono, nada más. Incluir el preview hacía
-   que buscar el nombre del dueño devolviera 17 de 32 chats, porque el agente
-   lo escribe en sus propios mensajes. Y era una búsqueda de mensajes a
-   medias: solo el último de cada hilo.
-5. `zzz-no-existe` → lista vacía; el botón ✕ limpia y devuelve todo.
-6. `46` (dos dígitos) **no** empareja teléfonos.
-   ✅ Mínimo 3 dígitos: si no, un dígito suelto barre el directorio.
+   ✅ Coincidem — a comparação é por dígitos (o banco guarda `524625550101`).
+4. `vi su anuncio` (texto da última mensagem) → **não** coincide.
+   ✅ O buscador olha nome e telefone, nada mais. Incluir a prévia fazia que
+   buscar o nome do dono devolvesse 17 de 32 chats, porque o agente o escreve nas
+   próprias mensagens. E era uma busca de mensagens pela metade: só a última de
+   cada fio.
+5. `zzz-no-existe` → lista vazia; o botão ✕ limpa e devolve tudo.
+6. `46` (dois dígitos) **não** casa telefones.
+   ✅ Mínimo de 3 dígitos: senão um dígito solto varreria o diretório.
 
-## Filtro por etapa del embudo
+## Filtro por etapa do funil
 
-7. Bandeja: selector junto a «Todas / No leídas», con las etapas presentes.
-   ✅ Filtrar deja solo esa etapa; «Toda etapa» restaura.
-   ✅ Búsqueda + etapa se combinan (nunca se contradicen).
-8. Contactos: selector con las etapas del pipeline **completo** (orden real,
-   vía `GET /api/pipeline/stages`), y la etapa pintada en cada ficha.
-   ✅ Filtrar por etapa consulta al servidor (`?stage=`), aplicado ANTES del
-   corte de 200 para que nadie de esa etapa quede fuera.
-9. Camino infeliz: una etapa sin contactos no rompe la pantalla.
-   ✅ Estado vacío honesto («Sin resultados», no «Sin contactos»).
+7. Bandeja: seletor junto de «Todas / Não lidas», com as etapas presentes.
+   ✅ Filtrar deixa só essa etapa; «Toda etapa» restaura.
+   ✅ Busca + etapa se combinam (nunca se contradizem).
+8. Contatos: seletor com as etapas do pipeline **completo** (ordem real, via
+   `GET /api/pipeline/stages`), e a etapa pintada em cada ficha.
+   ✅ Filtrar por etapa consulta o servidor (`?stage=`), aplicado ANTES do corte
+   de 200 para que ninguém dessa etapa fique de fora.
+9. Caminho infeliz: uma etapa sem contatos não quebra a tela.
+   ✅ Estado vazio honesto («Sem resultados», não «Sem contatos»).
 
-## Búsqueda del servidor (Contactos)
+## Busca do servidor (Contatos)
 
-10. `jose` → «Josué Ramírez»; `+52 462 555 0101` → el contacto con ese número.
-    ✅ Espejo en SQL de `matchesQuery`: `translate()` para los acentos (sin
-    depender de la extensión `unaccent`) y `regexp_replace` para los dígitos.
-    ✅ Los comodines de LIKE (`%`, `_`) van escapados: teclear `%` no lista todo.
+10. `jose` → «Josué Ramírez»; `+52 462 555 0101` → o contato com esse número.
+    ✅ Espelho em SQL de `matchesQuery`: `translate()` para os acentos (sem
+    depender da extensão `unaccent`) e `regexp_replace` para os dígitos.
+    ✅ Os curingas de LIKE (`%`, `_`) são escapados: digitar `%` não lista tudo.

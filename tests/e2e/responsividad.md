@@ -1,100 +1,99 @@
-# Responsividad — el CRM se usa desde el teléfono
+# Responsividade — o CRM é usado pelo telefone
 
-Guion de comportamiento (2026-08-14). Automatizado en
+Roteiro de comportamento (2026-08-14). Automatizado em
 `scripts/e2e-responsive.mjs`.
 
-Origen: la app se diseñó para escritorio (lateral fijo de 224 px + Bandeja de
-tres columnas). Debajo de ~1000 px el lateral se comía media pantalla, el hilo
-quedaba en una franja de unos 100 px y el compositor caía fuera del área
-visible del navegador móvil.
+Origem: o app foi desenhado para desktop: a lateral fixa de 224 px e a Bandeja de
+três colunas. Abaixo de ~1000 px a lateral comia metade da tela, o fio ficava
+numa faixa de uns 100 px e o compositor caía para fora da área visível do
+navegador móvel.
 
-## Preparación
+## Preparação
 
-App corriendo con mocks (`WA_MOCK_ENABLED=true`, `META_GRAPH_BASE_URL` →
-wa-mock) y BD con migraciones aplicadas. Un contacto entrante de prueba con
-conversación abierta.
+App rodando com mocks (`WA_MOCK_ENABLED=true`, `META_GRAPH_BASE_URL` →
+wa-mock) e BD com migrações aplicadas. Um contato de entrada de teste com
+conversa aberta.
 
-Tres tamaños: teléfono 390×844, tableta 820×1180, escritorio 1440×900.
+Três tamanhos: telefone 390×844, tablet 820×1180, desktop 1440×900.
 
-## AC-1 — Ninguna pantalla recorta contenido a lo ancho
+## AC-1 — Nenhuma tela corta conteúdo na largura
 
-Recorre Bandeja, Pipeline, Contactos, Agente, Laboratorio y
-Ajustes → WhatsApp en los tres tamaños.
+Percorre Bandeja, Pipeline, Contatos, Agente, Laboratório e
+Ajustes → WhatsApp nos três tamanhos.
 
-Esperado: en cada una, el contenido de `main` cabe en su ancho visible
-(`scrollWidth == clientWidth`) y el documento no genera scroll horizontal. El
-tablero del Pipeline sí se arrastra en horizontal, pero **dentro** de su propio
-contenedor, con las columnas ancladas (snap).
+Esperado: em cada uma, o conteúdo de `main` cabe na sua largura visível
+(`scrollWidth == clientWidth`) e o documento não gera rolagem horizontal. O
+quadro do Pipeline sim se arrasta na horizontal, mas **dentro** do seu próprio
+contêiner, com as colunas ancoradas (snap).
 
-## AC-2 — El lateral se vuelve cajón en el teléfono
+## AC-2 — A lateral vira gaveta no telefone
 
-1. Abre cualquier pantalla en 390×844.
+1. Abra qualquer tela em 390×844.
 
-Esperado: se ve la barra superior con la hamburguesa y la marca; los enlaces
-del lateral **no** son alcanzables (están fuera del orden de tabulación).
+Esperado: aparece a barra superior com o hambúrguer e a marca; os links da
+lateral **não** são alcançáveis (estão fora da ordem de tabulação).
 
-2. Toca la hamburguesa.
+2. Toque no hambúrguer.
 
-Esperado: el cajón entra desde la izquierda **encima** del contenido (no lo
-empuja: `main` sigue empezando en x=0), con velo detrás.
+Esperado: a gaveta entra pela esquerda **por cima** do conteúdo (não o empurra:
+`main` continua começando em x=0), com véu atrás.
 
-3. Toca "Bandeja".
+3. Toque em "Bandeja".
 
-Esperado: navega y el cajón se cierra solo. También cierra con Escape, con el
-velo y con su propia ✕.
+Esperado: navega e a gaveta fecha sozinha. Também fecha com Escape, com o véu e
+com o próprio ✕.
 
-## AC-3 — La Bandeja es maestro-detalle en el teléfono
+## AC-3 — A Bandeja é mestre-detalhe no telefone
 
-1. Abre la Bandeja sin conversación elegida.
+1. Abra a Bandeja sem conversa escolhida.
 
-Esperado: la lista ocupa el ancho completo (390 px), no una columna de 360 px
-con el hilo aplastado al lado.
+Esperado: a lista ocupa a largura toda (390 px), não uma coluna de 360 px com o
+fio espremido ao lado.
 
-2. Toca una conversación.
+2. Toque numa conversa.
 
-Esperado: el hilo ocupa toda la pantalla, la lista desaparece y aparece un
-botón "Volver a las conversaciones" que la regresa.
+Esperado: o fio ocupa a tela toda, a lista some e aparece um botão "Voltar às
+conversas" que a traz de volta.
 
-3. Mira el compositor.
+3. Olhe o compositor.
 
-Esperado: queda **dentro** de la pantalla (la altura del cascarón es `100dvh`,
-no `100vh`) y su tipografía mide ≥16 px, que es lo que evita que Safari en iOS
-haga zoom al enfocar y deje el CRM descuadrado. Lo mismo aplica a todo campo de
-texto por debajo de `md`.
+Esperado: fica **dentro** da tela (a altura do casco é `100dvh`, não `100vh`) e
+sua tipografia mede ≥16 px, que é o que evita o zoom do Safari no iOS ao focar
+e deixar o CRM desalinhado. Vale o mesmo para todo campo de texto abaixo de `md`.
 
-## AC-4 — Los detalles del contacto flotan sobre el hilo
+## AC-4 — Os detalhes do contato flutuam sobre o fio
 
-1. Con el hilo abierto en el teléfono, toca "Mostrar detalles".
+1. Com o fio aberto no telefone, toque em "Mostrar detalhes".
 
-Esperado: el panel arranca **cerrado** (la preferencia guardada solo manda en
-escritorio) y entra como cajón pegado al borde derecho, encima del hilo, sin
-robarle ancho ni provocar scroll horizontal. Cierra con su ✕ o con el velo.
+Esperado: o painel começa **fechado** (a preferência salva só vale no desktop) e
+entra como gaveta colada na borda direita, por cima do fio, sem roubar largura
+nem provocar rolagem horizontal. Fecha pelo seu ✕ ou pelo véu.
 
-Debajo de `xl` (1280 px) el panel siempre es cajón; a partir de ahí vuelve a ser
-la tercera columna.
+Abaixo de `xl` (1280 px) o painel é sempre gaveta; a partir daí volta a ser a
+terceira coluna.
 
-## AC-5 — En tableta conviven lista e hilo
+## AC-5 — No tablet convivem lista e fio
 
-En 820×1180 la Bandeja muestra dos columnas (lista ~300 px + hilo), y el panel
-de detalles sigue siendo cajón.
+Em 820×1180 a Bandeja mostra duas colunas (lista ~300 px + fio), e o painel de
+detalhes continua sendo gaveta.
 
-## AC-6 — En escritorio nada cambió
+## AC-6 — No desktop nada mudou
 
-En 1440×900: lateral fijo de 224 px sin hamburguesa, Bandeja de tres columnas
-(lista 360 px + hilo + detalles 320 px) y la preferencia de "panel abierto"
-persistida como siempre.
+Em 1440×900: lateral fixa de 224 px sem hambúrguer, Bandeja de três colunas
+(lista 360 px + fio + detalhes 320 px) e a preferência de "painel aberto"
+salva como sempre.
 
 ## AC-7 — Barra bicolor e interruptores
 
-1. Con el tema claro, mira la barra lateral.
+1. Com o tema claro, olhe a barra lateral.
 
-Esperado: azul marino con texto claro, aunque la página sea blanca. La app es
-bicolor en los dos temas; el acento de la barra es el white-label calculado
-para fondo oscuro.
+Esperado: azul-marinho com texto claro, mesmo com a página branca. O app é
+bicolor nos dois temas; o destaque da barra é o white-label calculado para fundo
+escuro.
 
-2. Alterna «IA en esta conversación» (Bandeja) y el interruptor del Agente.
+2. Alterne «IA nesta conversa» (Bandeja) e o interruptor do Agente.
 
-Esperado: en los dos estados el pomo queda **dentro** de la pista, pegado al
-extremo que le toca (#53: el del Agente arrancaba del centro y, encendido,
-quedaba afuera). Un clic lo cambia y Espacio, con el foco en él, también. Sin
-proveedor de IA el del Agente se ve atenuado y no reacciona.
+Esperado: nos dois estados a bolinha fica **dentro** da pista, colada na
+extremidade que lhe cabe (#53: a do Agente começava no centro e, ligada, ficava
+para fora). Um clique a muda, e a Barra de espaço, com o foco nela, também. Sem
+provedor de IA, a do Agente aparece esmaecida e não reage.

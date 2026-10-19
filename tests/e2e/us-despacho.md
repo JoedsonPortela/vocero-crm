@@ -1,172 +1,169 @@
-# E2E — Despacho estándar: el CRM le pasa cada turno al cerebro (021, #89; 025)
+# E2E — Despacho padrão: o CRM entrega cada turno ao cérebro (021, #89; 025)
 
-Arnés: `scripts/e2e-despacho.mjs`. Contrato:
+Chicote: `scripts/e2e-despacho.mjs`. Contrato:
 [`specs/021-despacho-estandar/contracts/despacho.md`](../../specs/021-despacho-estandar/contracts/despacho.md).
 
-Precondición: app corriendo (`next dev`) sobre una base migrada, con mocks
+Pré-condição: app rodando (`next dev`) sobre uma base migrada, com mocks
 (`WA_MOCK_ENABLED=true`, `META_GRAPH_BASE_URL` → wa-mock, `OPENROUTER_BASE_URL`
-→ ai-mock con `OPENROUTER_API_TOKEN` y `OPENROUTER_MODEL`), `BOT_API_KEY`
-(≥16), `AGENT_COALESCE_MS=1500` y
-`BRAIN_DISPATCH_URL=http://127.0.0.1:<puerto libre>/vocero/dispatch`. Para los
-otros canales, `CHANNELS=whatsapp,instagram,messenger` y `ZERNIO_BASE_URL` →
+→ ai-mock com `OPENROUTER_API_TOKEN` e `OPENROUTER_MODEL`), `BOT_API_KEY`
+(≥16), `AGENT_COALESCE_MS=1500` e
+`BRAIN_DISPATCH_URL=http://127.0.0.1:<porta livre>/vocero/dispatch`. Para os
+outros canais, `CHANNELS=whatsapp,instagram,messenger` e `ZERNIO_BASE_URL` →
 zernio-mock.
 
-El arnés hace de **cerebro**: levanta un servidor HTTP en esa URL, en su propio
-proceso, verifica la firma de cada despacho sobre el cuerpo crudo y contesta
-por `/api/bot/messages`. El turno cruza HTTP de verdad en las dos direcciones.
+O chicote faz de **cérebro**: levanta um servidor HTTP nessa URL, no seu próprio
+processo, verifica a assinatura de cada despacho sobre o corpo cru e responde
+por `/api/bot/messages`. O turno atravessa HTTP de verdade nos dois sentidos.
 
 ```bash
 node --env-file=.env scripts/e2e-despacho.mjs
 ```
 
-**Dos modos (025).** El arnés mira cómo arrancó la app. Con
-`BRAIN_DISPATCH_URL` corre todo este guion. Sin ella contesta el agente
-incluido, y corre solo la sección «Sin cerebro externo» del final (no necesita
-`BOT_API_KEY`). El gate completo son las dos corridas, cada una con la app
-arrancada en su modo.
+**Dois modos (025).** O chicote olha como a app foi iniciada. Com
+`BRAIN_DISPATCH_URL` roda todo este roteiro. Sem ela responde o agente
+incluído, e roda só a seção «Sem cérebro externo» do final (não precisa de
+`BOT_API_KEY`). O gate completo são as duas execuções, cada uma com a app
+iniciada no seu modo.
 
 ## Setup
 
-1. Registro o login del operador y conexión de WhatsApp (wa-mock).
-2. Interruptor del agente incluido **encendido**, con proveedor de IA: tendría
-   con qué contestar.
+1. Cadastro ou login do operador e conexão de WhatsApp (wa-mock).
+2. Interruptor do agente incluído **ligado**, com provedor de IA: teria com que
+   responder.
 3. `GET /api/agent/brain-status` → `dispatch.active = true`, `problem = null`;
    `embedded.silenced = true`, `embedded.answering = false`; `warning = null`.
 
-## Historia 1 — Un mensaje llega al cerebro
+## História 1 — Uma mensagem chega ao cérebro
 
-4. **AC1** Un WhatsApp entrante aparece en la bandeja y, pasada la ventana, el
-   cerebro recibe **un** `POST`: firma `x-vocero-signature` válida sobre el
-   cuerpo crudo con `BOT_API_KEY`; cabeceras `x-vocero-dispatch-id` (igual al
-   `dispatchId`, `dsp_…`) y `x-vocero-organization`; sin `x-vocero-event`; las
-   claves del evento en el orden del contrato; `conversation.id` es la de la
-   bandeja, `channel = whatsapp`, ventana abierta; un mensaje de texto sin
-   adjunto. El cuerpo no lleva el token de WhatsApp ni la llave.
-5. `GET /api/bot/context?conversationId=…` → 200, y la identidad del evento es
-   la que devuelve el contexto.
-6. `POST /api/bot/messages` con ese `conversationId` → 200 y la respuesta está
-   en el outbox del wa-mock.
-7. **AC10** Pasada otra ventana, el único saliente de la conversación es el del
-   cerebro: el agente incluido no contestó. El cerebro recibió el turno una
-   sola vez.
-8. **AC2** Cinco mensajes seguidos de otro contacto → **un** despacho con los
-   cinco, en orden.
-9. **AC5** Con el cerebro tardando 3 s en acusar recibo, llega un segundo
-   mensaje mientras el primer despacho está en vuelo → llega un **segundo**
-   despacho, con otro `dispatchId`, que trae los dos mensajes.
-    Cada mensaje de la ráfaga del paso 8 se espera en la bandeja antes de
-    mandar el siguiente: el webhook contesta 200 y después ingiere, y sin esa
-    espera el orden en que se guardan no es el orden en que se mandaron.
+4. **AC1** Uma mensagem de WhatsApp de entrada aparece na bandeja e, passada a
+   janela, o cérebro recebe **um** `POST`: assinatura `x-vocero-signature` válida
+   sobre o corpo cru com `BOT_API_KEY`; cabeçalhos `x-vocero-dispatch-id` (igual
+   ao `dispatchId`, `dsp_…`) e `x-vocero-organization`; sem `x-vocero-event`; as
+   chaves do evento na ordem do contrato; `conversation.id` é a da bandeja,
+   `channel = whatsapp`, janela aberta; uma mensagem de texto sem anexo. O corpo
+   não leva o token do WhatsApp nem a chave.
+5. `GET /api/bot/context?conversationId=…` → 200, e a identidade do evento é a
+   que devolve o contexto.
+6. `POST /api/bot/messages` com esse `conversationId` → 200 e a resposta está na
+   outbox do wa-mock.
+7. **AC10** Passada outra janela, a única saída da conversa é a do cérebro: o
+   agente incluído não respondeu. O cérebro recebeu o turno uma única vez.
+8. **AC2** Cinco mensagens seguidas de outro contato → **um** despacho com as
+   cinco, em ordem.
+9. **AC5** Com o cérebro levando 3 s para confirmar recebimento, chega uma segunda
+   mensagem enquanto o primeiro despacho está em voo → chega um **segundo**
+   despacho, com outro `dispatchId`, que traz as duas mensagens.
+    Cada mensagem da rajada do passo 8 é esperada na bandeja antes de mandar a
+    seguinte: o webhook responde 200 e depois ingere, e sem essa espera a ordem em
+    que são salvas não é a ordem em que foram enviadas.
 
-### 025 — El despacho recuerda qué debe
+### 025 — O despacho lembra o que deve
 
-- **025·AC1** El cerebro acusa recibo del primer mensaje y «piensa». Entra un
-  segundo mensaje; con su ventana todavía abierta, el cerebro contesta el
-  primero por `/api/bot/messages`. Pasada la ventana llega un **segundo
-  despacho**, firmado y con otro `dispatchId`, con **exactamente** ese segundo
-  mensaje (por id): ni vacío ni repitiendo el ya contestado.
-- **025·AC2** Tras otra ventana no hay un tercer despacho, la conversación
-  sigue con la IA encendida y sin traspaso, y `dispatch.pending = 0`.
-- **025·AC4** Entra un mensaje y, con la ventana abierta, el operador contesta
-  desde la bandeja (`POST /api/conversations/{id}/messages`). El cerebro no
-  recibe **nada**: ni ese mensaje ni un despacho vacío.
-- **025·AC5** `dispatch.pending = 0`, `dispatch.lastFailure` no cambió y la
-  conversación no pasó a un humano. El siguiente mensaje de ese cliente sí se
-  despacha, y el evento trae solo ese.
+- **025·AC1** O cérebro confirma o recebimento da primeira mensagem e «pensa».
+  Entra uma segunda mensagem; com a janela dela ainda aberta, o cérebro responde a
+  primeira por `/api/bot/messages`. Passada a janela chega um **segundo
+  despacho**, assinado e com outro `dispatchId`, com **exatamente** essa segunda
+  mensagem (por id): nem vazio nem repetindo a já respondida.
+- **025·AC2** Depois de outra janela não há um terceiro despacho, a conversa
+  segue com a IA ligada e sem repasse, e `dispatch.pending = 0`.
+- **025·AC4** Entra uma mensagem e, com a janela aberta, o operador responde pela
+  bandeja (`POST /api/conversations/{id}/messages`). O cérebro não recebe
+  **nada**: nem essa mensagem nem um despacho vazio.
+- **025·AC5** `dispatch.pending = 0`, `dispatch.lastFailure` não mudou e a
+  conversa não passou para uma pessoa. A próxima mensagem desse cliente sim é
+  despachada, e o evento traz só ela.
 
-Los dos casos dependen de ganarle a la ventana de agrupado. Si el guion pierde
-esa carrera (máquina cargada), lo reintenta con otro contacto, hasta tres
-veces, y lo dice; no sigue con un caso que ya no prueba nada.
+Os dois casos dependem de ganhar da janela de agrupamento. Se o roteiro perder
+essa corrida (máquina carregada), tenta de novo com outro contato, até três
+vezes, e diz isso; não segue com um caso que já não prova nada.
 
-10. **AC4** Una imagen con pie → el evento trae `mediaId`, `mimeType` y
-    `caption`, y `GET /api/bot/media/{mediaId}` devuelve la imagen.
-11. **AC3** Un mensaje de Messenger (por Meta) y uno de Instagram (por Zernio)
-    se despachan con su `channel` y su identidad (`fb:…`, `ig:…`). El evento no
-    dice por qué proveedor entró. El cerebro contesta al de Messenger por el
-    mismo `/api/bot/messages`.
+10. **AC4** Uma imagem com legenda → o evento traz `mediaId`, `mimeType` e
+    `caption`, e `GET /api/bot/media/{mediaId}` devolve a imagem.
+11. **AC3** Uma mensagem de Messenger (pela Meta) e uma de Instagram (pelo Zernio)
+    são despachadas com o seu `channel` e a sua identidade (`fb:…`, `ig:…`). O
+    evento não diz por qual provedor entrou. O cérebro responde a de Messenger
+    pelo mesmo `/api/bot/messages`.
 
-## Historia 3 — Quién contesta
+## História 3 — Quem responde
 
-12. **AC11** Con la IA en pausa en una conversación
-    (`PATCH /api/conversations/{id} {aiEnabled:false}`), un mensaje nuevo queda
-    en la bandeja y **no** llega al cerebro.
-13. **AC11** Pausar la IA *durante* la ventana, con el despacho ya encolado: el
-    `PATCH` responde bien con la ventana todavía abierta (se comprueba aparte:
-    si no, el despacho sale —como debe— y el rojo sería del guion), no se
-    entrega, la conversación **no** queda traspasada con motivo `error` y
-    `dispatch.pending = 0`.
-14. **AC13** Una corrida completa del Laboratorio termina y ningún cliente
-    simulado llega al cerebro.
+12. **AC11** Com a IA pausada numa conversa
+    (`PATCH /api/conversations/{id} {aiEnabled:false}`), uma mensagem nova fica
+    na bandeja e **não** chega ao cérebro.
+13. **AC11** Pausar a IA *durante* a janela, com o despacho já enfileirado: o
+    `PATCH` responde bem com a janela ainda aberta (verifica-se à parte: senão o
+    despacho sairia — como deve — e o vermelho seria do roteiro), não é entregue,
+    a conversa **não** fica repassada com motivo `error` e `dispatch.pending = 0`.
+14. **AC13** Uma execução completa do Laboratório termina e nenhum cliente
+    simulado chega ao cérebro.
 
-## Historia 2 — El cerebro falla
+## História 2 — O cérebro falha
 
-15. **AC6/AC7** Con el cerebro respondiendo 500: el mensaje está en la bandeja;
-    llegan **tres** intentos del **mismo** `dispatchId`, firmados, con ~1 s y
-    ~4 s entre ellos, y no hay un cuarto; la conversación pasa a un humano
-    (`aiEnabled = false`, `handoffReason = "error"`); `brain-status` enseña
-    `dispatch.lastFailure` con el 500. Un mensaje posterior de ese contacto ya
-    no se despacha.
-16. **AC8** Con el cerebro respondiendo 422: **un** intento y a un humano.
-17. **AC6** Con el cerebro apagado (conexión rechazada): a un humano, y el
-    motivo es «no se pudo conectar con el cerebro», sin URL ni llave.
-18. El cerebro vuelve: un cliente nuevo se despacha, y `lastDeliveredAt` queda
+15. **AC6/AC7** Com o cérebro respondendo 500: a mensagem está na bandeja; chegam
+    **três** tentativas do **mesmo** `dispatchId`, assinadas, com ~1 s e ~4 s
+    entre elas, e não há uma quarta; a conversa passa para uma pessoa
+    (`aiEnabled = false`, `handoffReason = "error"`); `brain-status` mostra
+    `dispatch.lastFailure` com o 500. Uma mensagem posterior desse contato já não
+    é despachada.
+16. **AC8** Com o cérebro respondendo 422: **uma** tentativa e para uma pessoa.
+17. **AC6** Com o cérebro desligado (conexão recusada): para uma pessoa, e o
+    motivo é «não foi possível conectar com o cérebro», sem URL nem chave.
+18. O cérebro volta: um cliente novo é despachado, e `lastDeliveredAt` fica
     posterior a `lastFailure.at`.
 
-## Historia 4 — «Quién responde»
+## História 4 — «Quem responde»
 
 19. **AC14–AC16** `GET /api/agent/brain-status` → `dispatch.active`, `host`
-    igual a host:puerto de la URL, `lastDeliveredAt`, `pending = 0`. La
-    respuesta no contiene la ruta de la URL ni la llave. Las llaves de antes
-    (`embedded.answering`, `external.active`, `external.lastSeenAt`, `warning`)
-    siguen. Sin sesión → 401.
+    igual a host:porta da URL, `lastDeliveredAt`, `pending = 0`. A resposta não
+    contém o caminho da URL nem a chave. As chaves de antes (`embedded.answering`,
+    `external.active`, `external.lastSeenAt`, `warning`) continuam. Sem sessão →
+    401.
 
-## Sin cerebro externo — el agente incluido (025)
+## Sem cérebro externo — o agente incluído (025)
 
-App arrancada **sin** `BRAIN_DISPATCH_URL`, con los mismos mocks. El mock de IA
-se configura por `GET /api/dev/ai-mock/v1/chat/completions?demoraMs=…&reset=1`
-y devuelve lo que se le preguntó (`peticiones`, sin el prompt de sistema).
+App iniciada **sem** `BRAIN_DISPATCH_URL`, com os mesmos mocks. O mock de IA é
+configurado por `GET /api/dev/ai-mock/v1/chat/completions?demoraMs=…&reset=1` e
+devolve o que lhe perguntaram (`peticiones`, sem o prompt de sistema).
 
 20. `GET /api/agent/brain-status` → `dispatch.active = false`,
     `embedded.answering = true`.
-21. **025·AC6** Con el modelo tardando 5 s, entra un mensaje; cuando el modelo
-    ya lo recibió y sigue pensando, entra un segundo. El agente gasta **un**
-    turno más: dos peticiones al modelo en total, también después de esperar
-    otra ventana (no entra en bucle).
-22. **025·AC7** En la segunda petición el modelo lee: cliente (primer mensaje),
-    agente (su respuesta), cliente (segundo mensaje).
-23. **025·AC8** La conversación tiene dos salientes, uno por pregunta.
-24. **025·AC5b** Entra un mensaje y el operador contesta desde la bandeja con
-    la ventana abierta: el modelo no recibe ninguna petición por ese mensaje,
-    el único saliente es el de la persona y la IA sigue encendida. El
-    siguiente mensaje del cliente sí lo contesta el agente.
-25. `dispatch.pending = 0`: nada de esto pasó por el outbox.
+21. **025·AC6** Com o modelo levando 5 s, entra uma mensagem; quando o modelo já a
+    recebeu e segue pensando, entra uma segunda. O agente gasta **um** turno a
+    mais: duas requisições ao modelo no total, também depois de esperar outra
+    janela (não entra em loop).
+22. **025·AC7** Na segunda requisição o modelo lê: cliente (primeira mensagem),
+    agente (sua resposta), cliente (segunda mensagem).
+23. **025·AC8** A conversa tem duas saídas, uma por pergunta.
+24. **025·AC5b** Entra uma mensagem e, com a janela aberta, o operador responde
+    pela bandeja: o modelo não recebe nenhuma requisição por essa mensagem, a
+    única saída é a da pessoa e a IA segue ligada. A próxima mensagem do cliente
+    sim é respondida pelo agente.
+25. `dispatch.pending = 0`: nada disso passou pela outbox.
 
-**025·AC9** (un mensaje que entra con el turno arrancado pero antes de que abra
-el historial se contesta en ese turno) es una ventana de milisegundos que el
-guion no puede provocar: lo cubre `quedanDebidos` en
+**025·AC9** (uma mensagem que entra com o turno já iniciado mas antes de abrir o
+histórico é respondida nesse turno) é uma janela de milissegundos que o roteiro
+não consegue provocar: quem cobre é `quedanDebidos` em
 `tests/unit/orden-turno.test.ts`.
 
-## Comprobaciones a mano
+## Verificações à mão
 
-- **025·AC11 — actualizar desde 1.5.** Sobre una base migrada hasta `0016`, con
-  una fila `pendiente` en `dispatch`: el migrador aplica `0017` (dos pasadas,
-  la segunda sin efecto), la fila queda con `message_ids` nulo, y con la app
-  arrancada el cerebro recibe ese despacho con su mensaje y la fila pasa a
+- **025·AC11 — atualizar desde a 1.5.** Sobre uma base migrada até `0016`, com
+  uma linha `pendiente` em `dispatch`: o migrador aplica `0017` (duas passadas,
+  a segunda sem efeito), a linha fica com `message_ids` nulo, e com a app
+  iniciada o cérebro recebe esse despacho com sua mensagem e a linha passa a
   `entregado`.
 
-- **AC9 — reanudar tras un reinicio.** Con la app detenida, insertar una fila
-  `pendiente` en `dispatch` (con `not_before` ya vencido) para una conversación
-  cuyo último mensaje es del cliente; dejar un cerebro escuchando; arrancar la
-  app. Sin que entre ningún mensaje, el cerebro recibe ese `dispatchId` firmado
-  y la fila queda `entregado`. El log dice
-  `[boot] despacho al cerebro activo → <host>`.
-- **AC12 — sin la variable nada cambia.** Quitar `BRAIN_DISPATCH_URL`,
-  reiniciar sobre una base nueva y correr `pnpm test:e2e`: el agente incluido
-  contesta como antes y la tabla `dispatch` queda vacía.
-- **AC16 — mal configurado.** Con `BRAIN_DISPATCH_URL` sin `BOT_API_KEY`, o con
-  algo que no es una URL: el log de arranque lo dice, `pnpm doctor` lo marca
-  con `!` y el arreglo, la tarjeta enseña «No se puede despachar», y el agente
-  incluido sigue contestando.
-- **La tarjeta.** En la pantalla Agente, la fila «Despacho al cerebro» dice
-  «Activo · host» con la última entrega; tras un turno que no llegó, pasa a
-  ámbar con el motivo; la fila del agente incluido dice que está en silencio.
+- **AC9 — retomar depois de um reinício.** Com a app parada, inserir uma linha
+  `pendiente` em `dispatch` (com `not_before` já vencido) para uma conversa cujo
+  último mensagem é do cliente; deixar um cérebro escutando; iniciar a app. Sem
+  que entre nenhuma mensagem, o cérebro recebe esse `dispatchId` assinado e a
+  linha fica `entregado`. O log diz `[boot] despacho al cerebro activo → <host>`.
+- **AC12 — sem a variável nada muda.** Tirar `BRAIN_DISPATCH_URL`, reiniciar
+  sobre uma base nova e rodar `pnpm test:e2e`: o agente incluído responde como
+  antes e a tabela `dispatch` fica vazia.
+- **AC16 — mal configurado.** Com `BRAIN_DISPATCH_URL` sem `BOT_API_KEY`, ou com
+  algo que não é uma URL: o log de inicialização diz, `pnpm doctor` marca com `!`
+  e o conserto, o cartão mostra «Não é possível despachar», e o agente incluído
+  segue respondendo.
+- **O cartão.** Na tela Agente, a linha «Despacho ao cérebro» diz
+  «Ativo · host» com a última entrega; depois de um turno que não chegou, passa
+  para âmbar com o motivo; a linha do agente incluído diz que está em silêncio.
