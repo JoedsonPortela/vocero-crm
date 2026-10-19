@@ -116,8 +116,8 @@ export function BrandingClient({
         <CardHeader>
           <CardTitle>Marca do CRM</CardTitle>
           <CardDescription>
-            Este CRM é seu: coloque o nome do seu negócio e a sua cor. Se
-            refletem em toda a interface e na tela de entrada.
+            Este CRM é seu: coloque o nome do seu negócio e a sua cor. Elas
+            aparecem em toda a interface e na tela de entrada.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -221,7 +221,7 @@ export function BrandingClient({
               </div>
               <span className={cn(navItemClass(true), "mt-3")}>
                 <Inbox className="h-[17px] w-[17px] text-brand" strokeWidth={1.8} />
-                <span className="flex-1">Bandeja</span>
+                <span className="flex-1">Caixa de entrada</span>
               </span>
             </div>
             <div

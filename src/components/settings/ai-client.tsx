@@ -251,7 +251,7 @@ export function AiClient() {
     <div className="max-w-2xl space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Proveedor de IA</CardTitle>
+          <CardTitle>Provedor de IA</CardTitle>
           <CardDescription>
             Com o que o seu agente pensa: o provedor, o modelo e a chave que paga o consumo. A chave é salva cifrada e não volta a ser mostrada por completo.
           </CardDescription>
@@ -283,7 +283,7 @@ export function AiClient() {
 
           <form onSubmit={guardar} className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="ai-provider">Proveedor</Label>
+              <Label htmlFor="ai-provider">Provedor</Label>
               <select
                 id="ai-provider"
                 value={provider}
@@ -354,7 +354,7 @@ export function AiClient() {
               )}
               <p className="text-xs text-muted-foreground">
                 O mesmo modelo conversa com seus clientes e avalia no
-                Laboratorio.
+                Laboratório.
               </p>
             </div>
 
