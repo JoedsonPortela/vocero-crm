@@ -4,9 +4,9 @@ import { newId } from "@/lib/db/ids";
 
 /** Etapas sembradas del pipeline (US2). */
 const SEED_STAGES: { name: string; kind: "open" | "won" | "lost" }[] = [
-  { name: "Nuevo", kind: "open" },
-  { name: "En conversación", kind: "open" },
-  { name: "Interesado", kind: "open" },
+  { name: "Novo", kind: "open" },
+  { name: "Em conversa", kind: "open" },
+  { name: "Interessado", kind: "open" },
   { name: "Cliente", kind: "won" },
   { name: "Perdido", kind: "lost" },
 ];

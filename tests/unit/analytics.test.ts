@@ -105,8 +105,8 @@ describe("motivosDePerdida", () => {
 
 describe("armarEmbudo", () => {
   const etapas = [
-    { id: "s1", name: "Nuevo", kind: "open" as const, position: 0 },
-    { id: "s2", name: "Interesado", kind: "open" as const, position: 1 },
+    { id: "s1", name: "Novo", kind: "open" as const, position: 0 },
+    { id: "s2", name: "Interessado", kind: "open" as const, position: 1 },
     { id: "s3", name: "Cotizado", kind: "open" as const, position: 2 },
     // Perdido con una posición alta: NO puede contar como "pasó por todas".
     { id: "sl", name: "Perdido", kind: "lost" as const, position: 9 },
@@ -122,8 +122,8 @@ describe("armarEmbudo", () => {
       { maxOpenPos: null, won: 0 }, // sus etapas ya no existen
     ]);
     expect(pasos.map((p) => [p.name, p.reached])).toEqual([
-      ["Nuevo", 4],
-      ["Interesado", 2],
+      ["Novo", 4],
+      ["Interessado", 2],
       ["Cotizado", 1],
       ["Cliente", 2],
     ]);

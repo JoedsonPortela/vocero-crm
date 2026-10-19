@@ -18,6 +18,7 @@ import { emptyInboxDescription, formatTime, previewText } from "./helpers";
    así siguen al acento white-label y se recalculan en oscuro. */
 const STAGE_DOT: Record<string, string> = {
   Nuevo: "var(--text-3)",
+  "Em conversa": "var(--accent)",
   "En conversación": "var(--accent)",
   Interesado: "var(--warning)",
   Cliente: "var(--success)",

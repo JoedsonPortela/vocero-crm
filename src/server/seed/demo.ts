@@ -25,7 +25,7 @@ const DEMO_CONTACTS: {
   {
     phone: "5215612340001",
     name: "María Fernanda López",
-    stage: "Interesado",
+    stage: "Interessado",
     notes: "Remodela su cocina; busca herramienta eléctrica.",
     thread: [
       { dir: "in", text: "Hola, ¿tienen taladros inalámbricos?", hoursAgo: 5 },
@@ -38,7 +38,7 @@ const DEMO_CONTACTS: {
   {
     phone: "5215612340002",
     name: "Carlos Ramírez",
-    stage: "En conversación",
+    stage: "Em conversa",
     thread: [
       { dir: "in", text: "Buenas, ¿cuánto el bulto de cemento gris?", hoursAgo: 8 },
       { dir: "out", text: "¡Hola Carlos! El bulto de 50 kg está en $245 MXN. Por 10 o más te queda en $232 MXN cada uno.", hoursAgo: 8, ai: true },
@@ -61,7 +61,7 @@ const DEMO_CONTACTS: {
   {
     phone: "5215612340004",
     name: "Jorge Castillo",
-    stage: "Nuevo",
+    stage: "Novo",
     thread: [
       { dir: "in", text: "ke onda, tienen pintura vinilica blanka de 19 lts?", hoursAgo: 2 },
       { dir: "out", text: "¡Qué tal Jorge! Sí: la cubeta de 19 L de vinílica blanca está en $1,150 MXN (rinde ~90 m²). ¿La quieres mate o satinada?", hoursAgo: 2, ai: true },
@@ -70,7 +70,7 @@ const DEMO_CONTACTS: {
   {
     phone: "5215612340005",
     name: "Ana Sofía Torres",
-    stage: "Interesado",
+    stage: "Interessado",
     thread: [
       { dir: "in", text: "Hola, vi su anuncio. ¿Manejan material eléctrico?", hoursAgo: 12 },
       { dir: "out", text: "¡Hola Ana! Sí: cable, contactos, pastillas y centros de carga. ¿Qué necesitas para tu proyecto?", hoursAgo: 12, ai: true },
@@ -94,7 +94,7 @@ const DEMO_CONTACTS: {
   {
     phone: "5215612340007",
     name: "Paty Domínguez",
-    stage: "En conversación",
+    stage: "Em conversa",
     thread: [
       { dir: "in", text: "Hola, ¿tienen impermeabilizante? Se me llueve la azotea 😩", hoursAgo: 26 },
       { dir: "out", text: "¡Hola Paty! Claro: el impermeabilizante acrílico 5 años (cubeta 19 L) está en $1,680 MXN, cubre ~40 m². ¿De cuántos metros es tu azotea?", hoursAgo: 26, ai: true },

@@ -177,7 +177,7 @@ export function aiMockCompletion(messages: InMessage[]): string {
   ) {
     return JSON.stringify({
       action: "move_stage",
-      stage: "Interesado",
+      stage: "Interessado",
       reply: "¡Excelente! Te aparto el producto y un compañero te confirma el pago.",
     });
   }

@@ -19,7 +19,7 @@ const profile = {
 } as unknown as Profile;
 
 const prompt = (agenda: boolean) =>
-  buildAgentSystemPrompt({ profile, kb: [], stages: [{ name: "Nuevo" }], agenda });
+  buildAgentSystemPrompt({ profile, kb: [], stages: [{ name: "Novo" }], agenda });
 
 describe.each([false, true])("prompt del agente (agenda %s)", (agenda) => {
   const p = prompt(agenda);

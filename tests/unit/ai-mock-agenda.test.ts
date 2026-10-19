@@ -20,7 +20,7 @@ const profile = {
 } as unknown as Profile;
 
 function turno(agenda: boolean, texto: string) {
-  const system = buildAgentSystemPrompt({ profile, kb: [], stages: [{ name: "Nuevo" }], agenda });
+  const system = buildAgentSystemPrompt({ profile, kb: [], stages: [{ name: "Novo" }], agenda });
   const raw = aiMockCompletion([
     { role: "system", content: system },
     { role: "user", content: texto },
