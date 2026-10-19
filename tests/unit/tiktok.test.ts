@@ -80,7 +80,7 @@ describe("022 · TikTok en el catálogo de canales", () => {
     expect(healthFeatures({}).channels).toEqual(["whatsapp"]);
   });
 
-  it("Ajustes → Canales gana «TikTok» solo con el canal encendido", () => {
+  it("Configurações → Canais ganha «TikTok» solo con el canal encendido", () => {
     const hrefs = (o: Parameters<typeof settingsSections>[0]) =>
       settingsSections(o).flatMap((s) => s.links.map((l) => l.href));
     expect(hrefs({ tiktok: true })).toContain("/settings/tiktok");

@@ -274,7 +274,7 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
     },
     {
       icon: Send,
-      title: "Úsala",
+      title: "Use",
       text: t("settings.usageInBandeja"),
     },
   ];

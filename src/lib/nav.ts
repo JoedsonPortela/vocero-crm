@@ -134,15 +134,15 @@ export function settingsSections({
 
   const negocio: SettingsLink[] = [
     { href: "/settings/branding", label: "Marca" },
-    { href: "/settings/templates", label: "Plantillas" },
-    { href: "/settings/team", label: "Equipo" },
+    { href: "/settings/templates", label: "Modelos" },
+    { href: "/settings/team", label: "Equipe" },
   ];
   if (atribucion) negocio.push({ href: "/settings/ads", label: "Anuncios" });
 
   return [
-    { title: "Canales", links: canales },
+    { title: "Canais", links: canales },
     { title: "Agente", links: agente },
-    { title: "Negocio", links: negocio },
+    { title: "Negócio", links: negocio },
   ];
 }
 
