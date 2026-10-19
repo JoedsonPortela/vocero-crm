@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -42,20 +43,20 @@ const STATUS_BADGE: Record<
   TemplateDto["status"],
   { label: string; variant: "secondary" | "warning" | "success" | "destructive"; hint: string }
 > = {
-  draft: { label: "Borrador", variant: "secondary", hint: "Guardada, todavía sin enviar a Meta." },
-  pending: { label: "En revisión", variant: "warning", hint: "Meta la está revisando. Suele tardar de unos minutos a 24 horas." },
+  draft: { label: t("settings.tplDraft"), variant: "secondary", hint: t("settings.tplDraftHint") },
+  pending: { label: t("settings.tplPending"), variant: "warning", hint: t("settings.tplPendingHint") },
   approved: { label: "Aprobada", variant: "success", hint: "Lista para usar desde la Bandeja o desde Contactos." },
-  rejected: { label: "Rechazada", variant: "destructive", hint: "Corrígela y créala de nuevo con otro nombre." },
+  rejected: { label: t("settings.tplRejected"), variant: "destructive", hint: t("settings.tplRejectedHint") },
 };
 
 const CATEGORY: Record<Category, { label: string; description: string }> = {
   UTILITY: {
     label: "Utilidad",
-    description: "Seguimiento de algo que el cliente pidió: una cita, una cotización, un pedido.",
+    description: t("settings.tplFollowUpDesc"),
   },
   MARKETING: {
     label: "Marketing",
-    description: "Promociones, ofertas, invitaciones o volver a contactar a quien no compró.",
+    description: t("settings.tplPromoDesc"),
   },
 };
 
@@ -68,10 +69,10 @@ const STARTERS: {
   examples: string[];
 }[] = [
   {
-    title: "Seguimiento de cotización",
-    name: "seguimiento_cotizacion",
+    title: t("settings.tplQuoteTitle"),
+    name: t("settings.tplName"),
     category: "UTILITY",
-    body: "Hola {{1}}, te escribo para dar seguimiento a la cotización que te enviamos. ¿Tienes alguna duda o quieres que la revisemos juntos?",
+    body: t("settings.tplQuoteBody"),
     examples: ["Ana"],
   },
   {
@@ -82,10 +83,10 @@ const STARTERS: {
     examples: ["Ana", "martes 14 de octubre", "10:30"],
   },
   {
-    title: "Retomar la conversación",
+    title: t("settings.tplResumeTitle"),
     name: "retomar_conversacion",
     category: "MARKETING",
-    body: "Hola {{1}}, ¿sigues interesado en {{2}}? Esta semana tenemos lugares disponibles. Responde a este mensaje y te ayudamos.",
+    body: t("settings.tplResumeBody"),
     examples: ["Ana", "la limpieza dental"],
   },
 ];
@@ -138,7 +139,7 @@ export function TemplatesClient() {
           setSyncMsg(
             data.updated > 0
               ? `${data.updated} plantilla(s) actualizada(s)`
-              : "Todo al día"
+              : t("settings.tplUpToDate")
           );
         }
         if (!silent || data.updated > 0) void refetch();
@@ -174,7 +175,7 @@ export function TemplatesClient() {
               size="sm"
               disabled={syncing}
               onClick={() => void sync()}
-              title="Consulta a Meta el estado de revisión"
+              title={t("settings.tplCheckStatus")}
             >
               <RefreshCw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
               Actualizar estado
@@ -206,7 +207,7 @@ export function TemplatesClient() {
             <EmptyState
               icon={FileText}
               className="rounded-lg border border-dashed"
-              title="Todavía no tienes plantillas"
+              title={t("settings.tplNone")}
               description="Crea la primera para poder escribirle a un cliente cuando pasen las 24 horas. Puedes empezar con un ejemplo."
               action={
                 <Button size="sm" onClick={() => setCreating(true)}>
@@ -263,8 +264,8 @@ function HowItWorks({ defaultOpen }: { defaultOpen: boolean }) {
   const steps = [
     {
       icon: Plus,
-      title: "Créala aquí",
-      text: "Escribe el mensaje y marca con {{1}}, {{2}}… lo que cambia en cada envío, como el nombre o la fecha.",
+      title: t("settings.tplCreateHere"),
+      text: t("settings.tplCreateHint"),
     },
     {
       icon: Clock3,
@@ -437,7 +438,7 @@ function CreateForm({
             <Label htmlFor="tpl-name">Nombre interno</Label>
             <Input
               id="tpl-name"
-              placeholder="seguimiento_cotizacion"
+              placeholder={t("settings.tplName")}
               value={name}
               onChange={(e) => setName(normalizeName(e.target.value))}
               maxLength={60}
@@ -504,7 +505,7 @@ function CreateForm({
           <Textarea
             id="tpl-body"
             rows={4}
-            placeholder="Hola {{1}}, te confirmo tu sesión el {{2}} a las {{3}}. Si necesitas moverla, responde a este mensaje."
+            placeholder={t("settings.tplBodyPlaceholder")}
             value={body}
             onChange={(e) => setBody(e.target.value)}
           />
@@ -571,7 +572,7 @@ function CreateForm({
             disabled={saving || !name.trim() || !body.trim() || bodyError !== null}
             onClick={() => void create()}
           >
-            {saving ? "Enviando a Meta…" : "Crear y enviar a revisión"}
+            {saving ? t("settings.tplCreating") : t("settings.tplCreateSend")}
           </Button>
           <Button variant="outline" disabled={saving} onClick={onCancel}>
             Cancelar

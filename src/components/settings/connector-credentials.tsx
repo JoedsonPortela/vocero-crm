@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,7 +53,7 @@ const FIELDS: Record<ExternalConnector, Field[]> = {
       name: "calendarId",
       label: "Calendario",
       placeholder: "primary",
-      help: "Déjalo en «primary» para tu calendario principal.",
+      help: t("settings.calendarHelp"),
     },
   ],
 };
@@ -62,9 +63,9 @@ const HELP: Record<ExternalConnector, { title: string; items: string[] }> = {
   zoom: {
     title: "Crea una app Server-to-Server OAuth en el Marketplace de Zoom",
     items: [
-      "Copia de ahí el Account ID, el Client ID y el Client Secret.",
-      "Dale los cuatro permisos: crear, actualizar y borrar reunión, y leer el usuario (meeting:write, meeting:update, meeting:delete y user:read).",
-      "El de leer usuario es el que usa el botón «Probar»: sin él la conexión falla aunque las credenciales sean correctas.",
+      t("settings.googleStep1"),
+      t("settings.zoomStep3"),
+      t("settings.zoomStep4"),
     ],
   },
   google: {
@@ -139,7 +140,7 @@ export function ConnectorCredentials({
       return;
     }
     if (mode === "test") {
-      setMessage({ kind: "ok", text: "Conexión correcta" });
+      setMessage({ kind: "ok", text: t("settings.connectionOk") });
       return;
     }
     const data = (await res.json()) as { connection: Connection };

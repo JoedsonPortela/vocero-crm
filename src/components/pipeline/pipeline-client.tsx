@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -439,7 +440,7 @@ function LeadCard({
           <p className="text-[11px] text-muted-foreground">
             {lead.lastActivityAt
               ? `Actividad: ${formatTime(lead.lastActivityAt)}`
-              : "Sin actividad"}
+              : t("pipeline.noActivity")}
           </p>
         </div>
         {lead.conversationId && (
@@ -447,7 +448,7 @@ function LeadCard({
             href={`/inbox?contact=${lead.contact.id}`}
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
-            aria-label="Abrir conversación"
+            aria-label={t("common.openConversation")}
             className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <MessageSquareText className="h-4 w-4" />

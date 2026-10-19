@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useState } from "react";
 import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
 import type { StageDto } from "@/lib/types";
@@ -78,7 +79,7 @@ export function StageManager({
         setDeleting(stage);
         return;
       }
-      setError(data?.error?.message ?? "No se pudo eliminar");
+      setError(data?.error?.message ?? t("pipeline.deleteFailed"));
       return;
     }
     setDeleting(null);
@@ -114,7 +115,7 @@ export function StageManager({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label="Eliminar etapa"
+                  aria-label={t("pipeline.deleteStage")}
                   onClick={() => void remove(s, null)}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -124,7 +125,7 @@ export function StageManager({
                 variant="ghost"
                 size="icon"
                 disabled={i === 0}
-                aria-label="Subir"
+                aria-label={t("pipeline.moveUp")}
                 onClick={() => void move(s, -1)}
               >
                 <ArrowUp className="h-4 w-4" />
@@ -133,7 +134,7 @@ export function StageManager({
                 variant="ghost"
                 size="icon"
                 disabled={i === sorted.length - 1}
-                aria-label="Bajar"
+                aria-label={t("pipeline.moveDown")}
                 onClick={() => void move(s, 1)}
               >
                 <ArrowDown className="h-4 w-4" />
@@ -153,7 +154,7 @@ export function StageManager({
                 onChange={(e) => setMoveTo(e.target.value)}
                 className="h-9 flex-1 rounded-md border border-input bg-card px-3 text-sm"
               >
-                <option value="">Etapa destino…</option>
+                <option value="">{t("pipeline.targetStage")}</option>
                 {sorted
                   .filter((s) => s.id !== deleting.id)
                   .map((s) => (
@@ -178,7 +179,7 @@ export function StageManager({
 
         <div className="mt-4 flex gap-2 border-t pt-4">
           <Input
-            placeholder="Nueva etapa…"
+            placeholder={t("pipeline.newStage")}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => {

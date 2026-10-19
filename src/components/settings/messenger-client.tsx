@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, Copy, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -47,18 +48,18 @@ type WebhookInfo = {
 
 const HELP: Record<Source, { title: string; items: string[] }> = {
   zernio: {
-    title: "Vincula tu página en Zernio y pega aquí tu API key",
+    title: t("settings.msTitle"),
     items: [
-      "La página se vincula en el panel de Zernio (Accounts → Connect), no desde aquí.",
+      t("settings.msStep1"),
       "La API key se crea en Zernio → Settings → API Keys y se muestra una sola vez (empieza con sk_).",
     ],
   },
   meta: {
     title: "Crea una app en developers.facebook.com con el producto Messenger",
     items: [
-      "El ID de la página está en la sección «Información» de la página, o en Messenger → Configuración → Tokens de acceso.",
-      "Genera ahí el token de la página con el permiso pages_messaging. Uno de larga duración evita reconectar cada dos meses.",
-      "Sin App Review, la página solo recibe mensajes de cuentas con un rol en la app (administradores, desarrolladores, testers).",
+      t("settings.msStep2"),
+      t("settings.msStep3"),
+      t("settings.msStep4"),
     ],
   },
 };
@@ -114,12 +115,12 @@ export function MessengerClient() {
       const data = (await res?.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo conectar la página");
+      setError(data?.error?.message ?? t("settings.pageFailed"));
       return;
     }
     const data = (await res.json()) as { pageName?: string | null };
     setToken("");
-    setSaved(data.pageName ? `Página conectada: ${data.pageName}` : "Conexión guardada");
+    setSaved(data.pageName ? `Página conectada: ${data.pageName}` : t("settings.connectionSaved"));
     void refetch();
   }
 
@@ -217,7 +218,7 @@ export function MessengerClient() {
             <ZernioConnect
               endpoint="/api/settings/messenger"
               extraBody={{ source: "zernio" }}
-              what="tu página de Facebook"
+              what={t("settings.fbPage")}
               idPrefix="fb"
               onSaved={() => void refetch()}
             />
@@ -251,7 +252,7 @@ export function MessengerClient() {
               {saved && <p className="text-sm text-success-text">{saved} ✓</p>}
 
               <Button disabled={saving || !canSave} onClick={() => void save()}>
-                {saving ? "Probando…" : "Probar y guardar"}
+                {saving ? t("settings.testing") : "Probar y guardar"}
               </Button>
             </>
           )}
@@ -289,7 +290,7 @@ export function MessengerClient() {
                   <Button
                     variant="outline"
                     size="icon"
-                    aria-label="Copiar la URL"
+                    aria-label={t("settings.copyUrl")}
                     onClick={() => void copy(webhook.messengerUrl!, "url")}
                   >
                     {copied === "url" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -303,7 +304,7 @@ export function MessengerClient() {
                   <Button
                     variant="outline"
                     size="icon"
-                    aria-label="Copiar el token de verificación"
+                    aria-label={t("settings.copyVerifyToken")}
                     onClick={() => void copy(webhook.verifyToken, "token")}
                   >
                     {copied === "token" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -314,7 +315,7 @@ export function MessengerClient() {
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 {webhook.signatureLayer
                   ? "Cada entrega se verifica con la firma del App Secret de tu app."
-                  : "Define META_APP_SECRET en la instancia para que además se verifique la firma de cada entrega."}
+                  : t("settings.appSecretHint")}
               </p>
             </CardContent>
           </Card>

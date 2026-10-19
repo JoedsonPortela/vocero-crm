@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { addDaysISO } from "@/lib/time/slots";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +56,7 @@ export function RangePicker({
           max={value.to}
           onChange={(e) => e.target.value && onChange({ ...value, from: e.target.value })}
           className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground"
-          aria-label="Desde"
+          aria-label={t("results.from")}
         />
         <span aria-hidden>a</span>
         <input
@@ -64,7 +65,7 @@ export function RangePicker({
           min={value.from}
           onChange={(e) => e.target.value && onChange({ ...value, to: e.target.value })}
           className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground"
-          aria-label="Hasta"
+          aria-label={t("results.to")}
         />
       </div>
       <span className="text-[11px] text-text-3">Días de {timezone}</span>

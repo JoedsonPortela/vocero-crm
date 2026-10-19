@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Inbox } from "lucide-react";
@@ -205,7 +206,7 @@ export function BrandingClient({
               misma clase (`nav-dark`) y el mismo renglón activo que la de
               verdad; a la derecha la página en el tema activo, con su botón. */}
           <div
-            aria-label="Vista previa de la marca"
+            aria-label={t("settings.brandPreview")}
             className="flex flex-col overflow-hidden rounded-md border border-border-strong sm:flex-row"
           >
             <div
@@ -236,7 +237,7 @@ export function BrandingClient({
           {error && <p className="text-sm text-destructive">{error}</p>}
           {saved && <p className="text-sm" style={{ color: previewSet.text }}>Marca guardada ✓</p>}
           <Button disabled={saving || !name.trim()} onClick={() => void save()}>
-            {saving ? "Guardando…" : "Guardar marca"}
+            {saving ? t("settings.saving") : "Guardar marca"}
           </Button>
         </CardContent>
       </Card>

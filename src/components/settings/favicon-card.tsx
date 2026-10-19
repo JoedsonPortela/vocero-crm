@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageUp, Trash2 } from "lucide-react";
@@ -90,7 +91,7 @@ export function FaviconCard({ branding }: { branding: Branding }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={src}
-            alt="Vista previa del icono de la pestaña"
+            alt={t("settings.iconPreview")}
             width={48}
             height={48}
             className="h-12 w-12 rounded-lg border bg-card object-contain"
@@ -101,7 +102,7 @@ export function FaviconCard({ branding }: { branding: Branding }) {
             </p>
             <p className="mt-0.5 text-xs text-text-3">
               {actual
-                ? "Reemplaza al generado en la pestaña y en la barra lateral. Puedes quitarlo para volver a él."
+                ? t("settings.faviconHint")
                 : "La inicial sobre tu color de acento. Sube tu logo para reemplazarla."}
             </p>
           </div>

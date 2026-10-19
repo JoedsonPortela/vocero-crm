@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useEvents } from "@/components/use-events";
 import { Switch } from "@/components/ui/switch";
@@ -299,7 +300,7 @@ export function BookingsClient({
       const data = (await res?.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      return { ok: false, message: data?.error?.message ?? "No se pudo completar la acción" };
+      return { ok: false, message: data?.error?.message ?? t("bookings.actionFailed") };
     }
     await reload();
     return { ok: true };
@@ -516,7 +517,7 @@ function Legend() {
   const items = [
     { label: "Agendada", dot: "rounded-full bg-brand" },
     { label: "Realizada", dot: "rounded-full bg-success" },
-    { label: "No asistió", dot: "rounded-full bg-warning" },
+    { label: t("bookings.noShow"), dot: "rounded-full bg-warning" },
     // El rayado no se lee en un punto de 10 px: un cuadrito con borde sí.
     { label: "Bloqueo", dot: "booking-hatch rounded-[3px] border border-text-3" },
   ];

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
@@ -147,7 +148,7 @@ export function ZernioConnect({
 
       <div className="flex flex-wrap items-center gap-3">
         <Button disabled={saving || !canSave} onClick={() => void save()}>
-          {saving ? "Probando…" : "Probar y conectar"}
+          {saving ? t("settings.testing") : "Probar y conectar"}
         </Button>
         {!manual && (
           <button
@@ -170,7 +171,7 @@ export function ZernioConnect({
             <p className="text-success-text opacity-80">
               {saved.webhook.created
                 ? "Vocero dio de alta su webhook en tu Zernio, limitado a tus cuentas conectadas."
-                : "El webhook de tu Zernio quedó actualizado y limitado a tus cuentas conectadas."}
+                : t("settings.zernioWebhookUpdated")}
             </p>
           )}
           {saved.health && saved.health.level !== "ok" && <Aviso>{saved.health.message}</Aviso>}

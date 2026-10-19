@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChevronLeft, PanelRight } from "lucide-react";
@@ -235,7 +236,7 @@ export function InboxClient({
   const sendText = useCallback(
     async (text: string): Promise<string | null> => {
       const conversationId = selectedIdRef.current;
-      if (!conversationId) return "Sin conversación seleccionada";
+      if (!conversationId) return t("inbox.noConversation");
 
       const tmpId = `tmp_${++tmpSeq.current}`;
       setPending((prev) => [
@@ -257,14 +258,14 @@ export function InboxClient({
         }).catch(() => null);
         if (!res) {
           drop();
-          return "Sin conexión con el servidor";
+          return t("inbox.noServer");
         }
         if (!res.ok) {
           const data = (await res.json().catch(() => null)) as {
             error?: { message?: string };
           } | null;
           drop();
-          return data?.error?.message ?? "No se pudo enviar el mensaje";
+          return data?.error?.message ?? t("inbox.sendFailed");
         }
         // Primero traer el mensaje real, después quitar el provisional: al
         // revés, la burbuja parpadearía.
@@ -298,18 +299,18 @@ export function InboxClient({
   const deleteConversation = useCallback(
     async (alsoContact: boolean): Promise<string | null> => {
       const id = selectedIdRef.current;
-      if (!id) return "Sin conversación seleccionada";
+      if (!id) return t("inbox.noConversation");
       const res = await fetch(
         `/api/conversations/${id}${alsoContact ? "?contacto=1" : ""}`,
         { method: "DELETE" }
       ).catch(() => null);
-      if (!res) return "Sin conexión con el servidor";
+      if (!res) return t("inbox.noServer");
       // 404 = otra persona la eliminó primero: para quien lo pidió, ya está.
       if (!res.ok && res.status !== 404) {
         const data = (await res.json().catch(() => null)) as {
           error?: { message?: string };
         } | null;
-        return data?.error?.message ?? "No se pudo eliminar la conversación";
+        return data?.error?.message ?? t("inbox.deleteFailed");
       }
       quitarConversacion(id);
       void refetchConversations();
@@ -349,7 +350,7 @@ export function InboxClient({
               {/* Volver a la lista: en móvil el hilo ocupa toda la pantalla. */}
               <button
                 onClick={() => setSelectedId(null)}
-                aria-label="Volver a las conversaciones"
+                aria-label={t("inbox.backToList")}
                 className="shrink-0 rounded-md p-1.5 text-text-2 hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
               >
                 <ChevronLeft className="h-5 w-5" strokeWidth={1.8} />
@@ -393,7 +394,7 @@ export function InboxClient({
               {!panelOpen && (
                 <button
                   onClick={() => togglePanel(true)}
-                  aria-label="Mostrar detalles"
+                  aria-label={t("inbox.showDetails")}
                   className="shrink-0 rounded-full border border-border-strong p-1.5 text-text-3 transition-colors hover:border-text-3 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <PanelRight className="h-4 w-4" strokeWidth={1.7} />
@@ -419,7 +420,7 @@ export function InboxClient({
             <p className="font-serif text-[24px] italic leading-tight text-text-2">
               Elige una conversación para ver el hilo
             </p>
-            <p className="kicker">Bandeja · tiempo real</p>
+            <p className="kicker">{t("inbox.kicker")}</p>
           </div>
         )}
       </section>
@@ -427,7 +428,7 @@ export function InboxClient({
       {/* Velo del cajón de detalles (solo donde no caben tres columnas). */}
       {panelOpen && selected && (
         <button
-          aria-label="Cerrar los detalles"
+          aria-label={t("inbox.closeDetails")}
           tabIndex={-1}
           onClick={() => togglePanel(false)}
           className="fixed inset-0 z-30 bg-overlay xl:hidden"

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Cable, Plus, Sparkles, Trash2 } from "lucide-react";
@@ -209,7 +210,7 @@ function ProfileSection({
           <Label htmlFor="agent-tone">Tono</Label>
           <Input
             id="agent-tone"
-            placeholder="p. ej. cercano y directo, con usted"
+            placeholder={t("agent.tonePlaceholder")}
             value={form.tone ?? ""}
             onChange={(e) => setForm({ ...form, tone: e.target.value })}
           />
@@ -219,7 +220,7 @@ function ProfileSection({
           <Textarea
             id="agent-instructions"
             rows={5}
-            placeholder="Qué debe y no debe hacer el agente…"
+            placeholder={t("agent.rulesPlaceholder")}
             value={form.instructions ?? ""}
             onChange={(e) => setForm({ ...form, instructions: e.target.value })}
           />
@@ -229,7 +230,7 @@ function ProfileSection({
           <Textarea
             id="agent-escalation"
             rows={3}
-            placeholder="Cuándo pasar la conversación a un humano…"
+            placeholder={t("agent.escalatePlaceholder")}
             value={form.escalationRules ?? ""}
             onChange={(e) => setForm({ ...form, escalationRules: e.target.value })}
           />
@@ -238,7 +239,7 @@ function ProfileSection({
           <Label htmlFor="agent-greeting">Saludo</Label>
           <Input
             id="agent-greeting"
-            placeholder="Saludo para conversaciones nuevas"
+            placeholder={t("agent.greetingPlaceholder")}
             value={form.greeting ?? ""}
             onChange={(e) => setForm({ ...form, greeting: e.target.value })}
           />
@@ -318,12 +319,12 @@ function KbSection({
         <div className="space-y-2 rounded-md border p-3">
           <p className="text-sm font-medium">Nueva pregunta / respuesta</p>
           <Input
-            placeholder="Pregunta (p. ej. ¿Hacen envíos?)"
+            placeholder={t("agent.questionPlaceholder")}
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
           />
           <Textarea
-            placeholder="Respuesta"
+            placeholder={t("agent.answerPlaceholder")}
             rows={2}
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
@@ -340,7 +341,7 @@ function KbSection({
         <div className="space-y-2 rounded-md border p-3">
           <p className="text-sm font-medium">Nuevo bloque de texto libre</p>
           <Textarea
-            placeholder="Horarios, direcciones, políticas…"
+            placeholder={t("agent.knowledgePlaceholder")}
             rows={3}
             value={block}
             onChange={(e) => setBlock(e.target.value)}
@@ -366,7 +367,7 @@ function KbSection({
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label="Eliminar entrada"
+                aria-label={t("agent.deleteEntry")}
                 onClick={() => void remove(e.id)}
               >
                 <Trash2 className="h-4 w-4" />

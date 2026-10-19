@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { t } from "@/lib/i18n";
 import { useState } from "react";
 import { LOSS_REASON_LABEL, type LossReason } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ export function LossReasonDialog({
     >
       <div
         role="dialog"
-        aria-label="Motivo de pérdida"
+        aria-label={t("pipeline.lossReason")}
         className="w-full max-w-md rounded-lg border bg-popover p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
@@ -70,7 +71,7 @@ export function LossReasonDialog({
             onChange={(e) => setNote(e.target.value)}
             rows={2}
             maxLength={500}
-            placeholder="Se fue con una agencia local por la mitad del precio"
+            placeholder={t("pipeline.lossPlaceholder")}
           />
         </div>
 

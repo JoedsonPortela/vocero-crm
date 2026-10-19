@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,7 @@ type ActivityRow = {
 
 const STATUS_LABEL: Record<ActivityRow["status"], string> = {
   sent: "Enviado",
-  failed: "Falló",
+  failed: t("settings.failed"),
   skipped: "Omitido",
   pending: "En curso",
 };
@@ -184,7 +185,7 @@ export function AdsClient() {
               id="capi-token"
               value={token}
               onChange={(e) => setToken(e.target.value)}
-              placeholder="Déjalo vacío para reusar el de WhatsApp"
+              placeholder={t("settings.reuseWhatsappHint")}
               autoComplete="off"
             />
             <p className="text-xs text-muted-foreground">
@@ -226,7 +227,7 @@ export function AdsClient() {
 
           <div className="flex gap-2">
             <Button onClick={save} disabled={saving || !datasetId.trim()}>
-              {saving ? "Guardando…" : "Guardar"}
+              {saving ? t("settings.saving") : "Guardar"}
             </Button>
             {capi ? (
               <Button variant="outline" onClick={disconnect} disabled={saving}>

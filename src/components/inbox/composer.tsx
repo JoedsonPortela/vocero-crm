@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useRef, useState } from "react";
 import {
   Clock3,
@@ -148,7 +149,7 @@ export function Composer({
   async function submitLocation() {
     const coords = parseCoords(coordsRaw);
     if (!coords) {
-      setError("Coordenadas inválidas — pega «lat, long» o un enlace de Google Maps");
+      setError(t("inbox.badCoords"));
       return;
     }
     setSending(true);
@@ -174,7 +175,7 @@ export function Composer({
 
   async function submitContact() {
     if (!contactName.trim() || contactPhone.trim().length < 5) {
-      setError("El contacto necesita nombre y teléfono");
+      setError(t("inbox.contactNeedsData"));
       return;
     }
     setSending(true);
@@ -206,7 +207,7 @@ export function Composer({
         <div className="flex items-start gap-2 rounded-md border border-warning-soft bg-warning-tint p-3 text-sm text-warning-text">
           <Clock3 className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.7} />
           <div>
-            <p className="font-medium">La ventana de 48 horas de TikTok está cerrada.</p>
+            <p className="font-medium">{t("inbox.windowTiktok")}</p>
             <p className="opacity-80">
               TikTok solo deja contestar dentro de las 48 horas siguientes al
               último mensaje del cliente, y no permite reabrir la conversación.
@@ -250,7 +251,7 @@ export function Composer({
         <div className="mb-3 flex items-start gap-2 rounded-md border border-warning-soft bg-warning-tint p-3 text-sm text-warning-text">
           <Clock3 className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.7} />
           <div>
-            <p className="font-medium">La ventana de 24 horas está cerrada.</p>
+            <p className="font-medium">{t("inbox.windowClosed")}</p>
             <p className="opacity-80">
               WhatsApp solo permite texto libre dentro de las 24 horas
               siguientes al último mensaje del cliente. Para retomar la
@@ -276,7 +277,7 @@ export function Composer({
         >
           <Clock3 className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={1.7} />
           <p>
-            <span className="font-semibold">Solo puede contestar una persona.</span>{" "}
+            <span className="font-semibold">{t("inbox.onlyPersonReplies")}</span>{" "}
             Pasaron más de 24 horas desde el último mensaje del cliente: {canal}{" "}
             te deja responder a ti hasta 7 días, al agente ya no.
           </p>
@@ -322,7 +323,7 @@ export function Composer({
           </div>
           <button
             onClick={() => pickFile(null)}
-            aria-label="Quitar adjunto"
+            aria-label={t("inbox.removeAttachment")}
             className="rounded p-1 text-text-3 hover:bg-secondary hover:text-foreground"
           >
             <X className="h-4 w-4" strokeWidth={1.7} />
@@ -359,7 +360,7 @@ export function Composer({
           </button>
           <button
             onClick={() => setPanel(null)}
-            aria-label="Cancelar"
+            aria-label={t("common.cancel")}
             className="rounded p-1 text-text-3 hover:bg-secondary"
           >
             <X className="h-4 w-4" strokeWidth={1.7} />
@@ -396,7 +397,7 @@ export function Composer({
           </button>
           <button
             onClick={() => setPanel(null)}
-            aria-label="Cancelar"
+            aria-label={t("common.cancel")}
             className="rounded p-1 text-text-3 hover:bg-secondary"
           >
             <X className="h-4 w-4" strokeWidth={1.7} />
@@ -418,8 +419,8 @@ export function Composer({
             {conversation.composer.media && (
               <button
                 onClick={() => fileRef.current?.click()}
-                aria-label="Adjuntar archivo"
-                title="Adjuntar imagen, video, audio o documento"
+                aria-label={t("inbox.attachFile")}
+                title={t("inbox.attachHint")}
                 className="rounded p-1.5 text-text-3 transition-colors hover:bg-secondary hover:text-foreground"
               >
                 <Paperclip className="h-[18px] w-[18px]" strokeWidth={1.7} />
@@ -429,8 +430,8 @@ export function Composer({
               <>
                 <button
                   onClick={() => setPanel(panel === "location" ? null : "location")}
-                  aria-label="Enviar ubicación"
-                  title="Enviar ubicación"
+                  aria-label={t("inbox.sendLocation")}
+                  title={t("inbox.sendLocation")}
                   className={cn(
                     "rounded p-1.5 text-text-3 transition-colors hover:bg-secondary hover:text-foreground",
                     panel === "location" && "bg-secondary text-brand"
@@ -440,8 +441,8 @@ export function Composer({
                 </button>
                 <button
                   onClick={() => setPanel(panel === "contact" ? null : "contact")}
-                  aria-label="Compartir contacto"
-                  title="Compartir contacto"
+                  aria-label={t("inbox.shareContact")}
+                  title={t("inbox.shareContact")}
                   className={cn(
                     "rounded p-1.5 text-text-3 transition-colors hover:bg-secondary hover:text-foreground",
                     panel === "contact" && "bg-secondary text-brand"
@@ -455,7 +456,7 @@ export function Composer({
         )}
         <textarea
           ref={taRef}
-          placeholder={file ? "Pie del adjunto (opcional)…" : "Escribe una respuesta…"}
+          placeholder={file ? t("inbox.captionPlaceholder") : t("inbox.writeReply")}
           value={text}
           rows={1}
           onChange={(e) => {
@@ -473,7 +474,7 @@ export function Composer({
         <button
           onClick={() => void submit()}
           disabled={sending || !canSubmit}
-          aria-label="Enviar"
+          aria-label={t("common.send")}
           className={cn(
             "flex h-[32px] w-[32px] shrink-0 items-center justify-center rounded-full bg-brand text-brand-fg transition-[opacity,background-color] hover:bg-brand-hover",
             (sending || !canSubmit) && "opacity-40"

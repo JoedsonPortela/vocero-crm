@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useState } from "react";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -109,7 +110,7 @@ export function FichaPanel({
                     />
                     <button
                       onClick={() => void confirmarEdicion(clave)}
-                      aria-label="Guardar"
+                      aria-label={t("common.save")}
                       className="rounded p-1 text-text-3 hover:bg-accent hover:text-foreground"
                     >
                       <Check className="h-3.5 w-3.5" />
@@ -165,9 +166,9 @@ export function FichaPanel({
             autoFocus
             value={claveNueva}
             onChange={(e) => setClaveNueva(e.target.value)}
-            placeholder="Qué dato (ej. presupuesto)"
+            placeholder={t("ficha.namePlaceholder")}
             className="h-7 py-0 text-xs"
-            aria-label="Nombre del dato"
+            aria-label={t("ficha.nameLabel")}
           />
           <Input
             value={valorNuevo}
@@ -176,9 +177,9 @@ export function FichaPanel({
               if (e.key === "Enter") void agregar();
               if (e.key === "Escape") setAgregando(false);
             }}
-            placeholder="Valor"
+            placeholder={t("ficha.value")}
             className="h-7 py-0 text-xs"
-            aria-label="Valor del dato"
+            aria-label={t("ficha.valueLabel")}
           />
           <div className="flex gap-1.5">
             <Button

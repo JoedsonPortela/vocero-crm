@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { MessageSquareText, X } from "lucide-react";
@@ -107,7 +108,7 @@ export function LeadDrawer({
     <>
       {/* Velo: cerrar tocando fuera es lo que uno intenta primero. */}
       <button
-        aria-label="Cerrar el trato"
+        aria-label={t("pipeline.closeDeal")}
         tabIndex={-1}
         onClick={onClose}
         className="fixed inset-0 z-40 bg-overlay"
@@ -125,7 +126,7 @@ export function LeadDrawer({
           </h3>
           <button
             onClick={onClose}
-            aria-label="Cerrar el panel del trato"
+            aria-label={t("pipeline.closeDealPanel")}
             className="rounded p-1 text-text-3 hover:bg-accent hover:text-foreground"
           >
             <X className="h-4 w-4" strokeWidth={1.7} />
@@ -188,14 +189,14 @@ export function LeadDrawer({
                     if (e.key === "Escape") setEditandoMonto(false);
                   }}
                   placeholder="12,500"
-                  aria-label="Monto del trato"
+                  aria-label={t("pipeline.dealAmount")}
                   className="h-8 text-sm"
                 />
                 <p className="mt-1 text-xs text-text-3">
                   {montoInvalido
                     ? "No se entiende ese importe."
                     : montoParseado === null
-                      ? "Déjalo vacío para quitar el monto."
+                      ? t("pipeline.clearAmountHint")
                       : `Se guardará como ${formatMoneyCents(montoParseado, moneda)}`}
                 </p>
                 <div className="mt-2 flex gap-1.5">
@@ -221,7 +222,7 @@ export function LeadDrawer({
             ) : (
               <button
                 onClick={() => setEditandoMonto(true)}
-                aria-label="Editar el monto"
+                aria-label={t("pipeline.editAmount")}
                 className={cn(
                   "w-full rounded px-1 py-1 text-left text-sm tabular-nums hover:bg-accent",
                   lead.amountCents === null
@@ -230,7 +231,7 @@ export function LeadDrawer({
                 )}
               >
                 {lead.amountCents === null
-                  ? "Sin monto — captúralo"
+                  ? t("pipeline.noAmount")
                   : formatMoneyCents(lead.amountCents, moneda)}
               </button>
             )}

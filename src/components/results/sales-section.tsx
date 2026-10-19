@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import type { SalesBlockDto } from "@/lib/analytics";
 import { formatMoneyCents } from "@/lib/money";
 import { Funnel } from "./funnel";
@@ -25,24 +26,24 @@ export function SalesSection({
   return (
     <Section
       id="ventas"
-      title="Ventas"
-      hint="Lo que entró, lo que se cerró y dónde se atoran los tratos."
+      title={t("results.salesTitle")}
+      hint={t("results.salesHint")}
       loading={loading}
       error={error}
       hasData={!!data}
       empty={!!data?.empty}
-      emptyText="No hay prospectos ni cierres en este periodo. Prueba con un rango más amplio."
+      emptyText={t("results.salesEmpty")}
     >
       {data && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3 xl:grid-cols-6">
             <StatCard
-              label="Prospectos nuevos"
+              label={t("results.newProspects")}
               value={String(data.kpis.newLeads.current)}
               compare={data.kpis.newLeads}
             />
             <StatCard
-              label="Tratos ganados"
+              label={t("results.dealsWon")}
               value={String(data.kpis.won.current)}
               compare={data.kpis.won}
             />
@@ -67,7 +68,7 @@ export function SalesSection({
               value={money(data.kpis.avgTicketCents)}
               hint={
                 data.kpis.avgTicketCents === null
-                  ? "ningún trato ganado con monto"
+                  ? t("results.noAmountWon")
                   : undefined
               }
             />
@@ -75,13 +76,13 @@ export function SalesSection({
 
           <div className="grid gap-6 lg:grid-cols-2">
             <TimeBars
-              title="Prospectos nuevos"
+              title={t("results.newProspects")}
               unit="prospectos"
               points={data.series.map((s) => ({ bucket: s.bucket, value: s.newLeads }))}
               format={(v) => String(v)}
             />
             <TimeBars
-              title="Tratos ganados"
+              title={t("results.dealsWon")}
               unit="tratos ganados"
               points={data.series.map((s) => ({
                 bucket: s.bucket,
@@ -89,7 +90,7 @@ export function SalesSection({
                 detail: s.wonCents > 0 ? money(s.wonCents) : undefined,
               }))}
               format={(v) => String(v)}
-              emptyText="Ningún trato ganado en el periodo."
+              emptyText={t("results.noDealsWon")}
             />
           </div>
 

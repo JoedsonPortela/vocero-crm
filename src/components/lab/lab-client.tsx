@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -50,9 +51,9 @@ type Case = {
 };
 
 const TIPO_LABELS: Record<Hallazgo["tipo"], string> = {
-  alucinacion: "Alucinación",
+  alucinacion: t("lab.hallucination"),
   fuera_de_kb: "Fuera del conocimiento",
-  debio_escalar: "Debió escalar",
+  debio_escalar: t("lab.shouldEscalate"),
   tono: "Tono",
 };
 
@@ -183,10 +184,10 @@ export function LabClient() {
           <EmptyState
             icon={FlaskConical}
             className="rounded-lg border border-dashed p-10"
-            title={runs.length === 0 ? "Sin corridas todavía" : "Elige una corrida"}
+            title={runs.length === 0 ? t("lab.noRuns") : t("lab.chooseRun")}
             description={
               runs.length === 0
-                ? "Corre tu primera evaluación: 6 clientes simulados conversarán con tu agente y un juez calificará cada conversación."
+                ? t("lab.firstRunHint")
                 : "Abre una corrida del historial para ver su reporte."
             }
           />
@@ -219,7 +220,7 @@ function Header({
       </div>
       <Button onClick={onLaunch} disabled={disabled || running || launching}>
         <Play className="h-4 w-4" />
-        {running ? "Corrida en curso…" : "Correr evaluación"}
+        {running ? t("lab.running") : t("lab.runButton")}
       </Button>
     </header>
   );
@@ -466,7 +467,7 @@ function HallazgoCard({
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor={`sug-a-${caseId}-${index}`}>Respuesta</Label>
+            <Label htmlFor={`sug-a-${caseId}-${index}`}>{t("agent.answerPlaceholder")}</Label>
             <Textarea
               id={`sug-a-${caseId}-${index}`}
               rows={3}

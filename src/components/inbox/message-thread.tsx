@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useRef } from "react";
 import {
   AlertTriangle,
@@ -55,7 +56,7 @@ function MediaBlock({ media }: { media: MessageMediaDto }) {
       <span className="flex items-start gap-1.5">
         <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand" strokeWidth={1.7} />
         <span className="min-w-0">
-          <span className="block font-medium">{loc.name ?? "Ubicación"}</span>
+          <span className="block font-medium">{loc.name ?? t("inbox.location")}</span>
           {loc.address && (
             <span className="block text-[12.5px] text-text-3">{loc.address}</span>
           )}
@@ -100,7 +101,7 @@ function MediaBlock({ media }: { media: MessageMediaDto }) {
             );
           })
         ) : (
-          <span className="text-text-3">Contacto compartido</span>
+          <span className="text-text-3">{t("inbox.sharedContact")}</span>
         )}
       </span>
     );
@@ -120,7 +121,7 @@ function MediaBlock({ media }: { media: MessageMediaDto }) {
 
   if (media.kind === "image" || media.kind === "sticker") {
     return (
-      <a href={src} target="_blank" rel="noreferrer noopener" title="Ver completa">
+      <a href={src} target="_blank" rel="noreferrer noopener" title={t("inbox.viewFull")}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={src}
@@ -258,7 +259,7 @@ export function MessageThread({ messages }: { messages: MessageDto[] }) {
                   {m.aiGenerated && (
                     <span
                       className="inline-flex items-center gap-0.5 text-[10px] font-medium text-brand-ink"
-                      title="Respuesta generada por IA"
+                      title={t("inbox.aiReply")}
                     >
                       <Sparkles className="h-3 w-3" strokeWidth={1.7} /> IA
                     </span>
@@ -266,7 +267,7 @@ export function MessageThread({ messages }: { messages: MessageDto[] }) {
                   {m.origin === "manual" && (
                     <span
                       className="inline-flex items-center gap-0.5 text-[10px] font-medium text-text-3"
-                      title="Enviado a mano desde la app de WhatsApp Business"
+                      title={t("inbox.manualReply")}
                     >
                       <Smartphone className="h-3 w-3" strokeWidth={1.7} /> Celular
                     </span>
@@ -285,8 +286,8 @@ export function MessageThread({ messages }: { messages: MessageDto[] }) {
                       strokeWidth={1.8}
                     />
                     <span>
-                      <span className="font-semibold">No se entregó.</span>{" "}
-                      {m.error ?? "Meta no informó el motivo."}
+                      <span className="font-semibold">{t("inbox.notDelivered")}</span>{" "}
+                      {m.error ?? t("inbox.metaNoReason")}
                     </span>
                   </p>
                 )}

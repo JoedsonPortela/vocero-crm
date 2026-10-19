@@ -96,7 +96,7 @@ describe("la sección del agente y la bandera AGENDA", () => {
     const html = pintar(false, datos);
     expect(html).not.toMatch(/cita/i);
     expect(html).not.toContain("Asistencia");
-    expect(html).toContain("Contestó el agente");
+    expect(html).toContain("O agente respondeu");
   });
 
   it("encendida enseña las citas del periodo", () => {

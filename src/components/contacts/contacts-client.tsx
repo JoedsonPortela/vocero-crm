@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -118,10 +119,10 @@ export function ContactsClient() {
             <select
               value={stage}
               onChange={(e) => setStage(e.target.value)}
-              aria-label="Filtrar por etapa del embudo"
+              aria-label={t("contacts.stageFilter")}
               className="h-9 rounded-md border border-input bg-card px-2 text-sm"
             >
-              <option value="all">Toda etapa</option>
+              <option value="all">{t("contacts.allStages")}</option>
               {stages.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -133,8 +134,8 @@ export function ContactsClient() {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               ref={inputRef}
-              placeholder="Buscar por nombre o teléfono…"
-              aria-label="Buscar contacto"
+              placeholder={t("contacts.searchPlaceholder")}
+              aria-label={t("contacts.searchLabel")}
               defaultValue=""
               onChange={(e) => setQuery(e.target.value)}
               className="w-full pl-8 sm:w-72"
@@ -149,7 +150,7 @@ export function ContactsClient() {
             <EmptyState
               icon={Search}
               className="h-full"
-              title="Sin resultados"
+              title={t("contacts.noResults")}
               description={
                 <>
                   Nadie coincide con
@@ -163,8 +164,8 @@ export function ContactsClient() {
             <EmptyState
               icon={Users}
               className="h-full"
-              title="Sin contactos"
-              description="Cada persona que escriba a tu WhatsApp quedará registrada aquí automáticamente."
+              title={t("contacts.noContacts")}
+              description={t("contacts.noContactsHint")}
             />
           )
         ) : (
@@ -187,12 +188,12 @@ export function ContactsClient() {
                       <Badge variant="outline">{c.stageName}</Badge>
                     )}
                     {c.archivedAt && (
-                      <Badge variant="secondary">Archivado</Badge>
+                      <Badge variant="secondary">{t("contacts.archived")}</Badge>
                     )}
                     {c.aiPaused && (
                       <Badge
                         variant="warning"
-                        title="El agente no le responde a este contacto: lo atiendes tú"
+                        title={t("contacts.agentOff")}
                       >
                         <BotOff className="mr-1 h-3 w-3" strokeWidth={1.8} />
                         Sin agente
@@ -225,21 +226,21 @@ export function ContactsClient() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label="Escribir primero"
-                    title="Escribir primero (con plantilla)"
+                    aria-label={t("contacts.writeFirst")}
+                    title={t("contacts.writeFirstTemplate")}
                     onClick={() => setEscribiendo(c)}
                   >
                     <Send className="h-4 w-4" />
                   </Button>
                   <Link href={`/inbox?contact=${c.id}`}>
-                    <Button variant="ghost" size="icon" aria-label="Abrir conversación">
+                    <Button variant="ghost" size="icon" aria-label={t("common.openConversation")}>
                       <MessageSquareText className="h-4 w-4" />
                     </Button>
                   </Link>
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={c.archivedAt ? "Desarchivar" : "Archivar"}
+                    aria-label={c.archivedAt ? t("contacts.unarchive") : t("contacts.archive")}
                     onClick={() => void patch(c.id, { archived: !c.archivedAt })}
                   >
                     {c.archivedAt ? (
@@ -271,7 +272,7 @@ export function ContactsClient() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4"
           role="dialog"
           aria-modal="true"
-          aria-label="Escribir primero"
+          aria-label={t("contacts.writeFirst")}
         >
           <div className="w-full max-w-md rounded-lg border bg-popover p-4 shadow-pop">
             <div className="mb-3 flex items-baseline justify-between gap-2">

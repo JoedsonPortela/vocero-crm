@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Send } from "lucide-react";
@@ -67,7 +68,7 @@ export function StartConversation({
     if (!res?.ok) {
       // El fallo de Meta se explica aquí mismo (plantilla en pausa, número
       // que no la recibe…) en vez de perderse.
-      setError(data?.error?.message ?? "No se pudo iniciar la conversación");
+      setError(data?.error?.message ?? t("contacts.startFailed"));
       return;
     }
     onStarted(data?.conversationId ?? "");
@@ -105,7 +106,7 @@ export function StartConversation({
           setTemplateId(e.target.value);
           setVars([]);
         }}
-        aria-label="Plantilla para iniciar"
+        aria-label={t("contacts.templateToStart")}
         className="h-9 w-full rounded-md border border-input bg-card px-2 text-sm"
       >
         {templates.map((t) => (
@@ -141,7 +142,7 @@ export function StartConversation({
         onClick={() => void enviar()}
       >
         <Send className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.7} />
-        {enviando ? "Enviando…" : "Iniciar conversación"}
+        {enviando ? "Enviando…" : t("contacts.startConversation")}
       </Button>
       {error && <p className="text-xs text-danger-text">{error}</p>}
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -32,7 +33,7 @@ export function SettingsNav({
   const sections = settingsSections({ agenda, atribucion, instagram, messenger, tiktok });
   return (
     <nav
-      aria-label="Ajustes"
+      aria-label={t("settings.settingsLabel")}
       className="flex shrink-0 gap-4 overflow-x-auto border-b px-2 py-2 sm:w-48 sm:flex-col sm:gap-5 sm:overflow-visible sm:border-b-0 sm:border-r sm:p-3"
     >
       {sections.map((section) => (

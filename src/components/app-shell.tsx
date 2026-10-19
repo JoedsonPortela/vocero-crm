@@ -8,6 +8,7 @@ import type { ThemePreference } from "@/lib/theme";
 import type { ResolvedCommit } from "@/lib/version";
 import { AppNav } from "@/components/app-nav";
 import { BrandLogo } from "@/components/brand-mark";
+import { t } from "@/lib/i18n";
 
 /**
  * Cascarón de la app en dos modos:
@@ -75,7 +76,7 @@ export function AppShell({
     <div className="flex h-dvh overflow-hidden bg-background">
       {navOpen && (
         <button
-          aria-label="Cerrar el menú"
+          aria-label={t("shell.closeMenu")}
           tabIndex={-1}
           onClick={() => setNavOpen(false)}
           className="fixed inset-0 z-40 bg-overlay lg:hidden"
@@ -100,7 +101,7 @@ export function AppShell({
         <header className="nav-dark flex h-12 shrink-0 items-center gap-1.5 border-b bg-subtle px-2 text-foreground lg:hidden">
           <button
             onClick={() => setNavOpen(true)}
-            aria-label="Abrir el menú"
+            aria-label={t("shell.openMenu")}
             aria-expanded={navOpen}
             className="rounded-md p-2 text-text-2 hover:bg-accent hover:text-foreground"
           >

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -144,7 +145,7 @@ export function AppNav({
             alcanzable con el pulgar. */}
         <button
           onClick={onClose}
-          aria-label="Cerrar el menú"
+          aria-label={t("shell.closeMenu")}
           className="-ml-1 mt-0.5 rounded-md p-1.5 text-text-3 hover:bg-accent hover:text-foreground lg:hidden"
         >
           <X className="h-[18px] w-[18px]" strokeWidth={1.8} />
@@ -158,7 +159,7 @@ export function AppNav({
       {/* Grupos con encabezado pequeño, sin letras ni colapsables: se leen
           de arriba abajo como una lista de lo que hay. Un grupo sin título
           (Resultados) es una entrada suelta separada por el espacio. */}
-      <nav className="flex flex-col gap-4" aria-label="Secciones">
+      <nav className="flex flex-col gap-4" aria-label={t("shell.sections")}>
         {groups.map((group, i) => (
           <div key={group.title ?? i} className="flex flex-col gap-0.5">
             {group.title && (
@@ -188,8 +189,8 @@ export function AppNav({
         </span>
         <ThemeToggle initial={theme} />
         <button
-          aria-label="Cerrar sesión"
-          title="Cerrar sesión"
+          aria-label={t("shell.logout")}
+          title={t("shell.logout")}
           className="rounded p-1 text-text-3 hover:text-foreground"
           onClick={async () => {
             await signOut();

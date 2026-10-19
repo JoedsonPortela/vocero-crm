@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { UserPlus } from "lucide-react";
 import { ContactAvatar } from "@/components/avatar";
@@ -108,7 +109,7 @@ export function TeamClient() {
                 id="team-password"
                 value={tempPassword}
                 onChange={(e) => setTempPassword(e.target.value)}
-                placeholder="mínimo 8 caracteres"
+                placeholder={t("settings.passwordMin")}
               />
               <Button variant="outline" onClick={generatePassword}>
                 Generar

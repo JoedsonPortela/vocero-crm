@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { AlertTriangle, Cable, Info, Send, Sparkles, type LucideIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -54,14 +55,14 @@ export function BrainStatusCard({
       </CardHeader>
       <CardContent className="space-y-3">
         {status.warning === "doble_respuesta" && (
-          <Callout tone="danger" icon={AlertTriangle} title="Tus clientes pueden recibir dos respuestas">
+          <Callout tone="danger" icon={AlertTriangle} title={t("agent.doubleReplyTitle")}>
             El agente incluido y {name ? `tu cerebro externo (${name})` : "tu cerebro externo"}{" "}
             contestan los mismos mensajes: apaga el agente incluido con el interruptor
             de arriba o quita la llave de IA en Ajustes → IA.
           </Callout>
         )}
         {status.warning === "sin_cerebro" && (
-          <Callout tone="warning" icon={Info} title="Nadie contesta en automático">
+          <Callout tone="warning" icon={Info} title={t("agent.nobodyAutoTitle")}>
             Tus clientes solo reciben lo que respondas desde la bandeja: enciende el
             agente incluido (necesita un proveedor de IA en Ajustes → IA) o conecta tu
             cerebro externo con <Env>BOT_API_KEY</Env>.
@@ -73,7 +74,7 @@ export function BrainStatusCard({
             id="embedded"
             icon={Sparkles}
             label="Agente incluido"
-            hint="El de Vocero, con el comportamiento de esta página."
+            hint={t("agent.inCrmHint")}
             view={embeddedView(status)}
           />
           <BrainRow
@@ -88,7 +89,7 @@ export function BrainStatusCard({
               id="dispatch"
               icon={Send}
               label="Despacho al cerebro"
-              hint="El CRM le pasa cada turno; el webhook no sale de aquí."
+              hint={t("agent.dispatchHint")}
               view={dispatchView(status.dispatch, now)}
             />
           )}
@@ -118,11 +119,11 @@ function embeddedView(s: BrainStatusDto): RowView {
       headline,
       detail: enabled
         ? "En silencio: los turnos se le pasan a tu cerebro externo. Puedes dejarlo apagado."
-        : "Así debe quedarse mientras conteste tu cerebro externo.",
+        : t("agent.keepOffExternal"),
     };
   }
   if (enabled && !configured) {
-    return { tone: "warn", headline, detail: "No contesta: falta el proveedor de IA, o está pausado (Ajustes → IA)." };
+    return { tone: "warn", headline, detail: t("agent.noReplyMissingProvider") };
   }
   if (answering) {
     return {
@@ -135,13 +136,13 @@ function embeddedView(s: BrainStatusDto): RowView {
     };
   }
   if (s.external.active) {
-    return { tone: "off", headline, detail: "Así debe quedarse mientras conteste tu cerebro externo." };
+    return { tone: "off", headline, detail: t("agent.keepOffExternal") };
   }
   return {
     tone: "off",
     headline,
     detail: configured
-      ? "Enciéndelo con el interruptor de arriba para que conteste."
+      ? t("agent.turnOnHint")
       : "Para usarlo, configura tu proveedor de IA en Ajustes → IA.",
   };
 }
@@ -150,13 +151,13 @@ function externalView(s: BrainStatusDto, now: number): RowView {
   const { keyConfigured, lastSeenAt, active, health } = s.external;
   const llamada = lastSeenAt
     ? `última llamada ${haceCuanto(lastSeenAt, now)}`
-    : "sin llamadas desde el último arranque";
+    : t("agent.noCallsSinceStart");
 
   if (health?.reachable) {
     const name = externalBrainName(s);
     const parts = [
       name,
-      "en línea",
+      t("agent.online"),
       health.version && versionLabel(health.version),
       health.mode && `modo ${health.mode}`,
       health.relay && relayLabel(health.relay),
@@ -195,7 +196,7 @@ function externalView(s: BrainStatusDto, now: number): RowView {
 }
 
 function dispatchView(d: BrainDispatchDto, now: number): RowView {
-  const mientras = "Mientras tanto contesta el agente incluido, si está encendido.";
+  const mientras = t("agent.meanwhile");
   if (d.problem === "url") {
     return {
       tone: "warn",
@@ -246,15 +247,15 @@ function relayLabel(r: BrainRelayDto): string | null {
 function problemLabel(h: BrainHealthDto): string {
   switch (h.problem) {
     case "timeout":
-      return "no contestó en 2 s";
+      return t("agent.noAnswer2s");
     case "status":
       return `respondió ${h.httpStatus ?? "con error"}`;
     case "redirect":
-      return "respondió con una redirección (no se sigue)";
+      return t("agent.redirect");
     case "invalid":
-      return "respondió, pero no con su estado";
+      return t("agent.wrongStatus");
     default:
-      return "no acepta la conexión";
+      return t("agent.refusesConnection");
   }
 }
 

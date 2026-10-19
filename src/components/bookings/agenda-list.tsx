@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useMemo } from "react";
 import { AlertTriangle, CalendarDays, Sparkles, Video } from "lucide-react";
 import { bookingSegments, hhmm, longDayLabel, spanLabel, type DateRange } from "@/lib/time/calendar";
@@ -49,7 +50,7 @@ export function AgendaList({
         icon={CalendarDays}
         className="min-h-0 flex-1 rounded-lg border bg-card p-8"
         title={`Nada agendado del ${spanLabel(range)}`}
-        description="Aquí aparecen las citas que agenda la IA o tu equipo. El horario que se ofrece se configura en Ajustes → Agenda."
+        description={t("bookings.emptyHint")}
       />
     );
   }
@@ -90,13 +91,13 @@ export function AgendaList({
                     >
                       <span className="truncate">{bookingTitle(b)}</span>
                       {b.source === "ai" && b.kind === "session" && (
-                        <Sparkles aria-label="Agendó la IA" className="h-3.5 w-3.5 shrink-0 text-brand-text" />
+                        <Sparkles aria-label={t("bookings.byAi")} className="h-3.5 w-3.5 shrink-0 text-brand-text" />
                       )}
                     </span>
                     <span className="block truncate text-xs text-text-3">
                       {b.kind === "block"
                         ? `Bloqueo · ${b.durationMinutes} min`
-                        : `${b.durationMinutes} min · ${b.source === "ai" ? "Agendó la IA" : "Manual"}${b.isTest ? " · Prueba" : ""}`}
+                        : `${b.durationMinutes} min · ${b.source === "ai" ? t("bookings.byAi") : t("bookings.manual")}${b.isTest ? " · Prueba" : ""}`}
                     </span>
                   </span>
                   {hasDeliveryIssue(b) && (

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import type { ReactNode } from "react";
 import type { AdRowDto, AdsBlockDto, RateDto } from "@/lib/analytics";
 import { etiquetaDeOrigen, titularDeOrigen } from "@/lib/anuncios";
@@ -33,13 +34,13 @@ export function AdsSection({
   return (
     <Section
       id="origen"
-      title="Origen y anuncios"
-      hint="Por dónde llegan las conversaciones y qué anuncio trae gente que compra."
+      title={t("results.adsTitle")}
+      hint={t("results.adsHint")}
       loading={loading}
       error={error}
       hasData={!!data}
       empty={!!data?.empty}
-      emptyText="No empezó ninguna conversación en este periodo."
+      emptyText={t("results.noConversations")}
     >
       {data && (
         <div className="space-y-6">
@@ -141,7 +142,7 @@ function Filas({ primera, filas }: { primera: string; filas: Fila[] }) {
               </th>
               <Num>Conversaciones</Num>
               <Num>Prospectos</Num>
-              <Num>Ventas</Num>
+              <Num>{t("results.salesTitle")}</Num>
               <Num>Cierre</Num>
             </tr>
           </thead>

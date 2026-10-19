@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useState } from "react";
 import { ExternalLink, Megaphone } from "lucide-react";
 import type { AnuncioDto } from "@/lib/types";
@@ -69,7 +70,7 @@ export function AnuncioOrigen({ anuncio }: { anuncio: AnuncioDto }) {
     >
       <p className="flex items-center gap-1.5 text-[13px] font-medium text-info-text">
         <Megaphone className="h-4 w-4 shrink-0" strokeWidth={1.7} />
-        {etiqueta === "Anuncio" ? "Llegó por un anuncio" : "Llegó por una publicación"}
+        {etiqueta === "Anuncio" ? t("anuncio.fromAd") : t("anuncio.fromPost")}
       </p>
 
       <div className="mt-2 flex items-start gap-2.5">
@@ -107,7 +108,7 @@ export function AnuncioOrigen({ anuncio }: { anuncio: AnuncioDto }) {
         )}
         {/* Solo la presencia, y solo en una instancia que atribuye: el valor
             del identificador de clic no sale del servidor. */}
-        {anuncio.hasCtwaClid && <p>Meta identificó el clic</p>}
+        {anuncio.hasCtwaClid && <p>{t("anuncio.clickIdentified")}</p>}
       </div>
 
       {anuncio.sourceUrl && (

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useRef, useState } from "react";
 import { Inbox, Megaphone, Search, Sparkles, UserRound, X } from "lucide-react";
 import type { ConversationDto } from "@/lib/types";
@@ -58,7 +59,7 @@ function InboxEmptyState({
     <EmptyState
       icon={Inbox}
       className="h-full"
-      title="Sin conversaciones todavía"
+      title={t("inbox.emptyTitle")}
       description={emptyInboxDescription(channels.map((ch) => CHANNEL_LABEL[ch]))}
       action={
         !failed && (
@@ -69,7 +70,7 @@ function InboxEmptyState({
             onClick={() => void seed()}
           >
             <Sparkles className="h-4 w-4" strokeWidth={1.7} />
-            {seeding ? "Cargando demo…" : "Cargar datos de demostración"}
+            {seeding ? t("inbox.loadingDemo") : t("inbox.loadDemo")}
           </Button>
         )
       }
@@ -122,7 +123,7 @@ export function ConversationList({
         phone: c.contact.phone,
       }) && (stage === "all" || c.stageName === stage)
   );
-  // La bandeja elegida es el filtro de AFUERA: "Todas" y "No leídas" cuentan
+  // La bandeja elegida es el filtro de AFUERA: "Todas" y t("inbox.unreadFilter") cuentan
   // dentro de ella, no sobre la suma de los dos canales.
   const inInbox =
     inbox === "all" ? searched : searched.filter((c) => c.channel === inbox);
@@ -142,7 +143,7 @@ export function ConversationList({
   // queda, para poder salir de él aunque el contador baje a cero.
   const filtros: { id: typeof filter; label: string; count: number }[] = [
     { id: "all", label: "Todas", count: inInbox.length },
-    { id: "unread", label: "No leídas", count: unreadCount },
+    { id: "unread", label: t("inbox.unreadFilter"), count: unreadCount },
   ];
   if (deAnuncios.length > 0 || filter === "anuncios") {
     filtros.push({ id: "anuncios", label: "Anuncios", count: deAnuncios.length });
@@ -167,7 +168,7 @@ export function ConversationList({
     <div className="flex h-full flex-col">
       <header className="border-b px-4 pb-3 pt-4">
         <div className="mb-3 flex items-center gap-2">
-          <h2 className="text-[17px] font-bold tracking-tight">Bandeja</h2>
+          <h2 className="text-[17px] font-bold tracking-tight">{t("inbox.heading")}</h2>
           <span className="font-mono text-[12px] text-text-3">{conversations.length}</span>
           {multiChannel && (
             <div className="ml-auto flex items-center gap-1">
@@ -207,8 +208,8 @@ export function ConversationList({
           <Search className="h-4 w-4 shrink-0 text-text-3" strokeWidth={1.7} />
           <input
             ref={inputRef}
-            placeholder="Buscar por nombre o teléfono…"
-            aria-label="Buscar conversación"
+            placeholder={t("inbox.searchPlaceholder")}
+            aria-label={t("inbox.searchLabel")}
             defaultValue=""
             onChange={(e) => setQuery(e.target.value)}
             className="w-full bg-transparent text-[13px] outline-none placeholder:text-text-3"
@@ -216,7 +217,7 @@ export function ConversationList({
           {query && (
             <button
               onClick={clearQuery}
-              aria-label="Limpiar búsqueda"
+              aria-label={t("inbox.clearSearch")}
               className="shrink-0 rounded-full p-0.5 text-text-3 hover:bg-accent hover:text-foreground"
             >
               <X className="h-3.5 w-3.5" strokeWidth={2} />
@@ -257,7 +258,7 @@ export function ConversationList({
           <select
             value={stage}
             onChange={(e) => setStage(e.target.value)}
-            aria-label="Filtrar por etapa del embudo"
+            aria-label={t("inbox.stageFilter")}
             className={cn(
               "ml-auto min-w-0 max-w-[42%] truncate rounded-full border px-2 py-[5px] text-[12.5px] font-semibold transition-colors",
               FOCO_SEPARADO,
@@ -266,7 +267,7 @@ export function ConversationList({
                 : "border-brand bg-brand text-brand-fg"
             )}
           >
-            <option value="all">Toda etapa</option>
+            <option value="all">{t("inbox.allStages")}</option>
             {stages.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -278,7 +279,7 @@ export function ConversationList({
 
       <div className="flex-1 overflow-y-auto">
         {loading ? (
-          <p className="p-6 text-center text-xs text-text-3">Cargando…</p>
+          <p className="p-6 text-center text-xs text-text-3">{t("common.loading")}</p>
         ) : conversations.length === 0 ? (
           <InboxEmptyState onSeeded={onSeeded} channels={channels} />
         ) : visible.length === 0 ? (

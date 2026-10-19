@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle,
@@ -161,10 +162,10 @@ function Desconectar({ onHecho }: { onHecho: () => void }) {
         const data = (await res.json().catch(() => null)) as {
           error?: { message?: string };
         } | null;
-        setError(data?.error?.message ?? "No se pudo desconectar el número.");
+        setError(data?.error?.message ?? t("settings.disconnectFailed"));
       }
     } catch {
-      setError("Sin conexión con el servidor.");
+      setError(t("settings.noServer"));
     } finally {
       setYendo(false);
     }
@@ -196,7 +197,7 @@ function Desconectar({ onHecho }: { onHecho: () => void }) {
         disabled={yendo}
         onClick={() => void desconectar()}
       >
-        {yendo ? "Desconectando…" : "Sí, desconectar"}
+        {yendo ? t("settings.disconnecting") : t("settings.yesDisconnect")}
       </Button>
       {error && (
         <span role="alert" className="text-xs text-destructive">
@@ -244,7 +245,7 @@ function ConnectForm({
     }).catch(() => null);
     setTesting(false);
     if (!res) {
-      setTestResult({ ok: false, message: "Sin conexión con el servidor" });
+      setTestResult({ ok: false, message: t("settings.noServerShort") });
       return;
     }
     const data = (await res.json().catch(() => null)) as {
@@ -256,7 +257,7 @@ function ConnectForm({
     } else {
       setTestResult({
         ok: false,
-        message: data?.error?.message ?? "La validación falló",
+        message: data?.error?.message ?? t("settings.validationFailed"),
       });
     }
   }
@@ -275,7 +276,7 @@ function ConnectForm({
       const data = (await res?.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setSaveError(data?.error?.message ?? "No se pudo guardar la conexión");
+      setSaveError(data?.error?.message ?? t("settings.connectionSaveFailed"));
       return;
     }
     const saved = (await res.json().catch(() => null)) as {
@@ -291,7 +292,7 @@ function ConnectForm({
     <Card>
       <CardHeader>
         <CardTitle>
-          {existing ? "Reconectar / actualizar el número" : "Conectar tu número de WhatsApp"}
+          {existing ? t("settings.reconnectNumber") : t("settings.connectWhatsapp")}
         </CardTitle>
         <CardDescription>
           Pega las credenciales de WhatsApp Cloud API. El token se valida
@@ -332,7 +333,7 @@ function ConnectForm({
             <Label htmlFor="waba-id">WABA ID</Label>
             <Input
               id="waba-id"
-              placeholder="ID de la cuenta de WhatsApp Business"
+              placeholder={t("settings.waAccountId")}
               value={wabaId}
               onChange={(e) => setWabaId(e.target.value)}
             />
@@ -341,7 +342,7 @@ function ConnectForm({
             <Label htmlFor="phone-number-id">Phone Number ID</Label>
             <Input
               id="phone-number-id"
-              placeholder="ID del número de teléfono"
+              placeholder={t("settings.waPhoneId")}
               value={phoneNumberId}
               onChange={(e) => setPhoneNumberId(e.target.value)}
             />
@@ -381,13 +382,13 @@ function ConnectForm({
             disabled={!canTest || testing}
             onClick={() => void test()}
           >
-            {testing ? "Probando…" : "Probar conexión"}
+            {testing ? t("settings.testing") : t("settings.testConnection")}
           </Button>
           <Button
             disabled={!testResult?.ok || saving}
             onClick={() => void save()}
           >
-            {saving ? "Guardando…" : "Guardar conexión"}
+            {saving ? t("settings.saving") : t("settings.saveConnection")}
           </Button>
         </div>
       </CardContent>
@@ -484,7 +485,7 @@ function WebhookCard({
     } else {
       onRegistration({
         ok: false,
-        message: data?.error?.message ?? "Sin conexión con el servidor.",
+        message: data?.error?.message ?? t("settings.noServer"),
       });
     }
   }
@@ -560,7 +561,7 @@ function WebhookCard({
             <Button
               variant="outline"
               size="icon"
-              aria-label="Copiar verify token"
+              aria-label={t("settings.copyTokenVerify")}
               onClick={() => copy(webhook.verifyToken, "vt")}
             >
               <Copy className="h-4 w-4" />

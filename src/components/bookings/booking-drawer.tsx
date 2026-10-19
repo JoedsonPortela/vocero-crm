@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CalendarClock, MessageSquareText, Sparkles, Video, X } from "lucide-react";
@@ -87,7 +88,7 @@ export function BookingDrawer({
           panel es lateral y NO modal, como el detalle de Google: tocar otra
           cita del calendario cambia el panel sin cerrarlo primero. */}
       <button
-        aria-label="Cerrar la cita"
+        aria-label={t("bookings.closeBooking")}
         tabIndex={-1}
         onClick={onClose}
         className="fixed inset-0 z-40 bg-overlay md:hidden"
@@ -103,7 +104,7 @@ export function BookingDrawer({
           <button
             autoFocus
             onClick={onClose}
-            aria-label="Cerrar el panel de la cita"
+            aria-label={t("bookings.closeBookingPanel")}
             className="rounded p-1 text-text-3 hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-soft"
           >
             <X className="h-4 w-4" strokeWidth={1.7} />
@@ -127,7 +128,7 @@ export function BookingDrawer({
                 {first && last && (
                   <p className="mt-0.5 text-sm text-text-2 first-letter:uppercase">
                     {longDayLabel(first.day)} · {hhmm(first.startMin)} – {hhmm(last.endMin)}
-                    {last.day !== first.day && " del día siguiente"}
+                    {last.day !== first.day && t("bookings.nextDay")}
                   </p>
                 )}
                 <p className="text-xs text-text-3">
@@ -153,7 +154,7 @@ export function BookingDrawer({
               {isSession && (
                 <Badge variant="secondary" className="gap-1">
                   {b.source === "ai" && <Sparkles className="h-3 w-3" />}
-                  {b.source === "ai" ? "Agendó la IA" : "Manual"}
+                  {b.source === "ai" ? t("bookings.byAi") : t("bookings.manual")}
                 </Badge>
               )}
               {b.isTest && <Badge variant="secondary">Prueba del Laboratorio</Badge>}
@@ -368,7 +369,7 @@ function Reschedule({
           <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1" role="group" aria-label="Días con huecos">
             {days.map(([d, list]) => {
               const h = dayHeading(d);
-              const prefix = d === today ? "Hoy" : d === addDaysISO(today, 1) ? "Mañana" : h.weekday;
+              const prefix = d === today ? t("bookings.today") : d === addDaysISO(today, 1) ? t("bookings.tomorrow") : h.weekday;
               return (
                 <button
                   key={d}

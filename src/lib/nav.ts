@@ -11,6 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { canConfigure } from "@/lib/auth/roles";
+import { t } from "@/lib/i18n";
 
 /**
  * #87 — El modelo del menú, separado del componente que lo pinta.
@@ -39,7 +40,7 @@ export type NavGroup = {
 /** La única entrada que va abajo, separada del resto. */
 export const SETTINGS_ITEM: NavItem = {
   href: "/settings",
-  label: "Ajustes",
+  label: t("nav.settings"),
   icon: Settings,
 };
 
@@ -57,29 +58,29 @@ export function appNavGroups({
   role?: string | null;
 }): NavGroup[] {
   const trabajo: NavItem[] = [
-    { href: "/inbox", label: "Bandeja", icon: Inbox, badge: true },
-    { href: "/pipeline", label: "Pipeline", icon: Kanban },
-    { href: "/contacts", label: "Contactos", icon: Users },
+    { href: "/inbox", label: t("nav.inbox"), icon: Inbox, badge: true },
+    { href: "/pipeline", label: t("nav.pipeline"), icon: Kanban },
+    { href: "/contacts", label: t("nav.contacts"), icon: Users },
   ];
   // Citas va después de Contactos: es el paso siguiente de un trato, no una
   // sección aparte.
-  if (agenda) trabajo.push({ href: "/bookings", label: "Citas", icon: CalendarDays });
+  if (agenda) trabajo.push({ href: "/bookings", label: t("nav.bookings"), icon: CalendarDays });
 
   const agente: NavItem[] = [];
   // Un miembro del equipo no puede hacer ninguno de los pasos de la guía.
   if (canConfigure(role)) {
-    agente.push({ href: "/onboarding", label: "Guía de inicio", icon: ListChecks });
+    agente.push({ href: "/onboarding", label: t("nav.onboarding"), icon: ListChecks });
   }
   agente.push(
-    { href: "/agent", label: "Agente", icon: Sparkles },
-    { href: "/lab", label: "Laboratorio", icon: FlaskConical }
+    { href: "/agent", label: t("nav.agent"), icon: Sparkles },
+    { href: "/lab", label: t("nav.lab"), icon: FlaskConical }
   );
 
   return [
     { title: "Trabajo", items: trabajo },
     { title: "Agente", items: agente },
     // 019 — Se mide al final: primero se atiende y se organiza.
-    { items: [{ href: "/results", label: "Resultados", icon: ChartColumn }] },
+    { items: [{ href: "/results", label: t("nav.results"), icon: ChartColumn }] },
   ];
 }
 

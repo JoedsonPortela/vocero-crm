@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,13 +41,13 @@ type Settings = {
 };
 
 const DAYS: { key: DayKey; label: string }[] = [
-  { key: "mon", label: "Lunes" },
-  { key: "tue", label: "Martes" },
-  { key: "wed", label: "Miércoles" },
-  { key: "thu", label: "Jueves" },
-  { key: "fri", label: "Viernes" },
-  { key: "sat", label: "Sábado" },
-  { key: "sun", label: "Domingo" },
+  { key: "mon", label: t("settings.monday") },
+  { key: "tue", label: t("settings.tuesday") },
+  { key: "wed", label: t("settings.wednesday") },
+  { key: "thu", label: t("settings.thursday") },
+  { key: "fri", label: t("settings.friday") },
+  { key: "sat", label: t("settings.saturday") },
+  { key: "sun", label: t("settings.sunday") },
 ];
 
 const DEFAULT_INTERVAL: Interval = { start: "09:00", end: "18:00" };
@@ -215,7 +216,7 @@ export function AgendaClient() {
                         type="button"
                         onClick={() => removeInterval(day.key, i)}
                         className="text-sm text-text-3 hover:text-foreground"
-                        aria-label="Quitar franja"
+                        aria-label={t("settings.removeSlot")}
                       >
                         ×
                       </button>
@@ -367,7 +368,7 @@ export function AgendaClient() {
 
       <div className="flex items-center gap-3">
         <Button onClick={save} disabled={saving}>
-          {saving ? "Guardando…" : "Guardar"}
+          {saving ? t("settings.saving") : "Guardar"}
         </Button>
         {saved && <span className="text-sm text-brand-text">Guardado</span>}
         {error && <span className="text-sm text-destructive">{error}</span>}

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -44,7 +45,7 @@ export function OnboardingClient({
         error?: { message?: string };
       } | null;
       setError(
-        data?.error?.message ?? "No pudimos encender el agente. Inténtalo de nuevo."
+        data?.error?.message ?? t("onboarding.failedAgent")
       );
       setBusy(false);
       return;
@@ -69,7 +70,7 @@ export function OnboardingClient({
           </p>
         </header>
 
-        <div aria-label="Avance">
+        <div aria-label={t("onboarding.progress")}>
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium">
               {done} de {total} listos
@@ -157,7 +158,7 @@ export function OnboardingClient({
               <h2 className="font-semibold">
                 {agentReady && agentName
                   ? `${agentName} ya está contestando`
-                  : "Tu agente ya está contestando"}
+                  : t("onboarding.agentAnswering")}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 El agente está encendido y atiende a tus clientes por WhatsApp.

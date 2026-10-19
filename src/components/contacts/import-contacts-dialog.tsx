@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useState } from "react";
 import {
   PROBLEM_LABELS,
@@ -61,7 +62,7 @@ export function ImportContactsDialog({
       | (Result & { error?: { message?: string } })
       | null;
     if (!res?.ok || !data) {
-      setError(data?.error?.message ?? "No se pudo importar. Revisa tu conexión.");
+      setError(data?.error?.message ?? t("contacts.importFailed"));
       return;
     }
     setResult({ created: data.created, existing: data.existing, paused: data.paused });
@@ -75,11 +76,11 @@ export function ImportContactsDialog({
     >
       <div
         role="dialog"
-        aria-label="Importar contactos"
+        aria-label={t("contacts.importTitle")}
         className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-lg border bg-card p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="mb-1 font-semibold">Importar contactos</h3>
+        <h3 className="mb-1 font-semibold">{t("contacts.importTitle")}</h3>
         <p className="mb-4 text-xs text-text-3">
           Un archivo CSV con una columna <strong>nombre</strong> y una{" "}
           <strong>telefono</strong> en el primer renglón. El teléfono va con
@@ -96,7 +97,7 @@ export function ImportContactsDialog({
                 <>
                   {" "}
                   · <strong>{result.existing}</strong> ya{" "}
-                  {result.existing === 1 ? "existía" : "existían"}
+                  {result.existing === 1 ? t("contacts.existed") : t("contacts.existedPlural")}
                 </>
               )}
               .
@@ -112,7 +113,7 @@ export function ImportContactsDialog({
             <input
               type="file"
               accept=".csv,text/csv,text/plain"
-              aria-label="Archivo CSV de contactos"
+              aria-label={t("contacts.csvFile")}
               onChange={(e) => void leer(e.target.files?.[0])}
               className="block w-full text-sm file:mr-3 file:rounded-md file:border file:border-input file:bg-card file:px-3 file:py-1.5 file:text-sm"
             />
@@ -151,7 +152,7 @@ export function ImportContactsDialog({
                     <summary className="cursor-pointer">
                       {preview.problems.length}{" "}
                       {preview.problems.length === 1
-                        ? "renglón se queda fuera"
+                        ? t("contacts.rowOut")
                         : "renglones se quedan fuera"}
                     </summary>
                     <ul className="mt-2 max-h-32 space-y-0.5 overflow-y-auto">

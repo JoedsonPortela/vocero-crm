@@ -7,6 +7,7 @@ import { normalizeThemePreference, THEME_COOKIE } from "@/lib/theme";
 import { getBranding } from "@/server/branding";
 import { enabledChannels } from "@/server/channels/enabled";
 import { productName } from "@/lib/channels";
+import { LOCALE } from "@/lib/i18n";
 import "./globals.css";
 
 // Las tres voces de la marca, las mismas de vocerocrm.com. next/font las
@@ -53,7 +54,7 @@ export default async function RootLayout({
   );
   return (
     <html
-      lang="es"
+      lang={LOCALE}
       className={`${archivo.variable} ${instrumentSerif.variable} ${plexMono.variable}`}
       // La preferencia siempre es explícita: el tema viaja resuelto en el HTML
       // del servidor, así que no hay divergencia con el cliente ni parpadeo.

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Copy, Info } from "lucide-react";
@@ -46,9 +47,9 @@ type WebhookInfo = {
 
 const HELP: Record<Source, { title: string; items: string[] }> = {
   zernio: {
-    title: "Vincula tu Instagram en Zernio y pega aquí tu API key",
+    title: t("settings.igTitle"),
     items: [
-      "La cuenta se vincula en el panel de Zernio (Accounts → Connect), no desde aquí. Tiene que ser una cuenta profesional: de empresa o de creador.",
+      t("settings.igStep1"),
       "La API key se crea en Zernio → Settings → API Keys y se muestra una sola vez (empieza con sk_).",
     ],
   },
@@ -117,7 +118,7 @@ export function InstagramClient() {
     }
     const data = (await res.json()) as { username?: string | null };
     setToken("");
-    setSaved(data.username ? `Cuenta conectada: @${data.username}` : "Conexión guardada");
+    setSaved(data.username ? `Cuenta conectada: @${data.username}` : t("settings.connectionSaved"));
     void refetch();
   }
 
@@ -144,8 +145,8 @@ export function InstagramClient() {
           <div>
             <p className="font-medium text-danger-text">
               {connection.source === "zernio"
-                ? "La API key de Zernio expiró o fue revocada."
-                : "El token expiró o fue revocado."}
+                ? t("settings.zernioKeyExpired")
+                : t("settings.tokenExpired")}
             </p>
             <p className="text-danger-text opacity-80">
               Los envíos por Instagram están pausados. Vuelve a conectar abajo.
@@ -251,7 +252,7 @@ export function InstagramClient() {
               {saved && <p className="text-sm text-success-text">{saved} ✓</p>}
 
               <Button disabled={saving || !canSaveMeta} onClick={() => void saveMeta()}>
-                {saving ? "Probando…" : "Probar y guardar"}
+                {saving ? t("settings.testing") : "Probar y guardar"}
               </Button>
             </>
           )}
@@ -296,7 +297,7 @@ export function InstagramClient() {
                   <Button
                     variant="outline"
                     size="icon"
-                    aria-label="Copiar la URL"
+                    aria-label={t("settings.copyUrl")}
                     onClick={() => void copy(webhook.instagramUrl!, "url")}
                   >
                     {copied === "url" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -310,7 +311,7 @@ export function InstagramClient() {
                   <Button
                     variant="outline"
                     size="icon"
-                    aria-label="Copiar el token de verificación"
+                    aria-label={t("settings.copyVerifyToken")}
                     onClick={() => void copy(webhook.verifyToken, "token")}
                   >
                     {copied === "token" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -321,7 +322,7 @@ export function InstagramClient() {
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 {webhook.signatureLayer
                   ? "Cada entrega se verifica con la firma del App Secret de tu app."
-                  : "Define META_APP_SECRET en la instancia para que además se verifique la firma de cada entrega."}
+                  : t("settings.appSecretHint")}
               </p>
             </CardContent>
           </Card>

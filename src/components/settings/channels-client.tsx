@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Copy, RefreshCw } from "lucide-react";
@@ -298,7 +299,7 @@ export function ChannelsClient() {
                     <Button
                       variant="outline"
                       size="icon"
-                      aria-label="Copiar la URL"
+                      aria-label={t("settings.copyUrl")}
                       onClick={() => void copy(webhookUrl)}
                     >
                       {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}

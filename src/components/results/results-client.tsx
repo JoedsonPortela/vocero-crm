@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import type {
   AdsBlockDto,
@@ -34,7 +35,7 @@ async function cargar<T>(
     res = await fetch(url, { signal });
   } catch {
     if (signal.aborted) return;
-    set(() => ({ data: null, loading: false, error: "No se pudo cargar. Revisa tu conexión." }));
+    set(() => ({ data: null, loading: false, error: t("results.loadFailed") }));
     return;
   }
   const body = (await res.json().catch(() => null)) as

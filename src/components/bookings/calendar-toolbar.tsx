@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useRef } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { MAX_RANGE_DAYS, type CalendarView } from "@/lib/time/calendar";
@@ -150,9 +151,9 @@ export function CalendarToolbar({
             </button>
           ))}
         </div>
-        <Button size="sm" onClick={onBlock} aria-label="Bloquear horario">
+        <Button size="sm" onClick={onBlock} aria-label={t("bookings.blockTime")}>
           <Plus className="h-4 w-4" />
-          <span className="hidden sm:inline">Bloquear horario</span>
+          <span className="hidden sm:inline">{t("bookings.blockTime")}</span>
         </Button>
       </div>
     </header>

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -143,7 +144,7 @@ export function AiClient() {
     if (!res?.ok) {
       setMensaje({
         kind: "error",
-        text: await leerError(res, "No se pudo probar la conexión"),
+        text: await leerError(res, t("settings.testConnectionFailed")),
       });
       return;
     }
@@ -210,7 +211,7 @@ export function AiClient() {
     if (!res?.ok) {
       setMensaje({
         kind: "error",
-        text: await leerError(res, "No se pudo guardar. Revisa los datos e inténtalo de nuevo."),
+        text: await leerError(res, t("settings.saveFailedCheck")),
       });
       return;
     }
@@ -220,7 +221,7 @@ export function AiClient() {
     setToken("");
     setMensaje({
       kind: "ok",
-      text: "Guardado. Prueba la conexión y corre el Laboratorio antes de encender el agente con clientes reales.",
+      text: t("settings.aiSaved"),
     });
   }
 
@@ -401,13 +402,13 @@ export function AiClient() {
                 onClick={probar}
                 disabled={ocupado !== null || !puedeProbar}
               >
-                {ocupado === "probar" ? "Probando…" : "Probar conexión"}
+                {ocupado === "probar" ? t("settings.testing") : t("settings.testConnection")}
               </Button>
               <Button
                 type="submit"
                 disabled={ocupado !== null || !puedeProbar}
               >
-                {ocupado === "guardar" ? "Guardando…" : "Guardar"}
+                {ocupado === "guardar" ? t("settings.saving") : "Guardar"}
               </Button>
               {cred && (
                 <button

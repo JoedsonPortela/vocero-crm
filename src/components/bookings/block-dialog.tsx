@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { blockStartUtc } from "@/lib/time/calendar";
 import { Button } from "@/components/ui/button";
@@ -141,7 +142,7 @@ export function BlockDialog({
             id="bloqueo-nota"
             value={notes}
             maxLength={120}
-            placeholder="Comida con proveedor"
+            placeholder={t("bookings.blockPlaceholder")}
             onChange={(e) => setNotes(e.target.value)}
           />
         </div>

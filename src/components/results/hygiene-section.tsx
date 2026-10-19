@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import type { HygieneBlockDto } from "@/lib/analytics";
@@ -29,8 +30,8 @@ export function HygieneSection({
   return (
     <Section
       id="higiene"
-      title="Qué se está cayendo"
-      hint="No depende del periodo: es lo que está pasando ahora mismo."
+      title={t("results.hygieneTitle")}
+      hint={t("results.hygieneHint")}
       loading={loading}
       error={error}
       hasData={!!data}

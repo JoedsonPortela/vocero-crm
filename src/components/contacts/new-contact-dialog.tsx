@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import type { SourceValue, StageDto } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 const SOURCES: { value: SourceValue; label: string }[] = [
   { value: "referido", label: "Referido" },
-  { value: "organico", label: "Contenido orgánico" },
+  { value: "organico", label: t("contacts.sourceOrganic") },
   { value: "conocido", label: "Conocido" },
   { value: "anuncio", label: "Anuncio" },
   { value: "otro", label: "Otro" },
@@ -70,7 +71,7 @@ export function NewContactDialog({
     setSaving(false);
 
     if (!res) {
-      setError("No se pudo guardar. Revisa tu conexión.");
+      setError(t("contacts.saveNetwork"));
       return;
     }
     const data = (await res.json().catch(() => null)) as {
@@ -83,7 +84,7 @@ export function NewContactDialog({
       return;
     }
     if (!res.ok) {
-      setError(data?.error?.message ?? "No se pudo guardar el contacto");
+      setError(data?.error?.message ?? t("contacts.saveFailed"));
       return;
     }
     onCreated();
@@ -100,11 +101,11 @@ export function NewContactDialog({
     >
       <div
         role="dialog"
-        aria-label="Nuevo contacto"
+        aria-label={t("contacts.newTitle")}
         className="w-full max-w-md rounded-lg border bg-popover p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="mb-1 font-semibold">Nuevo contacto</h3>
+        <h3 className="mb-1 font-semibold">{t("contacts.newTitle")}</h3>
         <p className="mb-4 text-xs text-text-3">
           Para prospectos que no llegaron por WhatsApp: referidos, gente que te
           escribió por otra red, conocidos.
@@ -119,7 +120,7 @@ export function NewContactDialog({
               id="nc-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ferretería La Central"
+              placeholder={t("contacts.namePlaceholder")}
             />
           </div>
 
@@ -187,7 +188,7 @@ export function NewContactDialog({
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Me lo pasó Juan; tiene taller de motos…"
+              placeholder={t("contacts.notesPlaceholder")}
             />
           </div>
         </div>
@@ -224,7 +225,7 @@ export function NewContactDialog({
             disabled={!listo || saving || stages.length === 0}
             onClick={() => void guardar()}
           >
-            {saving ? "Guardando…" : "Crear contacto"}
+            {saving ? "Guardando…" : t("contacts.create")}
           </Button>
         </div>
       </div>

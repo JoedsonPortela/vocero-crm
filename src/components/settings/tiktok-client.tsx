@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
@@ -34,15 +35,15 @@ type Connection = {
 };
 
 const PASOS = [
-  "La cuenta se vincula en el panel de Zernio (Accounts → Connect), no desde aquí.",
+  t("settings.tiktokStep1"),
   "La API key se crea en Zernio → Settings → API Keys y se muestra una sola vez (empieza con sk_).",
 ];
 
 const REGLAS = [
-  "La cuenta tiene que ser TikTok Business, registrada fuera de la Unión Europea, Suiza y Reino Unido, y con los mensajes directos abiertos.",
-  "Tú no puedes iniciar una conversación: solo contestar a quien te escribió.",
-  "Después del último mensaje del cliente puedes mandar hasta 10 mensajes, durante 48 horas. Para seguir, el cliente tiene que volver a escribir.",
-  "Cada mensaje es texto, de hasta 6,000 caracteres. Todavía no se envían imágenes desde aquí.",
+  t("settings.tiktokStep2"),
+  t("settings.tiktokStep3"),
+  t("settings.tiktokStep4"),
+  t("settings.tiktokStep5"),
 ];
 
 export function TiktokClient() {

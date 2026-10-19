@@ -20,8 +20,8 @@ describe("barra lateral agrupada", () => {
     const groups = appNavGroups({ role: "member" });
     expect(groups.map((g) => g.title)).toEqual(["Trabajo", "Agente", undefined]);
     expect(labels(groups)).toEqual([
-      ["Bandeja", "Pipeline", "Contactos"],
-      ["Agente", "Laboratorio"],
+      ["Caixa de entrada", "Funil", "Contatos"],
+      ["Agente", "Laboratório"],
       ["Resultados"],
     ]);
   });
@@ -29,10 +29,10 @@ describe("barra lateral agrupada", () => {
   it("AGENDA añade Citas al final de Trabajo", () => {
     const [trabajo] = appNavGroups({ agenda: true, role: "member" });
     expect(trabajo!.items.map((i) => i.label)).toEqual([
-      "Bandeja",
-      "Pipeline",
-      "Contactos",
-      "Citas",
+      "Caixa de entrada",
+      "Funil",
+      "Contatos",
+      "Agendamentos",
     ]);
     expect(trabajo!.items.at(-1)!.href).toBe("/bookings");
   });
@@ -40,7 +40,7 @@ describe("barra lateral agrupada", () => {
   it("la guía de inicio abre el grupo Agente solo para quien configura", () => {
     for (const role of ["owner", "admin"]) {
       const agente = appNavGroups({ role })[1]!;
-      expect(agente.items[0]).toMatchObject({ href: "/onboarding", label: "Guía de inicio" });
+      expect(agente.items[0]).toMatchObject({ href: "/onboarding", label: "Guia de início" });
     }
     for (const role of ["member", null, undefined]) {
       const agente = appNavGroups({ role })[1]!;

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import type { BotBlockDto } from "@/lib/analytics";
 import { BarChart } from "./bar-chart";
 import { Rate, Section, Subhead } from "./section";
@@ -25,24 +26,24 @@ export function BotSection({
   return (
     <Section
       id="agente"
-      title="El agente"
+      title={t("results.agentTitle")}
       hint={
         agenda
-          ? "Si contesta, qué tan rápido, cuándo pasa a un humano y cómo salen las citas."
-          : "Si contesta, qué tan rápido y cuándo pasa la conversación a un humano."
+          ? t("results.agentHintFull")
+          : t("results.agentHint")
       }
       loading={loading}
       error={error}
       hasData={!!data}
       empty={!!data?.empty}
-      emptyText="Todavía no hay conversaciones en este periodo."
+      emptyText={t("results.noConversationsYet")}
     >
       {data && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
             <StatCard label="Conversaciones nuevas" value={String(data.conversations)} />
             <RateCard
-              label="Contestó el agente"
+              label={t("results.agentReplied")}
               rate={data.aiReplyRate}
               unit="con mensaje del cliente"
             />
@@ -55,7 +56,7 @@ export function BotSection({
               }
               hint={
                 data.firstResponseSample === 0
-                  ? "el agente aún no ha contestado a nadie"
+                  ? t("results.agentNoReply")
                   : `mediana de ${data.firstResponseSample} conversaciones`
               }
             />
@@ -96,7 +97,7 @@ export function BotSection({
               <Subhead>Por qué pasó a un humano</Subhead>
               <BarChart
                 items={data.handoffs}
-                emptyText="Ninguna conversación del periodo pasó a un humano."
+                emptyText={t("results.noHandoff")}
               />
             </div>
 

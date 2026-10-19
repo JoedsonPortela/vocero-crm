@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { templateLanguageName } from "@/lib/template-languages";
 import type { TemplateDto } from "@/lib/types";
@@ -45,7 +46,7 @@ export function TemplateSender({
   }, []);
 
   if (templates === null) {
-    return <p className="text-xs text-muted-foreground">Cargando plantillas…</p>;
+    return <p className="text-xs text-muted-foreground">{t("inbox.loadingTemplates")}</p>;
   }
 
   if (templates.length === 0) {
@@ -87,7 +88,7 @@ export function TemplateSender({
       const data = (await res.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo enviar la plantilla");
+      setError(data?.error?.message ?? t("inbox.templateFailed"));
       return;
     }
     setSelectedId("");
@@ -98,7 +99,7 @@ export function TemplateSender({
   return (
     <div className="space-y-3">
       <div className="space-y-1.5">
-        <Label htmlFor="template-select">Plantilla aprobada</Label>
+        <Label htmlFor="template-select">{t("inbox.templateLabel")}</Label>
         <select
           id="template-select"
           value={selectedId}
@@ -108,7 +109,7 @@ export function TemplateSender({
           }}
           className="flex h-9 w-full rounded-md border border-input bg-card px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
-          <option value="">Elige una plantilla…</option>
+          <option value="">{t("inbox.chooseTemplate")}</option>
           {templates.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name} ({templateLanguageName(t.language)})
@@ -148,7 +149,7 @@ export function TemplateSender({
         onClick={() => void send()}
         disabled={!selected || sending || missingValue}
       >
-        {sending ? "Enviando…" : "Enviar plantilla"}
+        {sending ? t("common.sending") : t("inbox.sendTemplate")}
       </Button>
     </div>
   );

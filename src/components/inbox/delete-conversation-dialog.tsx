@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -52,11 +53,11 @@ export function DeleteConversationDialog({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Eliminar conversación"
+        aria-label={t("inbox.deleteTitle")}
         className="w-full max-w-md rounded-lg border bg-card p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="mb-1 font-semibold">¿Eliminar esta conversación?</h3>
+        <h3 className="mb-1 font-semibold">{t("inbox.deleteQuestion")}</h3>
         <p className="mb-3 text-[13px] leading-relaxed text-text-2">
           Se borran los mensajes con {contactName}, sus adjuntos, la ficha y lo
           que el agente recuerda de esta conversación. Si vuelve a escribir, el
@@ -72,16 +73,16 @@ export function DeleteConversationDialog({
             onChange={(e) => setAlsoContact(e.target.checked)}
           />
           <span className="text-[13px] leading-snug">
-            <span className="font-medium">Borrar también el contacto y su lead</span>
+            <span className="font-medium">{t("inbox.alsoContact")}</span>
             <span className="mt-0.5 block text-xs text-text-3">
               {alsoContact
-                ? "Se van además sus notas, su etapa en el pipeline y sus citas pasadas. Deja de contar en Resultados."
+                ? t("inbox.deleteAlsoDetail")
                 : "Sin marcar, el contacto conserva sus notas, su etapa y sus citas."}
             </span>
           </span>
         </label>
 
-        <p className="mt-3 text-xs font-medium text-danger-text">No se puede deshacer.</p>
+        <p className="mt-3 text-xs font-medium text-danger-text">{t("inbox.cannotUndo")}</p>
 
         {error && (
           <p
@@ -100,8 +101,8 @@ export function DeleteConversationDialog({
             {busy
               ? "Eliminando…"
               : alsoContact
-                ? "Eliminar conversación y contacto"
-                : "Eliminar conversación"}
+                ? t("inbox.deleteBoth")
+                : t("inbox.deleteTitle")}
           </Button>
         </div>
       </div>
