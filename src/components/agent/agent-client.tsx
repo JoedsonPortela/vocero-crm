@@ -339,7 +339,7 @@ function KbSection({
         </div>
 
         <div className="space-y-2 rounded-md border p-3">
-          <p className="text-sm font-medium">Nuevo bloque de texto libre</p>
+          <p className="text-sm font-medium">Novo bloco de texto livre</p>
           <Textarea
             placeholder={t("agent.knowledgePlaceholder")}
             rows={3}

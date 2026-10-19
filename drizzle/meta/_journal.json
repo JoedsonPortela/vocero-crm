@@ -148,6 +148,13 @@
       "when": 1791987903930,
       "tag": "0020_secreto_zernio_cifrado",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792000000000,
+      "tag": "0021_etapas_pt_br",
+      "breakpoints": true
     }
   ]
 }
