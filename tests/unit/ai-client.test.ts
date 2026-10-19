@@ -17,7 +17,7 @@ describe("Ajustes → IA", () => {
     expect(html).toContain('href="https://openrouter.ai/settings/credits"');
     expect(html).toContain('href="https://openrouter.ai/settings/keys"');
     expect(html).toContain('type="password"');
-    expect(html).toContain("Probar conexión");
+    expect(html).toContain("Testar conexão");
     expect(html).toContain("Traer modelos");
     expect(html).toContain("OpenRouter");
     expect(html).toContain("Otro compatible con OpenAI");
