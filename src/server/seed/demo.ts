@@ -28,11 +28,11 @@ const DEMO_CONTACTS: {
     stage: "Interessado",
     notes: "Remodela su cocina; busca herramienta eléctrica.",
     thread: [
-      { dir: "in", text: "Hola, ¿tienen taladros inalámbricos?", hoursAgo: 5 },
-      { dir: "out", text: "¡Hola María! Sí: tenemos el Truper 20V en $1,899 MXN y el DeWalt 20V MAX en $3,450 MXN, ambos con batería incluida.", hoursAgo: 5, ai: true },
-      { dir: "in", text: "¿El Truper incluye brocas?", hoursAgo: 4 },
-      { dir: "out", text: "Incluye un juego básico de 5 brocas para concreto y madera. Si necesitas más, el juego de 30 piezas está en $349 MXN.", hoursAgo: 4, ai: true },
-      { dir: "in", text: "Perfecto, me interesa el Truper. ¿Me lo apartan?", hoursAgo: 3 },
+      { dir: "in", text: "Oi, vocês têm furadeiras sem fio?", hoursAgo: 5 },
+      { dir: "out", text: "Oi, María! Sim: temos a Truper 20V por $1,899 MXN e a DeWalt 20V MAX por $3,450 MXN, ambas com bateria incluída.", hoursAgo: 5, ai: true },
+      { dir: "in", text: "A Truper vem com brocas?", hoursAgo: 4 },
+      { dir: "out", text: "Vem com um jogo básico de 5 brocas para concreto e madeira. Se precisar de mais, o jogo de 30 peças está por $349 MXN.", hoursAgo: 4, ai: true },
+      { dir: "in", text: "Perfeito, tenho interesse na Truper. Vocês me reservam?", hoursAgo: 3 },
     ],
   },
   {
@@ -40,10 +40,10 @@ const DEMO_CONTACTS: {
     name: "Carlos Ramírez",
     stage: "Em conversa",
     thread: [
-      { dir: "in", text: "Buenas, ¿cuánto el bulto de cemento gris?", hoursAgo: 8 },
-      { dir: "out", text: "¡Hola Carlos! El bulto de 50 kg está en $245 MXN. Por 10 o más te queda en $232 MXN cada uno.", hoursAgo: 8, ai: true },
-      { dir: "in", text: "Ocupo 15 bultos, ¿hacen entrega en Naucalpan?", hoursAgo: 7 },
-      { dir: "out", text: "Sí, entregamos en toda la zona. El flete es de $150 MXN y llega el mismo día si confirmas antes de la 1 pm. Total: 15 × $232 + $150 = $3,630 MXN.", hoursAgo: 7, ai: true },
+      { dir: "in", text: "Boa tarde, quanto custa o saco de cimento cinza?", hoursAgo: 8 },
+      { dir: "out", text: "Oi, Carlos! O saco de 50 kg está por $245 MXN. Para 10 ou mais, cada um fica em $232 MXN.", hoursAgo: 8, ai: true },
+      { dir: "in", text: "Preciso de 15 sacos, vocês entregam em Naucalpan?", hoursAgo: 7 },
+      { dir: "out", text: "Sim, entregamos em toda a região. O frete é de $150 MXN e chega no mesmo dia se você confirmar antes das 13h. Total: 15 × $232 + $150 = $3,630 MXN.", hoursAgo: 7, ai: true },
     ],
   },
   {
@@ -52,10 +52,10 @@ const DEMO_CONTACTS: {
     stage: "Cliente",
     notes: "Compra recurrente para su taller de carpintería.",
     thread: [
-      { dir: "in", text: "Hola de nuevo, ya me quedé sin barniz 😅", hoursAgo: 30 },
-      { dir: "out", text: "¡Hola Lupita! Te apartamos 2 litros del barniz marino que siempre llevas: $520 MXN. ¿Te los mando con tu pedido de lijas?", hoursAgo: 30, ai: true },
-      { dir: "in", text: "Sí porfa, junto todo en un solo envío", hoursAgo: 29 },
-      { dir: "out", text: "Listo, sale hoy mismo. Total: $780 MXN con las lijas. ¡Gracias por tu compra!", hoursAgo: 29, ai: true },
+      { dir: "in", text: "Oi de novo, já acabou meu verniz 😅", hoursAgo: 30 },
+      { dir: "out", text: "Oi, Lupita! Reservamos 2 litros do verniz marítimo que você sempre leva: $520 MXN. Mando junto com o seu pedido de lixas?", hoursAgo: 30, ai: true },
+      { dir: "in", text: "Sim, por favor, junta tudo numa só entrega", hoursAgo: 29 },
+      { dir: "out", text: "Pronto, sai hoje mesmo. Total: $780 MXN com as lixas. Obrigado pela compra!", hoursAgo: 29, ai: true },
     ],
   },
   {
@@ -63,8 +63,8 @@ const DEMO_CONTACTS: {
     name: "Jorge Castillo",
     stage: "Novo",
     thread: [
-      { dir: "in", text: "ke onda, tienen pintura vinilica blanka de 19 lts?", hoursAgo: 2 },
-      { dir: "out", text: "¡Qué tal Jorge! Sí: la cubeta de 19 L de vinílica blanca está en $1,150 MXN (rinde ~90 m²). ¿La quieres mate o satinada?", hoursAgo: 2, ai: true },
+      { dir: "in", text: "e aí, vocês têm tinta vinílica branca de 19 L?", hoursAgo: 2 },
+      { dir: "out", text: "Oi, Jorge! Sim: o balde de 19 L de vinílica branca está por $1,150 MXN (rende ~90 m²). Quer fosca ou acetinada?", hoursAgo: 2, ai: true },
     ],
   },
   {
@@ -72,11 +72,11 @@ const DEMO_CONTACTS: {
     name: "Ana Sofía Torres",
     stage: "Interessado",
     thread: [
-      { dir: "in", text: "Hola, vi su anuncio. ¿Manejan material eléctrico?", hoursAgo: 12 },
-      { dir: "out", text: "¡Hola Ana! Sí: cable, contactos, pastillas y centros de carga. ¿Qué necesitas para tu proyecto?", hoursAgo: 12, ai: true },
-      { dir: "in", text: "Necesito 100 m de cable calibre 12 y 10 contactos dobles", hoursAgo: 11 },
-      { dir: "out", text: "Te cotizo: rollo de 100 m cal. 12 THW $1,890 MXN + 10 contactos dobles Volteck $35 c/u = $2,240 MXN. ¿Te lo preparo?", hoursAgo: 11, ai: true },
-      { dir: "in", text: "Déjame confirmar con el electricista y te digo", hoursAgo: 10 },
+      { dir: "in", text: "Oi, vi o anúncio de vocês. Trabalham com material elétrico?", hoursAgo: 12 },
+      { dir: "out", text: "Oi, Ana! Sim: cabos, tomadas, interruptores e quadros de distribuição. Do que você precisa para o seu projeto?", hoursAgo: 12, ai: true },
+      { dir: "in", text: "Preciso de 100 m de cabo bitola 12 e 10 tomadas duplas", hoursAgo: 11 },
+      { dir: "out", text: "Orçamento: rolo de 100 m bitola 12 THW $1,890 MXN + 10 tomadas duplas Volteck a $35 cada = $2,240 MXN. Quer que eu separe?", hoursAgo: 11, ai: true },
+      { dir: "in", text: "Deixa eu confirmar com o eletricista e te digo", hoursAgo: 10 },
     ],
   },
   {
@@ -85,10 +85,10 @@ const DEMO_CONTACTS: {
     stage: "Perdido",
     notes: "Buscaba precio de mayoreo que no podemos igualar.",
     thread: [
-      { dir: "in", text: "¿A cómo la tonelada de varilla 3/8?", hoursAgo: 96 },
-      { dir: "out", text: "Hola Roberto: la tonelada de varilla 3/8 está en $17,800 MXN. ¿Para cuándo la necesitas?", hoursAgo: 96, ai: true },
-      { dir: "in", text: "Uy no, en otro lado me la dan en 16", hoursAgo: 95 },
-      { dir: "out", text: "Entiendo. Ese precio no lo alcanzamos, pero si tu proveedor queda mal aquí estamos con entrega el mismo día. ¡Éxito con la obra!", hoursAgo: 95, ai: true },
+      { dir: "in", text: "Quanto está a tonelada de vergalhão 3/8?", hoursAgo: 96 },
+      { dir: "out", text: "Oi, Roberto: a tonelada de vergalhão 3/8 está por $17,800 MXN. Para quando você precisa?", hoursAgo: 96, ai: true },
+      { dir: "in", text: "Ah, não, em outro lugar me dão a 16", hoursAgo: 95 },
+      { dir: "out", text: "Entendo. Esse preço não conseguimos igualar, mas se o seu fornecedor falhar, estamos aqui com entrega no mesmo dia. Boa sorte na obra!", hoursAgo: 95, ai: true },
     ],
   },
   {
@@ -96,9 +96,9 @@ const DEMO_CONTACTS: {
     name: "Paty Domínguez",
     stage: "Em conversa",
     thread: [
-      { dir: "in", text: "Hola, ¿tienen impermeabilizante? Se me llueve la azotea 😩", hoursAgo: 26 },
-      { dir: "out", text: "¡Hola Paty! Claro: el impermeabilizante acrílico 5 años (cubeta 19 L) está en $1,680 MXN, cubre ~40 m². ¿De cuántos metros es tu azotea?", hoursAgo: 26, ai: true },
-      { dir: "in", text: "Como de 60 metros, ¿me alcanzaría con dos?", hoursAgo: 25 },
+      { dir: "in", text: "Oi, vocês têm impermeabilizante? A laje está vazando 😩", hoursAgo: 26 },
+      { dir: "out", text: "Oi, Paty! Claro: o impermeabilizante acrílico 5 anos (balde 19 L) está por $1,680 MXN e cobre ~40 m². Quantos metros tem a sua laje?", hoursAgo: 26, ai: true },
+      { dir: "in", text: "Uns 60 metros, será que dois me bastam?", hoursAgo: 25 },
     ],
   },
   {
@@ -106,10 +106,10 @@ const DEMO_CONTACTS: {
     name: "Don Chuy Aguilar",
     stage: "Cliente",
     thread: [
-      { dir: "in", text: "Joven, mándeme la lista de lo de siempre para la cuadrilla", hoursAgo: 50 },
-      { dir: "out", text: "¡Con gusto Don Chuy! Su pedido habitual: 5 bultos de cemento, 2 de mortero, 1 rollo de alambre recocido y 3 kg de clavo. Total: $1,585 MXN. ¿Se lo mandamos a la obra de Av. Juárez?", hoursAgo: 50, ai: true },
-      { dir: "in", text: "Ándele, ahí mismo. Se paga contra entrega como siempre", hoursAgo: 49 },
-      { dir: "out", text: "Perfecto, sale en la camioneta de las 4. ¡Gracias Don Chuy!", hoursAgo: 49, ai: true },
+      { dir: "in", text: "Moço, manda a lista de sempre para a turma", hoursAgo: 50 },
+      { dir: "out", text: "Com prazer, Don Chuy! Seu pedido habitual: 5 sacos de cimento, 2 de argamassa, 1 rolo de arame recozido e 3 kg de prego. Total: $1,585 MXN. Mandamos para a obra da Av. Juárez?", hoursAgo: 50, ai: true },
+      { dir: "in", text: "Tá bom, pode mandar. Paga na entrega, como sempre", hoursAgo: 49 },
+      { dir: "out", text: "Perfeito, sai na caminhonete das 16h. Obrigado, Don Chuy!", hoursAgo: 49, ai: true },
     ],
   },
 ];
@@ -118,16 +118,16 @@ const DEMO_KB: { kind: "qa" | "block"; question?: string; answer?: string; conte
   {
     kind: "block",
     content:
-      "Ferretería El Martillo — ferretería familiar con 20 años en la colonia Centro. Vendemos herramienta manual y eléctrica, material de construcción, pintura, plomería y material eléctrico. Atendemos a público general, maestros de obra y talleres.",
+      "Ferragem El Martelo — ferragem familiar com 20 anos no bairro Centro. Vendemos ferramenta manual e elétrica, material de construção, tinta, encanamento e material elétrico. Atendemos público geral, mestres de obra e oficinas.",
   },
-  { kind: "qa", question: "¿Cuál es el horario?", answer: "Lunes a sábado de 8:00 a 19:00 y domingos de 9:00 a 14:00." },
-  { kind: "qa", question: "¿Dónde están ubicados?", answer: "Av. Hidalgo 245, colonia Centro. Hay estacionamiento gratuito para clientes en la calle lateral." },
-  { kind: "qa", question: "¿Hacen envíos a domicilio?", answer: "Sí: entrega el mismo día en la zona si confirmas antes de la 1 pm. Flete local $150 MXN; gratis en compras mayores a $3,000 MXN." },
-  { kind: "qa", question: "¿Qué métodos de pago aceptan?", answer: "Efectivo, tarjeta (crédito/débito), transferencia SPEI y pago contra entrega en pedidos locales." },
-  { kind: "qa", question: "¿Dan factura?", answer: "Sí, facturamos el mismo día. Envíanos tu constancia de situación fiscal y el ticket de compra." },
-  { kind: "qa", question: "¿Tienen precios de mayoreo?", answer: "Sí: en cemento, mortero y varilla hay precio especial a partir de 10 unidades; en pintura a partir de 5 cubetas. Pide tu cotización por WhatsApp." },
-  { kind: "qa", question: "¿Qué marcas de herramienta manejan?", answer: "Truper, Pretul, DeWalt, Makita y Ryobi en eléctrica; Volteck y Condulac en material eléctrico; Comex y Berel en pintura." },
-  // HUECO INTENCIONAL: nada sobre garantías ni devoluciones (lo encuentra el Laboratorio).
+  { kind: "qa", question: "Qual é o horário?", answer: "Segunda a sábado das 8h às 19h e domingos das 9h às 14h." },
+  { kind: "qa", question: "Onde vocês ficam?", answer: "Av. Hidalgo 245, bairro Centro. Há estacionamento gratuito para clientes na rua lateral." },
+  { kind: "qa", question: "Fazem entregas em domicílio?", answer: "Sim: entrega no mesmo dia na região se você confirmar antes das 13h. Frete local $150 MXN; grátis em compras acima de $3,000 MXN." },
+  { kind: "qa", question: "Quais formas de pagamento aceitam?", answer: "Dinheiro, cartão (crédito/débito), transferência SPEI e pagamento na entrega em pedidos locais." },
+  { kind: "qa", question: "Emitem nota fiscal?", answer: "Sim, emitimos no mesmo dia. Envie sua constância de situação fiscal e o cupom de compra." },
+  { kind: "qa", question: "Têm preço de atacado?", answer: "Sim: em cimento, argamassa e vergalhão há preço especial a partir de 10 unidades; em tinta, a partir de 5 baldes. Peça seu orçamento pelo WhatsApp." },
+  { kind: "qa", question: "Quais marcas de ferramenta vocês trabalham?", answer: "Truper, Pretul, DeWalt, Makita e Ryobi em elétrica; Volteck e Condulac em material elétrico; Comex e Berel em tinta." },
+  // LACUNA INTENCIONAL: nada sobre garantia nem devoluções (o Laboratório encontra).
 ];
 
 export async function seedDemo(
