@@ -3,27 +3,27 @@
 @tailwind utilities;
 
 /*
-  Sistema de diseño de Vocero: la misma marca que vocerocrm.com dentro del CRM.
-  Papel frío (#f6f8fc), tinta azul marino, acento azul eléctrico con remate
-  cian, tipografía Archivo para la interfaz, Instrument Serif itálica para los
-  acentos editoriales e IBM Plex Mono para etiquetas y horas.
+  Design system da Vocero: a mesma marca do vocerocrm.com dentro do CRM.
+  Papel frio (#f6f8fc), tinta azul-marinho, acento azul elétrico com remate
+  ciano, tipografia Archivo para a interface, Instrument Serif itálica para os
+  destaques editoriais e IBM Plex Mono para rótulos e horas.
 
-  El tema activo se selecciona con `data-theme` en <html> (ver src/lib/theme.ts):
-  el servidor lo escribe desde la cookie, así que no hay parpadeo.
-  Los tokens de acento (--accent*) se sobreescriben en runtime por el
-  white-label de la organización (Configuración → Marca), para AMBOS temas.
+  O tema ativo é selecionado com `data-theme` em <html> (ver src/lib/theme.ts):
+  o servidor o grava a partir do cookie, então não há piscar de tela.
+  Os tokens de acento (--accent*) são sobrescritos em runtime pelo
+  white-label da organização (Configuração → Marca), para AMBOS os temas.
 */
 @layer base {
   :root {
     color-scheme: light;
 
-    /* Neutros: papel frío de la landing */
+    /* Neutros: papel frio da landing */
     --bg: #ffffff;
     --bg-subtle: #f6f8fc;
     --bg-panel: #eef2f9;
     --bg-hover: #e9eef8;
-    /* Lo que flota sobre la página: diálogos, cajones, menús. En claro es el
-       mismo blanco de siempre; en oscuro se aclara para despegarse. */
+    /* O que flutua sobre a página: diálogos, gavetas, menus. No claro é o
+       mesmo branco de sempre; no escuro clareia para se destacar. */
     --bg-raised: #ffffff;
     --text: #0a1730;
     --text-2: #42506b;
@@ -31,15 +31,15 @@
     --text-4: #aab4c8;
     --border: #e8edf6;
     --border-strong: #dde5f1;
-    /* Chips dentro de una fila y la fila bajo el cursor. En claro coinciden
-       con --bg y --bg-subtle; en oscuro NO: ahí --bg-subtle es más oscuro que
-       --bg y un chip con fondo --bg desaparece dentro de la fila. */
+    /* Chips dentro de uma linha e a linha sob o cursor. No claro coincidem
+       com --bg e --bg-subtle; no escuro NÃO: aí --bg-subtle é mais escuro que
+       --bg e um chip com fundo --bg desaparece dentro da linha. */
     --chip-bg: #ffffff;
     --row-hover: #f6f8fc;
-    /* 215 — Lo no hábil del calendario de Citas (ver .cal-off). */
+    /* 215 — O que está fora do expediente no calendário de Agendamentos (ver .cal-off). */
     --cal-off: #f6f8fc;
 
-    /* Chat: el cliente entra en verde WhatsApp, el CRM contesta en el acento */
+    /* Chat: o cliente entra em verde WhatsApp, o CRM responde no acento */
     --chat-bg: #f6f8fc;
     --bubble-in: #eaf7ef;
     --bubble-in-border: #d7eede;
@@ -47,23 +47,23 @@
     --bubble-out-border: var(--accent-soft);
     --bubble-out-text: var(--text);
 
-    /* Acento (default: azul Vocero; el white-label lo sobreescribe) */
+    /* Acento (padrão: azul Vocero; o white-label o sobrescreve) */
     --accent: #0d5bff;
     --accent-hover: #0a4de6;
     --accent-soft: #d3e2ff;
     --accent-tint: #ebf1ff;
     --accent-text: #0038d8;
     --accent-fg: #ffffff;
-    /* El acento como TINTA (una hora, un enlace) y como anillo de foco. En
-       claro son el acento mismo; en oscuro, sus variantes aclaradas: el
-       acento sólido es para rellenos y ahí no alcanza AA como texto. */
+    /* O acento como TINTA (uma hora, um link) e como anel de foco. No
+       claro é o próprio acento; no escuro, suas variantes clareadas: o
+       acento sólido serve para preenchimentos e aí não atinge AA como texto. */
     --accent-ink: var(--accent);
     --ring: var(--accent);
-    /* Velo translúcido ENCIMA del acento (contadores dentro de un chip). */
+    /* Véu translúcido SOBRE o acento (contadores dentro de um chip). */
     --accent-veil: rgba(255, 255, 255, 0.22);
     --bg-active: var(--accent-tint);
 
-    /* Estado: color puro + tríada (tint = fondo, soft = borde, text = tinta) */
+    /* Estado: cor pura + tríade (tint = fundo, soft = borda, text = tinta) */
     --success: #1fb35b;
     --success-tint: #e9f7ee;
     --success-soft: #c9ebd6;
@@ -85,11 +85,11 @@
     --info-soft: #d3e2ff;
     --info-text: #0038d8;
 
-    /* Superficies auxiliares */
+    /* Superfícies auxiliares */
     --overlay: rgba(4, 16, 46, 0.55);
     --knob: #ffffff;
 
-    /* Radios y sombras (las de la landing, con tinte azul marino) */
+    /* Raios e sombras (os da landing, com tom azul-marinho) */
     --radius-sm: 9px;
     --radius: 12px;
     --radius-lg: 16px;
@@ -98,24 +98,24 @@
     --shadow-pop: 0 30px 80px -20px rgba(8, 27, 82, 0.22),
       0 8px 24px -12px rgba(8, 27, 82, 0.12);
 
-    /* Densidad de filas de conversación */
+    /* Densidade das linhas de conversa */
     --row-py: 11px;
   }
 
   /*
-    Tema oscuro v2 (R8). Tres niveles que se leen de un vistazo, como en claro:
-    la barra lateral (azul marino fijo, ver `.nav-dark`) es lo más oscuro; la
-    página va un escalón ARRIBA de ella (≥ 1.25:1, si no el bicolor
-    desaparece) y lo que flota (diálogos, cajones) otro más. Antes todo vivía
-    entre #070e20 y #131f3d: barra y página a 1.04:1 y las sombras no se
-    veían. Los pisos de contraste los vigila tests/unit/contraste-temas.test.ts.
+    Tema escuro v2 (R8). Três níveis que se leem de relance, como no claro:
+    a barra lateral (azul-marinho fixo, ver `.nav-dark`) é o mais escuro; a
+    página fica um degrau ACIMA dela (≥ 1.25:1, senão o bicolor
+    desaparece) e o que flutua (diálogos, gavetas) mais um. Antes tudo vivia
+    entre #070e20 e #131f3d: barra e página a 1.04:1 e as sombras não se
+    viam. Os pisos de contraste são vigiados por tests/unit/contraste-temas.test.ts.
   */
   :root[data-theme="dark"] {
     color-scheme: dark;
 
-    /* Escalera de superficies, de la más honda a la más alta. --bg-subtle es
-       el hueco (hilo del chat, columnas del pipeline, fuera de horario), como
-       el papel gris del tema claro. */
+    /* Escada de superfícies, da mais funda à mais alta. --bg-subtle é
+       o vão (fio do chat, colunas do pipeline, fora do expediente), como
+       o papel cinza do tema claro. */
     --bg-subtle: #141c30;
     --bg: #1c263c;
     --row-hover: #212c45;
@@ -123,15 +123,15 @@
     --chip-bg: #26334d;
     --bg-panel: #2c3a57;
     --bg-hover: #2f3d5e;
-    /* 215 — Lo no hábil del calendario: el mismo hueco que en claro. */
+    /* 215 — O que está fora do expediente no calendário: o mesmo vão do claro. */
     --cal-off: #141c30;
     --text: #e8eefc;
     --text-2: #bac6e3;
-    /* ≥ 4.5:1 incluso sobre el hover más claro: la `.kicker` mide 10.5px. */
+    /* ≥ 4.5:1 mesmo sobre o hover mais claro: o `.kicker` mede 10.5px. */
     --text-3: #9aa9ca;
-    /* Solo iconos y deshabilitado (≥ 3:1), nunca texto de lectura. */
+    /* Somente ícones e desabilitado (≥ 3:1), nunca texto de leitura. */
     --text-4: #7888ad;
-    /* Bordes ≥ 1.6:1 contra la página (214) y ≥ 1.4:1 contra lo que flota. */
+    /* Bordas ≥ 1.6:1 contra a página (214) e ≥ 1.4:1 contra o que flutua. */
     --border: #36476f;
     --border-strong: #4a5d8e;
 
@@ -140,8 +140,8 @@
     --bubble-in: #173d2c;
     --bubble-in-border: #2a5e45;
 
-    /* Acento: respaldo con el azul Vocero calculado para este fondo; el
-       white-label lo recalcula (ver resolveAccentSet en lib/branding). */
+    /* Acento: fallback com o azul Vocero calculado para este fundo; o
+       white-label o recalcula (ver resolveAccentSet em lib/branding). */
     --accent: #256bff;
     --accent-hover: #4883ff;
     --accent-soft: #1f3f82;
@@ -152,8 +152,8 @@
     --ring: var(--accent-hover);
     --accent-veil: rgba(0, 0, 0, 0.22);
 
-    /* Estado sobre fondo oscuro: el tono puro oscurecido (no mezclado con el
-       azul marino, que lo vuelve gris), un escalón arriba de --bg. */
+    /* Estado sobre fundo escuro: o tom puro escurecido (não misturado com o
+       azul-marinho, que o deixa cinzento), um degrau acima de --bg. */
     --success: #4fd07f;
     --success-tint: #183e26;
     --success-soft: #28683f;
@@ -178,7 +178,7 @@
     --overlay: rgba(2, 8, 24, 0.72);
     --knob: #dfe6fa;
 
-    /* Sombras: sobre oscuro necesitan más negro para leerse */
+    /* Sombras: sobre o escuro precisam de mais preto para serem lidas */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
     --shadow-md: 0 14px 40px -16px rgba(0, 0, 0, 0.6);
     --shadow-pop: 0 30px 80px -20px rgba(0, 0, 0, 0.75),
@@ -186,17 +186,17 @@
   }
 
   /*
-    Sidebar: azul marino fijo, sin importar el tema claro/oscuro del resto de
-    la app (como el lateral de la landing). Redeclara sus neutros directamente
-    sobre el `<aside>` (ver AppNav) y la barra superior del teléfono, para que
-    las clases que ya usan (bg-subtle, border, text-2, text-3,
-    hover:bg-accent…) hereden estos valores en vez de los de `:root`.
+    Sidebar: azul-marinho fixo, independentemente do tema claro/escuro do resto da
+    app (como a lateral da landing). Redeclara seus neutros diretamente
+    sobre o `<aside>` (ver AppNav) e a barra superior do celular, para que
+    as classes que já usam (bg-subtle, border, text-2, text-3,
+    hover:bg-accent…) herdem estes valores em vez dos de `:root`.
 
-    Son SUS valores, no una copia de los del tema oscuro: la página oscura
-    vive un escalón arriba (≥ 1.25:1) para que el bicolor no desaparezca, y la
-    barra se ve idéntica en los dos temas. El acento (--accent*, para el ítem
-    activo y el avatar) lo fija por separado `accentCssVariables` en
-    lib/branding.ts, calculado contra ESTE fondo (NAV_BG).
+    São OS valores dela, não uma cópia dos do tema escuro: a página escura
+    fica um degrau acima (≥ 1.25:1) para que o bicolor não desapareça, e a
+    barra fica idêntica nos dois temas. O acento (--accent*, para o item
+    ativo e o avatar) é fixado separadamente por `accentCssVariables` em
+    lib/branding.ts, calculado contra ESTE fundo (NAV_BG).
   */
   .nav-dark {
     color-scheme: dark;
@@ -247,12 +247,12 @@
 }
 
 @layer components {
-  /* Mosaico de marca: degradado del acento, como el favicon */
+  /* Mosaico da marca: degradê do acento, como o favicon */
   .brand-tile {
     background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   }
 
-  /* Rejilla difuminada del hero de la landing (login) */
+  /* Grade difuminada do hero da landing (login) */
   .brand-grid {
     background-image:
       linear-gradient(to right, var(--accent-soft) 1px, transparent 1px),
@@ -267,7 +267,7 @@
     mask-image: radial-gradient(ellipse 90% 80% at 50% 20%, #000 30%, transparent 75%);
   }
 
-  /* Resplandores suaves que flotan detrás del formulario */
+  /* Brilhos suaves que flutuam atrás do formulário */
   .brand-glow {
     position: absolute;
     border-radius: 50%;
@@ -303,8 +303,8 @@
     }
   }
 
-  /* Fondo del hilo: un leve resplandor del acento en la esquina, como en el
-     mockup de la landing. Si el navegador no sabe color-mix, queda el plano. */
+  /* Fundo do fio: um leve brilho do acento no canto, como no
+     mockup da landing. Se o navegador não conhece color-mix, fica o plano. */
   .thread-bg {
     background-color: var(--chat-bg);
     background-image: radial-gradient(
@@ -313,7 +313,7 @@
       transparent 55%
     );
   }
-  /* En oscuro el 7% no se percibe y el hilo vacío se ve como un hueco. */
+  /* No escuro os 7% não se percebem e o fio vazio parece um vão. */
   :root[data-theme="dark"] .thread-bg {
     background-image: radial-gradient(
       circle at 82% 0%,
@@ -322,20 +322,20 @@
     );
   }
 
-  /* 215 — Rejilla del calendario de Citas: una línea por hora. El alto de la
-     hora lo fija el componente (--cal-hour) para que líneas y citas no se
-     desfasen si alguien lo cambia en un solo sitio. */
+  /* 215 — Grade do calendário de Agendamentos: uma linha por hora. A altura da
+     hora é fixada pelo componente (--cal-hour) para que linhas e agendamentos não se
+     desalinhem se alguém a mudar em um único lugar. */
   .cal-hours {
     background-image: linear-gradient(to bottom, var(--border) 1px, transparent 1px);
     background-size: 100% var(--cal-hour, 48px);
   }
 
-  /* 215 — Horas fuera del horario del negocio en Día y Semana. */
+  /* 215 — Horas fora do expediente do negócio em Dia e Semana. */
   .cal-off {
     background-color: var(--cal-off);
   }
 
-  /* 215 — Un bloqueo no es una cita: rayado neutro, legible en ambos temas. */
+  /* 215 — Um bloqueio não é um agendamento: listras neutras, legíveis nos dois temas. */
   .booking-hatch {
     background-color: var(--bg-panel);
     background-image: repeating-linear-gradient(
@@ -345,19 +345,19 @@
     );
   }
 
-  /* Etiqueta editorial en mono: "01 · BANDEJA", "ETAPA", "NOTAS" */
+  /* Rótulo editorial em mono: "01 · BANDEJA", "ETAPA", "NOTAS" */
   .kicker {
     @apply font-mono text-[10.5px] font-medium uppercase tracking-[0.14em] text-text-3;
   }
 }
 
 /*
-  Safari en iOS hace zoom a la página cuando enfocas un campo cuya tipografía
-  mide menos de 16px, y luego no la devuelve: escribir en la Bandeja dejaba el
-  CRM descuadrado. Por debajo de `md` subimos el mínimo de TODO campo de texto
-  (los `select` quedan fuera: abren su propia rueda nativa y varios viven como
-  chips angostos). Va con `!important` a propósito — compite contra utilidades
-  de Tailwind (`text-sm`, `text-xs`) que ganan por especificidad de clase.
+  O Safari no iOS faz zoom na página quando você foca um campo cuja tipografia
+  mede menos de 16px e depois não a devolve: escrever na Bandeja deixava o
+  CRM desalinhado. Abaixo de `md` subimos o mínimo de TODO campo de texto
+  (os `select` ficam de fora: abrem a própria roleta nativa e vários ficam como
+  chips estreitos). Vai com `!important` de propósito — compete com utilidades
+  do Tailwind (`text-sm`, `text-xs`) que vencem por especificidade de classe.
 */
 @media (max-width: 767px) {
   input:not([type="checkbox"]):not([type="radio"]),

@@ -6,21 +6,21 @@ import { iniciarWorker, tanda } from "@/server/dispatch/worker";
 import { cifrarSecretosEnClaro } from "@/server/zernio/secreto-guardado";
 
 /**
- * 008 — Aviso al arranque si MEDIA_DIR no es escribible. Sin esto, el primer
- * síntoma era un 500 al subir el logo o el icono, o adjuntos entrantes "no
- * disponibles" (se reintentan al abrirlos, pero solo mientras Meta los
- * conserve), con el EACCES enterrado en el log de un request. Se prueba
- * escribiendo de verdad (lo mismo que hará saveMediaFile) y nunca tumba el
- * arranque: el resto del CRM funciona sin adjuntos.
+ * 008 — Aviso na inicialização se MEDIA_DIR não for gravável. Sem isso, o primeiro
+ * sintoma era um 500 ao enviar o logo ou o ícone, ou anexos recebidos "não
+ * disponíveis" (são tentados de novo ao abri-los, mas só enquanto a Meta os
+ * mantiver), com o EACCES enterrado no log de uma requisição. Testa-se
+ * gravando de verdade (o mesmo que saveMediaFile fará) e nunca derruba a
+ * inicialização: o resto do CRM funciona sem anexos.
  *
- * El sondeo vive en `server/media-dir.ts` y es el mismo que `/api/health`
- * expone como `mediaWritable` (#82): este resultado queda cacheado y el
- * healthcheck lo reutiliza en vez de volver a escribir.
+ * A verificação fica em `server/media-dir.ts` e é a mesma que `/api/health`
+ * expõe como `mediaWritable` (#82): este resultado fica em cache e o
+ * healthcheck o reutiliza em vez de gravar de novo.
  */
 export async function checkMediaDir(): Promise<void> {
   const media = await mediaDirStatus();
-  // Sin entorno válido no hay nada que sondear: lo reporta, con detalle, el
-  // primer getEnv() de la app.
+  // Sem ambiente válido não há nada a verificar: quem informa, com detalhes, é o
+  // primeiro getEnv() do app.
   if (!media || media.writable) return;
   console.error(
     `[boot] MEDIA_DIR=${media.dir} no es escribible (${media.code}): los adjuntos entrantes, el logo y el icono NO se van a poder guardar. ` +
@@ -30,8 +30,8 @@ export async function checkMediaDir(): Promise<void> {
 }
 
 /**
- * Limpieza al arranque (FR-034): corridas del Laboratorio que quedaron
- * "running" tras un reinicio → fallidas. Solo corre en el runtime Node.
+ * Limpeza na inicialização (FR-034): execuções do Laboratório que ficaram
+ * "running" após um reinício → falhas. Só roda no runtime Node.
  */
 export async function cleanupOrphanRuns(): Promise<void> {
   try {
@@ -51,17 +51,17 @@ export async function cleanupOrphanRuns(): Promise<void> {
       );
     }
   } catch (err) {
-    // La BD puede no estar lista aún (migraciones corren antes del server).
+    // O BD pode ainda não estar pronto (as migrações rodam antes do servidor).
     console.error("[boot] limpieza de corridas huérfanas falló:", err);
   }
 }
 
 /**
- * 030 — Cifra los secretos de firma de Zernio que una versión anterior guardó
- * en claro. Va aquí y no en `migrate.mjs` porque cifrar necesita la
- * `ENCRYPTION_KEY` validada y el mismo `encryptSecret` que el token, y porque
- * así corre también con `next dev` (spec 030, D3). Nunca tumba el arranque:
- * mientras una fila no esté cifrada, su secreto se sigue leyendo (D5).
+ * 030 — Cifra os segredos de assinatura da Zernio que uma versão anterior gravou
+ * em texto claro. Fica aqui e não em `migrate.mjs` porque cifrar exige a
+ * `ENCRYPTION_KEY` validada e o mesmo `encryptSecret` do token, e porque
+ * assim roda também com `next dev` (spec 030, D3). Nunca derruba a inicialização:
+ * enquanto uma linha não estiver cifrada, seu segredo continua sendo lido (D5).
  */
 export async function encryptLegacySecrets(): Promise<void> {
   try {
@@ -78,13 +78,13 @@ export async function encryptLegacySecrets(): Promise<void> {
 }
 
 /**
- * 021 — Reanuda el despacho al arrancar. Sin esto, un turno que quedó
- * pendiente o a medio reintentar cuando el contenedor se reinició esperaría a
- * que llegara OTRO mensaje para que alguien encendiera el worker.
+ * 021 — Retoma o despacho ao iniciar. Sem isso, um turno que ficou
+ * pendente ou em nova tentativa quando o contêiner reiniciou ficaria aguardando
+ * que chegasse OUTRA mensagem para alguém ligar o worker.
  *
- * Solo con el despacho activo: una instancia sin cerebro no barre nada. Y lo
- * mal configurado se dice aquí una vez, además de en la tarjeta «Quién
- * responde»: es el log que alguien mira cuando el agente no contesta.
+ * Só com o despacho ativo: uma instância sem cérebro não varre nada. E o que
+ * estiver mal configurado é informado aqui uma vez, além do cartão «Quem
+ * responde»: é o log que alguém olha quando o agente não responde.
  */
 export function resumeDispatch(): void {
   const config = leerConfigDespacho();

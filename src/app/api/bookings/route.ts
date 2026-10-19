@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * 215 — Com `?from=AAAA-MM-DD&to=AAAA-MM-DD` (dias do negócio, inclusivos,
- * máximo 92), TODAS as citas desse intervalo para o calendário, em ordem, mais
+ * máximo 92), TODOS os agendamentos desse intervalo para o calendário, em ordem, mais
  * o que a tela precisa para desenhá-las: `timezone`, `weeklyHours`,
  * `range` e `truncated` (limite de segurança de 3 000).
  *
