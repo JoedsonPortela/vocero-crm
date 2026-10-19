@@ -52,7 +52,7 @@ const putSchema = z.object({
 export const PUT = withAuth(async (session, req: Request) => {
   if (!isChannelEnabled("instagram")) return channelDisabledResponse();
   if (session.role !== "owner") {
-    return apiError(403, "forbidden", "Solo el propietario puede conectar Instagram");
+    return apiError(403, "forbidden", "Somente o proprietário pode conectar o Instagram");
   }
   const body = await parseBody(req, putSchema);
   if (!body.ok) return body.response;
@@ -98,7 +98,7 @@ export const PUT = withAuth(async (session, req: Request) => {
     return apiError(
       422,
       "invalid_body",
-      "Con una app propia de Meta hace falta el ID de la cuenta de Instagram"
+      "Com um app próprio da Meta é preciso o ID da conta do Instagram"
     );
   }
   const check = await verify({ token: data.token, igUserId: data.igUserId });
@@ -139,7 +139,7 @@ async function verify(data: { token: string; igUserId: string }): Promise<Check>
       ok: false,
       status: 503,
       code: "platform_unavailable",
-      message: "No se pudo contactar la plataforma; intenta de nuevo",
+      message: "Não foi possível contatar a plataforma; tente novamente",
     };
   }
 
@@ -148,7 +148,7 @@ async function verify(data: { token: string; igUserId: string }): Promise<Check>
       ok: false,
       status: 422,
       code: "invalid_token",
-      message: "El token de Instagram no es válido o no tiene permiso de mensajes",
+      message: "O token do Instagram não é válido ou não tem permissão de mensagens",
     };
   }
 

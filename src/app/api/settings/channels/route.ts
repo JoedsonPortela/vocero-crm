@@ -34,7 +34,7 @@ export const GET = withAuth(async (session) => {
 export const POST = withAuth(async (session) => {
   if (!haySociales()) return channelDisabledResponse();
   if (session.role !== "owner") {
-    return apiError(403, "forbidden", "Solo el propietario puede cambiar el webhook");
+    return apiError(403, "forbidden", "Somente o proprietário pode alterar o webhook");
   }
   const r = await ensureWebhookForOrg(session.organizationId);
   if (!r.ok) {

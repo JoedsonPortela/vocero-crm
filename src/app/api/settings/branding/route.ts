@@ -16,14 +16,14 @@ export async function GET() {
 
 const putSchema = z.object({
   name: z.string().trim().min(1).max(30),
-  accent: z.string().refine(isValidHex, "Color hex inválido (#rrggbb)"),
+  accent: z.string().refine(isValidHex, "Cor hex inválida (#rrggbb)"),
   /** La moneda del negocio: la única que el tablero suma. */
   currency: z.enum(CURRENCIES),
 });
 
 export const PUT = withAuth(async (session, req: Request) => {
   if (session.role !== "owner") {
-    return apiError(403, "forbidden", "Solo el propietario puede cambiar la marca");
+    return apiError(403, "forbidden", "Somente o proprietário pode alterar a marca");
   }
   const body = await parseBody(req, putSchema);
   if (!body.ok) return body.response;

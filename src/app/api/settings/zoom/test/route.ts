@@ -28,7 +28,7 @@ export const POST = withAuth(async (session, req: Request) => {
   const clientSecret = body.data.clientSecret || stored?.clientSecret;
 
   if (!accountId || !clientId || !clientSecret) {
-    return apiError(422, "invalid_body", "Faltan credenciales que probar");
+    return apiError(422, "invalid_body", "Faltam credenciais para testar");
   }
 
   const check = await zoomConnector.testConnection({

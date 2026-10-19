@@ -42,7 +42,7 @@ const putSchema = z.object({
   connector: z
     .string()
     .refine((v) => (CONNECTOR_ORDER as readonly string[]).includes(v), {
-      message: "Conector desconocido",
+      message: "Conector desconhecido",
     })
     .optional(),
   meetingLink: z.string().nullish(),

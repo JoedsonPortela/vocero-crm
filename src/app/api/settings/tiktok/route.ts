@@ -52,7 +52,7 @@ const putSchema = z.object({
 export const PUT = withAuth(async (session, req: Request) => {
   if (!isChannelEnabled("tiktok")) return channelDisabledResponse();
   if (session.role !== "owner") {
-    return apiError(403, "forbidden", "Solo el propietario puede conectar TikTok");
+    return apiError(403, "forbidden", "Somente o proprietário pode conectar o TikTok");
   }
   const body = await parseBody(req, putSchema);
   if (!body.ok) return body.response;

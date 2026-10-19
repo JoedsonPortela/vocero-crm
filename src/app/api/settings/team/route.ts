@@ -41,7 +41,7 @@ const createSchema = z.object({
 /** Alta de cuenta de equipo (owner only): email + contraseña temporal (FR-061). */
 export const POST = withAuth(async (session, req: Request) => {
   if (session.role !== "owner") {
-    return apiError(403, "forbidden", "Solo el propietario puede crear cuentas");
+    return apiError(403, "forbidden", "Somente o proprietário pode criar contas");
   }
   const body = await parseBody(req, createSchema);
   if (!body.ok) return body.response;
@@ -61,9 +61,9 @@ export const POST = withAuth(async (session, req: Request) => {
     newUserId = result.user.id;
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : "No se pudo crear la cuenta";
+      err instanceof Error ? err.message : "Não foi possível criar a conta";
     if (/exist/i.test(message)) {
-      return apiError(409, "duplicate", "Ya existe una cuenta con ese correo");
+      return apiError(409, "duplicate", "Já existe uma conta com esse e-mail");
     }
     return apiError(422, "invalid", message);
   }

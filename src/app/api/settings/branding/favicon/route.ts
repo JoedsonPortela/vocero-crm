@@ -17,12 +17,12 @@ export const dynamic = "force-dynamic";
  */
 export const PUT = withAuth(async (session, req: Request) => {
   if (session.role !== "owner") {
-    return apiError(403, "forbidden", "Solo el propietario puede cambiar la marca");
+    return apiError(403, "forbidden", "Somente o proprietário pode alterar a marca");
   }
 
   const buf = new Uint8Array(await req.arrayBuffer());
   if (buf.byteLength === 0) {
-    return apiError(422, "empty", "No llegó ningún archivo");
+    return apiError(422, "empty", "Nenhum arquivo foi recebido");
   }
   if (buf.byteLength > MAX_FAVICON_BYTES) {
     return apiError(
@@ -40,7 +40,7 @@ export const PUT = withAuth(async (session, req: Request) => {
     return apiError(
       422,
       "unsupported",
-      "Formato no reconocido. Usa PNG, SVG, ICO, JPEG o WebP."
+      "Formato não reconhecido. Use PNG, SVG, ICO, JPEG ou WebP."
     );
   }
 
@@ -63,7 +63,7 @@ export const PUT = withAuth(async (session, req: Request) => {
 /** Quitar el subido y volver al generado de la marca. */
 export const DELETE = withAuth(async (session) => {
   if (session.role !== "owner") {
-    return apiError(403, "forbidden", "Solo el propietario puede cambiar la marca");
+    return apiError(403, "forbidden", "Somente o proprietário pode alterar a marca");
   }
 
   const branding = await getBranding(session.organizationId);

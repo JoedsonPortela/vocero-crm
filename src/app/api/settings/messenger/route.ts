@@ -49,7 +49,7 @@ const putSchema = z.object({
 export const PUT = withAuth(async (session, req: Request) => {
   if (!isChannelEnabled("messenger")) return channelDisabledResponse();
   if (session.role !== "owner") {
-    return apiError(403, "forbidden", "Solo el propietario puede conectar la página");
+    return apiError(403, "forbidden", "Somente o proprietário pode conectar a página");
   }
   const body = await parseBody(req, putSchema);
   if (!body.ok) return body.response;
@@ -61,7 +61,7 @@ export const PUT = withAuth(async (session, req: Request) => {
     return apiError(
       422,
       "invalid_body",
-      "En modo Meta hace falta el ID de la página"
+      "No modo Meta é preciso o ID da página"
     );
   }
 
@@ -147,7 +147,7 @@ async function verify(data: VerifyInput): Promise<Check> {
   } catch (err) {
     return translate(
       err,
-      "El token de la página no es válido o no tiene permiso de mensajes (pages_messaging)"
+      "O token da página não é válido ou não tem permissão de mensagens (pages_messaging)"
     );
   }
 }
@@ -159,7 +159,7 @@ function translate(err: unknown, invalidMessage: string): Check {
         ok: false,
         status: 503,
         code: "platform_unavailable",
-        message: "No se pudo contactar la plataforma; intenta de nuevo",
+        message: "Não foi possível contatar a plataforma; tente novamente",
       };
     }
     return { ok: false, status: 422, code: "invalid_token", message: invalidMessage };

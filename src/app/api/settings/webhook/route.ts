@@ -45,7 +45,7 @@ export const POST = withAuth(async (session) => {
     return apiError(
       409,
       "sin_conexion",
-      "Primero guarda la conexión de WhatsApp."
+      "Primeiro salve a conexão do WhatsApp."
     );
   }
 
