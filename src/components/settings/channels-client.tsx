@@ -224,7 +224,7 @@ export function ChannelsClient() {
                       <dd>
                         <Salud health={r.health.account} />
                       </dd>
-                      <dt className="text-text-2">Webhook de Zernio</dt>
+                      <dt className="text-text-2">Webhook do Zernio</dt>
                       <dd>
                         <Salud health={r.health.webhook} />
                         {r.health.webhook.lastFiredAt && (
@@ -246,7 +246,7 @@ export function ChannelsClient() {
       {porZernio.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Webhook de Zernio</CardTitle>
+            <CardTitle>Webhook do Zernio</CardTitle>
             <CardDescription>
               É o aviso pelo qual o Zernio entrega cada mensagem a esta
               instância. O Vocero o cadastra ao conectar um canal, com o evento{" "}
@@ -320,7 +320,7 @@ export function ChannelsClient() {
 function Estado({ row }: { row: Row }) {
   if (!row.connected) return <Badge variant="secondary">Sin conectar</Badge>;
   if (row.status === "reconnect_required") {
-    return <Badge variant="destructive">Hay que reconectar</Badge>;
+    return <Badge variant="destructive">É preciso reconectar</Badge>;
   }
   const niveles = row.health ? [row.health.account.level, row.health.webhook.level] : [];
   if (niveles.includes("error")) return <Badge variant="destructive">Con problemas</Badge>;

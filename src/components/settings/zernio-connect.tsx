@@ -89,7 +89,7 @@ export function ZernioConnect({
   return (
     <div className="space-y-4">
       <div className="space-y-1.5 sm:max-w-md">
-        <Label htmlFor={`${idPrefix}-token`}>API key de Zernio</Label>
+        <Label htmlFor={`${idPrefix}-token`}>API key do Zernio</Label>
         <Input
           id={`${idPrefix}-token`}
           type="password"
@@ -148,7 +148,7 @@ export function ZernioConnect({
 
       <div className="flex flex-wrap items-center gap-3">
         <Button disabled={saving || !canSave} onClick={() => void save()}>
-          {saving ? t("settings.testing") : "Probar y conectar"}
+          {saving ? t("settings.testing") : "Testar e conectar"}
         </Button>
         {!manual && (
           <button

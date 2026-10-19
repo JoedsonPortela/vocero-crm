@@ -250,7 +250,7 @@ export function MessengerClient() {
               {saved && <p className="text-sm text-success-text">{saved} ✓</p>}
 
               <Button disabled={saving || !canSave} onClick={() => void save()}>
-                {saving ? t("settings.testing") : "Probar y guardar"}
+                {saving ? t("settings.testing") : "Testar e salvar"}
               </Button>
             </>
           )}
@@ -273,7 +273,7 @@ export function MessengerClient() {
         webhook?.messengerUrl && (
           <Card>
             <CardHeader>
-              <CardTitle>Webhook de Messenger</CardTitle>
+              <CardTitle>Webhook do Messenger</CardTitle>
               <CardDescription>
                 No seu app da Meta: Messenger → Configurações → Webhooks. Objeto{" "}
                 <code>page</code>, campo <code>messages</code>. Cole esta URL e este token de verificação, e assine a página no app.

@@ -346,7 +346,7 @@ export function AgendaClient() {
       {settings.connector === "enlace-fijo" && (
         <Card>
           <CardHeader>
-            <CardTitle>Tu sala de siempre</CardTitle>
+            <CardTitle>Sua sala de sempre</CardTitle>
             <CardDescription>
               É compartilhado exatamente como está ao confirmar um agendamento. Se deixar vazio, os agendamentos são feitos igual e sem link — ninguém promete um link que não existe.
             </CardDescription>

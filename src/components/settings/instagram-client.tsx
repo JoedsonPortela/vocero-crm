@@ -236,7 +236,7 @@ export function InstagramClient() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="ig-token">Token de acceso</Label>
+                  <Label htmlFor="ig-token">Token de acesso</Label>
                   <Input
                     id="ig-token"
                     type="password"
@@ -252,7 +252,7 @@ export function InstagramClient() {
               {saved && <p className="text-sm text-success-text">{saved} ✓</p>}
 
               <Button disabled={saving || !canSaveMeta} onClick={() => void saveMeta()}>
-                {saving ? t("settings.testing") : "Probar y guardar"}
+                {saving ? t("settings.testing") : "Testar e salvar"}
               </Button>
             </>
           )}
@@ -280,7 +280,7 @@ export function InstagramClient() {
         webhook?.instagramUrl && (
           <Card>
             <CardHeader>
-              <CardTitle>Webhook de Instagram</CardTitle>
+              <CardTitle>Webhook do Instagram</CardTitle>
               <CardDescription>
                 No seu app da Meta: Instagram → Configurações → Webhooks. Objeto{" "}
                 <code>instagram</code>, campo <code>messages</code>. Cole esta URL e este token de verificação.

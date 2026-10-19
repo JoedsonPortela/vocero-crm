@@ -345,7 +345,7 @@ function ConnectForm({
           </div>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="token">Token de acceso</Label>
+          <Label htmlFor="token">Token de acesso</Label>
           <Input
             id="token"
             type="password"
@@ -490,7 +490,7 @@ function WebhookCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Webhook de WhatsApp</CardTitle>
+        <CardTitle>Webhook do WhatsApp</CardTitle>
         <CardDescription>
           Ao salvar a conexão, este endereço é registrado na Meta por você, no número (override). Estes valores são para o backend da sua agência ou para colá-los manualmente no painel da Meta somente se o registro automático falhar.
         </CardDescription>

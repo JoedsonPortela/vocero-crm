@@ -146,7 +146,7 @@ export function AdsClient() {
     <div className="max-w-3xl space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Conversiones de anuncios</CardTitle>
+          <CardTitle>Conversões de anúncios</CardTitle>
           <CardDescription>
             A Meta sabe quais conversas começaram a partir de um anúncio, mas não quais deram resultado. Conecte seu dataset e o CRM avisará quando um lead for qualificado e quando a venda for fechada, para que ela otimize para quem compra e não para quem só escreve.
           </CardDescription>

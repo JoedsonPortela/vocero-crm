@@ -158,7 +158,7 @@ export function BrandingClient({
           </div>
 
           <div className="space-y-2">
-            <Label>Color de acento</Label>
+            <Label>Cor de destaque</Label>
             <div className="flex flex-wrap items-center gap-2">
               {Object.entries(ACCENT_PRESETS).map(([hex, preset]) => (
                 <button
