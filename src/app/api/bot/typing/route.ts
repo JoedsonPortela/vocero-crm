@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
   const organizationId = await resolveInstanceOrg();
   if (!organizationId) {
-    return apiError(409, "no_org", "La instancia aún no tiene organización");
+    return apiError(409, "no_org", "A instância ainda não tem organização");
   }
   const body = await parseBody(req, bodySchema);
   if (!body.ok) return body.response;
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     )
     .limit(1);
   const conv = convs[0];
-  if (!conv) return apiError(404, "not_found", "Conversación no encontrada");
+  if (!conv) return apiError(404, "not_found", "Conversa não encontrada");
   if (conv.isTest) {
     // Sandbox: jamás toca la API real (guardrail del Laboratorio).
     return Response.json({ ok: false, reason: "sandbox" });
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
 
   const creds = await getCredentialsByOrg(organizationId);
   if (!creds) {
-    return apiError(409, "no_connection", "WhatsApp no está conectado");
+    return apiError(409, "no_connection", "O WhatsApp não está conectado");
   }
 
   try {

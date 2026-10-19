@@ -151,13 +151,13 @@ async function prepareSend(
     .limit(1);
   const row = rows[0];
   if (!row || row.conversation.organizationId !== organizationId) {
-    throw new SendError("meta_error", "Conversación no encontrada");
+    throw new SendError("meta_error", "Conversa não encontrada");
   }
 
   if (row.conversation.isTest) {
     throw new SendError(
       "sandbox_violation",
-      "Conversación de prueba del Laboratorio: el envío real está prohibido"
+      "Conversa de teste do Laboratório: o envio real é proibido"
     );
   }
 
@@ -170,20 +170,20 @@ async function prepareSend(
     if (!isChannelEnabled("instagram")) {
       throw new SendError(
         "not_connected",
-        "El canal de Instagram está desactivado en esta instancia"
+        "O canal do Instagram está desativado nesta instância"
       );
     }
     const igCreds = await getInstagramCredentialsByOrg(organizationId);
     if (!igCreds) {
       throw new SendError(
         "not_connected",
-        "No hay cuenta de Instagram conectada"
+        "Não há conta do Instagram conectada"
       );
     }
     if (igCreds.status === "reconnect_required") {
       throw new SendError(
         "reconnect_required",
-        "El token de Instagram expiró: reconecta la cuenta en Configuración"
+        "O token do Instagram expirou: reconecte a conta em Configurações"
       );
     }
     const igRecipient = row.contact.waIdentity.startsWith(IG_PREFIX)
@@ -208,20 +208,20 @@ async function prepareSend(
     if (!isChannelEnabled("messenger")) {
       throw new SendError(
         "not_connected",
-        "El canal de Messenger está desactivado en esta instancia"
+        "O canal do Messenger está desativado nesta instância"
       );
     }
     const fbCreds = await getMessengerCredentialsByOrg(organizationId);
     if (!fbCreds) {
       throw new SendError(
         "not_connected",
-        "No hay página de Facebook conectada"
+        "Não há página do Facebook conectada"
       );
     }
     if (fbCreds.status === "reconnect_required") {
       throw new SendError(
         "reconnect_required",
-        "El token de la página expiró: reconecta Messenger en Configuración"
+        "O token da página expirou: reconecte o Messenger em Configurações"
       );
     }
     const fbRecipient = row.contact.waIdentity.startsWith(FB_PREFIX)

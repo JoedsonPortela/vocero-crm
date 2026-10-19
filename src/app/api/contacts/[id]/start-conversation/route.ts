@@ -35,7 +35,7 @@ export const POST = withAuth(async (session, req: Request, ctx: Params) => {
   const contact = await getContactById(session.organizationId, id);
   if (!contact) return apiError(404, "not_found", "Contacto no encontrado");
   if (!contact.phone && !contact.waIdentity) {
-    return apiError(422, "no_identity", "Este contacto no tiene a dónde escribir");
+    return apiError(422, "no_identity", "Este contato não tem para onde enviar mensagem");
   }
 
   const body = await parseBody(req, bodySchema);
@@ -61,7 +61,7 @@ export const POST = withAuth(async (session, req: Request, ctx: Params) => {
     return apiError(
       409,
       "window_open",
-      "Esta persona te escribió hace menos de 24 h: puedes responderle directo desde la Bandeja, sin plantilla"
+      "Esta pessoa te escreveu há menos de 24 h: você pode responder direto pela Caixa de entrada, sem modelo"
     );
   }
 

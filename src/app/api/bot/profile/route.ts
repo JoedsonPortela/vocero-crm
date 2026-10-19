@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 
   const organizationId = await resolveInstanceOrg();
   if (!organizationId) {
-    return apiError(409, "no_org", "La instancia aún no tiene organización");
+    return apiError(409, "no_org", "A instância ainda não tem organização");
   }
 
   const db = getDb();
@@ -30,7 +30,7 @@ export async function GET(req: Request) {
   const profile = profiles[0];
   if (!profile) {
     // Condición esperada (instancia sin perfil): el bot cae a su brief local.
-    return apiError(404, "no_profile", "La instancia no tiene perfil de agente");
+    return apiError(404, "no_profile", "A instância não tem perfil de agente");
   }
 
   const kb = await db

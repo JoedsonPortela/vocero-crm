@@ -26,7 +26,7 @@ export async function PUT(req: Request) {
 
   const organizationId = await resolveInstanceOrg();
   if (!organizationId) {
-    return apiError(409, "no_org", "La instancia aún no tiene organización");
+    return apiError(409, "no_org", "A instância ainda não tem organização");
   }
 
   const body = await parseBody(req, bodySchema);
@@ -43,7 +43,7 @@ export async function PUT(req: Request) {
       )
     )
     .limit(1);
-  if (!rows[0]) return apiError(404, "not_found", "Conversación no encontrada");
+  if (!rows[0]) return apiError(404, "not_found", "Conversa não encontrada");
 
   const result = await upsertFicha({
     organizationId,

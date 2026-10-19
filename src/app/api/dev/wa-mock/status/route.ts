@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   if (!rows[0]) return apiError(404, "not_found", "Mensaje no encontrado");
 
   const creds = await getCredentialsByOrg(rows[0].organizationId);
-  if (!creds) return apiError(409, "not_connected", "Sin número conectado");
+  if (!creds) return apiError(409, "not_connected", "Sem número conectado");
 
   const payload = buildStatusPayload({
     wabaId: creds.wabaId,

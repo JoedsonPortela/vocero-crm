@@ -112,7 +112,7 @@ const createSchema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(/^\d{7,15}$/, "Teléfono en dígitos, con código de país (ej. 5215512345678)"),
+    .regex(/^\d{7,15}$/, "Telefone em dígitos, com código do país (ex.: 5215512345678)"),
   notes: z.string().max(4000).optional(),
   source: z.enum(["anuncio", "organico", "referido", "conocido", "otro"]).optional(),
   /** Etapa inicial del lead; si no viene, la primera abierta del tablero. */
@@ -150,7 +150,7 @@ export const POST = withAuth(async (session, req: Request) => {
     })
     .returning();
   if (!inserted[0]) {
-    return apiError(409, "duplicate", "Ya existe un contacto con ese teléfono");
+    return apiError(409, "duplicate", "Já existe um contato com esse telefone");
   }
 
   // Y su lead: un contacto sin lead es invisible en el Pipeline, que es la
@@ -167,7 +167,7 @@ export const POST = withAuth(async (session, req: Request) => {
     return apiError(
       422,
       "no_stage",
-      "El tablero no tiene etapas abiertas donde colocar al prospecto"
+      "O funil não tem etapas abertas para colocar o prospect"
     );
   }
 

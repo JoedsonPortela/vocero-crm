@@ -24,7 +24,7 @@ export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
   if (!body.ok) return body.response;
 
   const updated = await updateConversation(session.organizationId, id, body.data);
-  if (!updated) return apiError(404, "not_found", "Conversación no encontrada");
+  if (!updated) return apiError(404, "not_found", "Conversa não encontrada");
 
   const row = await getConversation(session.organizationId, id);
   if (row) {
@@ -58,7 +58,7 @@ export const DELETE = withAuth(async (session, req: Request, ctx: Params) => {
     return apiError(
       403,
       "forbidden",
-      "Solo quien administra el negocio puede eliminar conversaciones"
+      "Somente quem administra o negócio pode excluir conversas"
     );
   }
   const { id } = await ctx.params;
@@ -74,7 +74,7 @@ export const DELETE = withAuth(async (session, req: Request, ctx: Params) => {
         `Tiene una cita agendada para el ${FECHA_DE_CITA.format(resultado.cuando)}. Cancélala en Citas antes de eliminar.`
       );
     }
-    return apiError(404, "not_found", "Conversación no encontrada");
+    return apiError(404, "not_found", "Conversa não encontrada");
   }
 
   // Irreversible y sin papelera: que al menos quede quién y cuándo. Solo ids.

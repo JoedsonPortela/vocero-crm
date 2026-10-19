@@ -46,6 +46,6 @@ export const POST = withAuth(async (session, req: Request) => {
       content: body.data.kind === "block" ? body.data.content : null,
     })
     .returning();
-  if (!inserted[0]) return apiError(500, "internal", "No se pudo crear");
+  if (!inserted[0]) return apiError(500, "internal", "Não foi possível criar");
   return Response.json({ entry: inserted[0] }, { status: 201 });
 });

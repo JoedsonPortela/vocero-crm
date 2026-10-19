@@ -27,7 +27,7 @@ const SEND_ERROR_STATUS: Record<SendError["code"], number> = {
 export const POST = withAuth(async (session, req: Request, ctx: Params) => {
   const { id } = await ctx.params;
   const conv = await getConversation(session.organizationId, id);
-  if (!conv) return apiError(404, "not_found", "Conversación no encontrada");
+  if (!conv) return apiError(404, "not_found", "Conversa não encontrada");
 
   const form = await req.formData().catch(() => null);
   if (!form) {
@@ -35,7 +35,7 @@ export const POST = withAuth(async (session, req: Request, ctx: Params) => {
   }
   const file = form.get("file");
   if (!(file instanceof File)) {
-    return apiError(422, "invalid", "Falta el archivo (campo `file`)");
+    return apiError(422, "invalid", "Falta o arquivo (campo `file`)");
   }
   const captionRaw = form.get("caption");
   const caption =

@@ -56,7 +56,7 @@ export const POST = withAuth(async (session) => {
       return apiError(
         409,
         "run_in_progress",
-        "Ya hay una corrida en curso; espera a que termine"
+        "Já há uma execução em andamento; aguarde o término"
       );
     }
     throw err;

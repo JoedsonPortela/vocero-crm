@@ -15,7 +15,7 @@ type Params = { params: Promise<{ id: string }> };
 export const GET = withAuth(async (session, req: Request, ctx: Params) => {
   const { id } = await ctx.params;
   const row = await getConversation(session.organizationId, id);
-  if (!row) return apiError(404, "not_found", "Conversación no encontrada");
+  if (!row) return apiError(404, "not_found", "Conversa não encontrada");
 
   const url = new URL(req.url);
   const sinceParam = url.searchParams.get("since");

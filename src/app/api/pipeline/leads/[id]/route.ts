@@ -78,7 +78,7 @@ export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
   // sigue contento: aquí jamás se escribe `stageId`.
   if (!body.data.stageId) {
     if (Object.keys(extra).length === 0) {
-      return apiError(422, "nothing_to_update", "No hay nada que actualizar");
+      return apiError(422, "nothing_to_update", "Não há nada para atualizar");
     }
     const db = getDb();
     const updated = await db
@@ -120,7 +120,7 @@ export const PATCH = withAuth(async (session, req: Request, ctx: Params) => {
     return apiError(
       422,
       "loss_reason_required",
-      "Falta el motivo de la pérdida"
+      "Falta o motivo da perda"
     );
   }
 

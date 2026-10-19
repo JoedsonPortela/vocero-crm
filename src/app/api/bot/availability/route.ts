@@ -60,7 +60,7 @@ export async function GET(req: Request) {
 
   const organizationId = await resolveInstanceOrg();
   if (!organizationId) {
-    return apiError(409, "no_org", "La instancia aún no tiene organización");
+    return apiError(409, "no_org", "A instância ainda não tem organização");
   }
 
   const url = new URL(req.url);
@@ -91,7 +91,7 @@ export async function GET(req: Request) {
       )
     )
     .limit(1);
-  if (!rows[0]) return apiError(404, "not_found", "Conversación no encontrada");
+  if (!rows[0]) return apiError(404, "not_found", "Conversa não encontrada");
 
   const limit = clamp(url.searchParams.get("limit"), LIMITS.limit);
   const perDay = clamp(url.searchParams.get("perDay"), LIMITS.perDay);

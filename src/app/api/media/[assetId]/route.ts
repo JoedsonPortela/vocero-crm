@@ -52,7 +52,7 @@ export const GET = withAuth(async (session, _req: Request, ctx: Params) => {
     return apiError(
       410,
       "gone",
-      "El contenido ya no está disponible (expiró en WhatsApp antes de poder copiarse)"
+      "O conteúdo não está mais disponível (expirou no WhatsApp antes de poder ser copiado)"
     );
   }
 
@@ -63,6 +63,6 @@ export const GET = withAuth(async (session, _req: Request, ctx: Params) => {
       headers: mediaResponseHeaders(asset, data.byteLength),
     });
   } catch {
-    return apiError(410, "gone", "El archivo del adjunto no está en el volumen");
+    return apiError(410, "gone", "O arquivo do anexo não está no volume");
   }
 });

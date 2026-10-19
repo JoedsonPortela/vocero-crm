@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     session = await requireSession();
   } catch (err) {
     if (err instanceof UnauthorizedError) {
-      return new Response("No autenticado", { status: 401 });
+      return new Response("Não autenticado", { status: 401 });
     }
     throw err;
   }
