@@ -80,7 +80,7 @@ const STARTERS: {
     name: "recordatorio_cita",
     category: "UTILITY",
     body: "Olá {{1}}, lembramos da sua consulta do dia {{2}} às {{3}}. Se precisar alterá-la, responda a esta mensagem.",
-    examples: ["Ana", "martes 14 de octubre", "10:30"],
+    examples: ["Ana", "terça-feira 14 de outubro", "10:30"],
   },
   {
     title: t("settings.tplResumeTitle"),
@@ -535,7 +535,7 @@ function CreateForm({
                   </Label>
                   <Input
                     id={`tpl-example-${i + 1}`}
-                    placeholder={i === 0 ? "Ana" : "p. ej. martes 14"}
+                    placeholder={i === 0 ? "Ana" : "ex.: terça 14"}
                     value={examples[i] ?? ""}
                     onChange={(e) => {
                       const next = [...examples];

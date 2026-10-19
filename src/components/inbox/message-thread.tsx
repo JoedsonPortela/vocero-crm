@@ -170,7 +170,7 @@ function dayLabel(iso: string): string {
   const d = new Date(iso);
   const today = new Date();
   const yesterday = new Date(today.getTime() - 86400000);
-  if (d.toDateString() === today.toDateString()) return "Hoy";
+  if (d.toDateString() === today.toDateString()) return "Hoje";
   if (d.toDateString() === yesterday.toDateString()) return "Ayer";
   return d.toLocaleDateString("pt-BR", { day: "numeric", month: "long" });
 }

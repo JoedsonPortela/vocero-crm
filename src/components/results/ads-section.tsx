@@ -90,7 +90,7 @@ export function AdsSection({
 
           <div className="space-y-1 text-[11px] text-text-3">
             <p>
-              «Ventas» son los prospectos del periodo que hoy están en Ganado; «Cierre» es
+              «Ventas» são os prospectos do período que hoje estão em Ganho; «Cierre» es
               ventas entre prospectos, atenuado con menos de 10 (muestra chica).
             </p>
             <p>

@@ -190,7 +190,7 @@ export const MAX_TEXT_CHARS_ANY_CHANNEL = Math.max(
 );
 
 /** O que se diz a quem manda um texto mais longo do que isso. */
-export const TEXT_TOO_LONG_ANY_CHANNEL = `El mensaje es demasiado largo: el máximo es ${MAX_TEXT_CHARS_ANY_CHANNEL.toLocaleString("es-MX")} caracteres`;
+export const TEXT_TOO_LONG_ANY_CHANNEL = `A mensagem é muito longa: o máximo é ${MAX_TEXT_CHARS_ANY_CHANNEL.toLocaleString("es-MX")} caracteres`;
 
 /** Este texto cabe no canal? Verifica o limite que a sua plataforma meça. */
 export function textFits(channel: Channel, text: string): boolean {

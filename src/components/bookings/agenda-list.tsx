@@ -63,7 +63,7 @@ export function AgendaList({
             {longDayLabel(day)}
             {day === today && (
               <span className="rounded-full bg-brand px-2 py-px text-[10.5px] font-semibold text-brand-fg">
-                Hoy
+                Hoje
               </span>
             )}
           </h3>

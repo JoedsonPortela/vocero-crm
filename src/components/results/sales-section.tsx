@@ -169,7 +169,7 @@ export function SalesSection({
           </div>
 
           <div>
-            <Subhead>Hoy en el embudo</Subhead>
+            <Subhead>Hoje no funil</Subhead>
             <p className="-mt-1 mb-2 text-xs text-text-3">
               No depende del periodo: son los tratos abiertos en este momento.
             </p>

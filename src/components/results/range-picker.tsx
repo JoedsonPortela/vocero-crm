@@ -86,11 +86,11 @@ export function shortcuts(hoy: string): { label: string; range: Range }[] {
   const iniMesPasado = `${finMesPasado.slice(0, 8)}01`;
 
   return [
-    { label: "7 días", range: { from: menos(6), to: hoy } },
-    { label: "30 días", range: { from: menos(29), to: hoy } },
+    { label: "7 dias", range: { from: menos(6), to: hoy } },
+    { label: "30 dias", range: { from: menos(29), to: hoy } },
     { label: "Este mes", range: { from: primeroDeMes, to: hoy } },
     { label: "Mes pasado", range: { from: iniMesPasado, to: finMesPasado } },
-    { label: "90 días", range: { from: menos(89), to: hoy } },
+    { label: "90 dias", range: { from: menos(89), to: hoy } },
   ];
 }
 

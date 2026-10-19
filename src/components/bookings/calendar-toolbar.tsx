@@ -61,7 +61,7 @@ export function CalendarToolbar({
 
       <div className="flex items-center gap-1">
         <Button variant="outline" size="sm" onClick={onToday}>
-          Hoy
+          Hoje
         </Button>
         <NavButton label={`${PERIOD[view]} anterior`} onClick={() => onShift(-1)}>
           <ChevronLeft className="h-4 w-4" />
